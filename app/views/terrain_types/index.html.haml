@@ -1,0 +1,22 @@
+%h1 Terrain Types
+
+%table
+  %tr
+    %th Name
+    %th Image
+    %th
+
+  - @terrain_types.each do |terrain_type|
+    %tr
+      %td= terrain_type.name
+      %td= image_tag terrain_type.image
+
+      %td
+        - if current_user.can_manage?(terrain_type)
+          = link_to 'Edit', [:edit, terrain_type]
+          = link_to 'Destroy', terrain_type, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+- if current_user.can_create?(PieceType)
+  = link_to 'New Terrain Type', [:new, :terrain_type]

@@ -1,0 +1,21 @@
+%h1 Games
+
+%table
+  %tr
+    %th Variant
+    %th Player
+    %th
+
+  - @games.each do |game|
+    %tr
+      %td= game.variant.name
+      %td= game.onyx.try(:username) || game.alabaster.try(:username)
+      %td
+        - if game.onyx == current_user || game.alabaster == current_user
+          = link_to 'Play', game
+        - else
+          = link_to 'Join', [:join, game], method: :put
+
+%br
+
+= link_to 'New Game', [:new, :game]

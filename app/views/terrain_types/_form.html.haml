@@ -1,0 +1,16 @@
+= semantic_form_for @terrain_type do |f|
+  = f.inputs do
+    = f.input :name
+
+    - if f.object.persisted?
+      %li
+        %label Current Image
+        = image_tag f.object.image
+      = f.input :image, required: false, label: 'Updated Image', input_html: { accept: '.svg' }
+    - else
+      = f.input :image, input_html: { accept: '.svg' }
+
+
+  = f.actions do
+    = f.action :submit
+    = f.action :cancel

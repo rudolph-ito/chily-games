@@ -4,4 +4,4 @@
 # If you change this key, all old signed cookies will become invalid!
 # Make sure the secret is at least 30 characters and all random,
 # no regular words or you'll be exposed to dictionary attacks.
-Cyvasse::Application.config.secret_token = 'c05fb7af1160bfbcf6187bb9b18a525eacc269d79d61583634bbef677608d1e0a713a6b0042fe103d722c29412ca7d9562a97c076616765741459a30a4cf5466'
+Cyvasse::Application.config.secret_key_base = 'fb2313c0670457cc9ec09944097cb146ee1f9c600af8f286a0393d37ed17b4ed42dd724f86f4caaf0e063f86e463da986ac93bb014f22008f4938c6fb3e0c42e'

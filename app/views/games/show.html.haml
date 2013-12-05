@@ -1,0 +1,12 @@
+#above
+  .username
+#board
+#below
+  .username= current_user.username
+#right
+
+:javascript
+  $(document).ready(function() {
+    Board = require("board")
+    Board.play('board', "#{@game.id}")
+  })

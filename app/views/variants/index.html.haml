@@ -1,0 +1,21 @@
+%h1 Variants
+
+%table
+  %tr
+    %th Name
+    %th Description
+    %th Board Type
+
+  - @variants.each do |variant|
+    %tr
+      %td= variant.name
+      %td= variant.description
+      %td= variant.board_type
+
+      %td
+        = link_to 'Show', variant
+        = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }
+
+%br
+
+= link_to 'New Variant', [:new, :variant]

@@ -1,0 +1,21 @@
+= semantic_form_for @variant do |f|
+  = f.inputs do
+    = f.input :name
+    = f.input :description
+
+  = f.inputs "Board Options" do
+    = f.input :board_type, collection: Variant.board_types, input_html: {'data-dependent' => 'board_type'}
+
+    %div{'data-dependency' => 'board_type', 'data-value' => 'square'}
+      = f.input :board_rows, as: :number, required: true, min: 1, max: 20, step: 1
+      = f.input :board_columns, as: :number, required: true, min: 1, max: 20, step: 1
+
+    %div{'data-dependency' => 'board_type', 'data-value' => 'hexagonal'}
+      = f.input :board_size, as: :number, required: true, min: 1, max: 20, step: 1
+
+  = f.inputs "Other Options" do
+    = f.input :number_of_pieces, as: :number, min: 1, step: 1, hint: "Required only if allowing a variable number of each piece"
+
+  = f.actions do
+    = f.action :submit, name: "Save"
+    = link_to 'Cancel', @variant || :variants
