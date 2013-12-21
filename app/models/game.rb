@@ -37,37 +37,50 @@ class Game < ActiveRecord::Base
     @board ||= "#{variant.board_type.camelize}Board".constantize.new(variant)
   end
 
-  # def color(user)
-  #   if user.id == alabaster.id
-  #     'alabaster'
-  #   else
-  #     'onyx'
-  #   end
-  # end
+  def color(user)
+    if user.id == alabaster.id
+      'alabaster'
+    else
+      'onyx'
+    end
+  end
 
-  # def setup_errors(user, piece_placements)
-  #   errors = []
+  def setup_errors(user, pieces)
+    errors = []
 
-  #   unique_locations = piece_placements.map{ |x| x['location'] }.uniq
-  #   if unique_locations.count == piece_placements.count
-  #     errors << 'Two placements have the same location'
-  #   end
+    duplicate_coordinates = pieces.map{ |x| x['coordinate'] }.duplicates
+    unless duplicate_coordinates.empty?
+      duplicate_coordinates.each do |c|
+        errors << {'coordinate' => c, 'message' => 'Two pieces placed at the same coordinate.' }
+      end
+    end
 
-  #   if unique_locations.any?{ |l| board.territory(l) != color(user) }
-  #     errors << 'Piece placed in neurtal or enemey territory'
-  #   end
+    color = color(user)
+    pieces.each do |piece|
+      coordinate = piece['coordinate']
+      territory = board.territory(coordinate)
+      if territory == 'neutral'
+        errors << {'coordinate' => coordinate, 'message' => 'Piece placed in neutral territory.' }
+      elsif territory != color
+        errors << {'coordinate' => coordinate, 'message' => 'Piece placed in enemy territory.' }
+      end
+    end
 
-  #   if piece_placements.count > variant.maximum_pieces
-  #     errors << 'Too many pieces'
-  #   end
+    if pieces.count != variant.number_of_pieces
+      errors << { 'message' => "Rules require placing #{variant.number_of_pieces} pieces. You placed #{pieces.count}." }
+    end
 
-  #   variant.piece_rules.each do |pr|
-  #     placed = piece_placements.count{ |pp| pp['piece_type_id'] == pr.piece_type_id }
-  #     if placed <= pr.count_minimum || placed >= pr.count_maximum
-  #       errors << "You placed #{placed} #{pr.piece_type} pieces when the rule stipulates #{pr.count}"
-  #     end
-  #   end
-  # end
+    variant.piece_rules.each do |pr|
+      placed = pieces.count{ |p| p['piece_type_id'] == pr.piece_type_id }
+      if placed < pr.count_minimum || placed > pr.count_maximum
+        name = pr.piece_type.name.downcase
+        name = name.pluralize if pr.count_maximum != 1
+        errors << { 'message' => "Rules require placing #{pr.count} #{name}. You placed #{placed}." }
+      end
+    end
+
+    errors
+  end
 
   # # Ply: a hash with the following keys
   # #
