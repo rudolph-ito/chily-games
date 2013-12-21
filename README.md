@@ -16,7 +16,7 @@ Game - two users playing a particular variant
   Piece - instance of a piece type in the game
   Terrain - instance of a terrain type in the game
 
-Challenge - created by a single user for a paritcular variant,
+Challenge - created by a single user for a particular variant,
   when accepted by another player a game is created
 
 User
