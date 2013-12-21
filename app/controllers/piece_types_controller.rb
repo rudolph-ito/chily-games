@@ -1,8 +1,8 @@
 class PieceTypesController < ApplicationController
-  before_filter :authenticate_user!, except: [:index, :show]
+  before_filter :authenticate_user!, except: [:index]
   before_filter :build_piece_type, only: [:new, :create]
-  before_filter :get_piece_type, only: [:show, :edit, :update, :destroy]
-  before_filter :authorize, except: [:index, :show]
+  before_filter :get_piece_type, only: [:edit, :update, :destroy]
+  before_filter :authorize, except: [:index]
 
   def index
     @piece_types = PieceType.all
@@ -13,9 +13,6 @@ class PieceTypesController < ApplicationController
 
   def create
     save "new"
-  end
-
-  def show
   end
 
   def edit

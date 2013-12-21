@@ -1,8 +1,8 @@
 class TerrainTypesController < ApplicationController
-  before_filter :authenticate_user!, except: [:index, :show]
+  before_filter :authenticate_user!, except: [:index]
   before_filter :build_terrain_type, only: [:new, :create]
-  before_filter :get_terrain_type, only: [:show, :edit, :update, :destroy]
-  before_filter :authorize, except: [:index, :show]
+  before_filter :get_terrain_type, only: [:edit, :update, :destroy]
+  before_filter :authorize, except: [:index]
 
   def index
     @terrain_types = TerrainType.all
@@ -13,9 +13,6 @@ class TerrainTypesController < ApplicationController
 
   def create
     save "new"
-  end
-
-  def show
   end
 
   def edit

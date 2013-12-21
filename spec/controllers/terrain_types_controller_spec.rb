@@ -76,15 +76,6 @@ describe TerrainTypesController do
     end
   end
 
-  describe 'show' do
-    let(:terrain_type) { create :terrain_type }
-
-    it 'succeeds' do
-      get :show, id: terrain_type.id
-      response.status.should == 200
-    end
-  end
-
   describe 'edit' do
     let(:terrain_type) { create :terrain_type }
 

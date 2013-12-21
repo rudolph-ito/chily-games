@@ -14,8 +14,10 @@
 
       %td
         = link_to 'Show', variant
-        = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }
+        - if signed_in? && current_user.can_delete?(variant)
+          = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }
 
 %br
 
-= link_to 'New Variant', [:new, :variant]
+- if signed_in? && current_user.can_create?(Variant)
+  = link_to 'New Variant', [:new, :variant]

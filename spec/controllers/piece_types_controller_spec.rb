@@ -77,15 +77,6 @@ describe PieceTypesController do
     end
   end
 
-  describe 'show' do
-    let(:piece_type) { create :piece_type }
-
-    it 'succeeds' do
-      get :show, id: piece_type.id
-      response.status.should == 200
-    end
-  end
-
   describe 'edit' do
     let(:piece_type) { create :piece_type }
 
