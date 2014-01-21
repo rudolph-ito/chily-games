@@ -20,6 +20,7 @@
 #= require socket.io.js
 #
 #= require_directory ./base
+#= require_directory ./lib
 #
 #= require controller.module
 #= require_directory ./controllers

@@ -117,7 +117,9 @@ class GameController extends Controller
       data:
         coordinate: coordinate
       success: (data) =>
-        @board.highlight_spaces(data, 'green')
+        @board.dehighlight_spaces()
+        @board.highlight_spaces(data, '#006633')
+        @board.highlight_spaces([coordinate], '#00CC00')
 
   piece_move: (from_coordinate, to_coordinate) =>
     @emit 'piece_move',

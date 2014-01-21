@@ -16,4 +16,14 @@ class Space
 
     @board.space_layer.add(obj)
 
+  highlight: (color) ->
+    @space.attrs.stroke = color
+    @space.attrs.strokeWidth = 5
+    @space.setZIndex(1000)
+
+  dehighlight: ->
+    @space.attrs.stroke = 'black'
+    @space.attrs.strokeWidth = 1
+    @space.setZIndex(1)
+
 module.exports = Space

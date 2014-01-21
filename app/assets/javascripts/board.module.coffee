@@ -1,4 +1,6 @@
+CoordinateMap = require('lib/coordinate_map')
 Piece = require('piece')
+
 
 class Board
 
@@ -31,6 +33,9 @@ class Board
     @pieces = @data.pieces ? []
     @terrain = @data.terrain ? []
     @valid_plies = @data.valid_plies ? []
+
+    @piece_map = new CoordinateMap
+    @space_map = new CoordinateMap
 
   draw: ->
     @header_height = @footer_height = 25
@@ -75,11 +80,13 @@ class Board
     space = new @Space(@, coordinate)
     space.draw()
     # space.draw_coordinate()
+    @space_map.set(coordinate, space)
 
   draw_pieces: ->
     for piece_data in @pieces
       piece = new Piece(@, piece_data)
       piece.draw()
+      @piece_map.set(piece_data.coordinate, piece)
 
   draw_header: ->
     header = new Kinetic.Text
@@ -152,28 +159,23 @@ class Board
     null
 
   remove_piece_at: (coordinate) ->
-    for piece in @piece_layer.children when _.isEqual(coordinate, piece.attrs.coordinate)
-      piece.remove()
-      return
+    @piece_map.get(coordinate)?.remove()
 
   move_piece: (from, to) ->
+    remove_piece_at(to)
+    piece = @piece_map.get(from)
+    space = @space_map.get(to)
+    piece.move_to_space(space)
 
   highlight_spaces: (coordinates, color) ->
     for coordinate in coordinates
-      for space in @space_layer.children
-        if _.isEqual(coordinate, space.attrs.coordinate)
-          space.attrs.stroke = color
-          space.attrs.strokeWidth = 5
-          space.setZIndex(1000)
-          break
+      @space_map.get(coordinate)?.highlight(color)
 
     @space_layer.draw()
 
   dehighlight_spaces: ->
-    for space in @space_layer.children
-      space.attrs.stroke = 'black'
-      space.attrs.strokeWidth = 1
-      space.setZIndex(1)
+    for space in @space_map.values()
+      space.dehighlight()
 
     @space_layer.draw()
 
