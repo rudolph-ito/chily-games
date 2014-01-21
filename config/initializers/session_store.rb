@@ -1,6 +1,6 @@
 # Be sure to restart your server when you modify this file.
 
-Cyvasse::Application.config.session_store :cookie_store, key: '_Cyvasse_session'
+Cyvasse::Application.config.session_store :cookie_store, key: '_Cyvasse_session', :httponly => false
 
 # Use the database for sessions instead of the cookie-based default,
 # which shouldn't be used to store highly confidential information

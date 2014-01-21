@@ -31,3 +31,38 @@ shared_examples "match coordinate validity" do |proper|
     end
   end
 end
+
+shared_examples "has coordinate" do
+      context 'two pieces in same location' do
+      it 'returns errors' do
+        game.setup_errors(user1, [
+          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
+          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 0}}
+        ]).should == [
+          {'coordinate' => {'x' => 0, 'y' => 0}, 'message' => 'Two pieces placed at the same coordinate.'}
+        ]
+      end
+    end
+
+    context 'piece in neutral territory' do
+      it 'returns errors' do
+        game.setup_errors(user1, [
+          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
+          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 1}}
+        ]).should == [
+          {'coordinate' => {'x' => 0, 'y' => 1}, 'message' => 'Piece placed in neutral territory.'}
+        ]
+      end
+    end
+
+    context 'piece in enemy territory' do
+      it 'returns errors' do
+        game.setup_errors(user1, [
+          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
+          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 2}}
+        ]).should == [
+          {'coordinate' => {'x' => 0, 'y' => 2}, 'message' => 'Piece placed in enemy territory.'}
+        ]
+      end
+    end
+end

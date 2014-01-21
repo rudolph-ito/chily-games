@@ -1,5 +1,6 @@
 class Variant < ActiveRecord::Base
   include Authority::Abilities
+  include VariantMessages
 
   ########################################
   # Class Methods

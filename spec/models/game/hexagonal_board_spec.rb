@@ -12,7 +12,7 @@ describe "Game: hexagonal board" do
 
   let(:user1) { create :user }
   let(:user2) { create :user }
-  let(:game) { create :game, variant: variant, alabaster: user1, onyx: user2, action_to: user1 }
+  let(:game) { create :game, variant: variant, alabaster: user1, onyx: user2, action: 'move', action_to: user1 }
 
   context "valid_plies" do
     context 'orthogonal_line' do

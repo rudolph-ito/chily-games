@@ -1,12 +1,20 @@
 class Game < ActiveRecord::Base
+  include Authority::Abilities
 
   ########################################
   # Class Methods
   ########################################
 
   def self.actions
-    %w( setup play )
+    %w( setup move attack complete )
   end
+
+  def self.sides
+    %w( alabaster onyx )
+  end
+
+  scope :current, -> { where.not(action: 'complete') }
+  scope :for_user, -> (user) { where('alabaster_id = ? OR onyx_id = ?', user.id, user.id) }
 
   ########################################
   # Relations
@@ -37,49 +45,72 @@ class Game < ActiveRecord::Base
     @board ||= "#{variant.board_type.camelize}Board".constantize.new(variant)
   end
 
-  def color(user)
-    if user.id == alabaster.id
+  def color(user_id)
+    if user_id == alabaster_id
       'alabaster'
     else
       'onyx'
     end
   end
 
-  def setup_errors(user, pieces)
+  def oppponent_id(user_id)
+    if user_id == alabaster_id
+      onyx_id
+    else
+      alabaster_id
+    end
+  end
+
+  def setup_add_piece(user, piece_type_id, coordinate)
+    setup_remove_piece(user, coordinate)
+    pieces.create!(coordinate: coordinate, piece_type_id: piece_type_id, user_id: user.id)
+  end
+
+  def setup_move_piece(user, from, to)
+    setup_remove_piece(user, to)
+    piece = pieces.where(user_id: user.id).for_coordinate(from).first
+    piece.update_attributes(coordinate: to) if piece
+  end
+
+  def setup_remove_piece(user, coordinate)
+    pieces.where(user_id: user.id).for_coordinate(coordinate).destroy_all
+  end
+
+  def setup_errors(user)
+    user_pieces = pieces.where(user_id: user.id)
     errors = []
 
-    duplicate_coordinates = pieces.map{ |x| x['coordinate'] }.duplicates
-    unless duplicate_coordinates.empty?
-      duplicate_coordinates.each do |c|
-        errors << {'coordinate' => c, 'message' => 'Two pieces placed at the same coordinate.' }
-      end
-    end
-
-    color = color(user)
-    pieces.each do |piece|
-      coordinate = piece['coordinate']
-      territory = board.territory(coordinate)
-      if territory == 'neutral'
-        errors << {'coordinate' => coordinate, 'message' => 'Piece placed in neutral territory.' }
-      elsif territory != color
-        errors << {'coordinate' => coordinate, 'message' => 'Piece placed in enemy territory.' }
-      end
-    end
-
-    if pieces.count != variant.number_of_pieces
-      errors << { 'message' => "Rules require placing #{variant.number_of_pieces} pieces. You placed #{pieces.count}." }
+    if user_pieces.count != variant.number_of_pieces
+      errors << "Please place #{variant.number_of_pieces} pieces. You placed #{pieces.count}."
     end
 
     variant.piece_rules.each do |pr|
-      placed = pieces.count{ |p| p['piece_type_id'] == pr.piece_type_id }
+      placed = user_pieces.where(piece_type_id: pr.piece_type_id).count
       if placed < pr.count_minimum || placed > pr.count_maximum
         name = pr.piece_type.name.downcase
-        name = name.pluralize if pr.count_maximum != 1
-        errors << { 'message' => "Rules require placing #{pr.count} #{name}. You placed #{placed}." }
+        name = name.pluralize if pr.count_minimum != pr.count_maximum && pr.count_maximum  != 1
+        errors << "Please place #{pr.count} #{name}. You placed #{placed}."
       end
     end
 
     errors
+  end
+
+  def setup_complete(user)
+    if action_to_id == nil
+      self.action_to_id = oppponent_id(user.id)
+    else
+      self.action = 'move'
+      self.action_to_id = alabaster_id
+    end
+
+    self.save
+  end
+
+  def move_piece(from, to)
+    pieces.for_coordinate(to).destroy_all
+    piece = pieces.for_coordinate(from).first
+    piece.update_attributes(coordinate: to) if piece
   end
 
   # # Ply: a hash with the following keys
@@ -87,17 +118,18 @@ class Game < ActiveRecord::Base
   # # piece =>
   # # to =>
 
-  # # Returns false if invalid
-  # # Returns the valid ply (ply + more information) if valid
-  # def ply_valid?(ply)
-  #   return false if ply['piece'].user != action_to
+  # Returns false if invalid
+  # Returns the valid ply (ply + more information) if valid
+  def ply_valid?(from, to)
+    piece = pieces.for_coordinate(from).first
+    return false unless piece
 
-  #   valid_plies(ply['piece']).each do |valid_ply|
-  #     return valid_ply if ply['to'] == valid_ply['to']
-  #   end
+    valid_plies(piece).each do |valid_ply|
+      return true if to == valid_ply['to']
+    end
 
-  #   return false
-  # end
+    return false
+  end
 
   # Returns the array of valid plies for a piece
   #

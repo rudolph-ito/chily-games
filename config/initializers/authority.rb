@@ -32,8 +32,12 @@ Authority.configure do |config|
 
   config.controller_action_map.merge!(
     :manage => 'manage',
+    # Challenge
     :accept => 'accept',
-    :decline => 'decline'
+    :decline => 'decline',
+    # Game
+    :abort => 'abort',
+    :resign => 'resign'
   )
 
   # ABILITIES
@@ -53,8 +57,15 @@ Authority.configure do |config|
 
   config.abilities.merge!(
     :manage => 'managable',
+    # Challenge
     :accept => 'acceptable',
-    :decline => 'declinable'
+    :decline => 'declinable',
+    #Game
+    :abort => 'abortable',
+    :attack => 'attackable',
+    :move => 'moveable',
+    :resign => 'resignable',
+    :setup => 'setupable'
   )
 
   # LOGGER

@@ -1,7 +1,10 @@
+Piece = require('piece')
+
 class Board
 
   @preview: (container, variant_id, options) ->
-    $("##{container}").html('')
+    container = $(container)
+    container.html('')
 
     path = "/variants/#{variant_id}/preview"
     if options.piece_type_id
@@ -9,44 +12,61 @@ class Board
       for key, value of options.coord
         path += "&coord[#{key}]=#{value}"
 
-    $.getJSON(path).done (data) ->
-      board = Board.create(data)
-      board.draw(container)
+    $.getJSON(path).done (data) =>
+      board = @create(container, data)
+      board.draw()
 
 
-  @create: (data) ->
-    klass = require("#{data.board_type}_board")
-    new klass(data)
+  @create: (container, data, gameController = null) ->
+    klass = require("boards/#{data.board_type}_board")
+    new klass(container, data, gameController)
 
 
 
-  constructor: (@game) ->
-    @board_type = @game.board_type
-    @color = @game.color ? 'onyx'
-    @pieces = @game.pieces ? []
-    @terrain = @game.terrain ? []
-    @valid_plies = @game.valid_plies ? []
-    @Piece = require('piece')
+  constructor: (@container, @data, @game_controller) ->
+    @container = $(container)
 
-  draw: (container) ->
-    @setup(600,600)
+    @board_type = @data.board_type
+    @color = @data.color ? 'onyx'
+    @pieces = @data.pieces ? []
+    @terrain = @data.terrain ? []
+    @valid_plies = @data.valid_plies ? []
 
-    @stage = new Kinetic.Stage container: container
-    @stage.setHeight @height
-    @stage.setWidth @width
+  draw: ->
+    @header_height = @footer_height = 25
+    @header_padding = @footer_padding = 5
 
-    @center =
-      x: @stage.getWidth() / 2
-      y: @stage.getHeight() / 2
+    max_board_width = @container.width()
+    max_board_height = @container.height() - @header_height - @header_padding - @footer_padding - @footer_height
+
+    @setup(max_board_width, max_board_height)
+
+    @stage = new Kinetic.Stage container: @container[0]
+    @stage.setHeight @header_height + @header_padding + @board_height + @footer_height  + @footer_padding
+    @stage.setWidth @board_width + @setup_width
 
     @space_layer = new Kinetic.Layer()
     @stage.add(@space_layer)
 
+    @info_layer = new Kinetic.Layer()
+    @stage.add(@info_layer)
+
     @piece_layer = new Kinetic.Layer()
     @stage.add(@piece_layer)
 
+    if @game_controller
+      @draw_header()
+      @draw_footer()
+      @info_layer.draw()
+
     @draw_spaces()
+    @space_layer.draw()
+
     @draw_pieces()
+    @draw_setup() if @data.action == 'setup'
+
+  board_padding_top: ->
+    @header_height + @header_padding
 
   draw_spaces: ->
     # override
@@ -54,147 +74,107 @@ class Board
   draw_space: (coordinate) ->
     space = new @Space(@, coordinate)
     space.draw()
-    #space.draw_coordinate()
+    # space.draw_coordinate()
 
   draw_pieces: ->
     for piece_data in @pieces
-      piece = new @Piece(@, piece_data)
+      piece = new Piece(@, piece_data)
       piece.draw()
 
-  add_to_space_layer: (obj) ->
-    @space_layer.add(obj)
-    @space_layer.draw()
+  draw_header: ->
+    header = new Kinetic.Text
+      x: @setup_width
+      y: 0
+      width: @board_width
+      height: @header_height
+      text: if @data.color == 'alabaster' then @data['onyx_name'] else @data['alabaster_name']
+      align: 'center'
+      fontSize: @footer_height - 4
+      fontFamily: 'Calibri'
+      fontWeight: 'bold'
+      fill: 'blue'
 
-  add_to_piece_layer: (obj) ->
-    @piece_layer.add(obj)
-    @piece_layer.draw()
+    @info_layer.add(header)
+
+  draw_footer: ->
+    footer = new Kinetic.Text
+      x: @setup_width
+      y: @board_height + @header_height + @header_padding + @footer_padding
+      width: @board_width
+      height: @footer_height
+      text: @data[@data.color + '_name']
+      align: 'center'
+      fontSize: @footer_height - 4
+      fontFamily: 'Calibri'
+      fontWeight: 'bold'
+      fill: 'blue'
+
+    @info_layer.add(footer)
+
+  draw_setup: ->
+    for piece_type_id, index in @data.piece_types
+      row = Math.floor(index / @setup_columns) % @setup_rows
+      column = index % @setup_columns
+
+      x = column * @setup_size + @setup_size / 2
+      y = @board_height + @board_padding_top() - row * @setup_size - @setup_size / 2
+
+      piece = new Piece(@, {piece_type_id: piece_type_id, color: @data.color, x: x, y: y})
+      piece.draw()
 
   coord_eql: (a,b) ->
     Object.keys(a).all (k) -> a[k] == b[k]
 
   home_space: (coord) ->
-    @game.partition[@game.color]?.any((x) => @coord_eql(x, coord))
-
-  neutral_space: (coord) ->
-    @game.partition.neutral.any((x) => @coord_eql(x, coord))
+    @territory(coord) == @data.color
 
   space_color: (coord) ->
-    if @game.action == 'setup'
-      if @home_space(coord)
-        'white'
-      else if @neutral_space(coord)
+    if @data.action == 'setup'
+      color = @territory(coord)
+      if color == 'neutral'
         '#A8A8A8'
+      else if color == @data.color
+        '#FFFFFF'
       else
         '#505050'
     else if @valid_plies.any( (x) => @coord_eql(x, coord) )
       '#99FF99'
     else
-      'white'
+      '#FFFFFF'
 
-  # distance: (x1, x2, y1, y2) ->
-  #   Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) )
+  distance: (x1, x2, y1, y2) ->
+    Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) )
 
-  # nearest_space: (x,y) ->
-  #   min_distance = min_space = null
+  nearest_space: (x,y) ->
+    for space in @space_layer.children
+      return space if @in_space(space, x, y)
 
-  #   for space in @space_layer.children
-  #     d = @distance(space.attrs.x, x, space.attrs.y, y)
-  #     if !min_distance? || d < min_distance
-  #       min_distance = d
-  #       min_space = space
+    null
 
-  #   min_space
+  remove_piece_at: (coordinate) ->
+    for piece in @piece_layer.children when _.isEqual(coordinate, piece.attrs.coordinate)
+      piece.remove()
+      return
 
-  # drawPieces: ->
-  #   for piece in @pieces
-  #     @drawPiece(piece)
-  #     do (coord, value) =>
-  #       [x,y] = @position(coord)
-  #       color = @color(coord)
+  move_piece: (from, to) ->
 
-  #       space = @drawSpace(x,y,color)
+  highlight_spaces: (coordinates, color) ->
+    for coordinate in coordinates
+      for space in @space_layer.children
+        if _.isEqual(coordinate, space.attrs.coordinate)
+          space.attrs.stroke = color
+          space.attrs.strokeWidth = 5
+          space.setZIndex(1000)
+          break
 
-  #       group = new Kinetic.Group
-  #       group.add(space)
-  #       # group.add(text)
-  #       @image(group, coord, value)
+    @space_layer.draw()
 
-  #       if @options.setup && @home_space(coord)
-  #         group.on "click", =>
-  #           space.setFill('green')
-  #           @layer.draw()
-  #           @piece_menu(group, space, coord)
+  dehighlight_spaces: ->
+    for space in @space_layer.children
+      space.attrs.stroke = 'black'
+      space.attrs.strokeWidth = 1
+      space.setZIndex(1)
 
-  #       @layer.add(group)
-
-
-
-  # piece_menu: (group, space, coord) =>
-  #   container = @stage.getContainer()
-  #   mousePos = @stage.getMousePosition()
-  #   x = container.offsetLeft + mousePos.x - 5
-  #   y = container.offsetTop + mousePos.y - 5
-
-  #   menu = $("<ul>").attr('id', 'piece-menu')
-
-  #   # Links to add new piece
-  #   total = 0
-  #   for piece in @game.pieces
-  #     do (piece) =>
-  #       piece.placed ||= []
-  #       total += piece.placed.length
-
-  #       count = $("<span>")
-  #       count.text "(#{if piece.min is piece.max then piece.min else "#{piece.min} to #{piece.max}"})"
-  #       className = if piece.placed.length >= piece.min
-  #         if piece.placed.length == piece.max
-  #           'done'
-  #         else
-  #           'optional'
-  #       else
-  #         'required'
-
-  #       item = $("<li>").addClass(className).text(piece.name).append(count)
-  #       if piece.placed.length < piece.max
-  #         item.on 'click', =>
-  #           value = {piece_id: piece.id, color: @game.color}
-  #           piece.placed.push {coord: coord, value: value}
-  #           @image(group, coord, value)
-  #           menu.trigger('mouseleave')
-  #       menu.append(item)
-
-  #   # Link to remove current piece
-  #   if group.getChildren().length > 1
-  #     item = $('<li>').text('Remove')
-  #     item.on 'click', =>
-  #       do =>
-  #         for piece in @game.pieces
-  #           for placed, i in piece.placed
-  #             if @coord_eql(coord, placed.coord)
-  #               piece.placed.splice(i, 1)
-  #               return
-
-  #       for child in group.getChildren()
-  #         child.remove() if child.shapeType is "Image"
-
-  #       menu.trigger('mouseleave')
-
-  #     menu.prepend(item)
-
-  #   # Summary
-  #   total_item = $('<li>').text("Placed: #{total} of #{@game.variant.maximum_pieces}")
-  #   menu.prepend(total_item)
-
-  #   menu.on 'mouseleave', =>
-  #     menu.remove()
-  #     space.setFill('white')
-  #     @layer.draw()
-
-  #   menu.css
-  #     position: 'absolute'
-  #     top: y
-  #     left: x
-
-  #   $('body').append(menu)
+    @space_layer.draw()
 
 module.exports = Board

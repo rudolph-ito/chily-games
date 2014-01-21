@@ -13,7 +13,10 @@ FactoryGirl.define do
   end
 
   factory :piece do
+    game
+    user
     piece_type
+    coordinate { {'x' => 1, 'y' => 1} }
   end
 
   factory :piece_rule do

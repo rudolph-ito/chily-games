@@ -51,7 +51,7 @@ ActiveRecord::Schema.define(version: 20131128055209) do
   end
 
   create_table "pieces", force: true do |t|
-    t.text    "coordinate"
+    t.string  "encoded_coordinate"
     t.integer "game_id"
     t.integer "piece_type_id"
     t.integer "user_id"
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 20131128055209) do
   end
 
   create_table "terrains", force: true do |t|
-    t.text    "coordinate"
+    t.string  "encoded_coordinate"
     t.integer "game_id"
     t.integer "terrain_type_id"
     t.integer "user_id"

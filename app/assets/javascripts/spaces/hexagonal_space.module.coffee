@@ -7,7 +7,7 @@ class HexagonalSpace extends Space
     @radius = @board.space_radius
 
   draw: ->
-    obj = new Kinetic.RegularPolygon
+    @space = new Kinetic.RegularPolygon
       x: @x
       y: @y
       radius: @radius
@@ -17,6 +17,6 @@ class HexagonalSpace extends Space
       strokeWidth: 1
       coordinate: @coordinate
 
-    super obj
+    @board.space_layer.add(@space)
 
 module.exports = HexagonalSpace

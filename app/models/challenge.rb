@@ -2,14 +2,6 @@ class Challenge < ActiveRecord::Base
   include Authority::Abilities
 
   ########################################
-  # Class Methods
-  ########################################
-
-  def self.sides
-    %w( alabaster onyx )
-  end
-
-  ########################################
   # Relations
   ########################################
 
@@ -22,7 +14,7 @@ class Challenge < ActiveRecord::Base
   ########################################
 
   validates :challenger, presence: true
-  validates :play_as, inclusion: { in: self.sides }, :if => lambda { |c| c.play_as.present? }
+  validates :play_as, inclusion: { in: Game.sides + ['random'] }
   validates :variant, presence: true
 
   ########################################
@@ -39,10 +31,10 @@ class Challenge < ActiveRecord::Base
   end
 
   def create_game_with(user)
-    challenger_play_as = Challenge.sides[rand(2)] if play_as.blank?
-    challenged_play_as = Challenge.sides.find{ |x| x != play_as }
+    challenger_play_as = play_as || Game.sides[rand(2)]
+    challenged_play_as = Game.sides.find{ |x| x != challenger_play_as }
 
-    Game.create!(variant: variant, play_as => challenger, challenged_play_as => user, action: 'setup')
+    Game.create!(variant: variant, challenger_play_as => challenger, challenged_play_as => user, action: 'setup')
   end
 
 end

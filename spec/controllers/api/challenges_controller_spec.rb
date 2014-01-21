@@ -1,11 +1,20 @@
 require 'spec_helper'
 
-describe ChallengesController do
+describe Api::ChallengesController do
+  render_views
+
   describe 'index' do
     context 'when signed in', :signed_in do
       it 'succeeds' do
         get :index, format: :json
         response.status.should == 200
+      end
+
+      context 'your' do
+        it 'succeeds' do
+          get :index, your: 1, format: :json
+          response.status.should == 200
+        end
       end
     end
 
@@ -63,6 +72,7 @@ describe ChallengesController do
           expect{
             delete :destroy, id: challenge.id, format: :json
             response.status.should == 200
+            response.body.should be_json(challenge_id: challenge.id)
           }.to change(Challenge, :count).by(-1)
         end
       end
@@ -104,7 +114,9 @@ describe ChallengesController do
               expect {
                 put :accept, id: challenge.id, format: :json
                 response.status.should == 200
-                response.body.should be_json(game_id: Game.last.id)
+
+                game = Game.last
+                response.body.should be_json(challenge_id: challenge.id, game: {id: game.id, alabaster_id: game.alabaster_id, onyx_id: game.onyx_id})
               }.to change(Game, :count).by(1)
             end
 
@@ -120,6 +132,7 @@ describe ChallengesController do
               expect {
                 put :decline, id: challenge.id, format: :json
                 response.status.should == 200
+                response.body.should be_json(challenge_id: challenge.id)
               }.to change(Challenge, :count).by(-1)
             end
           end
@@ -154,7 +167,10 @@ describe ChallengesController do
             it 'creates a game and returns the game id' do
               expect {
                 put :accept, id: challenge.id, format: :json
-                response.body.should be_json(game_id: Game.last.id)
+                response.status.should == 200
+
+                game = Game.last
+                response.body.should be_json(challenge_id: challenge.id, game: {id: game.id, alabaster_id: game.alabaster_id, onyx_id: game.onyx_id})
               }.to change(Game, :count).by(1)
             end
 

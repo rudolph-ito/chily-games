@@ -11,8 +11,13 @@ describe Game do
         specify { game.should be_valid }
       end
 
-      context 'equal to play' do
-        let(:game_params) { {action: 'play'} }
+      context 'equal to move' do
+        let(:game_params) { {action: 'move'} }
+        specify { game.should be_valid }
+      end
+
+      context 'equal to attack' do
+        let(:game_params) { {action: 'attack'} }
         specify { game.should be_valid }
       end
 
@@ -44,11 +49,11 @@ describe Game do
     let(:game) { build(:game, alabaster: user1, onyx: user2) }
 
     context 'argument is alabaster user' do
-      specify { game.color(user1).should == 'alabaster' }
+      specify { game.color(user1.id).should == 'alabaster' }
     end
 
     context 'argument is onyx user' do
-      specify { game.color(user2).should == 'onyx' }
+      specify { game.color(user2.id).should == 'onyx' }
     end
   end
 
@@ -63,102 +68,55 @@ describe Game do
 
     let(:user1) { create(:user) }
     let(:user2) { create(:user) }
-    let(:game) { build(:game, variant: variant, alabaster: user1, onyx: user2)}
+    let(:game) { create(:game, variant: variant, alabaster: user1, onyx: user2)}
 
     context 'valid' do
-      context 'for player 1' do
+      context 'for alabaster' do
         it 'returns []' do
-          game.setup_errors(user1, [
-            {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-            {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 2, 'y' => 0}}
-          ]).should == []
+          game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
+          game.setup_add_piece(user1, piece_type2.id, {'x' => 2, 'y' => 0})
+          expect(game.setup_errors(user1)).to eql []
         end
       end
 
       context 'for onyx' do
         it 'returns []' do
-         game.setup_errors(user2, [
-            {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 2, 'y' => 2}},
-            {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 1, 'y' => 2}},
-          ]).should == []
+          game.setup_add_piece(user2, piece_type1.id, {'x' => 2, 'y' => 2})
+          game.setup_add_piece(user2, piece_type2.id, {'x' => 1, 'y' => 2})
+          expect(game.setup_errors(user2)).to eql []
         end
-      end
-    end
-
-    context 'two pieces in same location' do
-      it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 0}}
-        ]).should == [
-          {'coordinate' => {'x' => 0, 'y' => 0}, 'message' => 'Two pieces placed at the same coordinate.'}
-        ]
-      end
-    end
-
-    context 'piece in neutral territory' do
-      it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 1}}
-        ]).should == [
-          {'coordinate' => {'x' => 0, 'y' => 1}, 'message' => 'Piece placed in neutral territory.'}
-        ]
-      end
-    end
-
-    context 'piece in enemy territory' do
-      it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 2}}
-        ]).should == [
-          {'coordinate' => {'x' => 0, 'y' => 2}, 'message' => 'Piece placed in enemy territory.'}
-        ]
       end
     end
 
     context 'too few pieces' do
       it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-        ]).should == [
-          {'message' => 'Rules require placing 2 pieces. You placed 1.'}
-        ]
+        game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
+        expect(game.setup_errors(user1)).to eql ['Please place 2 pieces. You placed 1.']
       end
     end
 
     context 'too many pieces' do
       it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 1, 'y' => 0}},
-          {'piece_type_id' => piece_type3.id, 'coordinate' => {'x' => 2, 'y' => 0}},
-        ]).should == [
-          {'message' => 'Rules require placing 2 pieces. You placed 3.'}
-        ]
+        game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
+        game.setup_add_piece(user1, piece_type2.id, {'x' => 1, 'y' => 0})
+        game.setup_add_piece(user1, piece_type3.id, {'x' => 2, 'y' => 0})
+        expect(game.setup_errors(user1)).to eql ['Please place 2 pieces. You placed 3.']
       end
     end
 
     context 'too few of piece type' do
       it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type2.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-          {'piece_type_id' => piece_type3.id, 'coordinate' => {'x' => 1, 'y' => 0}},
-        ]).should == [
-          {'message' => 'Rules require placing 1 king. You placed 0.'}
-        ]
+        game.setup_add_piece(user1, piece_type2.id, {'x' => 0, 'y' => 0})
+        game.setup_add_piece(user1, piece_type3.id, {'x' => 1, 'y' => 0})
+        expect(game.setup_errors(user1)).to eql ['Please place 1 king. You placed 0.']
       end
     end
 
     context 'too many of piece type' do
       it 'returns errors' do
-        game.setup_errors(user1, [
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 0, 'y' => 0}},
-          {'piece_type_id' => piece_type1.id, 'coordinate' => {'x' => 1, 'y' => 0}},
-        ]).should == [
-          {'message' => 'Rules require placing 1 king. You placed 2.'}
-        ]
+        game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
+        game.setup_add_piece(user1, piece_type1.id, {'x' => 1, 'y' => 0})
+        expect(game.setup_errors(user1)).to eql ['Please place 1 king. You placed 2.']
       end
     end
   end

@@ -1,18 +1,22 @@
-class ChallengesController < ApplicationController
+class Api::ChallengesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :build_challenge, only: [:create]
   before_filter :get_challenge, only: [:destroy, :accept, :decline]
   before_filter :authorize, except: [:index]
 
   def index
-    render json: Challenge.all
+    @challenges = if params[:your]
+      Challenge.where('challenger_id = ? OR challenged_id = ?', current_user.id, current_user.id)
+    else
+      Challenge.where.not(challenger_id: current_user.id).where(challenged_id: nil)
+    end
   end
 
   def create
     @challenge.challenger = current_user
 
     if @challenge.save
-      render json: @challenge.to_json
+      render :show
     else
       render json: @challenge.errors, status: :unprocessable_entity
     end
@@ -20,17 +24,14 @@ class ChallengesController < ApplicationController
 
   def destroy
     @challenge.destroy
-    head :ok
   end
 
   def accept
-    game = @challenge.accept!(current_user)
-    render json: { game_id: game.id }
+    @game = @challenge.accept!(current_user)
   end
 
   def decline
-    game = @challenge.decline!(current_user)
-    head :ok
+    @challenge.decline!(current_user)
   end
 
   protected

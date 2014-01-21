@@ -14,7 +14,7 @@
       = f.input :board_size, as: :number, required: true, min: 1, max: 20, step: 1
 
   = f.inputs "Other Options" do
-    = f.input :number_of_pieces, as: :number, min: 1, step: 1, hint: "Required only if allowing a variable number of each piece"
+    = f.input :number_of_pieces, as: :number, min: 1, step: 1
 
   = f.actions do
     = f.action :submit, name: "Save"

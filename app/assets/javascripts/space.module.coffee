@@ -4,9 +4,6 @@ class Space
     [@x, @y] = @board.position(@coordinate)
     @color = @board.space_color(@coordinate)
 
-  draw: (obj) ->
-    @board.add_to_space_layer(obj)
-
   draw_coordinate: ->
     obj = new Kinetic.Text
       x: @x
@@ -17,7 +14,6 @@ class Space
       fontWeight: 'bold'
       fill: 'blue'
 
-    @board.add_to_space_layer(obj)
-
+    @board.space_layer.add(obj)
 
 module.exports = Space

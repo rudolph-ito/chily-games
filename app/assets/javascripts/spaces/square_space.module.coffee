@@ -7,7 +7,7 @@ class SquareSpace extends Space
     @size = @board.space_size
 
   draw: ->
-    obj = new Kinetic.Rect
+    @space = new Kinetic.Rect
       x: @x
       y: @y
       offset:
@@ -20,7 +20,6 @@ class SquareSpace extends Space
       strokeWidth: 1
       coordinate: @coordinate
 
-    super obj
-
+    @board.space_layer.add(@space)
 
 module.exports = SquareSpace

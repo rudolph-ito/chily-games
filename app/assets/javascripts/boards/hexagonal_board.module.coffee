@@ -1,13 +1,13 @@
 Board = require("board")
-HexagonalSpace = require("hexagonal_space")
+HexagonalSpace = require("spaces/hexagonal_space")
 
 class HexagonalBoard extends Board
 
   Space: HexagonalSpace
 
-  constructor: (@game) ->
+  constructor: ->
     super
-    @board_size = @game.board_size
+    @board_size = @data.board_size
 
   draw_spaces: ->
     @draw_space {x: 0, y: 0, z: 0}
@@ -42,10 +42,7 @@ class HexagonalBoard extends Board
         @draw_space {x: i, y: 0, z: -j}
         @draw_space {x: j, y: 0, z: -i}
 
-  coord_to_s: (coord) ->
-    "#{coord.x},#{coord.y},#{coord.z}"
-
-  inSpace: (space, x, y) ->
+  in_space: (space, x, y) ->
     @distance(space.attrs.x, x, space.attrs.y, y) <= @space_radius
 
   position: ({x, y, z}) ->
@@ -59,21 +56,50 @@ class HexagonalBoard extends Board
       real_x = @center.x - relative_x
       real_y = @center.y - relative_y
 
-    [real_x, real_y]
+    [real_x, real_y + @board_padding_top()]
+
+  territory: ({x,y,z}) ->
+    if y is 0 and z is 0
+      'neutral'
+    else if y >= 0 && z >= 0
+      'alabaster'
+    else
+      'onyx'
 
   # Set all the instance variables used to build the board
   setup: (max_width, max_height) ->
-    min_row = @board_size
-    max_row = 2 * @board_size - 1
+    padding = 2
 
-    @space_radius = max_height / (min_row + max_row)
+    vertical_radii = 3 * @board_size - 1
+    horizontal_radii = 2 * (2 * @board_size - 1) * Math.cos(Math.PI/6)
+
+    if @data.action is 'setup'
+      @setup_rows = Math.floor(vertical_radii / 2)
+      @setup_columns = Math.ceil(@data.piece_types.length / @setup_rows)
+
+      setup_horizontal_radii = @setup_columns * 2
+      setup_padding = 10
+    else
+      setup_horizontal_radii = 0
+      setup_padding = 0
+
+    max_vertical_radius = (max_height - padding) / vertical_radii
+    max_horizontal_radius = (max_width - padding - setup_padding) / (horizontal_radii + setup_horizontal_radii)
+
+    @space_radius = Math.min.apply(null, [max_vertical_radius, max_horizontal_radius])
 
     @delta_x = @space_radius * Math.cos(Math.PI/6)
     @delta_y = @space_radius * 3/2
 
     @piece_size = @delta_x / Math.sqrt(2) * 2
 
-    @width = @delta_x * 2 * max_row + 2
-    @height = max_height
+    @setup_size = @delta_y
+    @setup_width = @space_radius * setup_horizontal_radii + setup_padding
+    @board_width = @space_radius * horizontal_radii + padding
+    @board_height = @space_radius * vertical_radii + padding
+
+    @center =
+      x: @setup_width + @board_width / 2
+      y: @board_height / 2
 
 module.exports = HexagonalBoard

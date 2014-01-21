@@ -21,7 +21,7 @@ class Init < ActiveRecord::Migration
     end
 
     create_table :pieces do |t|
-      t.text :coordinate
+      t.string :encoded_coordinate
       t.integer :game_id
       t.integer :piece_type_id
       t.integer :user_id
@@ -44,7 +44,7 @@ class Init < ActiveRecord::Migration
     end
 
     create_table :terrains do |t|
-      t.text :coordinate
+      t.string :encoded_coordinate
       t.integer :game_id
       t.integer :terrain_type_id
       t.integer :user_id

@@ -6,6 +6,14 @@ unless User.find_by(username: 'admin')
   User.create!(username: 'admin', email: 'admin@cyvasse.com', password: '12345678', password_confirmation: '12345678', admin: true)
 end
 
+unless User.find_by(username: 'user1')
+  User.create!(username: 'user1', email: 'user1@cyvasse.com', password: '12345678', password_confirmation: '12345678', admin: false)
+end
+
+unless User.find_by(username: 'user2')
+  User.create!(username: 'user2', email: 'user2@cyvasse.com', password: '12345678', password_confirmation: '12345678', admin: false)
+end
+
 ########################################
 # Piece Types
 ########################################

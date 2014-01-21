@@ -13,7 +13,21 @@
 #= require sprockets/commonjs
 #= require jquery
 #= require jquery_ujs
+#= require underscore
 #= require bootstrap-modal
-#= require kinetic.4.4.3.min
+#= require kinetic
 #= require ruby
-#= require_tree .
+#= require socket.io.js
+#
+#= require_directory ./base
+#
+#= require controller.module
+#= require_directory ./controllers
+#
+#= require space.module
+#= require_directory ./spaces
+#
+#= require piece.module
+#
+#= require board.module
+#= require_directory ./boards

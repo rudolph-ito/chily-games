@@ -7,7 +7,7 @@ $ ->
     vid = $(this).data('id')
     ptid = $(this).data('piece-type-id')
 
-    Board.preview('previewCanvas', vid, {'piece_type_id': ptid})
+    Board.preview('.board', vid, {'piece_type_id': ptid})
 
     $('#preview').modal()
 

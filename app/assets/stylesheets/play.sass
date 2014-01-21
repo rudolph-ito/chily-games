@@ -1,0 +1,60 @@
+@import compass/css3/box-sizing
+
+section.play
+  height: 100%
+
+  .board
+    float: left
+    width: 75%
+    height: 100%
+    text-align: center
+
+    .kineticjs-content
+      text-align: left
+
+  .control
+    float: right
+    width: 25%
+    height: 100%
+    +box-sizing(border-box)
+
+    .challenges
+      margin: 0 auto
+      display: none
+
+      .title
+        font-weight: bold
+        margin-bottom: 10px
+
+      .new
+        margin-bottom: 10px
+
+        ul
+          list-style: none
+          padding: 0
+          margin: 0
+
+          li
+            padding: 0 10px 5px 0
+
+    .game
+      height: 100%
+      display: none
+
+      .actions
+        height: 32px
+        margin-bottom: 10px
+        padding: 5px
+        background-color: #ccc
+        +box-sizing(border-box)
+
+      .chat
+        height: calc(100% - 84px)
+        border: 1px solid black
+
+      form
+        input
+          padding: 2px 3px
+          margin: 10px 0
+          width: 100%
+          +box-sizing(border-box)
