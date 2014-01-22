@@ -44,6 +44,12 @@ class PieceRule < ActiveRecord::Base
     end
   end
 
+  def count_with_name
+    name = piece_type.name.downcase
+    name = name.pluralize if count != '1'
+    "#{count} #{name}"
+  end
+
   def movement
     limit = movement_minimum.to_s + if movement_maximum.blank?
       ' or more'

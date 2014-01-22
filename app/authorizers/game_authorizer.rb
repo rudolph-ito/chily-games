@@ -7,10 +7,6 @@ class GameAuthorizer < ApplicationAuthorizer
     resource.action == 'setup' && in_game?(user)
   end
 
-  def attackable_by?(user)
-    resource.action == 'attack' && action_to?(user)
-  end
-
   def moveable_by?(user)
     resource.action == 'move' && action_to?(user)
   end

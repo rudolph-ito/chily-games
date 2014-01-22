@@ -194,7 +194,7 @@ describe Api::GamesController do
   end
 
   describe 'setup_complete' do
-    let(:piece_type) { create :piece_type }
+    let(:piece_type) { create :piece_type, name: 'Dragon' }
     let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, count_minimum: 2, count_maximum: 2}
 
@@ -232,7 +232,7 @@ describe Api::GamesController do
           it 'returns errors' do
             put :setup_complete, id: game.id, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false, errors: ["Please place 2 pieces. You placed 0.", "Please place 2 #{piece_type.name}. You placed 0."]})
+            expect(response.body).to be_json({success: false, errors: ["Please place 2 pieces. You placed 0.", "Please place 2 dragons. You placed 0."]})
           end
         end
       end
@@ -267,14 +267,77 @@ describe Api::GamesController do
           it 'returns errors' do
             put :setup_complete, id: game.id, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false, errors: ["Please place 2 pieces. You placed 0.", "Please place 2 #{piece_type.name}. You placed 0."]})
+            expect(response.body).to be_json({success: false, errors: ["Please place 2 pieces. You placed 0.", "Please place 2 dragons. You placed 0."]})
           end
         end
       end
     end
   end
 
-  describe 'play' do
+  describe 'valid_piece_moves' do
+    let(:piece_type) { create :piece_type }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
+    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
+
+    let(:game_parameters) { {} }
+    let(:game) { create :game, {variant: variant}.merge(game_parameters) }
+    let!(:piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
+
+    context 'when signed in', :signed_in do
+      context 'as alabaster' do
+        let(:game_parameters) { { alabaster: current_user } }
+
+        it 'succeeds' do
+          get :valid_piece_moves, id: game.id, coordinate: piece.coordinate, format: :json
+          expect(response.status).to eql 200
+        end
+      end
+
+      context 'as onyx' do
+        let(:game_parameters) { { onyx: current_user } }
+
+        it 'succeeds' do
+          get :valid_piece_moves, id: game.id, coordinate: piece.coordinate, format: :json
+          expect(response.status).to eql 200
+        end
+      end
+    end
+  end
+
+  describe 'piece_move' do
+    let(:piece_type) { create :piece_type }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
+    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1 }
+
+    let(:game_parameters) { {} }
+    let(:game) { create :game, {action: 'move', variant: variant}.merge(game_parameters) }
+    let!(:piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
+
+    context 'when signed in', :signed_in do
+      context 'as alabaster' do
+        let(:game_parameters) { { alabaster: current_user, action_to: current_user } }
+
+        context 'valid move' do
+          it 'succeeds' do
+            put :piece_move, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '1', 'y' => '0'}, format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}})
+            expect(piece.reload.coordinate).to eql({'x' => 1, 'y' => 0})
+            expect(game.reload.action_to).to eql(game.onyx)
+          end
+        end
+
+        context 'invalid_move' do
+          it 'fails' do
+            put :piece_move, id: game.id, from: piece.coordinate, to: {'x' => '2', 'y' => '0'}, format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json({success: false})
+            expect(piece.reload.coordinate).to eql({'x' => 0, 'y' => 0})
+            expect(game.reload.action_to).to eql(game.alabaster)
+          end
+        end
+      end
+    end
   end
 
   describe 'resign' do

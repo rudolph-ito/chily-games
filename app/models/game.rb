@@ -6,7 +6,7 @@ class Game < ActiveRecord::Base
   ########################################
 
   def self.actions
-    %w( setup move attack complete )
+    %w( setup move complete )
   end
 
   def self.sides
@@ -87,9 +87,7 @@ class Game < ActiveRecord::Base
     variant.piece_rules.each do |pr|
       placed = user_pieces.where(piece_type_id: pr.piece_type_id).count
       if placed < pr.count_minimum || placed > pr.count_maximum
-        name = pr.piece_type.name.downcase
-        name = name.pluralize if pr.count_minimum != pr.count_maximum && pr.count_maximum  != 1
-        errors << "Please place #{pr.count} #{name}. You placed #{placed}."
+        errors << "Please place #{pr.count_with_name}. You placed #{placed}."
       end
     end
 
@@ -111,6 +109,8 @@ class Game < ActiveRecord::Base
     pieces.for_coordinate(to).destroy_all
     piece = pieces.for_coordinate(from).first
     piece.update_attributes(coordinate: to) if piece
+
+    update_attributes(action_to_id: oppponent_id(action_to_id))
   end
 
   # # Ply: a hash with the following keys

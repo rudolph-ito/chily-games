@@ -16,11 +16,6 @@ describe Game do
         specify { game.should be_valid }
       end
 
-      context 'equal to attack' do
-        let(:game_params) { {action: 'attack'} }
-        specify { game.should be_valid }
-      end
-
       context 'equal to anything else' do
         let(:game_params) { {action: nil} }
         specify { game.should be_invalid }

@@ -56,6 +56,8 @@ class Api::GamesController < ApplicationController
   end
 
   def piece_move
+    scrub_coordinate(params[:from], params[:to])
+
     if @game.ply_valid?(params[:from], params[:to])
       @game.move_piece(params[:from], params[:to])
       render json: { success: true, from: params[:from], to: params[:to] }
@@ -77,6 +79,12 @@ class Api::GamesController < ApplicationController
 
   def authorize
     authorize_action_for @game
+  end
+
+  def scrub_coordinate(*coords)
+    coords.each do |coord|
+      coord.each_pair{ |k, v| coord[k] = v.to_i }
+    end
   end
 
 end

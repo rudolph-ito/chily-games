@@ -103,4 +103,13 @@ describe Variant do
       specify { variant.board.should eql "Hexagonal Board (size 5)" }
     end
   end
+
+  context 'setup_message' do
+    let(:variant) { create(:variant, number_of_pieces: 3) }
+    let!(:piece_rule1) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'King'), count_minimum: 1, count_maximum: 1)}
+    let!(:piece_rule2) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'Spear'), count_minimum: 0, count_maximum: 2)}
+    let!(:piece_rule3) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'Crossbow'), count_minimum: 0, count_maximum: 2)}
+
+    specify{ expect(variant.setup_message).to eql "Please place 3 pieces.\n1 king\n0 to 2 spears\n0 to 2 crossbows"}
+  end
 end
