@@ -160,12 +160,16 @@ class Board
 
   remove_piece_at: (coordinate) ->
     @piece_map.get(coordinate)?.remove()
+    @piece_map.remove(coordinate)
 
   move_piece: (from, to) ->
-    remove_piece_at(to)
+    @remove_piece_at(to)
+
     piece = @piece_map.get(from)
     space = @space_map.get(to)
-    piece.move_to_space(space)
+    piece.move_to_space(space.space)
+
+    @piece_map.move(from, to)
 
   highlight_spaces: (coordinates, color) ->
     for coordinate in coordinates

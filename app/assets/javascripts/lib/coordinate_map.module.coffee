@@ -9,7 +9,17 @@ class CoordinateMap
 
   set: (coordinate, value) ->
     key = @coordinate_to_key(coordinate)
-    @data[key] = value
+    if value
+      @data[key] = value
+    else
+      delete @data[key]
+
+  remove:(coordinate) ->
+    @set(coordinate, null)
+
+  move: (from, to) ->
+    @set(to, @get(from))
+    @set(from, null)
 
   values: ->
     (v for k,v of @data)

@@ -145,6 +145,8 @@ class GameController extends Controller
     @load_challenges()
 
   server_piece_move: (data) =>
+    return unless data.backendResponse.status == 200
+    data = $.parseJSON data.backendResponse.body
     @board.move_piece(data.from, data.to) if data.success
 
   server_game_abort: (data) =>
