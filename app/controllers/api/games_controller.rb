@@ -2,7 +2,8 @@ class Api::GamesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :get_game, except: [:current]
   before_filter :authorize, except: [:current]
-  authority_actions setup_add_piece: 'setup', setup_move_piece: 'setup', setup_remove_piece: 'setup', setup_complete: 'setup', valid_piece_moves: 'read', piece_move: 'move'
+  authority_actions setup_add_piece: 'setup', setup_move_piece: 'setup', setup_remove_piece: 'setup', setup_complete: 'setup',
+    valid_piece_moves: 'read', piece_move: 'move', opponent_setup: 'opponent_setup_read'
 
   def current
     @game_id = Game.for_user(current_user).pluck(:id).first
@@ -48,6 +49,9 @@ class Api::GamesController < ApplicationController
   ########################################
   # Play
   ########################################
+
+  def opponent_setup
+  end
 
   def valid_piece_moves
     piece = @game.pieces.for_coordinate(params[:coordinate]).first

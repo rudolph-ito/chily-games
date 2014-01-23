@@ -5,9 +5,9 @@ class HexagonalBoard extends Board
 
   Space: HexagonalSpace
 
-  constructor: ->
+  constructor: (container, color, options, game_controller) ->
     super
-    @board_size = @data.board_size
+    @board_size = options.board_size
 
   draw_spaces: ->
     @draw_space {x: 0, y: 0, z: 0}
@@ -56,7 +56,7 @@ class HexagonalBoard extends Board
       real_x = @center.x - relative_x
       real_y = @center.y - relative_y
 
-    [real_x, real_y + @board_padding_top()]
+    [real_x, real_y + @header_height]
 
   territory: ({x,y,z}) ->
     if y is 0 and z is 0
@@ -75,7 +75,7 @@ class HexagonalBoard extends Board
 
     if @game_controller?.user_in_setup()
       @setup_rows = Math.floor(vertical_radii / 2)
-      @setup_columns = Math.ceil(@data.piece_types.length / @setup_rows)
+      @setup_columns = Math.ceil(@piece_types.length / @setup_rows)
 
       setup_horizontal_radii = @setup_columns * 2
       setup_padding = 10

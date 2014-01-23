@@ -1,17 +1,21 @@
 class Piece
 
   constructor: (@board, data) ->
-    @size = @board.piece_size
     @piece_type_id = data.piece_type_id
     @color = data.color
     @display = 'none'
 
     if data.coordinate
       @coordinate = data.coordinate
-      [@x, @y] = @board.position(@coordinate)
     else
       @x = data.x
       @y = data.y
+
+    @update_draw_options()
+
+  update_draw_options: ->
+    [@x, @y] = @board.position(@coordinate) if @coordinate
+    @size = @board.piece_size
 
   draw: ->
     imageObj = new Image()
@@ -39,6 +43,16 @@ class Piece
 
     imageObj.src = "/piece_types/#{@piece_type_id}/#{@color}_image.svg"
 
+  redraw: ->
+    @update_draw_options()
+
+    @image.attrs.x = @x
+    @image.attrs.y = @y
+    @image.attrs.offset.x = @size / 2
+    @image.attrs.offset.y = @size / 2
+    @image.attrs.width = @size
+    @image.attrs.height = @size
+
   click: =>
     return if @dragging
 
@@ -51,8 +65,11 @@ class Piece
 
   drag_start: =>
     @dragging = true
-    if @board.data.action == 'setup' and !@coordinate?
-      new Piece(@board, {piece_type_id: @piece_type_id, color: @color, x: @x, y: @y}).draw()
+    if @board.game_controller.user_in_setup() and !@coordinate?
+      piece = new Piece(@board, {piece_type_id: @piece_type_id, color: @color, x: @x, y: @y})
+      piece.draw()
+      @board.setup_pieces = @board.setup_pieces.filter (x) => x != @
+      @board.setup_pieces.push(piece)
 
   drag_end: =>
     @dragging = false
@@ -60,10 +77,11 @@ class Piece
     from = @coordinate
     to = space?.attrs.coordinate
 
-    if @board.data.action == 'setup'
+    if @board.game_controller.user_in_setup()
       if space and @board.home_space(to)
         @board.remove_piece_at(to)
         @move_to_space(space)
+        @board.piece_map.set(@coordinate, @)
 
         if from
           @board.game_controller.setup_move_piece(from, @coordinate)

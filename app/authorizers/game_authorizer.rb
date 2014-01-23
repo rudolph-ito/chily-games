@@ -3,6 +3,10 @@ class GameAuthorizer < ApplicationAuthorizer
     in_game?(user)
   end
 
+  def opponent_setup_readable_by?(user)
+    resource.action == 'move' && in_game?(user)
+  end
+
   def abortable_by?(user)
     resource.action == 'setup' && in_game?(user)
   end

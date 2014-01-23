@@ -7,6 +7,7 @@ class GameController extends Controller
     super
     @container = $('.game')
     @board_container = $('.board')
+    @chat_container = @container.find(".chat")
 
   activate: ->
     super
@@ -20,6 +21,7 @@ class GameController extends Controller
     @container.on 'click', '[data-action=setup_complete]', @setup_complete
     @container.on 'click', '[data-action=resign]', @resign_game
 
+    @chat_container.html('')
     @join("g#{@game_id}")
 
     @load_game()
@@ -43,8 +45,9 @@ class GameController extends Controller
       @update_actions()
       @add_to_chat("Server:\n" + data.message) if @user_in_setup()
 
-      @board = Board.create(@board_container[0], data, @)
+      @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
+      @board.draw_pieces(data.pieces)
 
   user_in_setup: ->
     @action == 'setup' && (@action_to_id == null || @action_to_id == @user_id)
@@ -54,6 +57,7 @@ class GameController extends Controller
     @action_to_id = data.action_to_id
     @alabaster_id = data.alabaster_id
     @alabaster_name = data.alabaster_name
+    @color = data.color
     @onyx_id = data.onyx_id
     @onyx_name = data.onyx_name
 
@@ -62,6 +66,13 @@ class GameController extends Controller
     @deactivate()
     ChallengesController = require('controllers/challenges_controller')
     new ChallengesController(@user_id).activate()
+
+  name: ->
+    @[@color + "_name"]
+
+  opponent_name: ->
+    opponent_color = if @color == 'alabaster' then 'onyx' else 'alabaster'
+    @[opponent_color + "_name"]
 
   ########################################
   # Update UI
@@ -97,7 +108,19 @@ class GameController extends Controller
       if should_display then element.show() else element.hide()
 
   add_to_chat: (message) ->
-    $(".chat").append($('<div>').html(message.replace(/\n/g, "<br/>")))
+    @chat_container.append($('<div>').html(message.replace(/\n/g, "<br/>")))
+
+  finish_setup: ->
+    return unless @action == 'move'
+
+    @board.hide_territory()
+
+    $.ajax
+      url: @url('opponent_setup')
+      method: 'GET'
+      success: (data) =>
+        @board.draw_pieces(data.pieces)
+        @add_to_chat("Server:\n" + 'Let the battle begin!')
 
   ########################################
   # User initiated actions
@@ -138,12 +161,13 @@ class GameController extends Controller
         if data.success
           @action = data.action
           @action_to_id = data.action_to_id
-
           @update_controls()
           @add_to_chat("Server:\n" + 'Setup complete')
-          @board.draw()
 
           @emit_broadcast 'setup_complete', {action: @action, action_to_id: @action_to_id}, false
+
+          @board.redraw()
+          @finish_setup()
         else
           @add_to_chat("Server:\n" + data.errors.join("\n"))
 
@@ -173,8 +197,6 @@ class GameController extends Controller
   resign_game: =>
     @emit_request 'resign', { path: @url('resign'), method: 'PUT' }
 
-
-
   ########################################
   # Server initiated actions
   ########################################
@@ -182,10 +204,9 @@ class GameController extends Controller
   server_setup_complete: (data) =>
     @action = data.broadcast.action
     @action_to_id = data.broadcast.action_to_id
-
     @update_controls()
-
     @add_to_chat("Server:\n" + 'Opponent is ready')
+    @finish_setup()
 
   server_piece_move: (data) =>
     return unless data.backendResponse.status == 200

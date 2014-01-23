@@ -67,12 +67,11 @@ class Variant < ActiveRecord::Base
   end
 
   def preview(opts)
-    out = board_info
+    out = {options: board_info, color: 'onyx'}
 
     if opts[:piece_type_id]
       g = self.games.build
       p = g.pieces.build(piece_type_id: opts[:piece_type_id], coordinate: g.board.center_coordinate)
-      out[:color] = 'onyx'
       out[:pieces] = [ { coordinate: p.coordinate, piece_type_id: p.piece_type_id, color: 'onyx' } ]
       out[:valid_plies] = g.valid_plies(p).map{ |p| p['to'] }
     end

@@ -14,6 +14,7 @@ Cyvasse::Application.routes.draw do
 
       member do
         get 'valid_piece_moves'
+        get 'opponent_setup'
 
         put 'abort'
         put 'setup_add_piece'
@@ -23,6 +24,12 @@ Cyvasse::Application.routes.draw do
 
         put 'piece_move'
         put 'resign'
+      end
+    end
+
+    resources :variants, only: [] do
+      member do
+        get 'preview'
       end
     end
   end
@@ -39,9 +46,6 @@ Cyvasse::Application.routes.draw do
   resources :variants do
     resources :piece_rules, only: [:new, :create]
     resources :terrain_rules, only: [:new, :create]
-    member do
-      get :preview
-    end
   end
 
   get '/explore' => 'home#explore'

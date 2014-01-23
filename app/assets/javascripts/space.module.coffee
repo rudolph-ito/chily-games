@@ -1,8 +1,10 @@
 class Space
 
   constructor: (@board, @coordinate) ->
+    @update_draw_options()
+
+  update_draw_options: ->
     [@x, @y] = @board.position(@coordinate)
-    @color = @board.space_color(@coordinate)
 
   draw_coordinate: ->
     obj = new Kinetic.Text

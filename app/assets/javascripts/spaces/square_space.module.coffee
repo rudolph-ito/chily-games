@@ -2,7 +2,7 @@ Space = require('space')
 
 class SquareSpace extends Space
 
-  constructor: ->
+  update_draw_options: ->
     super
     @size = @board.space_size
 
@@ -15,11 +15,20 @@ class SquareSpace extends Space
         y: @size / 2
       width: @size
       height: @size
-      fill: @color
       stroke: 'black'
       strokeWidth: 1
       coordinate: @coordinate
 
     @board.space_layer.add(@space)
+
+  redraw: ->
+    @update_draw_options()
+
+    @space.attrs.x = @x
+    @space.attrs.y = @y
+    @space.attrs.offset.x = @size / 2
+    @space.attrs.offset.y = @size / 2
+    @space.attrs.width = @size
+    @space.attrs.height = @size
 
 module.exports = SquareSpace

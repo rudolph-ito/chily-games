@@ -321,7 +321,7 @@ describe Api::GamesController do
           it 'succeeds' do
             put :piece_move, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '1', 'y' => '0'}, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}})
+            expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}, action: "move", action_to_id: game.onyx_id})
             expect(piece.reload.coordinate).to eql({'x' => 1, 'y' => 0})
             expect(game.reload.action_to).to eql(game.onyx)
           end

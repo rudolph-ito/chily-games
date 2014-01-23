@@ -1,8 +1,8 @@
 class VariantsController < ApplicationController
-  before_filter :authenticate_user!, except: [:index, :show, :preview]
+  before_filter :authenticate_user!, except: [:index, :show]
   before_filter :build_variant, only: [:new, :create]
-  before_filter :get_variant, only: [:show, :preview, :edit, :update, :destroy]
-  before_filter :authorize, except: [:index, :show, :preview]
+  before_filter :get_variant, only: [:show, :edit, :update, :destroy]
+  before_filter :authorize, except: [:index, :show]
 
   def index
     @variants = Variant.all
@@ -16,10 +16,6 @@ class VariantsController < ApplicationController
   end
 
   def show
-  end
-
-  def preview
-    render json: @variant.preview(params)
   end
 
   def edit

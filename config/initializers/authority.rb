@@ -64,6 +64,7 @@ Authority.configure do |config|
     :abort => 'abortable',
     :attack => 'attackable',
     :move => 'moveable',
+    :opponent_setup_read => 'opponent_setup_readable',
     :resign => 'resignable',
     :setup => 'setupable'
   )

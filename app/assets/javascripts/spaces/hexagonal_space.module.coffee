@@ -2,7 +2,7 @@ Space = require('space')
 
 class HexagonalSpace extends Space
 
-  constructor: ->
+  update_draw_options: ->
     super
     @radius = @board.space_radius
 
@@ -12,11 +12,17 @@ class HexagonalSpace extends Space
       y: @y
       radius: @radius
       sides: 6
-      fill: @color
       stroke: 'black'
       strokeWidth: 1
       coordinate: @coordinate
 
     @board.space_layer.add(@space)
+
+  redraw: ->
+    @update_draw_options()
+
+    @space.attrs.x = @x
+    @space.attrs.y = @y
+    @space.attrs.radius = @radius
 
 module.exports = HexagonalSpace
