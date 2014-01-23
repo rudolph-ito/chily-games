@@ -31,7 +31,7 @@ class Challenge < ActiveRecord::Base
   end
 
   def create_game_with(user)
-    challenger_play_as = play_as || Game.sides[rand(2)]
+    challenger_play_as = play_as == 'random' ? Game.sides[rand(2)] : play_as
     challenged_play_as = Game.sides.find{ |x| x != challenger_play_as }
 
     Game.create!(variant: variant, challenger_play_as => challenger, challenged_play_as => user, action: 'setup')
