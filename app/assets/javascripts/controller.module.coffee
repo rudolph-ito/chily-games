@@ -17,13 +17,17 @@ class Controller
   join: (room_id) ->
     @socket.emit "join", userId: @user_id, roomId: room_id
 
-  emit: (event, options={}) ->
-    options.broadcast ||= {}
-    # options.broadcast.sessionID = @sessionID
-    # options.broadcast.page = @roomController.getViewingPageName()
+  emit_broadcast: (event, data, toSelf=true) ->
+    @socket.emit 'send',
+      event: event
+      toSelf: toSelf
+      broadcast: data
 
-    if options.path?
-      backendRequest =
+  emit_request: (event, options, toSelf=true) ->
+    @socket.emit 'send',
+      event: event
+      toSelf: toSelf
+      backendRequest:
         path: options.path
         method: options.method
         data: options.data
@@ -31,11 +35,6 @@ class Controller
         headers:
           cookie: document.cookie
           'X-CSRF-Token': @csrfToken
-
-    @socket.emit 'send',
-      event: event
-      broadcast: options.broadcast
-      backendRequest: backendRequest
 
   server_player_joined: (data) ->
 

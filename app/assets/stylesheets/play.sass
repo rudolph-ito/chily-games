@@ -41,20 +41,28 @@ section.play
       height: 100%
       display: none
 
-      .actions
-        height: 32px
-        margin-bottom: 10px
+      .state
+        height: 30px
         padding: 5px
+        margin-bottom: 10px
+        border: 1px solid blue
+        +box-sizing(border-box)
+
+      .actions
+        height: 30px
+        padding: 5px
+        margin-bottom: 10px
         background-color: #ccc
         +box-sizing(border-box)
 
       .chat
-        height: calc(100% - 84px)
+        height: calc(100% - 120px)
         border: 1px solid black
 
       form
         input
+          height: 20px
+          width: 100%
           padding: 2px 3px
           margin: 10px 0
-          width: 100%
           +box-sizing(border-box)

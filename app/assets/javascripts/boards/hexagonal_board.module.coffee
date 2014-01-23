@@ -73,7 +73,7 @@ class HexagonalBoard extends Board
     vertical_radii = 3 * @board_size - 1
     horizontal_radii = 2 * (2 * @board_size - 1) * Math.cos(Math.PI/6)
 
-    if @data.action is 'setup'
+    if @game_controller?.user_in_setup()
       @setup_rows = Math.floor(vertical_radii / 2)
       @setup_columns = Math.ceil(@data.piece_types.length / @setup_rows)
 

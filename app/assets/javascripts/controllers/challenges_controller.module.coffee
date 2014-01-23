@@ -85,22 +85,22 @@ class ChallengesController extends Controller
     e.preventDefault()
     data = { challenge: {} }
     data.challenge[pair.name] = pair.value for pair in $(e.target).parents('form').serializeArray()
-    @emit 'create', { path: '/api/challenges', method: 'POST', data: data }
+    @emit_request 'create', { path: '/api/challenges', method: 'POST', data: data }
 
   accept_challenge: (e) =>
     e.preventDefault()
     id = $(e.target).data('id')
-    @emit 'accept', { path: "/api/challenges/#{id}/accept", method: 'PUT' }
+    @emit_request 'accept', { path: "/api/challenges/#{id}/accept", method: 'PUT' }
 
   decline_challenge: (e) =>
     e.preventDefault()
     id = $(e.target).data('id')
-    @emit 'decline', { path: "/api/challenges/#{id}/decline", method: 'PUT' }
+    @emit_request 'decline', { path: "/api/challenges/#{id}/decline", method: 'PUT' }
 
   cancel_challenge: (e) =>
     e.preventDefault()
     id = $(e.target).data('id')
-    @emit 'cancel', { path: "/api/challenges/#{id}", method: 'DELETE' }
+    @emit_request 'cancel', { path: "/api/challenges/#{id}", method: 'DELETE' }
 
   ########################################
   # Server initiated actions

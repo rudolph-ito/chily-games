@@ -49,7 +49,7 @@ class SquareBoard extends Board
   setup: (max_width, max_height) ->
     padding = 2
 
-    if @data.action is 'setup'
+    if @game_controller?.user_in_setup()
       @setup_rows = @board_rows
       @setup_columns = Math.ceil(@data.piece_types.length / @board_rows)
 

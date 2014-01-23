@@ -12,6 +12,7 @@ class GameController extends Controller
     super
 
     @socket.on 'abort', @server_game_abort
+    @socket.on 'setup_complete', @server_setup_complete
     @socket.on 'piece_move', @server_piece_move
     @socket.on 'resign', @server_game_resign
 
@@ -36,13 +37,25 @@ class GameController extends Controller
     out
 
   load_game: ->
-    @board_container.html('')
-
     $.getJSON @url(), (data) =>
+      @parse_data(data)
+      @update_state()
+      @update_actions()
+      @add_to_chat("Server:\n" + data.message) if @user_in_setup()
+
       @board = Board.create(@board_container[0], data, @)
       @board.draw()
-      @update_actions()
-      @add_to_chat("Server:\n" + data.message) if data.action == 'setup'
+
+  user_in_setup: ->
+    @action == 'setup' && (@action_to_id == null || @action_to_id == @user_id)
+
+  parse_data: (data) ->
+    @action = data.action
+    @action_to_id = data.action_to_id
+    @alabaster_id = data.alabaster_id
+    @alabaster_name = data.alabaster_name
+    @onyx_id = data.onyx_id
+    @onyx_name = data.onyx_name
 
   load_challenges: ->
     @board_container.html('')
@@ -54,11 +67,30 @@ class GameController extends Controller
   # Update UI
   ########################################
 
-  setup_actions: {abort: true, setup_complete: true, resign: false}
-  play_actions: {abort: false, setup_complete: false, resign: true}
+  update_controls: ->
+    @update_state()
+    @update_actions()
+
+  update_state: ->
+    @container.find('.state').text( @state() )
+
+  state: ->
+    name = switch @action_to_id
+      when @alabaster_id then @alabaster_name
+      when @onyx_id then @onyx_name
+      else "Both players"
+
+    if @action == 'setup'
+      "#{name} to complete setup"
+    else
+      "#{name} to move"
 
   update_actions: ->
-    actions = if @board.data.action == 'setup' then @setup_actions else @play_actions
+    actions = {
+      setup_complete: @user_in_setup()
+      abort: @action == 'setup'
+      resign: @action == 'move'
+    }
 
     for name, should_display of actions
       element = @container.find("[data-action=#{name}]")
@@ -104,8 +136,14 @@ class GameController extends Controller
       method: 'PUT'
       success: (data) =>
         if data.success
-          @ready = true
-          @emit 'ready'
+          @action = data.action
+          @action_to_id = data.action_to_id
+
+          @update_controls()
+          @add_to_chat("Server:\n" + 'Setup complete')
+          @board.draw()
+
+          @emit_broadcast 'setup_complete', {action: @action, action_to_id: @action_to_id}, false
         else
           @add_to_chat("Server:\n" + data.errors.join("\n"))
 
@@ -122,7 +160,7 @@ class GameController extends Controller
         @board.highlight_spaces([coordinate], '#00CC00')
 
   piece_move: (from_coordinate, to_coordinate) =>
-    @emit 'piece_move',
+    @emit_request 'piece_move',
       path: @url('piece_move')
       method: 'PUT'
       data:
@@ -130,10 +168,10 @@ class GameController extends Controller
         to: to_coordinate
 
   abort_game: =>
-    @emit 'abort', { path: @url('abort'), method: 'PUT' }
+    @emit_request 'abort', { path: @url('abort'), method: 'PUT' }
 
   resign_game: =>
-    @emit 'resign', { path: @url('resign'), method: 'PUT' }
+    @emit_request 'resign', { path: @url('resign'), method: 'PUT' }
 
 
 
@@ -141,13 +179,23 @@ class GameController extends Controller
   # Server initiated actions
   ########################################
 
-  server_ready: (data) =>
-    @load_challenges()
+  server_setup_complete: (data) =>
+    @action = data.broadcast.action
+    @action_to_id = data.broadcast.action_to_id
+
+    @update_controls()
+
+    @add_to_chat("Server:\n" + 'Opponent is ready')
 
   server_piece_move: (data) =>
     return unless data.backendResponse.status == 200
     data = $.parseJSON data.backendResponse.body
-    @board.move_piece(data.from, data.to) if data.success
+    if data.success
+      @action = data.action
+      @action_to_id = data.action_to_id
+      @update_state()
+
+      @board.move_piece(data.from, data.to)
 
   server_game_abort: (data) =>
     @load_challenges()

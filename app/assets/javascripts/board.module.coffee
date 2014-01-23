@@ -19,9 +19,9 @@ class Board
       board.draw()
 
 
-  @create: (container, data, gameController = null) ->
+  @create: (container, data, game_controller = null) ->
     klass = require("boards/#{data.board_type}_board")
-    new klass(container, data, gameController)
+    new klass(container, data, game_controller)
 
 
 
@@ -38,6 +38,8 @@ class Board
     @space_map = new CoordinateMap
 
   draw: ->
+    @container.html('')
+
     @header_height = @footer_height = 25
     @header_padding = @footer_padding = 5
 
@@ -68,7 +70,7 @@ class Board
     @space_layer.draw()
 
     @draw_pieces()
-    @draw_setup() if @data.action == 'setup'
+    @draw_setup() if @game_controller?.user_in_setup()
 
   board_padding_top: ->
     @header_height + @header_padding
@@ -136,7 +138,7 @@ class Board
     @territory(coord) == @data.color
 
   space_color: (coord) ->
-    if @data.action == 'setup'
+    if @game_controller?.action == 'setup'
       color = @territory(coord)
       if color == 'neutral'
         '#A8A8A8'

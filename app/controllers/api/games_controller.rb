@@ -60,7 +60,7 @@ class Api::GamesController < ApplicationController
 
     if @game.ply_valid?(params[:from], params[:to])
       @game.move_piece(params[:from], params[:to])
-      render json: { success: true, from: params[:from], to: params[:to] }
+      render json: { success: true, from: params[:from], to: params[:to], action: @game.action, action_to_id: @game.action_to_id }
     else
       render json: { success: false }
     end
