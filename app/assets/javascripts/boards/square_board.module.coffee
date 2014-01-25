@@ -5,10 +5,10 @@ class SquareBoard extends Board
 
   Space: SquareSpace
 
-  constructor: ->
+  constructor: (container, color, options, game_controller) ->
     super
-    @board_columns = @data.board_columns
-    @board_rows = @data.board_rows
+    @board_columns = options.board_columns
+    @board_rows = options.board_rows
 
   draw_spaces: ->
     for x in [0...@board_columns]
@@ -35,7 +35,7 @@ class SquareBoard extends Board
       real_x = @board_width - relative_x + @setup_width
       real_y = @board_height - relative_y
 
-    [real_x, real_y]
+    [real_x, real_y + @header_height]
 
   territory: ({x,y}) ->
     if @board_rows % 2 is 1 and y == @board_rows / 2
@@ -51,7 +51,7 @@ class SquareBoard extends Board
 
     if @game_controller?.user_in_setup()
       @setup_rows = @board_rows
-      @setup_columns = Math.ceil(@data.piece_types.length / @board_rows)
+      @setup_columns = Math.ceil(@piece_types.length / @board_rows)
 
       setup_spaces = @setup_columns
       setup_padding = 10

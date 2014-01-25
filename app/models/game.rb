@@ -25,8 +25,8 @@ class Game < ActiveRecord::Base
   belongs_to :onyx, class_name: 'User'
   belongs_to :variant
 
-  has_many :pieces
-  has_many :terrains
+  has_many :pieces, dependent: :destroy
+  has_many :terrains, dependent: :destroy
 
   ########################################
   # Validations
@@ -53,7 +53,7 @@ class Game < ActiveRecord::Base
     end
   end
 
-  def oppponent_id(user_id)
+  def opponent_id(user_id)
     if user_id == alabaster_id
       onyx_id
     else
@@ -96,7 +96,7 @@ class Game < ActiveRecord::Base
 
   def setup_complete(user)
     if action_to_id == nil
-      self.action_to_id = oppponent_id(user.id)
+      self.action_to_id = opponent_id(user.id)
     else
       self.action = 'move'
       self.action_to_id = alabaster_id
@@ -110,7 +110,16 @@ class Game < ActiveRecord::Base
     piece = pieces.for_coordinate(from).first
     piece.update_attributes(coordinate: to) if piece
 
-    update_attributes(action_to_id: oppponent_id(action_to_id))
+    opponent_id = opponent_id(action_to_id)
+    if pieces.joins(:piece_type).where(user_id: opponent_id, piece_types: {name: 'King'}).count == 0
+      update_attributes(action: 'complete')
+    else
+      update_attributes(action_to_id: opponent_id)
+    end
+  end
+
+  def resign(user)
+    update_attributes(action: 'complete', action_to_id: opponent_id(user.id))
   end
 
   # # Ply: a hash with the following keys

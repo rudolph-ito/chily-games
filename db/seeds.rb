@@ -35,3 +35,14 @@ end
     PieceType.create!(attrs)
   end
 end
+
+########################################
+# Variants
+########################################
+
+unless Variant.find_by(name: 'v1')
+  variant = Variant.create!(name: 'v1', user: User.first, board_type: 'square', board_rows: 7, board_columns: 7, number_of_pieces: 3)
+  variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Dragon'), count_minimum: 1, count_maximum: 1, movement_type: 'orthogonal_or_diagonal_line', movement_minimum: 1)
+  variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Light Horse'), count_minimum: 0, count_maximum: 1, movement_type: 'orthogonal_with_turns', movement_minimum: 2, movement_maximum: 3)
+  variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Heavy Horse'), count_minimum: 0, count_maximum: 1, movement_type: 'diagonal_with_turns', movement_minimum: 1, movement_maximum: 3)
+end

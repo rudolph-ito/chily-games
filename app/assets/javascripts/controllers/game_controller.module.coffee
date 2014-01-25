@@ -218,10 +218,21 @@ class GameController extends Controller
 
       @board.move_piece(data.from, data.to)
 
+      if @action == 'complete'
+        name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
+        alert("Game over: #{name} wins by death")
+        @load_challenges()
+
   server_game_abort: (data) =>
+    alert("Game aborted")
     @load_challenges()
 
   server_game_resign: (data) =>
+    @action = data.action
+    @action_to_id = data.action_to_id
+
+    name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
+    alert("Game over: #{name} wins by resignation")
     @load_challenges()
 
 

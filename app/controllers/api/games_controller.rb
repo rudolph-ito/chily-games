@@ -6,7 +6,7 @@ class Api::GamesController < ApplicationController
     valid_piece_moves: 'read', piece_move: 'move', opponent_setup: 'opponent_setup_read'
 
   def current
-    @game_id = Game.for_user(current_user).pluck(:id).first
+    @game_id = Game.current.for_user(current_user).pluck(:id).first
   end
 
   def show
@@ -71,8 +71,8 @@ class Api::GamesController < ApplicationController
   end
 
   def resign
-    @game.destroy
-    head :ok
+    @game.resign(current_user)
+    render json: { action: @game.action, action_to_id: @game.action_to_id }
   end
 
   protected

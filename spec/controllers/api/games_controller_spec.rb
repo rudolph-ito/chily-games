@@ -274,6 +274,28 @@ describe Api::GamesController do
     end
   end
 
+  describe 'opponent_setup' do
+    let(:piece_type) { create :piece_type }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
+    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
+
+    let(:game_parameters) { {} }
+    let(:game) { create :game, { variant: variant, action: 'move' }.merge(game_parameters) }
+    let!(:piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '7', 'y' => '7'} }
+
+    context 'when signed in', :signed_in do
+      context 'as alabaster' do
+        let(:game_parameters) { { alabaster: current_user } }
+
+        it 'succeeds' do
+          get :opponent_setup, id: game.id, format: :json
+          expect(response.status).to eql 200
+          expect(response.body).to be_json({pieces: [{ piece_type_id: piece_type.id, coordinate: {'x' => 7, 'y' => 7}, color: 'onyx'}]})
+        end
+      end
+    end
+  end
+
   describe 'valid_piece_moves' do
     let(:piece_type) { create :piece_type }
     let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
@@ -305,13 +327,14 @@ describe Api::GamesController do
   end
 
   describe 'piece_move' do
-    let(:piece_type) { create :piece_type }
+    let(:piece_type) { create :piece_type, name: 'King' }
     let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1 }
 
     let(:game_parameters) { {} }
     let(:game) { create :game, {action: 'move', variant: variant}.merge(game_parameters) }
     let!(:piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
+    let!(:opponent_piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '1'} }
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
@@ -323,7 +346,15 @@ describe Api::GamesController do
             expect(response.status).to eql 200
             expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}, action: "move", action_to_id: game.onyx_id})
             expect(piece.reload.coordinate).to eql({'x' => 1, 'y' => 0})
-            expect(game.reload.action_to).to eql(game.onyx)
+          end
+
+          context 'taking king' do
+            it 'succeeds' do
+              put :piece_move, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '0', 'y' => '1'}, format: :json
+              expect(response.status).to eql 200
+              expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 0, 'y' => 1}, action: "complete", action_to_id: game.alabaster_id})
+              expect(piece.reload.coordinate).to eql({'x' => 0, 'y' => 1})
+            end
           end
         end
 
@@ -349,10 +380,10 @@ describe Api::GamesController do
         let(:game_parameters) { { alabaster: current_user } }
 
         it 'succeeds' do
-          expect {
-            put :resign, id: game.id, format: :json
-            expect(response.status).to eql 200
-          }.to change(Game, :count).by(-1)
+          put :resign, id: game.id, format: :json
+          expect(response.status).to eql 200
+          expect(game.reload.action).to eql 'complete'
+          expect(game.action_to_id).to eql game.onyx_id
         end
       end
 
@@ -360,10 +391,10 @@ describe Api::GamesController do
         let(:game_parameters) { { onyx: current_user } }
 
         it 'succeeds' do
-          expect {
-            put :resign, id: game.id, format: :json
-            expect(response.status).to eql 200
-          }.to change(Game, :count).by(-1)
+          put :resign, id: game.id, format: :json
+          expect(response.status).to eql 200
+          expect(game.reload.action).to eql 'complete'
+          expect(game.action_to_id).to eql game.alabaster_id
         end
       end
     end
