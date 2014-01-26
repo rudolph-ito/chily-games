@@ -16,11 +16,11 @@ class SquareBoard extends Board
         @draw_space({x: x, y: y})
 
   in_space: (space, x, y)->
-    left_x = space.attrs.x - space.attrs.offset.x
-    right_x = left_x + space.attrs.width
+    left_x = space.x - space.size / 2
+    right_x = left_x + space.size
 
-    top_y = space.attrs.y - space.attrs.offset.y
-    bottom_y = top_y + space.attrs.height
+    top_y = space.y - space.size / 2
+    bottom_y = top_y + space.size
 
     left_x <= x <= right_x && top_y <= y <= bottom_y
 

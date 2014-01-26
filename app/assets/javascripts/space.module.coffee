@@ -6,6 +6,14 @@ class Space
   update_draw_options: ->
     [@x, @y] = @board.position(@coordinate)
 
+  draw: ->
+    # create @space in subclass, then call super
+    @space.on "click", @click
+    @board.space_layer.add(@space)
+
+  click: =>
+    @board.click(@coordinate)
+
   draw_coordinate: ->
     obj = new Kinetic.Text
       x: @x
@@ -18,14 +26,16 @@ class Space
 
     @board.space_layer.add(obj)
 
+  set_fill: (color) ->
+    @space.attrs.fill = color
+
   highlight: (color) ->
-    @space.attrs.stroke = color
-    @space.attrs.strokeWidth = 5
-    @space.setZIndex(1000)
+    @highlighted = true
+    @set_fill(color)
 
   dehighlight: ->
-    @space.attrs.stroke = 'black'
-    @space.attrs.strokeWidth = 1
-    @space.setZIndex(1)
+    return unless @highlighted
+    @highlighted = false
+    @set_fill('white')
 
 module.exports = Space

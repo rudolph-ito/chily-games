@@ -19,7 +19,7 @@ class SquareSpace extends Space
       strokeWidth: 1
       coordinate: @coordinate
 
-    @board.space_layer.add(@space)
+    super
 
   redraw: ->
     @update_draw_options()

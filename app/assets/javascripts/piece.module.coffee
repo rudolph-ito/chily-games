@@ -3,7 +3,7 @@ class Piece
   constructor: (@board, data) ->
     @piece_type_id = data.piece_type_id
     @color = data.color
-    @display = 'none'
+    @selected = false
 
     if data.coordinate
       @coordinate = data.coordinate
@@ -55,13 +55,7 @@ class Piece
 
   click: =>
     return if @dragging
-
-    if @display == 'none'
-      @board.game_controller.valid_piece_moves(@coordinate)
-      @display = 'moves'
-    else
-      @board.dehighlight_spaces()
-      @display = 'none'
+    @board.click(@coordinate)
 
   drag_start: =>
     @dragging = true
@@ -73,9 +67,11 @@ class Piece
 
   drag_end: =>
     @dragging = false
-    space = @board.nearest_space(@image.attrs.x, @image.attrs.y)
+    @try_move( @board.nearest_space(@image.attrs.x, @image.attrs.y) )
+
+  try_move: (space) ->
     from = @coordinate
-    to = space?.attrs.coordinate
+    to = space?.coordinate
 
     if @board.game_controller.user_in_setup()
       if space and @board.home_space(to)
@@ -101,9 +97,9 @@ class Piece
     @board.piece_layer.draw()
 
   move_to_space: (space) ->
-    @image.attrs.x = @x = space.attrs.x
-    @image.attrs.y = @y = space.attrs.y
-    @image.attrs.coordinate = @coordinate = space.attrs.coordinate
+    @image.attrs.x = @x = space.x
+    @image.attrs.y = @y = space.y
+    @image.attrs.coordinate = @coordinate = space.coordinate
     @board.piece_layer.draw()
 
   remove: ->

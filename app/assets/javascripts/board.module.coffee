@@ -166,18 +166,15 @@ class Board
     for space in @space_map.values()
       owner = @territory(space.coordinate)
       if owner == 'neutral'
-        # TODO remove space.space
-        space.space.attrs.fill = '#A8A8A8'
+        space.set_fill('#A8A8A8')
       else if owner != @color
-        # TODO remove space.space
-        space.space.attrs.fill = '#505050'
+        space.set_fill('#505050')
 
     @space_layer.draw()
 
   hide_territory: ->
     for space in @space_map.values()
-      # TODO remove space.space
-      space.space.attrs.fill = '#FFFFFF' if @territory(space.coordinate) != @color
+      space.set_fill('#FFFFFF') if @territory(space.coordinate) != @color
 
     @space_layer.draw()
 
@@ -185,7 +182,7 @@ class Board
     Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) )
 
   nearest_space: (x,y) ->
-    for space in @space_layer.children
+    for space in @space_map.values()
       return space if @in_space(space, x, y)
 
     null
@@ -199,10 +196,11 @@ class Board
 
     piece = @piece_map.get(from)
     space = @space_map.get(to)
-    # TODO remove space.space
-    piece.move_to_space(space.space)
+    piece.move_to_space(space)
 
     @piece_map.move(from, to)
+
+    @deselect_piece()
 
   highlight_spaces: (coordinates, color) ->
     for coordinate in coordinates
@@ -215,5 +213,23 @@ class Board
       space.dehighlight()
 
     @space_layer.draw()
+
+  click: (coodinate) ->
+    if @selected_piece?
+      space = @space_map.get(coodinate)
+      @selected_piece.try_move(space) if space.highlighted
+      @deselect_piece()
+    else
+      piece = @piece_map.get(coodinate)
+      @select_piece(piece)
+
+  select_piece: (piece) ->
+    @selected_piece = piece
+    @game_controller.valid_piece_moves(piece.coordinate)
+
+  deselect_piece: ->
+    @selected_piece = null
+    @dehighlight_spaces()
+
 
 module.exports = Board

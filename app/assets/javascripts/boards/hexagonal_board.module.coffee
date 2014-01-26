@@ -43,7 +43,7 @@ class HexagonalBoard extends Board
         @draw_space {x: j, y: 0, z: -i}
 
   in_space: (space, x, y) ->
-    @distance(space.attrs.x, x, space.attrs.y, y) <= @space_radius
+    @distance(space.x, x, space.y, y) <= @space_radius
 
   position: ({x, y, z}) ->
     relative_x = x * 2 * @delta_x + y * @delta_x + z * -@delta_x
