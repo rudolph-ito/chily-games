@@ -34,12 +34,15 @@ class Board
     @container.html('')
 
     @piece_types = options.piece_types
+    @terrain_types = options.terrain_types
+
 
     @header_height = @footer_height = 30
 
     @piece_map = new CoordinateMap
     @space_map = new CoordinateMap
     @setup_pieces = []
+    @setup_spaces = []
 
     @stage = new Kinetic.Stage container: @container[0]
     @space_layer = new Kinetic.Layer()
@@ -72,7 +75,6 @@ class Board
       @info_layer.draw()
 
     @draw_setup() if @game_controller?.user_in_setup()
-    @display_territory() if @game_controller?.action == 'setup'
 
   # Used to redraw board after we are set
   redraw: ->
@@ -95,10 +97,15 @@ class Board
     # override
 
   draw_space: (coordinate) ->
-    space = new @Space(@, coordinate)
+    space = new @Space(@, {coordinate: coordinate})
     space.draw()
     # space.draw_coordinate()
     @space_map.set(coordinate, space)
+
+  draw_terrains: (terrains) ->
+    for terrain_data in terrains
+      space = @space_map.get(terrain_data.coordinate)
+      space.set_terrain(terrain_data.terrain_type_id)
 
   draw_pieces: (pieces) ->
     for piece_data in pieces
@@ -142,10 +149,13 @@ class Board
 
   redraw_footer: ->
     @footer.attrs.x = 0
+    @footer.attrs.y = @board_height + @header_height + 5
     @footer.attrs.width = @board_width
 
   draw_setup: ->
-    for piece_type_id, index in @piece_types
+    index = 0
+
+    for piece_type_id in @piece_types
       row = Math.floor(index / @setup_columns) % @setup_rows
       column = index % @setup_columns
 
@@ -156,25 +166,26 @@ class Board
       piece.draw()
       @setup_pieces.push(piece)
 
+      index++
+
+    for terrain_type_id in @terrain_types
+      row = Math.floor(index / @setup_columns) % @setup_rows
+      column = index % @setup_columns
+      x = column * @setup_size + @setup_size / 2
+      y = @board_height + @header_height - row * @setup_size - @setup_size / 2
+
+      space = new @Space(@, {x: x, y: y, terrain_type_id: terrain_type_id})
+      space.draw()
+
   coord_eql: (a,b) ->
     Object.keys(a).all (k) -> a[k] == b[k]
 
   home_space: (coord) ->
     @territory(coord) == @color
 
-  display_territory: ->
+  update_display: ->
     for space in @space_map.values()
-      owner = @territory(space.coordinate)
-      if owner == 'neutral'
-        space.set_fill('#A8A8A8')
-      else if owner != @color
-        space.set_fill('#505050')
-
-    @space_layer.draw()
-
-  hide_territory: ->
-    for space in @space_map.values()
-      space.set_fill('#FFFFFF') if @territory(space.coordinate) != @color
+      space.update_display() if @territory(space.coordinate) != @color
 
     @space_layer.draw()
 
@@ -204,13 +215,13 @@ class Board
 
   highlight_spaces: (coordinates, color) ->
     for coordinate in coordinates
-      @space_map.get(coordinate)?.highlight(color)
+      @space_map.get(coordinate)?.set_highlight(color)
 
     @space_layer.draw()
 
   dehighlight_spaces: ->
     for space in @space_map.values()
-      space.dehighlight()
+      space.set_highlight(null)
 
     @space_layer.draw()
 

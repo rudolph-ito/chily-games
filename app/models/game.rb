@@ -61,23 +61,30 @@ class Game < ActiveRecord::Base
     end
   end
 
-  def setup_add_piece(user, piece_type_id, coordinate)
-    setup_remove_piece(user, coordinate)
-    pieces.create!(coordinate: coordinate, piece_type_id: piece_type_id, user_id: user.id)
+  # Adds a piece/terrain
+  #   type must be "piece" or "terrain"
+  def setup_add(user, type, type_id, coordinate)
+    setup_remove(user, type, coordinate)
+    send(type.pluralize).create( { coordinate: coordinate, "#{type}_type_id" => type_id, user_id: user.id } )
   end
 
-  def setup_move_piece(user, from, to)
-    setup_remove_piece(user, to)
-    piece = pieces.where(user_id: user.id).for_coordinate(from).first
-    piece.update_attributes(coordinate: to) if piece
+  # Moves a piece/terrain
+  #   type must be "piece" or "terrain"
+  def setup_move(user, type, from, to)
+    setup_remove(user, type, to)
+    object = self.send(type.pluralize).where(user_id: user.id).for_coordinate(from).first
+    object.update_attributes(coordinate: to) if object
   end
 
-  def setup_remove_piece(user, coordinate)
-    pieces.where(user_id: user.id).for_coordinate(coordinate).destroy_all
+  # Removes a piece/terrain
+  #   type must be "piece" or "terrain"
+  def setup_remove(user, type, coordinate)
+    send(type.pluralize).where(user_id: user.id).for_coordinate(coordinate).destroy_all
   end
 
   def setup_errors(user)
     user_pieces = pieces.where(user_id: user.id)
+    user_terrains = terrains.where(user_id: user.id)
     errors = []
 
     if user_pieces.count != variant.number_of_pieces
@@ -88,6 +95,13 @@ class Game < ActiveRecord::Base
       placed = user_pieces.where(piece_type_id: pr.piece_type_id).count
       if placed < pr.count_minimum || placed > pr.count_maximum
         errors << "Please place #{pr.count_with_name}. You placed #{placed}."
+      end
+    end
+
+    variant.terrain_rules.each do |tr|
+      placed = user_terrains.where(terrain_type_id: tr.terrain_type_id).count
+      if placed != tr.count
+        errors << "Please place #{tr.count_with_name}. You placed #{placed}."
       end
     end
 

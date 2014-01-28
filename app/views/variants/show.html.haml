@@ -32,7 +32,7 @@
 %table
   %tr
     %th Piece Type
-    %th Starting Count
+    %th Count
     %th Movement
 
   - @variant.piece_rules.each do |piece_rule|
@@ -62,10 +62,14 @@
 %table
   %tr
     %th Terrain Type
+    %th Count
+    %th Block Movement
 
   - @variant.terrain_rules.each do |terrain_rule|
     %tr
       %td= terrain_rule.terrain_type.name
+      %td= terrain_rule.count
+      %td= terrain_rule.block_movement ? 'Yes' : 'No'
 
       - if signed_in? && current_user.can_manage?(@variant)
         %td
@@ -86,3 +90,12 @@
     %h3 Preview
   .modal-body
     .board
+
+:javascript
+  $(function() {
+    PieceType = require('piece_type')
+    PieceType.set_data(#{ActiveSupport::JSON.encode(PieceType.urls)})
+
+    TerrainType = require('terrain_type')
+    TerrainType.set_data(#{ActiveSupport::JSON.encode(TerrainType.urls)})
+  });

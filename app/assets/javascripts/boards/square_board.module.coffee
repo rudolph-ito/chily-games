@@ -51,7 +51,7 @@ class SquareBoard extends Board
 
     if @game_controller?.user_in_setup()
       @setup_rows = @board_rows
-      @setup_columns = Math.ceil(@piece_types.length / @board_rows)
+      @setup_columns = Math.ceil((@piece_types.length + @terrain_types.length) / @board_rows)
 
       setup_spaces = @setup_columns
       setup_padding = 10

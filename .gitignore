@@ -15,5 +15,6 @@
 /tmp
 
 /public/piece_types/*
+/public/terrain_types/*
 /public/uploads/*
 /coverage/*

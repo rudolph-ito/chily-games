@@ -17,9 +17,9 @@ Cyvasse::Application.routes.draw do
         get 'opponent_setup'
 
         put 'abort'
-        put 'setup_add_piece'
-        put 'setup_move_piece'
-        put 'setup_remove_piece'
+        put 'setup_add'
+        put 'setup_move'
+        put 'setup_remove'
         put 'setup_complete'
 
         put 'piece_move'

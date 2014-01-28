@@ -1,6 +1,18 @@
 class PieceType < ActiveRecord::Base
   include Authority::Abilities
 
+  ########################################
+  # Class Methods
+  ########################################
+
+  def self.urls
+    out = {}
+    all.each do |pt|
+      out[pt.id] = { alabaster: pt.alabaster_image.url, onyx: pt.onyx_image.url }
+    end
+    out
+  end
+
   default_scope -> { order('name ASC') }
 
   ########################################

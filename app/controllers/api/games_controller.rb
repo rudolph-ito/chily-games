@@ -2,8 +2,7 @@ class Api::GamesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :get_game, except: [:current]
   before_filter :authorize, except: [:current]
-  authority_actions setup_add_piece: 'setup', setup_move_piece: 'setup', setup_remove_piece: 'setup', setup_complete: 'setup',
-    valid_piece_moves: 'read', piece_move: 'move', opponent_setup: 'opponent_setup_read'
+  before_filter :ensure_valid_type, only: [:setup_add, :setup_move, :setup_remove]
 
   def current
     @game_id = Game.current.for_user(current_user).pluck(:id).first
@@ -21,18 +20,18 @@ class Api::GamesController < ApplicationController
     head :ok
   end
 
-  def setup_add_piece
-    @game.setup_add_piece(current_user, params[:piece_type_id], params[:coordinate])
+  def setup_add
+    @game.setup_add(current_user, params[:type], params[:type_id], params[:coordinate])
     head :ok
   end
 
-  def setup_move_piece
-    @game.setup_move_piece(current_user, params[:from], params[:to])
+  def setup_move
+    @game.setup_move(current_user, params[:type], params[:from], params[:to])
     head :ok
   end
 
-  def setup_remove_piece
-    @game.setup_remove_piece(current_user, params[:coordinate])
+  def setup_remove
+    @game.setup_remove(current_user, params[:type], params[:coordinate])
     head :ok
   end
 
@@ -83,6 +82,10 @@ class Api::GamesController < ApplicationController
 
   def authorize
     authorize_action_for @game
+  end
+
+  def ensure_valid_type
+    head :unprocessable_entity unless ['piece', 'terrain'].include?(params[:type])
   end
 
   def scrub_coordinate(*coords)

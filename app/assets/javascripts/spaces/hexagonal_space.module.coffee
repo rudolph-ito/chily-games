@@ -5,6 +5,7 @@ class HexagonalSpace extends Space
   update_draw_options: ->
     super
     @radius = @board.space_radius
+    @size = @radius * 2
 
   draw: ->
     @space = new Kinetic.RegularPolygon
@@ -24,5 +25,8 @@ class HexagonalSpace extends Space
     @space.attrs.x = @x
     @space.attrs.y = @y
     @space.attrs.radius = @radius
+
+  terrain_offset: (width, height) ->
+    { x: width / 2, y: height / 2 }
 
 module.exports = HexagonalSpace

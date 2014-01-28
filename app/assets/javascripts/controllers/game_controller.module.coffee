@@ -47,6 +47,7 @@ class GameController extends Controller
 
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
+      @board.draw_terrains(data.terrains)
       @board.draw_pieces(data.pieces)
 
   user_in_setup: ->
@@ -113,7 +114,7 @@ class GameController extends Controller
   finish_setup: ->
     return unless @action == 'move'
 
-    @board.hide_territory()
+    @board.update_display()
 
     $.ajax
       url: @url('opponent_setup')
@@ -126,30 +127,32 @@ class GameController extends Controller
   # User initiated actions
   ########################################
 
-  setup_add_piece: (piece_type_id, coordinate) ->
+  setup_add: (type, type_id, coordinate) ->
     $.ajax
-      url: @url('setup_add_piece')
+      url: @url('setup_add')
       dataType: 'json'
       method: 'PUT'
       data:
-        piece_type_id: piece_type_id
+        type: type
+        type_id: type_id
         coordinate: coordinate
 
-  setup_move_piece: (from_coordinate, to_coordinate) ->
+  setup_move: (type, from, to) ->
     $.ajax
-      url: @url('setup_move_piece')
+      url: @url('setup_move')
       dataType: 'json'
       method: 'PUT'
       data:
-        from: from_coordinate
-        to: to_coordinate
+        type: type
+        from: from
+        to: to
 
-  setup_remove_piece: (coordinate) ->
+  setup_remove: (type, coordinate) ->
     $.ajax
-      url: @url('setup_remove_piece')
-      dataType: 'json'
+      url: @url('setup_remove')
       method: 'PUT'
       data:
+        type: type
         coordinate: coordinate
 
   setup_complete: =>

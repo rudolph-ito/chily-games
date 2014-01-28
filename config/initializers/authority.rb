@@ -31,13 +31,20 @@ Authority.configure do |config|
   # }
 
   config.controller_action_map.merge!(
-    :manage => 'manage',
+    manage: 'manage',
     # Challenge
-    :accept => 'accept',
-    :decline => 'decline',
+    accept: 'accept',
+    decline: 'decline',
     # Game
-    :abort => 'abort',
-    :resign => 'resign'
+    abort: 'abort',
+    opponent_setup: 'opponent_setup_read',
+    piece_move: 'move',
+    setup_add: 'setup',
+    setup_move: 'setup',
+    setup_remove: 'setup',
+    setup_complete: 'setup',
+    valid_piece_moves: 'read',
+    resign: 'resign'
   )
 
   # ABILITIES
@@ -56,17 +63,17 @@ Authority.configure do |config|
   # }
 
   config.abilities.merge!(
-    :manage => 'managable',
+    manage: 'managable',
     # Challenge
-    :accept => 'acceptable',
-    :decline => 'declinable',
+    accept: 'acceptable',
+    decline: 'declinable',
     #Game
-    :abort => 'abortable',
-    :attack => 'attackable',
-    :move => 'moveable',
-    :opponent_setup_read => 'opponent_setup_readable',
-    :resign => 'resignable',
-    :setup => 'setupable'
+    abort: 'abortable',
+    attack: 'attackable',
+    move: 'moveable',
+    opponent_setup_read: 'opponent_setup_readable',
+    resign: 'resignable',
+    setup: 'setupable'
   )
 
   # LOGGER

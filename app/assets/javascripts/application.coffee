@@ -25,9 +25,11 @@
 #= require controller.module
 #= require_directory ./controllers
 #
+#= require terrain_type.module
 #= require space.module
 #= require_directory ./spaces
 #
+#= require piece_type.module
 #= require piece.module
 #
 #= require board.module

@@ -37,12 +37,43 @@ end
 end
 
 ########################################
+# Terrain Types
+########################################
+
+%w( mountain ).each do |tt|
+  name = tt.titleize
+
+  attrs = {
+    image: File.open("lib/assets/terrain_types/#{tt}.png"),
+    name: name
+  }
+
+  terrain_type = TerrainType.find_by(name: name)
+
+  if terrain_type
+    terrain_type.update_attributes!(attrs) unless terrain_type.valid?
+  else
+    TerrainType.create!(attrs)
+  end
+end
+
+########################################
 # Variants
 ########################################
 
-unless Variant.find_by(name: 'v1')
-  variant = Variant.create!(name: 'v1', user: User.first, board_type: 'square', board_rows: 7, board_columns: 7, number_of_pieces: 3)
+unless Variant.find_by(name: 'sv1')
+  variant = Variant.create!(name: 'sv1', user: User.first, board_type: 'square', board_rows: 7, board_columns: 7, number_of_pieces: 3)
   variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Dragon'), count_minimum: 1, count_maximum: 1, movement_type: 'orthogonal_or_diagonal_line', movement_minimum: 1)
   variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Light Horse'), count_minimum: 0, count_maximum: 1, movement_type: 'orthogonal_with_turns', movement_minimum: 2, movement_maximum: 3)
   variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Heavy Horse'), count_minimum: 0, count_maximum: 1, movement_type: 'diagonal_with_turns', movement_minimum: 1, movement_maximum: 3)
+  variant.terrain_rules.create!(terrain_type: TerrainType.find_by(name: 'Mountain'), count_minimum: 0, count: 3, block_movement: true)
+end
+
+
+unless Variant.find_by(name: 'hv1')
+  variant = Variant.create!(name: 'hv1', user: User.first, board_type: 'hexagonal', board_size: 4, number_of_pieces: 3)
+  variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Dragon'), count_minimum: 1, count_maximum: 1, movement_type: 'orthogonal_or_diagonal_line', movement_minimum: 1)
+  variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Light Horse'), count_minimum: 0, count_maximum: 1, movement_type: 'orthogonal_with_turns', movement_minimum: 2, movement_maximum: 3)
+  variant.piece_rules.create!(piece_type: PieceType.find_by(name: 'Heavy Horse'), count_minimum: 0, count_maximum: 1, movement_type: 'diagonal_with_turns', movement_minimum: 1, movement_maximum: 3)
+  variant.terrain_rules.create!(terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3, block_movement: true)
 end

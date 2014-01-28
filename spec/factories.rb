@@ -40,6 +40,7 @@ FactoryGirl.define do
   end
 
   factory :terrain_rule do
+    count 1
     block_movement false
     terrain_type
     variant

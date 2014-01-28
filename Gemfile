@@ -23,7 +23,7 @@ gem 'authority' # Authorization
 gem 'carrierwave' # File Upload
 gem 'devise' # User Sessions
 gem 'foreman' # Process Manager
-gem 'formtastic' # Forms
+gem 'formtastic', "~> 2.3.0.rc2" # Forms
 gem 'haml-rails' # HAML for views
 gem 'jquery-rails' # JQuery for javascript
 gem 'rabl' # JSON API

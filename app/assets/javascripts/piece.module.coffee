@@ -1,3 +1,5 @@
+PieceType = require('piece_type')
+
 class Piece
 
   constructor: (@board, data) ->
@@ -41,7 +43,7 @@ class Piece
       @board.piece_layer.add(@image)
       @board.piece_layer.draw()
 
-    imageObj.src = "/piece_types/#{@piece_type_id}/#{@color}_image.svg"
+    imageObj.src = PieceType.url_for(@piece_type_id, @color)
 
   redraw: ->
     @update_draw_options()
@@ -80,13 +82,13 @@ class Piece
         @board.piece_map.set(@coordinate, @)
 
         if from
-          @board.game_controller.setup_move_piece(from, @coordinate)
+          @board.game_controller.setup_move('piece', from, @coordinate)
         else
-          @board.game_controller.setup_add_piece(@piece_type_id, @coordinate)
+          @board.game_controller.setup_add('piece', @piece_type_id, @coordinate)
 
       else
         @remove()
-        @board.game_controller.setup_remove_piece(@coordinate)
+        @board.game_controller.setup_remove('piece', @coordinate)
     else
       @move_back()
       @board.game_controller.piece_move(from, to) if space

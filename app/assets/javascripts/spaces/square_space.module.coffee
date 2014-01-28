@@ -31,4 +31,7 @@ class SquareSpace extends Space
     @space.attrs.width = @size
     @space.attrs.height = @size
 
+  terrain_offset: ->
+    { x: 0, y: 0 }
+
 module.exports = SquareSpace

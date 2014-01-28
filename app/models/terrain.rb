@@ -1,4 +1,5 @@
 class Terrain < ActiveRecord::Base
+  include HasCoordinate
 
   ########################################
   # Relations

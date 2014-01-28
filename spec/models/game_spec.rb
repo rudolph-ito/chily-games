@@ -68,16 +68,16 @@ describe Game do
     context 'valid' do
       context 'for alabaster' do
         it 'returns []' do
-          game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
-          game.setup_add_piece(user1, piece_type2.id, {'x' => 2, 'y' => 0})
+          game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
+          game.setup_add(user1, 'piece', piece_type2.id, {'x' => 2, 'y' => 0})
           expect(game.setup_errors(user1)).to eql []
         end
       end
 
       context 'for onyx' do
         it 'returns []' do
-          game.setup_add_piece(user2, piece_type1.id, {'x' => 2, 'y' => 2})
-          game.setup_add_piece(user2, piece_type2.id, {'x' => 1, 'y' => 2})
+          game.setup_add(user2, 'piece', piece_type1.id, {'x' => 2, 'y' => 2})
+          game.setup_add(user2, 'piece', piece_type2.id, {'x' => 1, 'y' => 2})
           expect(game.setup_errors(user2)).to eql []
         end
       end
@@ -85,32 +85,32 @@ describe Game do
 
     context 'too few pieces' do
       it 'returns errors' do
-        game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
         expect(game.setup_errors(user1)).to eql ['Please place 2 pieces. You placed 1.']
       end
     end
 
     context 'too many pieces' do
       it 'returns errors' do
-        game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
-        game.setup_add_piece(user1, piece_type2.id, {'x' => 1, 'y' => 0})
-        game.setup_add_piece(user1, piece_type3.id, {'x' => 2, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type2.id, {'x' => 1, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type3.id, {'x' => 2, 'y' => 0})
         expect(game.setup_errors(user1)).to eql ['Please place 2 pieces. You placed 3.']
       end
     end
 
     context 'too few of piece type' do
       it 'returns errors' do
-        game.setup_add_piece(user1, piece_type2.id, {'x' => 0, 'y' => 0})
-        game.setup_add_piece(user1, piece_type3.id, {'x' => 1, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type2.id, {'x' => 0, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type3.id, {'x' => 1, 'y' => 0})
         expect(game.setup_errors(user1)).to eql ['Please place 1 king. You placed 0.']
       end
     end
 
     context 'too many of piece type' do
       it 'returns errors' do
-        game.setup_add_piece(user1, piece_type1.id, {'x' => 0, 'y' => 0})
-        game.setup_add_piece(user1, piece_type1.id, {'x' => 1, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 1, 'y' => 0})
         expect(game.setup_errors(user1)).to eql ['Please place 1 king. You placed 2.']
       end
     end
