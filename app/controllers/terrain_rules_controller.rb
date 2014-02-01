@@ -42,7 +42,7 @@ class TerrainRulesController < ApplicationController
     params.require(:terrain_rule).permit(
       :terrain_type_id,
       :count,
-      :block_movement
+      :block_movement, :block_range
     )
   end
 

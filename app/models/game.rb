@@ -148,54 +148,41 @@ class Game < ActiveRecord::Base
     return false unless piece
 
     valid_plies(piece).each do |valid_ply|
-      return true if to == valid_ply['to']
+      return true if to == valid_ply
     end
 
     return false
   end
 
   # Returns the array of valid plies for a piece
-  #
-  # Each valid ply is a hash
-  #  "to" => <coordinate>
-  #  "capture" => <piece that is captured>
-  def valid_plies(piece)
-    rule = variant.piece_rules.find_by(piece_type_id: piece.piece_type.id)
+  def valid_plies(piece, type = 'movement')
+    ply_data = PlyData.new(piece, board, type)
 
-    # Get movement_functions
-    movement_functions = []
-    movement_functions += board.movement_function('orthogonal') if rule.movement_type.include?('orthogonal')
-    movement_functions += board.movement_function('diagonal') if rule.movement_type.include?('diagonal')
-
-    if rule.movement_type.end_with?('line')
-      line_plies(piece, rule, movement_functions)
-    elsif rule.movement_type.end_with?('with_turns')
-      turn_plies(piece, rule, movement_functions)
+    if ply_data.line?
+      line_plies(ply_data)
+    else
+      turn_plies(ply_data)
     end
   end
 
   private
 
   # Returns all plies for movement in a line
-  #
-  # piece = piece that is moving
-  # rule = rule used to calulate movements
-  # movement_functions = calculated from rule.movement_type and variant.board_type, precomputed for effeciency
-  def line_plies(piece, rule, movement_functions)
+  def line_plies(ply_data)
     plies = []
 
-    movement_functions.each do |movement_function|
-      to = piece.coordinate.clone
+    ply_data.directional_functions.each do |directional_function|
+      to = ply_data.coordinate.clone
       movement_count = 0
 
-      while !(rule.movement_maximum && movement_count == rule.movement_maximum)
-        movement_function.call(to)
+      while !(ply_data.maximum && movement_count == ply_data.maximum)
+        directional_function.call(to)
         to = board.reduce_coordinate(to)
         movement_count += 1
 
-        stop, ply = evaluate_ply(piece, rule, to, movement_count)
-        plies << ply if ply
-        break if stop
+        continue, valid = evaluate_ply(ply_data, to, movement_count)
+        plies << to.clone if valid
+        break unless continue
       end
     end
 
@@ -203,66 +190,72 @@ class Game < ActiveRecord::Base
   end
 
   # Returns all plies for movement with turns
-  #
-  # piece = piece that is moving
-  # rule = rule used to calulate movements
-  # movement_functions = calculated from rule.movement_type and variant.board_type, precomputed for effeciency
-  def turn_plies(piece, rule, movement_functions)
-    _turn_plies(piece, rule, movement_functions, piece.coordinate, 0)
+  def turn_plies(ply_data)
+    _turn_plies(ply_data, ply_data.coordinate.clone, 0)
   end
 
   # Recursive function for turn_plies
   #
   # piece = piece that is moving
-  # rule = rule used to calulate movements
-  # movement_functions = calculated from rule.movement_type and variant.board_type, precomputed for effeciency
   # from = where the piece is moving from this deep in the search
   # movement_count = number of spaces moved from piece.coordinate to from
-  def _turn_plies(piece, rule, movement_functions, from, movement_count)
-    return [] if rule.movement_maximum && movement_count == rule.movement_maximum
+  def _turn_plies(ply_data, from, movement_count)
+    return [] if ply_data.maximum && movement_count == ply_data.maximum
 
     plies = []
 
-    movement_functions.each do |movement_function|
+    ply_data.directional_functions.each do |directional_function|
       to = from.clone
-      movement_function.call(to)
+      directional_function.call(to)
       to = board.reduce_coordinate(to)
 
       # Stop if distance did not grow
-      next if board.distance(piece.coordinate, from) >= board.distance(piece.coordinate, to)
+      next if board.distance(ply_data.coordinate, from) >= board.distance(ply_data.coordinate, to)
 
-      stop, ply = evaluate_ply(piece, rule, to, movement_count + 1)
-      plies << ply if ply
-      next if stop
+      continue, valid = evaluate_ply(ply_data, to, movement_count + 1)
+      plies << to.clone if valid
+      next unless continue
 
       # Continue
-      plies += _turn_plies(piece, rule, movement_functions, to, movement_count + 1)
+      plies += _turn_plies(ply_data, to, movement_count + 1)
     end
 
-    plies
+    plies.uniq
   end
 
   # Shared ply evaluation between line_plies and turn_plies
   #
-  # Returns [stop, ply]
-  def evaluate_ply(piece, rule, to, movement_count)
-    ply = nil
-
+  # Returns [stop, valid]
+  def evaluate_ply(ply_data, to, movement_count)
     # Stop if off the board
-    return true if board.coordinate_invalid?(to)
+    return [false, false] if board.coordinate_invalid?(to)
 
     # Get piece at square
-    occupied_by = pieces.detect{ |p| p.coordinate == to }
+    occupying_piece = pieces.for_coordinate(to).first
 
-    # Stop if ran into own piece
-    return true if occupied_by && occupied_by.user == piece.user
-
-    # Create ply (unless not above minimum)
-    unless movement_count < rule.movement_minimum
-      ply = { 'to' => to.clone, 'capture' => occupied_by }
+    if occupying_piece
+      # Stop if ran into own piece
+      if occupying_piece.user == ply_data.user
+        return [false, false]
+      # Stop if ran into enemy piece and cannot capture
+      elsif !ply_data.capture
+        return [false, false]
+      end
     end
 
-    return [occupied_by, ply]
+    occupying_terrain = terrains.for_coordinate(to).first
+
+    if occupying_terrain
+      # Stop if ran into blocking terrain
+      if occupying_terrain.rule.public_send "block_#{ply_data.type}"
+        return [false, false]
+      end
+    end
+
+    continue = occupying_piece.blank?
+    valid = movement_count >= ply_data.minimum
+
+    [continue, valid]
   end
 
 end

@@ -32,7 +32,7 @@ describe PieceRulesController do
 
   describe 'create' do
     let(:piece_type) { create(:piece_type) }
-    let(:valid_attributes) { { count_minimum: 1, count_maximum: 1, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1, piece_type_id: piece_type.id } }
+    let(:valid_attributes) { { count_minimum: 1, count_maximum: 1, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1, piece_type_id: piece_type.id, capture_type: 'movement'} }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do

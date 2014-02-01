@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140126055617) do
+ActiveRecord::Schema.define(version: 20140201063656) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,10 @@ ActiveRecord::Schema.define(version: 20140126055617) do
     t.string  "movement_type"
     t.integer "movement_minimum"
     t.integer "movement_maximum"
+    t.string  "capture_type"
+    t.integer "range_minimum"
+    t.integer "range_maximum"
+    t.string  "range_type"
   end
 
   create_table "piece_types", force: true do |t|
@@ -62,6 +66,7 @@ ActiveRecord::Schema.define(version: 20140126055617) do
     t.integer "variant_id"
     t.boolean "block_movement"
     t.integer "count"
+    t.boolean "block_range"
   end
 
   create_table "terrain_types", force: true do |t|

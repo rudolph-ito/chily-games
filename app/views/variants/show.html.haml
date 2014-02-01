@@ -34,20 +34,25 @@
     %th Piece Type
     %th Count
     %th Movement
+    %th Capture
 
   - @variant.piece_rules.each do |piece_rule|
     %tr
       %td= piece_rule.piece_type.name
-      %td= piece_rule.count
-      %td= piece_rule.movement
+      %td= piece_rule.count_description
+      %td
+        = piece_rule.movement_description
+        = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "movement" }
+      %td
+        = piece_rule.capture_description
+        - if piece_rule.range_capture?
+          = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "range" }
 
       %td
         - if signed_in? && current_user.can_manage?(@variant)
           = link_to 'Edit', [:edit, piece_rule]
           - unless piece_rule.piece_type.king?
             = link_to 'Delete', piece_rule, method: :delete, data: { confirm: 'Are you sure?' }
-
-        = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id, "data-piece-type-id" => piece_rule.piece_type_id }
 
 %br
 %br
@@ -64,12 +69,14 @@
     %th Terrain Type
     %th Count
     %th Block Movement
+    %th Block Range
 
   - @variant.terrain_rules.each do |terrain_rule|
     %tr
       %td= terrain_rule.terrain_type.name
       %td= terrain_rule.count
       %td= terrain_rule.block_movement ? 'Yes' : 'No'
+      %td= terrain_rule.block_range ? 'Yes' : 'No'
 
       - if signed_in? && current_user.can_manage?(@variant)
         %td

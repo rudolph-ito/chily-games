@@ -9,10 +9,11 @@ class Board
     container.html('')
 
     path = "/api/variants/#{variant_id}/preview"
-    if options.piece_type_id
-      path += "?piece_type_id=#{options.piece_type_id}"
-      for key, value of options.coord
-        path += "&coord[#{key}]=#{value}"
+
+    query = []
+    query.push("piece_type_id=#{options.piece_type_id}") if options.piece_type_id
+    query.push("type=#{options.type}") if options.type
+    path += "?" + query.join('&')
 
     $.getJSON(path).done (data) =>
       board = @create(container, data.color, data.options)
@@ -20,8 +21,7 @@ class Board
 
       if data.pieces
         board.draw_pieces(data.pieces)
-        board.highlight_spaces(data.valid_plies, '#006633')
-        board.highlight_spaces([data.pieces[0].coordinate], '#00CC00')
+        board.highlight_valid_plies(data.valid_plies.type, data.pieces[0].coordinate, data.valid_plies.coordinates)
 
   @create: (container, color, options, game_controller = null) ->
     klass = require("boards/#{options.board_type}_board")
@@ -99,7 +99,7 @@ class Board
   draw_space: (coordinate) ->
     space = new @Space(@, {coordinate: coordinate})
     space.draw()
-    # space.draw_coordinate()
+    space.draw_coordinate()
     @space_map.set(coordinate, space)
 
   draw_terrains: (terrains) ->
@@ -212,6 +212,15 @@ class Board
     @piece_map.move(from, to)
 
     @deselect_piece()
+
+  highlight_valid_plies: (type, piece_coordinate, space_coordinates) ->
+    [piece_highlight_color, space_highlight_color] = if type == 'movement'
+      ['#00CC00', '#006633']
+    else
+      ['#CC0000', '#660033']
+
+    @highlight_spaces([piece_coordinate], piece_highlight_color)
+    @highlight_spaces(space_coordinates, space_highlight_color)
 
   highlight_spaces: (coordinates, color) ->
     for coordinate in coordinates

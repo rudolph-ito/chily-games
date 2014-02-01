@@ -70,10 +70,10 @@ class Variant < ActiveRecord::Base
     out = {options: board_info, color: 'onyx'}
 
     if opts[:piece_type_id]
-      g = self.games.build
-      p = g.pieces.build(piece_type_id: opts[:piece_type_id], coordinate: g.board.center_coordinate)
+      g = Game.new(variant: self)
+      p = Piece.new(game: g, piece_type_id: opts[:piece_type_id], coordinate: g.board.center_coordinate)
       out[:pieces] = [ { coordinate: p.coordinate, piece_type_id: p.piece_type_id, color: 'onyx' } ]
-      out[:valid_plies] = g.valid_plies(p).map{ |p| p['to'] }
+      out[:valid_plies] = { type: opts[:type], coordinates: g.valid_plies(p, opts[:type]) }
     end
 
     out
@@ -83,12 +83,13 @@ class Variant < ActiveRecord::Base
 
   def add_initial_king
     piece_rules.create!(
+      capture_type: 'movement',
       count_minimum: 1,
       count_maximum: 1,
-      movement_type: 'orthogonal_line',
       movement_minimum: 1,
       movement_maximum: 1,
-      piece_type: PieceType.find_by(name: 'King')
+      movement_type: 'orthogonal_line',
+      piece_type: PieceType.find_by(name: 'King'),
     )
   end
 

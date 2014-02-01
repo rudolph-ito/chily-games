@@ -12,10 +12,15 @@ class TerrainRule < ActiveRecord::Base
   # Validations
   ########################################
 
-  validates :block_movement, inclusion: { in: [true, false] }
-  validates :count, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :terrain_type, presence: true
   validates :variant, presence: true
+
+  # Count
+  validates :count, presence: true, numericality: { only_integer: true, greater_than: 0 }
+
+  # Block
+  validates :block_movement, inclusion: { in: [true, false] }
+  validates :block_range, inclusion: { in: [true, false] }
 
   ########################################
   # Instance Methods

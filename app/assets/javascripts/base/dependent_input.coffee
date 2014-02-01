@@ -8,7 +8,7 @@ $ ->
       value = input.val()
       for d in dependencies
         d = $(d)
-        if value is d.data("value")
+        if value is d.data("value").toString()
           d.show()
         else
           d.hide()

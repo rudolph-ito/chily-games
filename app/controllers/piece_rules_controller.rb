@@ -48,6 +48,8 @@ class PieceRulesController < ApplicationController
       :piece_type_id,
       :count_minimum, :count_maximum,
       :movement_type, :movement_minimum, :movement_maximum,
+      :capture_type,
+      :range_type, :range_minimum, :range_maximum
     )
   end
 

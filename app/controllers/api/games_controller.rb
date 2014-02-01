@@ -54,7 +54,7 @@ class Api::GamesController < ApplicationController
 
   def valid_piece_moves
     piece = @game.pieces.for_coordinate(params[:coordinate]).first
-    moves = piece ? @game.valid_plies(piece).map{|x| x['to']} : []
+    moves = piece ? @game.valid_plies(piece) : []
     render json: moves
   end
 

@@ -7,9 +7,17 @@
     = f.input :count_maximum, label: 'Maximum', as: :number, min: 1, step: 1, hint: 'Leave blank for no maximum'
 
   = f.inputs 'Movement' do
-    = f.input :movement_type, collection: PieceRule.movement_types.map{|x| [x.humanize, x]}
+    = f.input :movement_type, collection: PieceRule::DIRECTIONS.map{|x| [x.humanize, x]}
     = f.input :movement_minimum, label: 'Minimum', as: :number, min: 1, step: 1
     = f.input :movement_maximum, label: 'Maximum', as: :number, min: 1, step: 1, hint: 'Leave blank for no maximum'
+
+  = f.inputs 'Capture' do
+    = f.input :capture_type, collection: PieceRule::CAPTURE_TYPES.map{|x| [x.humanize, x]}, input_html: {'data-dependent' => 'capture_type'}
+
+    %div{'data-dependency' => 'capture_type', 'data-value' => 'range'}
+      = f.input :range_type, collection: PieceRule::DIRECTIONS.map{|x| [x.humanize, x]}
+      = f.input :range_minimum, label: 'Minimum', as: :number, min: 1, step: 1
+      = f.input :range_maximum, label: 'Maximum', as: :number, min: 1, step: 1, hint: 'Leave blank for no maximum'
 
   = f.actions do
     = f.action :submit, name: "Save"

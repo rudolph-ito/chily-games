@@ -23,4 +23,8 @@ class Piece < ActiveRecord::Base
     game.color(user_id)
   end
 
+  def rule
+    game.variant.piece_rules.find_by(piece_type_id: piece_type_id)
+  end
+
 end

@@ -20,12 +20,16 @@ FactoryGirl.define do
   end
 
   factory :piece_rule do
+    capture_type PieceRule::CAPTURE_TYPES.first
     count_minimum 1
     count_maximum 1
-    movement_type PieceRule.movement_types.first
     movement_minimum 1
     movement_maximum 1
+    movement_type PieceRule::DIRECTIONS.first
     piece_type
+    range_minimum 1
+    range_maximum 1
+    range_type PieceRule::DIRECTIONS.first
     variant
   end
 
@@ -40,8 +44,9 @@ FactoryGirl.define do
   end
 
   factory :terrain_rule do
-    count 1
     block_movement false
+    block_range false
+    count 1
     terrain_type
     variant
   end

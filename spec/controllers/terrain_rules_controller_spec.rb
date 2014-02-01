@@ -32,7 +32,7 @@ describe TerrainRulesController do
 
   describe 'create' do
     let(:terrain_type) { create(:terrain_type) }
-    let(:valid_attributes) { { terrain_type_id: terrain_type.id, count: 1, block_movement: true } }
+    let(:valid_attributes) { { terrain_type_id: terrain_type.id, count: 1, block_movement: true, block_range: true } }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do
