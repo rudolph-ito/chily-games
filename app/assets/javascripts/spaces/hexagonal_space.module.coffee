@@ -20,6 +20,7 @@ class HexagonalSpace extends Space
     super
 
   redraw: ->
+    super
     @update_draw_options()
 
     @space.attrs.x = @x

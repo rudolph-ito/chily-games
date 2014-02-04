@@ -121,6 +121,7 @@ class GameController extends Controller
       method: 'GET'
       success: (data) =>
         @board.draw_pieces(data.pieces)
+        @board.draw_terrains(data.terrains)
         @add_to_chat("Server:\n" + 'Let the battle begin!')
 
   ########################################

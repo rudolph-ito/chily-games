@@ -81,6 +81,8 @@ class Board
     @setup(@max_board_width(), @max_board_height())
     @update_stage()
 
+    space.remove() for space in @setup_spaces
+    @setup_spaces = []
     space.redraw() for space in @space_map.values()
     @space_layer.draw()
 
@@ -99,7 +101,7 @@ class Board
   draw_space: (coordinate) ->
     space = new @Space(@, {coordinate: coordinate})
     space.draw()
-    space.draw_coordinate()
+    #space.draw_coordinate()
     @space_map.set(coordinate, space)
 
   draw_terrains: (terrains) ->
@@ -176,6 +178,7 @@ class Board
 
       space = new @Space(@, {x: x, y: y, terrain_type_id: terrain_type_id})
       space.draw()
+      @setup_spaces.push(space)
 
   coord_eql: (a,b) ->
     Object.keys(a).all (k) -> a[k] == b[k]
