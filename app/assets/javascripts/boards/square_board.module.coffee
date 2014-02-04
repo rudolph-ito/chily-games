@@ -38,7 +38,7 @@ class SquareBoard extends Board
     [real_x, real_y + @header_height]
 
   territory: ({x,y}) ->
-    if @board_rows % 2 is 1 and y == @board_rows / 2
+    if @board_rows % 2 is 1 and y == Math.floor(@board_rows / 2)
       'neutral'
     else if y < @board_rows / 2
       'alabaster'
