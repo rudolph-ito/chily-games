@@ -1,6 +1,10 @@
 class Game < ActiveRecord::Base
   include Authority::Abilities
 
+  PLY_VALID = 1
+  PLY_INVALID = 2
+  PLY_RANGE_CAPTURE_REQUIRED = 3
+
   ########################################
   # Class Methods
   ########################################
@@ -143,36 +147,45 @@ class Game < ActiveRecord::Base
 
   # Returns false if invalid
   # Returns the valid ply (ply + more information) if valid
-  def ply_valid?(from, to)
+  def ply_valid?(from, to, range_capture = nil)
     piece = pieces.for_coordinate(from).first
-    return false unless piece
+    return PLY_INVALID unless piece
+    return PLY_INVALID unless valid_plies(piece, from, 'movement').include?(to)
 
-    valid_plies(piece).each do |valid_ply|
-      return true if to == valid_ply
+    if piece.rule.range_capture?
+      if range_capture.nil?
+        PLY_RANGE_CAPTURE_REQUIRED
+      else
+        if valid_plies(piece, to, 'range').include?(range_capture)
+          PLY_VALID
+        else
+          PLY_INVALID
+        end
+      end
+    else
+      PLY_VALID
     end
-
-    return false
   end
 
   # Returns the array of valid plies for a piece
-  def valid_plies(piece, type = 'movement')
+  def valid_plies(piece, from, type = 'movement')
     ply_data = PlyData.new(piece, board, type)
 
     if ply_data.line?
-      line_plies(ply_data)
+      line_plies(ply_data, from)
     else
-      turn_plies(ply_data)
+      turn_plies(ply_data, from)
     end
   end
 
   private
 
   # Returns all plies for movement in a line
-  def line_plies(ply_data)
+  def line_plies(ply_data, from)
     plies = []
 
     ply_data.directional_functions.each do |directional_function|
-      to = ply_data.coordinate.clone
+      to = from.clone
       movement_count = 0
 
       while !(ply_data.maximum && movement_count == ply_data.maximum)
@@ -190,8 +203,8 @@ class Game < ActiveRecord::Base
   end
 
   # Returns all plies for movement with turns
-  def turn_plies(ply_data)
-    _turn_plies(ply_data, ply_data.coordinate.clone, 0)
+  def turn_plies(ply_data, from)
+    _turn_plies(ply_data, from, 0)
   end
 
   # Recursive function for turn_plies

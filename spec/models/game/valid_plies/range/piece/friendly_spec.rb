@@ -21,6 +21,6 @@ describe "Game#valid_plies - range - piece - enemy" do
   end
 
   specify do
-    expect( game.valid_plies(piece, 'range') ).to match_array [{"x"=>4, "y"=>2}, {"x"=>2, "y"=>4}]
+    expect( game.valid_plies(piece, piece.coordinate, 'range') ).to match_array [{"x"=>4, "y"=>2}, {"x"=>2, "y"=>4}]
   end
 end

@@ -54,14 +54,15 @@ class Api::GamesController < ApplicationController
 
   def valid_piece_moves
     piece = @game.pieces.for_coordinate(params[:coordinate]).first
-    moves = piece ? @game.valid_plies(piece) : []
+    moves = piece ? @game.valid_plies(piece, piece.coordinate, 'movement') : []
     render json: moves
   end
 
   def piece_move
     scrub_coordinate(params[:from], params[:to])
+    result = @game.ply_valid?(params[:from], params[:to])
 
-    if @game.ply_valid?(params[:from], params[:to])
+    if result == Game::PLY_VALID
       @game.move_piece(params[:from], params[:to])
       render json: { success: true, from: params[:from], to: params[:to], action: @game.action, action_to_id: @game.action_to_id }
     else

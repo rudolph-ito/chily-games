@@ -17,7 +17,7 @@ describe "Game#valid_plies - range - board - square" do
       let(:piece_rule_parameters) { { range_type: 'orthogonal_line', range_minimum: 1, range_maximum: nil } }
 
       specify do
-        expect( game.valid_plies(piece, 'range') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'range') ).to match_array [
           {"x"=>3, "y"=>2}, {"x"=>4, "y"=>2},
           {"x"=>1, "y"=>2}, {"x"=>0, "y"=>2},
           {"x"=>2, "y"=>3}, {"x"=>2, "y"=>4},
@@ -30,7 +30,7 @@ describe "Game#valid_plies - range - board - square" do
       let(:piece_rule_parameters) { { range_type: 'diagonal_line', range_minimum: 1, range_maximum: nil } }
 
       specify do
-        expect( game.valid_plies(piece, 'range') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'range') ).to match_array [
           {"x"=>3, "y"=>3}, {"x"=>4, "y"=>4},
           {"x"=>3, "y"=>1}, {"x"=>4, "y"=>0},
           {"x"=>1, "y"=>3}, {"x"=>0, "y"=>4},
@@ -43,7 +43,7 @@ describe "Game#valid_plies - range - board - square" do
       let(:piece_rule_parameters) { { range_type: 'orthogonal_with_turns', range_minimum: 2, range_maximum: 2 } }
 
       specify do
-        expect( game.valid_plies(piece, 'range') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'range') ).to match_array [
           {"x"=>4, "y"=>2}, {"x"=>3, "y"=>3},
           {"x"=>2, "y"=>4}, {"x"=>1, "y"=>3},
           {"x"=>0, "y"=>2}, {"x"=>1, "y"=>1},
@@ -56,7 +56,7 @@ describe "Game#valid_plies - range - board - square" do
       let(:piece_rule_parameters) { { range_type: 'diagonal_with_turns', range_minimum: 2, range_maximum: 2 } }
 
       specify do
-        expect( game.valid_plies(piece, 'range') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'range') ).to match_array [
           {"x"=>0, "y"=>0}, {"x"=>2, "y"=>0},
           {"x"=>4, "y"=>0}, {"x"=>4, "y"=>2},
           {"x"=>4, "y"=>4}, {"x"=>2, "y"=>4},

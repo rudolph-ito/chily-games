@@ -20,7 +20,7 @@ describe "Game#valid_plies - movement - piece - friendly" do
   context 'movement_type == orthogonal_line' do
     let(:movement_type) { 'orthogonal_line' }
     specify do
-      expect( game.valid_plies(piece) ).to match_array [
+      expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [
         {"x"=>2, "y"=>1},
         {"x"=>3, "y"=>2}, {"x"=>4, "y"=>2},
         {"x"=>2, "y"=>3}, {"x"=>2, "y"=>4}
@@ -31,7 +31,7 @@ describe "Game#valid_plies - movement - piece - friendly" do
   context 'movement_type == orthogonal_with_turns' do
     let(:movement_type) { 'orthogonal_with_turns' }
     specify do
-      expect( game.valid_plies(piece) ).to match_array [
+      expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [
         {"x"=>2, "y"=>1}, {"x"=>1, "y"=>1}, {"x"=>3, "y"=>1},
         {"x"=>3, "y"=>2}, {"x"=>4, "y"=>2}, {"x"=>3, "y"=>3},
         {"x"=>2, "y"=>3}, {"x"=>2, "y"=>4}, {"x"=>1, "y"=>3}

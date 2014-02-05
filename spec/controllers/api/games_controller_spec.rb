@@ -300,7 +300,7 @@ describe Api::GamesController do
         it 'succeeds' do
           get :opponent_setup, id: game.id, format: :json
           expect(response.status).to eql 200
-          expect(response.body).to be_json({pieces: [{ piece_type_id: piece_type.id, coordinate: {'x' => 7, 'y' => 7}, color: 'onyx'}]})
+          expect(response.body).to be_json({pieces: [{ piece_type_id: piece_type.id, coordinate: {'x' => 7, 'y' => 7}, color: 'onyx'}], terrains: []})
         end
       end
     end

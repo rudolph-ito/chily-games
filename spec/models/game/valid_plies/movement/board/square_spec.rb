@@ -17,7 +17,7 @@ describe "Game#valid_plies - movement - board - square" do
       let(:piece_rule_parameters) { { movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: nil } }
 
       specify do
-        expect( game.valid_plies(piece, 'movement') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [
           {"x"=>3, "y"=>2}, {"x"=>4, "y"=>2},
           {"x"=>1, "y"=>2}, {"x"=>0, "y"=>2},
           {"x"=>2, "y"=>3}, {"x"=>2, "y"=>4},
@@ -30,7 +30,7 @@ describe "Game#valid_plies - movement - board - square" do
       let(:piece_rule_parameters) { { movement_type: 'diagonal_line', movement_minimum: 1, movement_maximum: nil } }
 
       specify do
-        expect( game.valid_plies(piece, 'movement') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [
           {"x"=>3, "y"=>3}, {"x"=>4, "y"=>4},
           {"x"=>3, "y"=>1}, {"x"=>4, "y"=>0},
           {"x"=>1, "y"=>3}, {"x"=>0, "y"=>4},
@@ -43,7 +43,7 @@ describe "Game#valid_plies - movement - board - square" do
       let(:piece_rule_parameters) { { movement_type: 'orthogonal_with_turns', movement_minimum: 2, movement_maximum: 2 } }
 
       specify do
-        expect( game.valid_plies(piece, 'movement') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [
           {"x"=>4, "y"=>2}, {"x"=>3, "y"=>3},
           {"x"=>2, "y"=>4}, {"x"=>1, "y"=>3},
           {"x"=>0, "y"=>2}, {"x"=>1, "y"=>1},
@@ -56,7 +56,7 @@ describe "Game#valid_plies - movement - board - square" do
       let(:piece_rule_parameters) { { movement_type: 'diagonal_with_turns', movement_minimum: 2, movement_maximum: 2 } }
 
       specify do
-        expect( game.valid_plies(piece, 'movement') ).to match_array [
+        expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [
           {"x"=>0, "y"=>0}, {"x"=>2, "y"=>0},
           {"x"=>4, "y"=>0}, {"x"=>4, "y"=>2},
           {"x"=>4, "y"=>4}, {"x"=>2, "y"=>4},

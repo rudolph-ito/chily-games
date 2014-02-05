@@ -21,7 +21,7 @@ describe "Game#valid_plies - movement - piece - enemy" do
     let(:capture_type) { 'movement' }
 
     specify do
-      expect( game.valid_plies(piece, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}, {'x' => 2, 'y' => 0}, {'x' => 1, 'y' => 2}]
+      expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}, {'x' => 2, 'y' => 0}, {'x' => 1, 'y' => 2}]
     end
   end
 
@@ -29,7 +29,7 @@ describe "Game#valid_plies - movement - piece - enemy" do
     let(:capture_type) { 'range' }
 
     specify do
-      expect( game.valid_plies(piece, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}]
+      expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}]
     end
   end
 end

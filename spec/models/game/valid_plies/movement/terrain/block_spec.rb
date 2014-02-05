@@ -21,6 +21,6 @@ describe "Game#valid_plies - movement - terrain - block" do
   end
 
   specify do
-    expect( game.valid_plies(piece, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}]
+    expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}]
   end
 end
