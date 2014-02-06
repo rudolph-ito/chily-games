@@ -1,5 +1,5 @@
 class PlyData
-  attr_accessor :capture, :coordinate, :directional_functions, :minimum, :maximum, :type, :user
+  attr_accessor :capture, :coordinate, :directional_functions, :minimum, :maximum, :piece, :type, :user
 
   def initialize(piece, board, type)
     @type = type

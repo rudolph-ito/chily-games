@@ -23,6 +23,7 @@ Cyvasse::Application.routes.draw do
         put 'setup_complete'
 
         put 'piece_move'
+        put 'piece_move_with_range_capture'
         put 'resign'
       end
     end

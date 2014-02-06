@@ -2,6 +2,7 @@ class Api::GamesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :get_game, except: [:current]
   before_filter :authorize, except: [:current]
+  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_piece_moves, :piece_move, :piece_move_with_range_capture]
   before_filter :ensure_valid_type, only: [:setup_add, :setup_move, :setup_remove]
 
   def current
@@ -59,12 +60,24 @@ class Api::GamesController < ApplicationController
   end
 
   def piece_move
-    scrub_coordinate(params[:from], params[:to])
-    result = @game.ply_valid?(params[:from], params[:to])
+    piece = @game.pieces.for_coordinate(params[:from]).first
+    if piece && @game.ply_valid?(piece, params[:to])
+      if piece.rule.range_capture?
+        render json: { success: false, from: params[:from], to: params[:to], range_captures: @game.valid_plies(piece, params[:to], 'range') }
+      else
+        @game.move_piece(piece, params[:to])
+        render json: { success: true, from: params[:from], to: params[:to], action: @game.action, action_to_id: @game.action_to_id }
+      end
+    else
+      render json: { success: false }
+    end
+  end
 
-    if result == Game::PLY_VALID
-      @game.move_piece(params[:from], params[:to])
-      render json: { success: true, from: params[:from], to: params[:to], action: @game.action, action_to_id: @game.action_to_id }
+  def piece_move_with_range_capture
+    piece = @game.pieces.for_coordinate(params[:from]).first
+    if piece && @game.ply_valid?(piece, params[:to], params[:range_capture])
+      @game.move_piece(piece, params[:to], params[:range_capture])
+      render json: { success: true, from: params[:from], to: params[:to], range_capture: params[:range_capture], action: @game.action, action_to_id: @game.action_to_id }
     else
       render json: { success: false }
     end
@@ -89,9 +102,12 @@ class Api::GamesController < ApplicationController
     head :unprocessable_entity unless ['piece', 'terrain'].include?(params[:type])
   end
 
-  def scrub_coordinate(*coords)
-    coords.each do |coord|
-      coord.each_pair{ |k, v| coord[k] = v.to_i }
+  def scrub_coordinates
+    coordinate_keys = [:coordinate, :to, :from, :range_capture]
+
+    coordinate_keys.each do |coordinate_key|
+      coordinate = params[coordinate_key]
+      coordinate.each_pair{ |k, v| coordinate[k] = v.to_i } if coordinate
     end
   end
 

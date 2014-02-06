@@ -18,52 +18,46 @@ describe "Game#ply_valid? - movement" do
   let(:invalid_range_capture_coordinate) { {'x' => 3, 'y' => 1, 'z' => 0} }
   let!(:piece) { create :piece, game: game, user: user1, piece_type: piece_type, coordinate: from_coordinate }
 
-  context 'movement' do
+  context "movement_capture" do
     let(:piece_rule_parameters) { { capture_type: 'movement' } }
 
     context 'valid' do
-      it 'returns Game::PLY_VALID' do
-        expect( game.ply_valid?(from_coordinate, valid_to_coordinate) ).to eql Game::PLY_VALID
-      end
-
-      context 'captures by range' do
-        let(:piece_rule_parameters) { { capture_type: 'range' } }
-
-        it 'returns Game::PLY_RANGE_CAPTURE_REQUIRED' do
-          expect( game.ply_valid?(from_coordinate, valid_to_coordinate) ).to eql Game::PLY_RANGE_CAPTURE_REQUIRED
-        end
+      it 'returns true' do
+        expect( game.ply_valid?(piece, valid_to_coordinate) ).to be_true
       end
     end
 
     context 'invalid' do
-      it 'returns Game::PLY_INVALID' do
-        expect( game.ply_valid?(from_coordinate, invalid_to_coordinate) ).to eql Game::PLY_INVALID
+      it 'returns false' do
+        expect( game.ply_valid?(piece, invalid_to_coordinate) ).to be_false
       end
-    end
-  end
-
-  context "movement_capture" do
-    let(:piece_rule_parameters) { { capture_type: 'movement' } }
-    let!(:enemy_piece) { create :piece, game: game, user: user2, piece_type: piece_type, coordinate: valid_to_coordinate }
-
-    it 'returns Game::PLY_VALID' do
-      expect( game.ply_valid?(from_coordinate, valid_to_coordinate) ).to eql Game::PLY_VALID
     end
   end
 
   context "range_capture" do
     let(:piece_rule_parameters) { { capture_type: 'range' } }
-    let!(:enemy_piece) { create :piece, game: game, user: user2, piece_type: piece_type, coordinate: valid_range_capture_coordinate }
 
     context 'valid' do
-      it 'returns Game::PLY_VALID' do
-        expect( game.ply_valid?(from_coordinate, valid_to_coordinate, valid_range_capture_coordinate) ).to eql Game::PLY_VALID
+      it 'returns true' do
+        expect( game.ply_valid?(piece, valid_to_coordinate) ).to be_true
+      end
+
+      context 'with range capture' do
+        it 'returns true' do
+          expect( game.ply_valid?(piece, valid_to_coordinate, valid_range_capture_coordinate) ).to be_true
+        end
       end
     end
 
     context 'invalid' do
-      it 'returns Game::PLY_INVALID' do
-        expect( game.ply_valid?(from_coordinate, valid_to_coordinate, invalid_range_capture_coordinate) ).to eql Game::PLY_INVALID
+      it 'returns false' do
+        expect( game.ply_valid?(piece, invalid_to_coordinate) ).to be_false
+      end
+
+      context 'with range capture' do
+        it 'returns false' do
+          expect( game.ply_valid?(piece, valid_to_coordinate, invalid_range_capture_coordinate) ).to be_false
+        end
       end
     end
   end

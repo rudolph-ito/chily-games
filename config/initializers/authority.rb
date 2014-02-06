@@ -39,6 +39,7 @@ Authority.configure do |config|
     abort: 'abort',
     opponent_setup: 'opponent_setup_read',
     piece_move: 'move',
+    piece_move_with_range_capture: 'move',
     setup_add: 'setup',
     setup_move: 'setup',
     setup_remove: 'setup',

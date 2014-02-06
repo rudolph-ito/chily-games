@@ -1,10 +1,6 @@
 class Game < ActiveRecord::Base
   include Authority::Abilities
 
-  PLY_VALID = 1
-  PLY_INVALID = 2
-  PLY_RANGE_CAPTURE_REQUIRED = 3
-
   ########################################
   # Class Methods
   ########################################
@@ -123,10 +119,10 @@ class Game < ActiveRecord::Base
     self.save
   end
 
-  def move_piece(from, to)
+  def move_piece(piece, to, range_capture = nil)
     pieces.for_coordinate(to).destroy_all
-    piece = pieces.for_coordinate(from).first
-    piece.update_attributes(coordinate: to) if piece
+    pieces.for_coordinate(range_capture).destroy_all
+    piece.update_attributes(coordinate: to)
 
     opponent_id = opponent_id(action_to_id)
     if pieces.joins(:piece_type).where(user_id: opponent_id, piece_types: {name: 'King'}).count == 0
@@ -140,30 +136,13 @@ class Game < ActiveRecord::Base
     update_attributes(action: 'complete', action_to_id: opponent_id(user.id))
   end
 
-  # # Ply: a hash with the following keys
-  # #
-  # # piece =>
-  # # to =>
+  def ply_valid?(piece, to, range_capture = nil)
+    return false unless valid_plies(piece, piece.coordinate, 'movement').include?(to)
 
-  # Returns false if invalid
-  # Returns the valid ply (ply + more information) if valid
-  def ply_valid?(from, to, range_capture = nil)
-    piece = pieces.for_coordinate(from).first
-    return PLY_INVALID unless piece
-    return PLY_INVALID unless valid_plies(piece, from, 'movement').include?(to)
-
-    if piece.rule.range_capture?
-      if range_capture.nil?
-        PLY_RANGE_CAPTURE_REQUIRED
-      else
-        if valid_plies(piece, to, 'range').include?(range_capture)
-          PLY_VALID
-        else
-          PLY_INVALID
-        end
-      end
+    if piece.rule.range_capture? && range_capture.present?
+      valid_plies(piece, to, 'range').include?(range_capture)
     else
-      PLY_VALID
+      true
     end
   end
 
@@ -243,8 +222,8 @@ class Game < ActiveRecord::Base
     # Stop if off the board
     return [false, false] if board.coordinate_invalid?(to)
 
-    # Get piece at square
-    occupying_piece = pieces.for_coordinate(to).first
+    # Get piece at square (ignore self)
+    occupying_piece = pieces.for_coordinate(to).first unless to == ply_data.coordinate
 
     if occupying_piece
       # Stop if ran into own piece
