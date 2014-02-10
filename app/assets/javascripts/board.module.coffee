@@ -240,11 +240,16 @@ class Board
   click: (coodinate) ->
     if @selected_piece?
       space = @space_map.get(coodinate)
-      @selected_piece.try_move(space) if space.highlighted
+      @selected_piece.try_move(space) if space.highlight
       @deselect_piece()
+    else if @temporary_move
+      space = @space_map.get(coodinate)
+      @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, space.coordinate)
+      @move_piece(@temporary_move.to, @temporary_move.from)
+      @temporary_move = null
     else
       piece = @piece_map.get(coodinate)
-      @select_piece(piece)
+      @select_piece(piece) if piece
 
   select_piece: (piece) ->
     @selected_piece = piece
@@ -254,5 +259,11 @@ class Board
     @selected_piece = null
     @dehighlight_spaces()
 
+  get_range_capture_input: (from, to, range_captures) ->
+    return unless @piece_map.get(from).color == @color
+
+    @temporary_move = from: from, to: to
+    @move_piece(from, to)
+    @highlight_valid_plies('range', to, range_captures)
 
 module.exports = Board

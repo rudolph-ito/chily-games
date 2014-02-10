@@ -15,6 +15,7 @@ class GameController extends Controller
     @socket.on 'abort', @server_game_abort
     @socket.on 'setup_complete', @server_setup_complete
     @socket.on 'piece_move', @server_piece_move
+    @socket.on 'piece_move_with_range_capture', @server_piece_move_with_range_capture
     @socket.on 'resign', @server_game_resign
 
     @container.on 'click', '[data-action=abort]', @abort_game
@@ -124,6 +125,12 @@ class GameController extends Controller
         @board.draw_terrains(data.terrains)
         @add_to_chat("Server:\n" + 'Let the battle begin!')
 
+  finish_game_if_complete: ->
+    if @action == 'complete'
+      name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
+      alert("Game over: #{name} wins by death")
+      @load_challenges()
+
   ########################################
   # User initiated actions
   ########################################
@@ -195,6 +202,15 @@ class GameController extends Controller
         from: from_coordinate
         to: to_coordinate
 
+  piece_move_with_range_capture: (from_coordinate, to_coordinate, range_capture_coordinate) =>
+    @emit_request 'piece_move_with_range_capture',
+      path: @url('piece_move_with_range_capture')
+      method: 'PUT'
+      data:
+        from: from_coordinate
+        to: to_coordinate
+        range_capture: range_capture_coordinate
+
   abort_game: =>
     @emit_request 'abort', { path: @url('abort'), method: 'PUT' }
 
@@ -221,11 +237,22 @@ class GameController extends Controller
       @update_state()
 
       @board.move_piece(data.from, data.to)
+      @finish_game_if_complete()
 
-      if @action == 'complete'
-        name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
-        alert("Game over: #{name} wins by death")
-        @load_challenges()
+    else if data.range_captures
+      @board.get_range_capture_input(data.from, data.to, data.range_captures)
+
+  server_piece_move_with_range_capture: (data) =>
+    return unless data.backendResponse.status == 200
+    data = $.parseJSON data.backendResponse.body
+    if data.success
+      @action = data.action
+      @action_to_id = data.action_to_id
+      @update_state()
+
+      @board.move_piece(data.from, data.to)
+      @board.remove_piece_at(data.range_capture)
+      @finish_game_if_complete()
 
   server_game_abort: (data) =>
     alert("Game aborted")
