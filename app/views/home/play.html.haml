@@ -6,14 +6,13 @@
 
   .control
     .game
-      .state
       .actions
         %button(data-action='setup_complete') Setup Complete
         %button(data-action='abort') Abort
         %button(data-action='resign') Resign
+      .state
       .chat
-      %form
-        = text_field_tag 'message', ''
+      = text_field_tag 'message', '', autocomplete: 'off'
 
     .challenges
       .new

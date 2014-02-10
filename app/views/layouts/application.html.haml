@@ -1,7 +1,7 @@
 !!! 5
 %html
   %head
-    %title Cyvasse
+    %title Cyvasse Explorer
     = csrf_meta_tags
     = stylesheet_link_tag "application", :media => "all"
     = javascript_include_tag "application"
@@ -9,7 +9,7 @@
   %body
     .header
       %ul.left
-        %li.logo= link_to "Cyvasse", :root
+        %li.logo= link_to "Cyvasse Explorer", :root
         %li= link_to "Explore", :explore
         %li= link_to "Create", :create
         %li= link_to "Play", :play

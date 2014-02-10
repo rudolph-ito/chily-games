@@ -8,16 +8,19 @@ class GameController extends Controller
     @container = $('.game')
     @board_container = $('.board')
     @chat_container = @container.find(".chat")
+    @chat_input = @container.find("input[name=message]")
 
   activate: ->
     super
 
+    @socket.on 'chat', @server_chat
     @socket.on 'abort', @server_game_abort
     @socket.on 'setup_complete', @server_setup_complete
     @socket.on 'piece_move', @server_piece_move
     @socket.on 'piece_move_with_range_capture', @server_piece_move_with_range_capture
     @socket.on 'resign', @server_game_resign
 
+    @container.on 'keyup', 'input[name=message]', @chat
     @container.on 'click', '[data-action=abort]', @abort_game
     @container.on 'click', '[data-action=setup_complete]', @setup_complete
     @container.on 'click', '[data-action=resign]', @resign_game
@@ -44,7 +47,7 @@ class GameController extends Controller
       @parse_data(data)
       @update_state()
       @update_actions()
-      @add_to_chat("Server:\n" + data.message) if @user_in_setup()
+      @add_to_chat('server', data.message) if @user_in_setup()
 
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
@@ -109,8 +112,16 @@ class GameController extends Controller
       element = @container.find("[data-action=#{name}]")
       if should_display then element.show() else element.hide()
 
-  add_to_chat: (message) ->
-    @chat_container.append($('<div>').html(message.replace(/\n/g, "<br/>")))
+  add_to_chat: (username, message) ->
+    last_div = @chat_container.find("> div:last-child")
+    if last_div.data("username") is username
+      div = last_div
+    else
+      div = $('<div data-username="' + username + '">')
+      div.append $('<div class="username">').text(username)
+      @chat_container.append(div)
+
+    div.append($('<div class="message">').html(message.replace(/\n/g, "<br/>")))
 
   finish_setup: ->
     return unless @action == 'move'
@@ -123,7 +134,7 @@ class GameController extends Controller
       success: (data) =>
         @board.draw_pieces(data.pieces)
         @board.draw_terrains(data.terrains)
-        @add_to_chat("Server:\n" + 'Let the battle begin!')
+        @add_to_chat('server', 'Let the battle begin!')
 
   finish_game_if_complete: ->
     if @action == 'complete'
@@ -134,6 +145,16 @@ class GameController extends Controller
   ########################################
   # User initiated actions
   ########################################
+
+  chat: (e) =>
+    return unless e.which is 13 # ENTER
+    msg = @chat_input.val().trim()
+    @chat_input.val("")
+    return if msg is ""
+
+    @emit_broadcast 'chat',
+      username: @name()
+      message: msg
 
   setup_add: (type, type_id, coordinate) ->
     $.ajax
@@ -173,14 +194,14 @@ class GameController extends Controller
           @action = data.action
           @action_to_id = data.action_to_id
           @update_controls()
-          @add_to_chat("Server:\n" + 'Setup complete')
+          @add_to_chat('server', 'Setup complete')
 
           @emit_broadcast 'setup_complete', {action: @action, action_to_id: @action_to_id}, false
 
           @board.redraw()
           @finish_setup()
         else
-          @add_to_chat("Server:\n" + data.errors.join("\n"))
+          @add_to_chat('server', data.errors.join("\n"))
 
   valid_piece_moves: (coordinate) ->
     $.ajax
@@ -218,14 +239,17 @@ class GameController extends Controller
     @emit_request 'resign', { path: @url('resign'), method: 'PUT' }
 
   ########################################
-  # Server initiated actions
+  # server initiated actions
   ########################################
+
+  server_chat: (data) =>
+    @add_to_chat(data.broadcast.username, data.broadcast.message)
 
   server_setup_complete: (data) =>
     @action = data.broadcast.action
     @action_to_id = data.broadcast.action_to_id
     @update_controls()
-    @add_to_chat("Server:\n" + 'Opponent is ready')
+    @add_to_chat('server', 'Opponent is ready')
     @finish_setup()
 
   server_piece_move: (data) =>

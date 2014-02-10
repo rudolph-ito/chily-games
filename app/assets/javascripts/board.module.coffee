@@ -126,7 +126,7 @@ class Board
       fontSize: @header_height - 9
       fontFamily: 'Calibri'
       fontWeight: 'bold'
-      fill: 'blue'
+      fill: 'black'
 
     @info_layer.add(@header)
 
@@ -145,7 +145,7 @@ class Board
       fontSize: @footer_height - 9
       fontFamily: 'Calibri'
       fontWeight: 'bold'
-      fill: 'blue'
+      fill: 'black'
 
     @info_layer.add(@footer)
 
