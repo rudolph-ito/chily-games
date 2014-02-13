@@ -10,6 +10,7 @@ group :development, :assets do
   gem 'compass-rails'
   gem 'sprockets-commonjs'
   gem 'uglifier', '>= 1.0.3'
+  gem 'teaspoon'
 end
 
 group :test do

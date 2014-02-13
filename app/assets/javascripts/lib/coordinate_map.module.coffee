@@ -4,27 +4,25 @@ class CoordinateMap
     @data = {}
 
   get: (coordinate) ->
-    key = @coordinate_to_key(coordinate)
-    @data[key]
+    key = @_coordinate_to_key(coordinate)
+    @data[key] ? null
 
   set: (coordinate, value) ->
-    key = @coordinate_to_key(coordinate)
-    if value
-      @data[key] = value
-    else
-      delete @data[key]
+    key = @_coordinate_to_key(coordinate)
+    @data[key] = value
 
   remove:(coordinate) ->
-    @set(coordinate, null)
+    key = @_coordinate_to_key(coordinate)
+    delete @data[key]
 
   move: (from, to) ->
     @set(to, @get(from))
-    @set(from, null)
+    @remove(from)
 
   values: ->
     (v for k,v of @data)
 
-  coordinate_to_key: (coordinate) ->
+  _coordinate_to_key: (coordinate) ->
     (v for k,v of coordinate).join(',')
 
 module.exports = CoordinateMap

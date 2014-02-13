@@ -18,3 +18,5 @@
 /public/terrain_types/*
 /public/uploads/*
 /coverage/*
+/coverage_js/*
+/node_modules/*

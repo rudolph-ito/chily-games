@@ -149,6 +149,8 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (~> 2.8)
+    teaspoon (0.7.9)
+      railties (>= 3.2.5, < 5)
     thin (1.6.1)
       daemons (>= 1.0.9)
       eventmachine (>= 1.0.0)
@@ -192,6 +194,7 @@ DEPENDENCIES
   sass-rails (~> 4.0.1)
   simplecov
   sprockets-commonjs
+  teaspoon
   thin
   turbolinks
   uglifier (>= 1.0.3)
