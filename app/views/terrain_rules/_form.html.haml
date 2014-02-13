@@ -2,8 +2,18 @@
   = f.inputs do
     = f.input :terrain_type
     = f.input :count, as: :number, min: 1, step: 1
-    = f.input :block_movement
-    = f.input :block_range
+
+  = f.inputs "Block Movement" do
+    = f.input :block_movement_type, collection: TerrainRule::BLOCK_TYPES, include_blank: false, input_html: {'data-dependent' => 'block_movement_type'}
+
+    %div{'data-dependency' => 'block_movement_type', 'data-value-in' => ['include', 'exclude']}
+      = f.input :block_movement_piece_type_ids, label: 'Piece Types', as: :check_boxes, collection: f.object.variant.piece_rules.map{ |pr| [pr.piece_type.name, pr.piece_type.id.to_s] }
+
+  = f.inputs "Block Range" do
+    = f.input :block_range_type, collection: TerrainRule::BLOCK_TYPES, include_blank: false, input_html: {'data-dependent' => 'block_range_type'}
+
+    %div{'data-dependency' => 'block_range_type', 'data-value-in' => ['include', 'exclude']}
+      = f.input :block_range_piece_type_ids, label: 'Piece Types', as: :check_boxes, collection: f.object.variant.piece_rules.map{ |pr| [pr.piece_type.name, pr.piece_type.id.to_s] }
 
   = f.actions do
     = f.action :submit, name: "Save"

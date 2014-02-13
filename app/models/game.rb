@@ -239,7 +239,7 @@ class Game < ActiveRecord::Base
 
     if occupying_terrain
       # Stop if ran into blocking terrain
-      if occupying_terrain.rule.public_send "block_#{ply_data.type}"
+      if occupying_terrain.rule.block?(ply_data.type, ply_data.piece_type_id)
         return [false, false]
       end
     end

@@ -5,7 +5,7 @@ describe "Game#valid_plies - movement - terrain - block" do
   let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_maximum: nil }
 
   let(:terrain_type) { create :terrain_type }
-  let!(:terrain_rule) { create :terrain_rule, variant: variant, terrain_type: terrain_type, block_movement: true }
+  let!(:terrain_rule) { create :terrain_rule, variant: variant, terrain_type: terrain_type, block_movement_type: 'all' }
 
   let(:variant) { create :variant, board_type: 'square', board_rows: 4, board_columns: 4 }
 

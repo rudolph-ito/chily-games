@@ -44,8 +44,10 @@ FactoryGirl.define do
   end
 
   factory :terrain_rule do
-    block_movement false
-    block_range false
+    block_movement_type 'none'
+    block_movement_piece_type_ids []
+    block_range_type 'none'
+    block_range_piece_type_ids []
     count 1
     terrain_type
     variant

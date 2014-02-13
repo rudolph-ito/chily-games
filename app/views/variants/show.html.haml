@@ -75,8 +75,8 @@
     %tr
       %td= terrain_rule.terrain_type.name
       %td= terrain_rule.count
-      %td= terrain_rule.block_movement ? 'Yes' : 'No'
-      %td= terrain_rule.block_range ? 'Yes' : 'No'
+      %td= terrain_rule.block_movement
+      %td= terrain_rule.block_range
 
       - if signed_in? && current_user.can_manage?(@variant)
         %td

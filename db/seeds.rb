@@ -62,14 +62,21 @@ end
 ########################################
 
 unless Variant.find_by(name: 'sv1')
-  variant = Variant.create!(name: 'sv1', user: User.first, board_type: 'square', board_rows: 7, board_columns: 7, number_of_pieces: 4)
+  variant = Variant.create!(name: 'sv1', user: User.first, board_type: 'square', board_rows: 7, board_columns: 7, number_of_pieces: 5)
 
   variant.piece_rules.create!(
     piece_type: PieceType.find_by(name: 'Dragon'),
     count_minimum: 1, count_maximum: 1,
     movement_minimum: 1, movement_maximum: nil, movement_type: 'orthogonal_or_diagonal_line',
+    capture_type: 'movement'
+  )
+
+  variant.piece_rules.create!(
+    piece_type: PieceType.find_by(name: 'Crossbow'),
+    count_minimum: 1, count_maximum: 1,
+    movement_minimum: 1, movement_maximum: 1, movement_type: 'orthogonal_line',
     capture_type: 'range',
-    range_minimum: 1, range_maximum: 1, range_type: 'orthogonal_or_diagonal_line'
+    range_minimum: 1, range_maximum: 1, range_type: 'diagonal_line'
   )
 
   variant.piece_rules.create!(
@@ -90,20 +97,20 @@ unless Variant.find_by(name: 'sv1')
   variant.terrain_rules.create!(
     terrain_type: TerrainType.find_by(name: 'Mountain'),
     count: 3,
-    block_movement: true, block_range: true
+    block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id],
+    block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id]
   )
 end
 
 
 unless Variant.find_by(name: 'hv1')
-  variant = Variant.create!(name: 'hv1', user: User.first, board_type: 'hexagonal', board_size: 4, number_of_pieces: 4)
+  variant = Variant.create!(name: 'hv1', user: User.first, board_type: 'hexagonal', board_size: 4, number_of_pieces: 5)
 
   variant.piece_rules.create!(
     piece_type: PieceType.find_by(name: 'Dragon'),
     count_minimum: 1, count_maximum: 1,
     movement_minimum: 1, movement_maximum: nil, movement_type: 'orthogonal_line',
-    capture_type: 'range',
-    range_minimum: 1, range_maximum: 1, range_type: 'orthogonal_line'
+    capture_type: 'movement',
   )
 
   variant.piece_rules.create!(
@@ -112,6 +119,14 @@ unless Variant.find_by(name: 'hv1')
     movement_minimum: 1, movement_maximum: 1, movement_type: 'orthogonal_line',
     capture_type: 'range',
     range_minimum: 2, range_maximum: 4, range_type: 'orthogonal_line'
+  )
+
+  variant.piece_rules.create!(
+    piece_type: PieceType.find_by(name: 'Crossbow'),
+    count_minimum: 1, count_maximum: 1,
+    movement_minimum: 1, movement_maximum: 1, movement_type: 'orthogonal_line',
+    capture_type: 'range',
+    range_minimum: 1, range_maximum: 1, range_type: 'diagonal_line'
   )
 
   variant.piece_rules.create!(
@@ -124,6 +139,7 @@ unless Variant.find_by(name: 'hv1')
   variant.terrain_rules.create!(
     terrain_type: TerrainType.find_by(name: 'Mountain'),
     count: 3,
-    block_movement: true, block_range: true
+    block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id],
+    block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id]
   )
 end

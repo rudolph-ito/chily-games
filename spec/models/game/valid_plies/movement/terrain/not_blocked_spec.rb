@@ -1,13 +1,13 @@
 require 'spec_helper'
 
-describe "Game#valid_plies - range - terrain - block" do
+describe "Game#valid_plies - movement - terrain - block" do
   let(:piece_type) { create :piece_type }
-  let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 2, range_maximum: 2 }
+  let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_maximum: nil }
 
   let(:terrain_type) { create :terrain_type }
-  let!(:terrain_rule) { create :terrain_rule, variant: variant, terrain_type: terrain_type, block_range_type: 'all' }
+  let!(:terrain_rule) { create :terrain_rule, variant: variant, terrain_type: terrain_type, block_movement_type: 'none' }
 
-  let(:variant) { create :variant, board_type: 'square', board_rows: 5, board_columns: 5 }
+  let(:variant) { create :variant, board_type: 'square', board_rows: 4, board_columns: 4 }
 
   let(:user1) { create :user }
   let(:user2) { create :user }
@@ -21,6 +21,6 @@ describe "Game#valid_plies - range - terrain - block" do
   end
 
   specify do
-    expect( game.valid_plies(piece, piece.coordinate, 'range') ).to match_array [{"x"=>4, "y"=>2}, {"x"=>2, "y"=>4}]
+    expect( game.valid_plies(piece, piece.coordinate, 'movement') ).to match_array [{"x"=>3, "y"=>2}, {"x"=>1, "y"=>2}, {"x"=>0, "y"=>2}, {"x"=>2, "y"=>3}, {"x"=>2, "y"=>1}, {"x"=>2, "y"=>0}]
   end
 end

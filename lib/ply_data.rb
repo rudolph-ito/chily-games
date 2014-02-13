@@ -1,10 +1,11 @@
 class PlyData
-  attr_accessor :capture, :coordinate, :directional_functions, :minimum, :maximum, :piece, :type, :user
+  attr_accessor :capture, :coordinate, :directional_functions, :minimum, :maximum, :piece_type_id, :type, :user
 
   def initialize(piece, board, type)
-    @type = type
     @coordinate = piece.coordinate
+    @piece_type_id = piece.piece_type_id
     @user = piece.user
+    @type = type
 
     rule = piece.rule
 

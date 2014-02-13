@@ -4,9 +4,6 @@ describe "Game#valid_plies - range - piece - enemy" do
   let(:piece_type) { create :piece_type }
   let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 2, range_maximum: 2 }
 
-  let(:terrain_type) { create :terrain_type }
-  let!(:terrain_rule) { create :terrain_rule, variant: variant, terrain_type: terrain_type, block_range: true }
-
   let(:variant) { create :variant, board_type: 'square', board_rows: 5, board_columns: 5 }
 
   let(:user1) { create :user }

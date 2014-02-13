@@ -8,7 +8,10 @@ $ ->
       value = input.val()
       for d in dependencies
         d = $(d)
-        if value is d.data("value").toString()
+        data_value = d.data("value")?.toString()
+        data_value_in = d.data("value-in") ? []
+
+        if value is data_value || value in data_value_in
           d.show()
         else
           d.hide()
