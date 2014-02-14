@@ -11,7 +11,7 @@ All tests are located in the ```spec``` folder
 Ruby code is tested with ```rspec```
 Test coverage can be found in the ```coverage``` directory
 
-Javascript code is tested with teaspoon (```bundle exec teaspoon --coverage```)
+Javascript code is tested with teaspoon (```teaspoon```)
 Test coverage requires istanbul (```npm install istanbul``` in the project directory)
 Test coverage can be found in the ```coverage_js``` directory
 

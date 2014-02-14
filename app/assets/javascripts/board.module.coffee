@@ -36,21 +36,22 @@ class Board
     @piece_types = options.piece_types
     @terrain_types = options.terrain_types
 
-
     @header_height = @footer_height = 30
+    @setup_pieces = @setup_terrain = []
 
     @piece_map = new CoordinateMap
     @space_map = new CoordinateMap
-    @setup_pieces = []
-    @setup_spaces = []
 
     @stage = new Kinetic.Stage container: @container[0]
-    @space_layer = new Kinetic.Layer()
-    @stage.add(@space_layer)
-    @info_layer = new Kinetic.Layer()
-    @stage.add(@info_layer)
-    @piece_layer = new Kinetic.Layer()
-    @stage.add(@piece_layer)
+    @layers =
+      space: new Kinetic.Layer()
+      territory: new Kinetic.Layer()
+      terrain: new Kinetic.Layer()
+      highlight: new Kinetic.Layer()
+      piece: new Kinetic.Layer()
+      info: new Kinetic.Layer()
+
+    @stage.add(layer) for _,layer of @layers
 
   max_board_height: ->
     @container.height() - @header_height - @footer_height

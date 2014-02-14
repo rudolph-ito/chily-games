@@ -25,7 +25,7 @@ class Space
     @space.on "dragstart", @drag_start
     @space.on "dragend", @drag_end
 
-    @board.space_layer.add(@space)
+    @board.layers.space.add(@space)
 
   draw_coordinate: ->
     obj = new Kinetic.Text
