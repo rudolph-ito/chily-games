@@ -1,7 +1,7 @@
 class CoordinateMap
 
   constructor: ->
-    @data = {}
+    @clear()
 
   get: (coordinate) ->
     key = @_coordinate_to_key(coordinate)
@@ -18,6 +18,9 @@ class CoordinateMap
   move: (from, to) ->
     @set(to, @get(from))
     @remove(from)
+
+  clear: ->
+    @data = {}
 
   values: ->
     (v for k,v of @data)

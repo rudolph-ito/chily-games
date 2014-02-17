@@ -51,8 +51,8 @@ class GameController extends Controller
 
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
-      @board.draw_terrains(data.terrains)
-      @board.draw_pieces(data.pieces)
+      @board.add_terrains(data.terrains)
+      @board.add_pieces(data.pieces)
 
   user_in_setup: ->
     @action == 'setup' && (@action_to_id == null || @action_to_id == @user_id)
@@ -72,12 +72,11 @@ class GameController extends Controller
     ChallengesController = require('controllers/challenges_controller')
     new ChallengesController(@user_id).activate()
 
-  name: ->
-    @[@color + "_name"]
+  top_player_name: ->
+    if @color == 'onyx' then @alabaster_name else @onyx_name
 
-  opponent_name: ->
-    opponent_color = if @color == 'alabaster' then 'onyx' else 'alabaster'
-    @[opponent_color + "_name"]
+  bottom_player_name: ->
+    if @color == 'onyx' then @onyx_name else @alabaster_name
 
   ########################################
   # Update UI
@@ -211,9 +210,8 @@ class GameController extends Controller
       data:
         coordinate: coordinate
       success: (data) =>
-        @board.dehighlight_spaces()
-        @board.highlight_spaces(data, '#4a8f50')
-        @board.highlight_spaces([coordinate], '#7be383')
+        @board.dehighlight()
+        @board.highlight_valid_plies('movement', coordinate, data)
 
   piece_move: (from_coordinate, to_coordinate) =>
     @emit_request 'piece_move',

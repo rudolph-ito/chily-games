@@ -2,30 +2,34 @@ Space = require('space')
 
 class HexagonalSpace extends Space
 
-  update_draw_options: ->
+  ############################################################
+  # Init / Update
+  ############################################################
+
+  init: ->
+    @element = new Kinetic.RegularPolygon
+      sides: 6
+      stroke: '#000'
+      strokeWidth: 1
+
     super
+
+  update_size: ->
     @radius = @board.space_radius
     @size = @radius * 2
-
-  draw: ->
-    @space = new Kinetic.RegularPolygon
-      x: @x
-      y: @y
-      radius: @radius
-      sides: 6
-      stroke: 'black'
-      strokeWidth: 1
-      coordinate: @coordinate
+    @element.attrs.radius = @radius
 
     super
 
-  redraw: ->
-    super
-    @update_draw_options()
+  ############################################################
+  # Helpers
+  ############################################################
 
-    @space.attrs.x = @x
-    @space.attrs.y = @y
-    @space.attrs.radius = @radius
+  contains: (x, y) ->
+    @distance(@x, x, @y, y) <= @radius * Math.cos(Math.PI/6)
+
+  distance: (x1, x2, y1, y2) ->
+    Math.sqrt( Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2) )
 
   terrain_offset: (width, height) ->
     { x: width / 2, y: height / 2 }

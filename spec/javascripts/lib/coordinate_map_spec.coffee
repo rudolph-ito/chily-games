@@ -6,19 +6,32 @@ describe 'CoordinateMap', ->
     @coordinate = {x:0,y:0}
     @coordinate_map = new CoordinateMap
 
-  it 'basic set and get', ->
-    @coordinate_map.set(@coordinate, @data)
-    expect(@coordinate_map.get(@coordinate)).to.eql @data
-    expect(@coordinate_map.values()).to.eql [@data]
+  context '#set and #get', ->
+    it 'works', ->
+      @coordinate_map.set(@coordinate, @data)
+      expect(@coordinate_map.get(@coordinate)).to.eql @data
 
-  it 'remove', ->
-    @coordinate_map.set(@coordinate, @data)
-    @coordinate_map.remove(@coordinate)
-    expect(@coordinate_map.get(@coordinate)).to.eql null
+  context '#values', ->
+    it 'returns an array of values', ->
+      @coordinate_map.set(@coordinate, @data)
+      expect(@coordinate_map.values()).to.eql [@data]
 
-  it 'move', ->
-    new_coordinate = {x:1,y:0}
-    @coordinate_map.set(@coordinate, @data)
-    @coordinate_map.move(@coordinate, new_coordinate)
-    expect(@coordinate_map.get(@coordinate)).to.eql null
-    expect(@coordinate_map.get(new_coordinate)).to.eql @data
+  context 'remove', ->
+    it 'works', ->
+      @coordinate_map.set(@coordinate, @data)
+      @coordinate_map.remove(@coordinate)
+      expect(@coordinate_map.get(@coordinate)).to.eql null
+
+  context 'moves', ->
+    it 'clears old coordinate and sets to new coordinate', ->
+      new_coordinate = {x:1,y:0}
+      @coordinate_map.set(@coordinate, @data)
+      @coordinate_map.move(@coordinate, new_coordinate)
+      expect(@coordinate_map.get(@coordinate)).to.eql null
+      expect(@coordinate_map.get(new_coordinate)).to.eql @data
+
+  context 'clear', ->
+    it 'removes all data', ->
+      @coordinate_map.set(@coordinate, @data)
+      @coordinate_map.clear()
+      expect(@coordinate_map.get(@coordinate)).to.eql null

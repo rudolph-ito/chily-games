@@ -2,58 +2,47 @@ PieceType = require('piece_type')
 
 class Piece
 
-  constructor: (@board, data) ->
-    @piece_type_id = data.piece_type_id
-    @color = data.color
-    @selected = false
+  constructor: (@board, {@color, @coordinate, @piece_type_id, @x, @y}) ->
+    @init()
+    @update()
+    @load_image()
 
-    if data.coordinate
-      @coordinate = data.coordinate
-    else
-      @x = data.x
-      @y = data.y
+  ############################################################
+  # Init / Update
+  ############################################################
 
-    @update_draw_options()
+  init: ->
+    @element = new Kinetic.Image( draggable: @draggable() )
+    @element.on 'click', @click
+    if @draggable()
+      @element.on 'dragstart', @drag_start
+      @element.on 'dragend', @drag_end
 
-  update_draw_options: ->
-    [@x, @y] = @board.position(@coordinate) if @coordinate
+  update: ->
+    @update_position()
+    @update_size()
+
+  load_image: ->
+    image = new Image()
+    image.src = PieceType.url_for(@piece_type_id, @color)
+    image.onload = =>
+      @element.setImage(image)
+      @board.piece_ready()
+
+  update_position: ->
+    {@x, @y} = @board.position(@coordinate) if @coordinate
+    @element.attrs.x = @x
+    @element.attrs.y = @y
+
+  update_size: ->
     @size = @board.piece_size
+    @element.attrs.offset = x: @size / 2, y: @size / 2
+    @element.attrs.width = @size
+    @element.attrs.height = @size
 
-  draw: ->
-    imageObj = new Image()
-    imageObj.onload = =>
-      @image = new Kinetic.Image
-        x: @x
-        y: @y
-        offset:
-          x: @size / 2
-          y: @size / 2
-        image: imageObj
-        width: @size
-        height: @size
-        draggable: @color == @board.color
-        coordinate: @coordinate
-
-      @image.on 'click', @click
-
-      if @color == @board.color
-        @image.on 'dragstart', @drag_start
-        @image.on 'dragend', @drag_end
-
-      @board.piece_layer.add(@image)
-      @board.piece_layer.draw()
-
-    imageObj.src = PieceType.url_for(@piece_type_id, @color)
-
-  redraw: ->
-    @update_draw_options()
-
-    @image.attrs.x = @x
-    @image.attrs.y = @y
-    @image.attrs.offset.x = @size / 2
-    @image.attrs.offset.y = @size / 2
-    @image.attrs.width = @size
-    @image.attrs.height = @size
+  ############################################################
+  # Handlers
+  ############################################################
 
   click: =>
     return if @dragging
@@ -61,51 +50,31 @@ class Piece
 
   drag_start: =>
     @dragging = true
-    if @board.game_controller.user_in_setup() and !@coordinate?
-      piece = new Piece(@board, {piece_type_id: @piece_type_id, color: @color, x: @x, y: @y})
-      piece.draw()
-      @board.setup_pieces = @board.setup_pieces.filter (x) => x != @
-      @board.setup_pieces.push(piece)
+    @board.piece_drag_start(@)
 
   drag_end: =>
     @dragging = false
-    @try_move( @board.nearest_space(@image.attrs.x, @image.attrs.y) )
+    @board.piece_drag_end(@)
 
-  try_move: (space) ->
-    from = @coordinate
-    to = space?.coordinate
+  ############################################################
+  # Helpers
+  ############################################################
 
-    if @board.game_controller.user_in_setup()
-      if space and @board.home_space(to)
-        @board.remove_piece_at(to)
-        @move_to_space(space)
-        @board.piece_map.set(@coordinate, @)
+  draggable: ->
+    @color == @board.color
 
-        if from
-          @board.game_controller.setup_move('piece', from, @coordinate)
-        else
-          @board.game_controller.setup_add('piece', @piece_type_id, @coordinate)
+  setup: ->
+    !@coordinate?
 
-      else
-        @remove()
-        @board.game_controller.setup_remove('piece', @coordinate)
-    else
-      @move_back()
-      @board.game_controller.piece_move(from, to) if space
+  current_position: ->
+    x: @element.attrs.x
+    y: @element.attrs.y
 
-  move_back: ->
-    @image.attrs.x = @x
-    @image.attrs.y = @y
-    @board.piece_layer.draw()
-
-  move_to_space: (space) ->
-    @image.attrs.x = @x = space.x
-    @image.attrs.y = @y = space.y
-    @image.attrs.coordinate = @coordinate = space.coordinate
-    @board.piece_layer.draw()
+  reset_position: ->
+    @element.attrs.x = @x
+    @element.attrs.y = @y
 
   remove: ->
-    @image.remove()
-    @board.piece_layer.draw()
+    @element.remove()
 
 module.exports = Piece

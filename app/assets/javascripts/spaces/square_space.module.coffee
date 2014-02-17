@@ -2,35 +2,37 @@ Space = require('space')
 
 class SquareSpace extends Space
 
-  update_draw_options: ->
-    super
-    @size = @board.space_size
+  ############################################################
+  # Init / Update
+  ############################################################
 
-  draw: ->
-    @space = new Kinetic.Rect
-      x: @x
-      y: @y
-      offset:
-        x: @size / 2
-        y: @size / 2
-      width: @size
-      height: @size
-      stroke: 'black'
+  init: ->
+    @element = new Kinetic.Rect
+      stroke: '#000'
       strokeWidth: 1
-      coordinate: @coordinate
 
     super
 
-  redraw: ->
-    super
-    @update_draw_options()
+  update_size: ->
+    @size = @board.space_size
+    @element.attrs.offset = x: @size / 2, y: @size / 2
+    @element.attrs.width = @size
+    @element.attrs.height = @size
 
-    @space.attrs.x = @x
-    @space.attrs.y = @y
-    @space.attrs.offset.x = @size / 2
-    @space.attrs.offset.y = @size / 2
-    @space.attrs.width = @size
-    @space.attrs.height = @size
+    super
+
+  ############################################################
+  # Helpers
+  ############################################################
+
+  contains: (x, y)->
+    left_x = @x - @size / 2
+    right_x = left_x + @size
+
+    top_y = @y - @size / 2
+    bottom_y = top_y + @size
+
+    left_x <= x <= right_x && top_y <= y <= bottom_y
 
   terrain_offset: ->
     { x: 0, y: 0 }

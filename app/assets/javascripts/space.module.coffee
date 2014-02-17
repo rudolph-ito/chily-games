@@ -2,105 +2,75 @@ TerrainType = require('terrain_type')
 
 class Space
 
-  constructor: (@board, data) ->
-    @x = data.x
-    @y = data.y
-    @coordinate = data.coordinate
-    @terrain_type_id = data.terrain_type_id
+  constructor: (@board, {@coordinate, @display_type, @display_option, @x, @y}) ->
+    @init()
+    @update()
+    @set_display()
 
-    @update_draw_options()
+  ############################################################
+  # Init / Update
+  ############################################################
 
-  ################################################################################
-  # Draw
-  ################################################################################
+  init: ->
+    # override and call super after setting @element
+    @element.on "click", @click
+    @element.on "dragstart", @drag_start
+    @element.on "dragend", @drag_end
 
-  update_draw_options: ->
-    [@x, @y] = @board.position(@coordinate) if @coordinate
+  update: ->
+    @update_size()
+    @update_position()
+    @update_draggable()
 
-  draw: ->
-    # create @space in subclass, then call super
-    @update_display()
+  update_position: ->
+    {@x, @y} = @board.position(@coordinate) if @coordinate
+    @element.attrs.x = @x
+    @element.attrs.y = @y
 
-    @space.on "click", @click
-    @space.on "dragstart", @drag_start
-    @space.on "dragend", @drag_end
+  update_size: ->
+    # override and call super after setting @size
+    @update_terrain_size() if @display_type == 'terrain'
 
-    @board.layers.space.add(@space)
+  update_terrain_size: ->
+    image = @element.getFillPatternImage()
+    @element.setFillPatternScale(x: @size / image.width, y: @size / image.height) if image
 
-  draw_coordinate: ->
-    obj = new Kinetic.Text
-      x: @x
-      y: @y
-      text: (v for k,v of @coordinate).join(',')
-      fontSize: 12
-      fontFamily: 'Calibri'
-      fontWeight: 'bold'
-      fill: 'blue'
+  update_draggable: ->
+    @element.setDraggable( @draggable() )
 
-    @board.space_layer.add(obj)
-
-  redraw: ->
-    @update_display()
-
-  remove: ->
-    @space.remove()
-
-  ################################################################################
+  ############################################################
   # Display
-  ################################################################################
+  ############################################################
 
-  update_display: (draw = false) ->
-    for fn in [@display_highlight, @display_terrain, @display_territory, @display_base]
-      if fn.apply(@)
-        @board.space_layer.draw() if draw
-        return
+  set_display: ->
+    switch @display_type
+      when 'highlight' then @set_highlight_display()
+      when 'terrain' then @set_terrain_display()
+      when 'territory' then @set_territory_display()
 
-  display_highlight: ->
-    return false unless @highlight
-    @space.setFill(@highlight)
-    @space.setFillPriority('color')
-    @space.setFillPatternImage(null)
-    true
+  set_highlight_display: ->
+    @element.setFill(@display_option)
+    @element.setOpacity(0.75)
 
-  display_terrain: ->
-    return false unless @terrain_type_id
+  set_terrain_display: ->
+    @element.setFillPatternRepeat('no-repeat')
+    @load_terrain_image()
 
+  set_territory_display: ->
+    @element.setFill(@display_option)
+
+  load_terrain_image: ->
     image = new Image()
+    image.src = TerrainType.url_for(@display_option)
     image.onload = =>
-      @space.setFillPriority('pattern')
-      @space.setFillPatternImage(image)
-      @space.setFillPatternRepeat('no-repeat')
-      @space.setFillPatternScale({ x: @size / image.width, y: @size / image.height })
-      @space.setFillPatternOffset(@terrain_offset(image.width, image.height))
-      @space.setDraggable(true) if @board.game_controller.user_in_setup()
-      @board.space_layer.draw()
+      @element.setFillPatternImage(image)
+      @element.setFillPatternOffset(@terrain_offset(image.width, image.height))
+      @update_terrain_size()
+      @board.terrain_ready()
 
-    image.src = TerrainType.url_for(@terrain_type_id)
-
-    true
-
-  display_territory: ->
-    return false unless @board.game_controller?.action == 'setup'
-
-    color = switch @board.territory(@coordinate)
-      when 'neutral' then '#A8A8A8'
-      when @board.color then "#FFFFFF"
-      else '#505050'
-
-    @space.setFill(color)
-    @space.setFillPriority('color')
-    @space.setFillPatternImage(null)
-    true
-
-  display_base: ->
-    @space.setFill('#FFFFFF')
-    @space.setFillPriority('color')
-    @space.setFillPatternImage(null)
-    true
-
-  ################################################################################
+  ############################################################
   # Handlers
-  ################################################################################
+  ############################################################
 
   click: =>
     return if @dragging
@@ -108,62 +78,32 @@ class Space
 
   drag_start: =>
     @dragging = true
-
-    @space.moveToTop()
-    @board.space_layer.draw()
-
-    if @board.game_controller.user_in_setup()
-      if @coordinate?
-        space = new @.constructor(@board, {coordinate: @coordinate})
-        space.draw()
-        space.space.moveToBottom()
-        @board.space_layer.draw()
-        @board.space_map.set(@coordinate, space)
-      else
-        space = new @.constructor(@board, {x: @x, y: @y, terrain_type_id: @terrain_type_id})
-        space.draw()
-        space.space.moveToBottom()
-        @board.setup_spaces = @board.setup_spaces.filter (x) => x != @
-        @board.setup_spaces.push(space)
+    @element.moveToTop()
+    @board.terrain_drag_start(@)
 
   drag_end: =>
     @dragging = false
-    @try_move( @board.nearest_space(@space.attrs.x, @space.attrs.y) )
+    @board.terrain_drag_end(@)
 
-  ################################################################################
-  # Setters
-  ################################################################################
+  ############################################################
+  # Helpers
+  ############################################################
 
-  set_terrain: (terrain_type_id) ->
-    @terrain_type_id = terrain_type_id
-    @update_display()
+  draggable: ->
+    @display_type is 'terrain' and @board.game_controller?.user_in_setup()
 
-  set_highlight: (color) ->
-    @highlight = color
-    @update_display()
+  setup: ->
+    !@coordinate?
 
-  ################################################################################
-  # Util
-  ################################################################################
+  current_position: ->
+    x: @element.attrs.x
+    y: @element.attrs.y
 
-  try_move: (space) ->
-    from = @coordinate
-    to = space?.coordinate
+  reset_position: ->
+    @element.attrs.x = @x
+    @element.attrs.y = @y
 
-    if @board.game_controller.user_in_setup()
-      if space and @board.home_space(to)
-        space.set_terrain(@terrain_type_id)
-        @space.remove()
-
-        if from
-          @board.game_controller.setup_move('terrain', from, to)
-        else
-          @board.game_controller.setup_add('terrain', @terrain_type_id, to)
-
-      else
-        @space.remove()
-        @board.game_controller.setup_remove('terrain', @coordinate)
-
-      @board.space_layer.draw()
+  remove: ->
+    @element.remove()
 
 module.exports = Space
