@@ -76,7 +76,7 @@ class Board
     @draw_space_layer()
     @draw_info_layer() if @game_controller
     @draw_territories() if @game_controller.action == 'setup'
-    @draw_setup() if @game_controller?.user_in_setup()
+    @add_setup() if @game_controller?.user_in_setup()
 
   # Draw Layers
 
@@ -140,7 +140,7 @@ class Board
     @coordinate_maps.piece.set(piece.coordinate, piece) if piece.coordinate
     piece
 
-  # Draw Sections
+  # Add Sections
 
   add_header: ->
     @header = new Kinetic.Text
@@ -172,20 +172,52 @@ class Board
 
     @layers.info.add(@footer)
 
-  draw_setup: ->
+  add_setup: ->
     index = 0
 
     for piece_type_id in @piece_types
       {x,y} = @setup_position(index)
-      piece = @add_piece(x: x, y: y, piece_type_id: piece_type_id, color: @color)
-      @setup_pieces.add(piece)
+      @add_setup_piece(x: x, y: y, piece_type_id: piece_type_id, color: @color)
       index++
 
     for terrain_type_id in @terrain_types
       {x,y} = @setup_position(index)
-      terrain = @add_terrain(x: x, y: y, terrain_type_id: terrain_type_id)
-      @setup_terrain.add(terrain)
+      @add_setup_terrain(x: x, y: y, terrain_type_id: terrain_type_id)
       index++
+
+  ########################################
+  # Setup Piece
+  ########################################
+
+  add_setup_piece: (data) ->
+    piece = @add_piece(data)
+    @setup_pieces.add(piece)
+    piece
+
+  replace_setup_piece: (piece) ->
+    @setup_pieces.remove(piece)
+    @add_setup_piece(x: piece.x, y: piece.y, piece_type_id: piece.piece_type_id, color: piece.color)
+
+  remove_setup_pieces: ->
+    piece.remove() for piece in @setup_pieces.values()
+    @setup_pieces.clear()
+
+  ########################################
+  # Setup Terrain
+  ########################################
+
+  add_setup_terrain: (data) ->
+    terrain = @add_terrain(data)
+    @setup_terrain.add(terrain)
+    terrain
+
+  replace_setup_terrain: (terrain) ->
+    @setup_terrain.remove(terrain)
+    @add_setup_terrain(x: terrain.x, y: terrain.y, terrain_type_id: terrain.display_option)
+
+  remove_setup_terrain: ->
+    terrain.remove() for terrain in @setup_terrain.values()
+    @setup_terrain.clear()
 
   ########################################
   # Redraw
@@ -194,16 +226,19 @@ class Board
   redraw: ->
     @setup()
 
-    piece.remove() for piece in @setup_pieces
-    terrain.remove() for terrain in @setup_terrain
-    @setup_pieces = setup_terrain = []
+    unless @game_controller.action == 'setup'
+      @remove_territories()
 
-    for key, map in @coordinate_maps
+    unless @game_controller?.user_in_setup()
+      @remove_setup_pieces()
+      @remove_setup_terrain()
+
+    for key, map of @coordinate_maps
       object.update() for object in map.values()
       @layers[key].draw()
 
-    @redraw_header()
-    @redraw_footer()
+    @update_header()
+    @update_footer()
     @layers.info.draw()
 
   update_header: ->
@@ -225,26 +260,11 @@ class Board
       @deselect_piece()
     else if @temporary_move
       @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, coordinate)
-      @move_piece(@temporary_move.to, @temporary_move.from)
+      @move_piece_by_coordinate(@temporary_move.to, @temporary_move.from)
       @temporary_move = null
     else
       piece = @coordinate_maps.piece.get(coordinate)
       @select_piece(piece) if piece
-
-  move_piece: (from, to) ->
-    @remove_piece_at(to)
-
-    piece = @coordinate_maps.piece.get(from)
-    space = @coordinate_maps.space.get(to)
-    piece.move_to_space(space)
-
-    @coordinate_maps.piece.move(from, to)
-
-    @deselect_piece()
-
-  remove_piece_at: (coordinate) ->
-    @coordinate_maps.piece.get(coordinate)?.remove()
-    @coordinate_maps.piece.remove(coordinate)
 
   select_piece: (piece) ->
     @selected_piece = piece
@@ -258,38 +278,89 @@ class Board
     return unless @coordinate_maps.piece.get(from).color == @color
 
     @temporary_move = from: from, to: to
-    @move_piece(from, to)
+    @move_piece_by_coordinate(from, to)
     @highlight_valid_plies('range', to, range_captures)
 
-  ########################################
-  # Piece Interation
-  ########################################
+  ################################################
+  # Move/Place/Remove/Reset Pieces
+  ################################################
+
+  move_piece_by_coordinate: (from, to) ->
+    piece = @coordinate_maps.piece.get(from)
+    @move_piece(piece, to) if piece
 
   move_piece: (piece, to) ->
+    @remove_piece_by_coordinate(to)
+
     @coordinate_maps.piece.remove(piece.coordinate)
     piece.coordinate = to
     piece.update_position()
     @coordinate_maps.piece.set(piece.coordinate, piece)
 
+    @layers.piece.draw()
+
+  remove_piece_by_coordinate: (coordinate) ->
+    piece = @coordinate_maps.piece.get(coordinate)
+    @remove_piece(piece) if piece
+
   remove_piece: (piece) ->
-    piece.remove()
     @coordinate_maps.piece.remove(piece.coordinate)
+    piece.remove()
+    @layers.piece.draw()
+
+  reset_piece: (piece) ->
+    piece.reset_position()
+    @layers.piece.draw()
+
+  piece_ready: ->
+    @layers.piece.draw()
+
+  ################################################
+  # Move/Place/Remove Terrain
+  ################################################
+
+  move_terrain: (terrain, to) ->
+    @remove_terrain_by_coordinate(to)
+
+    @coordinate_maps.terrain.remove(terrain.coordinate)
+    terrain.coordinate = to
+    terrain.update_position()
+    @coordinate_maps.terrain.set(terrain.coordinate, terrain)
+
+    @layers.terrain.draw()
+
+  remove_terrain_by_coordinate: (coordinate) ->
+    terrain = @coordinate_maps.terrain.get(coordinate)
+    @remove_terrain(terrain) if terrain
+
+  remove_terrain: (terrain) ->
+    @coordinate_maps.terrain.remove(terrain.coordinate)
+    terrain.remove()
+    @layers.terrain.draw()
+
+  reset_terrain: (terrain) ->
+    terrain.reset_position()
+    @layers.terrain.draw()
+
+  terrain_ready: ->
+    @layers.terrain.draw()
+
+  ########################################
+  # Piece Interation
+  ########################################
 
   piece_drag_start: (piece) ->
-    if @game_controller.user_in_setup() and piece.setup()
-      @setup_pieces.remove(piece)
-      new_piece = @add_piece(x: piece.x, y: piece.y, piece_type_id: piece.piece_type_id, color: piece.color)
-      @setup_pieces.add(new_piece)
+    @replace_setup_piece(piece) if @game_controller.user_in_setup() and piece.setup()
 
   piece_drag_end: (piece) ->
     to = @nearest_space( piece.current_position() )?.coordinate
-    @piece_try_move(piece, to) if piece.coordinate isnt to
+    @piece_try_move(piece, to)
 
   piece_try_move: (piece, to) ->
     from = piece.coordinate
 
-    if from is to
-      piece.reset_position
+    if to? and from is to
+      @reset_piece(piece)
     else if @game_controller.user_in_setup()
       if to and @home_space(to)
         @move_piece(piece, to)
@@ -298,39 +369,19 @@ class Board
           @game_controller.setup_move('piece', from, to)
         else
           @game_controller.setup_add('piece', piece.piece_type_id, to)
-
       else
         @remove_piece(piece)
-        @game_controller.setup_remove('piece', from)
-
+        @game_controller.setup_remove('piece', from) if from
     else if to
-      piece.reset_position()
+      @reset_piece(piece)
       @game_controller.piece_move(from, to)
-
-    @layers.piece.draw()
-
-  piece_ready: ->
-    @layers.piece.draw()
 
   ########################################
   # Terrain Interaction
   ########################################
 
-  move_terrain: (terrain, to) ->
-    @coordinate_maps.terrain.remove(terrain.coordinate)
-    terrain.coordinate = to
-    terrain.update_position()
-    @coordinate_maps.terrain.set(terrain.coordinate, terrain)
-
-  remove_terrain: (terrain) ->
-    terrain.remove()
-    @coordinate_maps.terrain.remove(terrain.coordinate)
-
   terrain_drag_start: (terrain) ->
-    if @game_controller.user_in_setup() and terrain.setup()
-      @setup_terrain.remove(terrain)
-      new_terrain = @add_terrain(x: terrain.x, y: terrain.y, terrain_type_id: terrain.display_option)
-      @setup_terrain.add(new_terrain)
+    @replace_setup_terrain(terrain) if @game_controller.user_in_setup() and terrain.setup()
 
   terrain_drag_end: (terrain) ->
     to = @nearest_space( terrain.current_position() )?.coordinate
@@ -339,9 +390,9 @@ class Board
   terrain_try_move: (terrain, to) ->
     from = terrain.coordinate
 
-    if from is to
-      @terrain.reset_position()
-    if @game_controller.user_in_setup()
+    if to? and from is to
+      @reset_terrain(terrain)
+    else if @game_controller.user_in_setup()
       if to and @home_space(to)
         @move_terrain(terrain, to)
 
@@ -349,27 +400,13 @@ class Board
           @game_controller.setup_move('terrain', from, to)
         else
           @game_controller.setup_add('terrain', terrain.display_option, to)
-
       else
         @remove_terrain(terrain)
         @game_controller.setup_remove('terrain', from)
 
-      @layers.terrain.draw()
-
-  terrain_ready: ->
-    @layers.terrain.draw()
-
   ########################################
-  # Helpers
+  # Highlight
   ########################################
-
-  home_space: (coord) ->
-    @territory(coord) == @color
-
-  nearest_space: ({x, y}) ->
-    for space in @coordinate_maps.space.values()
-      return space if space.contains(x, y)
-    null
 
   dehighlight: ->
     @layers.highlight.removeChildren()
@@ -385,6 +422,23 @@ class Board
     @add_highlight(piece_coordinate, piece_highlight_color)
     @add_highlights(space_coordinates, space_highlight_color)
     @layers.highlight.draw()
+
+  remove_territories: ->
+    @layers.territory.removeChildren()
+    @coordinate_maps.territory.clear()
+    @layers.territory.draw()
+
+  ########################################
+  # Helpers
+  ########################################
+
+  home_space: (coord) ->
+    @territory(coord) == @color
+
+  nearest_space: ({x, y}) ->
+    for space in @coordinate_maps.space.values()
+      return space if space.contains(x, y)
+    null
 
   setup_position: (index) ->
     row = Math.floor(index / @setup_columns) % @setup_rows

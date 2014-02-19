@@ -70,6 +70,4 @@ class SquareBoard extends Board
     else
       'onyx'
 
-
-
 module.exports = SquareBoard

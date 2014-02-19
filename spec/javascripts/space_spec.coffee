@@ -78,7 +78,7 @@ describe 'Space', ->
   context '#set_display', ->
     context 'display_type is highlight', ->
       beforeEach ->
-        @space = new Space @board, {display_type: 'highlight'}
+        @space = new Space @board, {display_type: 'highlight', display_option: '#333'}
 
       it 'sets the fill to display_option', ->
         sinon.stub @space.element, 'setFill'
@@ -185,6 +185,17 @@ describe 'Space', ->
 
     it 'returns @element position', ->
       expect(@space.current_position()).to.eql {x:25, y:75}
+
+  context '#reset_position', ->
+    beforeEach ->
+      @space = new Space @board, {x: 100, y: 200}
+      @space.element.attrs.x = 25
+      @space.element.attrs.y = 75
+
+    it 'reset @element x and y', ->
+      @space.reset_position()
+      expect(@space.element.attrs.x).to.eql 100
+      expect(@space.element.attrs.y).to.eql 200
 
   context 'remove', ->
     beforeEach -> @space = new Space @board, @options

@@ -191,10 +191,10 @@ describe 'Board', ->
       context 'user is in setup', ->
         before -> @game_controller.user_in_setup = -> true
         it 'calls draw setup', ->
-          sinon.spy @board, 'draw_setup'
+          sinon.spy @board, 'add_setup'
           @board.draw()
-          expect(@board.draw_setup).to.have.been.called
-          @board.draw_setup.restore()
+          expect(@board.add_setup).to.have.been.called
+          @board.add_setup.restore()
 
   describe 'add_header', ->
     it 'sets header', ->

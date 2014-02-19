@@ -20,18 +20,10 @@ describe 'CoordinateMap', ->
     it 'works', ->
       @coordinate_map.set(@coordinate, @data)
       @coordinate_map.remove(@coordinate)
-      expect(@coordinate_map.get(@coordinate)).to.eql null
-
-  context 'moves', ->
-    it 'clears old coordinate and sets to new coordinate', ->
-      new_coordinate = {x:1,y:0}
-      @coordinate_map.set(@coordinate, @data)
-      @coordinate_map.move(@coordinate, new_coordinate)
-      expect(@coordinate_map.get(@coordinate)).to.eql null
-      expect(@coordinate_map.get(new_coordinate)).to.eql @data
+      expect(@coordinate_map.get(@coordinate)).to.eql undefined
 
   context 'clear', ->
     it 'removes all data', ->
       @coordinate_map.set(@coordinate, @data)
       @coordinate_map.clear()
-      expect(@coordinate_map.get(@coordinate)).to.eql null
+      expect(@coordinate_map.get(@coordinate)).to.eql undefined

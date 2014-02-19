@@ -125,14 +125,14 @@ class GameController extends Controller
   finish_setup: ->
     return unless @action == 'move'
 
-    @board.update_display()
+    @board.redraw()
 
     $.ajax
       url: @url('opponent_setup')
       method: 'GET'
       success: (data) =>
-        @board.draw_pieces(data.pieces)
-        @board.draw_terrains(data.terrains)
+        @board.add_pieces(data.pieces)
+        @board.add_terrains(data.terrains)
         @add_to_chat('server', 'Let the battle begin!')
 
   finish_game_if_complete: ->
@@ -258,7 +258,7 @@ class GameController extends Controller
       @action_to_id = data.action_to_id
       @update_state()
 
-      @board.move_piece(data.from, data.to)
+      @board.move_piece_by_coordinate(data.from, data.to)
       @finish_game_if_complete()
 
     else if data.range_captures
@@ -272,8 +272,8 @@ class GameController extends Controller
       @action_to_id = data.action_to_id
       @update_state()
 
-      @board.move_piece(data.from, data.to)
-      @board.remove_piece_at(data.range_capture)
+      @board.move_piece_by_coordinate(data.from, data.to)
+      @board.remove_piece_by_coordinate(data.range_capture)
       @finish_game_if_complete()
 
   server_game_abort: (data) =>

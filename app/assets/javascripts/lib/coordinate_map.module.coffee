@@ -5,19 +5,16 @@ class CoordinateMap
 
   get: (coordinate) ->
     key = @_coordinate_to_key(coordinate)
-    @data[key] ? null
+    @data[key]
 
   set: (coordinate, value) ->
+    return unless coordinate?
     key = @_coordinate_to_key(coordinate)
     @data[key] = value
 
-  remove:(coordinate) ->
+  remove: (coordinate) ->
     key = @_coordinate_to_key(coordinate)
     delete @data[key]
-
-  move: (from, to) ->
-    @set(to, @get(from))
-    @remove(from)
 
   clear: ->
     @data = {}
