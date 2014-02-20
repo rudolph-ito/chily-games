@@ -15,8 +15,8 @@ class PlyData
     @capture = rule.capture_type == type
 
     @directional_functions = []
-    @directional_functions += board.movement_function('orthogonal') if @directional_type.include?('orthogonal')
-    @directional_functions += board.movement_function('diagonal') if @directional_type.include?('diagonal')
+    @directional_functions += board.directional_functions('orthogonal') if @directional_type.include?('orthogonal')
+    @directional_functions += board.directional_functions('diagonal') if @directional_type.include?('diagonal')
   end
 
   def line?

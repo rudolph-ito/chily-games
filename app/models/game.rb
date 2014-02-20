@@ -42,7 +42,7 @@ class Game < ActiveRecord::Base
   ########################################
 
   def board
-    @board ||= "#{variant.board_type.camelize}Board".constantize.new(variant)
+    @board ||= BoardFactory.instance(variant)
   end
 
   def color(user_id)
@@ -202,7 +202,7 @@ class Game < ActiveRecord::Base
       to = board.reduce_coordinate(to)
 
       # Stop if distance did not grow
-      next if board.distance(ply_data.coordinate, from) >= board.distance(ply_data.coordinate, to)
+      next if CoordinateDistance.calculate(ply_data.coordinate, from) >= CoordinateDistance.calculate(ply_data.coordinate, to)
 
       continue, valid = evaluate_ply(ply_data, to, movement_count + 1)
       plies << to.clone if valid
@@ -220,7 +220,7 @@ class Game < ActiveRecord::Base
   # Returns [stop, valid]
   def evaluate_ply(ply_data, to, movement_count)
     # Stop if off the board
-    return [false, false] if board.coordinate_invalid?(to)
+    return [false, false] unless board.coordinate_valid?(to)
 
     # Get piece at square (ignore self)
     occupying_piece = pieces.for_coordinate(to).first unless to == ply_data.coordinate
