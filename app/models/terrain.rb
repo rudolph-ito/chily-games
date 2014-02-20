@@ -10,6 +10,12 @@ class Terrain < ActiveRecord::Base
   belongs_to :user
 
   ########################################
+  # Validations
+  ########################################
+
+  validates :game, :terrain_type, :user, presence: true
+
+  ########################################
   # Instance Methods
   ########################################
 

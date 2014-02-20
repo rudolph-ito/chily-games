@@ -66,4 +66,14 @@ describe Piece do
       specify { piece.color.should == 'onyx' }
     end
   end
+
+  describe '#rule' do
+    let(:game) { create(:game, action: 'move') }
+    let(:piece) { create(:piece, game: game) }
+    let!(:piece_rule) { create(:piece_rule, piece_type: piece.piece_type, variant: game.variant)}
+
+    it 'returns the rule' do
+      expect(piece.rule).to eql(piece_rule)
+    end
+  end
 end

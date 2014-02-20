@@ -16,7 +16,7 @@ FactoryGirl.define do
     game
     user
     piece_type
-    coordinate { {'x' => 1, 'y' => 1} }
+    coordinate { {'x'=>1, 'y'=>1} }
   end
 
   factory :piece_rule do
@@ -40,7 +40,10 @@ FactoryGirl.define do
   end
 
   factory :terrain do
+    game
+    user
     terrain_type
+    coordinate { {'x'=>1, 'y'=>1} }
   end
 
   factory :terrain_rule do
