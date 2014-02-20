@@ -75,7 +75,7 @@ class Board
     @setup()
     @draw_space_layer()
     @draw_info_layer() if @game_controller
-    @draw_territories() if @game_controller.action == 'setup'
+    @draw_territories() if @game_controller?.action == 'setup'
     @add_setup() if @game_controller?.user_in_setup()
 
   # Draw Layers

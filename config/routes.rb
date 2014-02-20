@@ -51,7 +51,7 @@ Cyvasse::Application.routes.draw do
 
   get '/explore' => 'home#explore'
   get '/create' => 'home#create'
-  get '/play' => 'home#play'
+  get '/play' => 'play#play'
 
   root to: 'home#index'
 end
