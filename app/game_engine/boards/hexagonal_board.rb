@@ -1,7 +1,13 @@
-class HexagonalBoard < Board
+class HexagonalBoard
+
+  attr_reader :size
+
+  def initialize(size)
+    @size = size
+  end
 
   def coordinate_valid?(coordinate)
-    coordinate['x'].abs + coordinate['y'].abs + coordinate['z'].abs <= @variant.board_size - 1
+    coordinate['x'].abs + coordinate['y'].abs + coordinate['z'].abs <= size - 1
   end
 
   def reduce_coordinate(coordinate)
@@ -23,7 +29,7 @@ class HexagonalBoard < Board
     end
   end
 
-  def movement_function(type)
+  def directional_functions(type)
     if type == 'orthogonal'
       [
         lambda{ |coordinate| coordinate['x'] += 1},
@@ -33,7 +39,7 @@ class HexagonalBoard < Board
         lambda{ |coordinate| coordinate['z'] += 1},
         lambda{ |coordinate| coordinate['z'] -= 1}
       ]
-    else # type == 'diagonal'
+    elsif type == 'diagonal'
       [
         lambda{ |coordinate| coordinate['x'] += 1; coordinate['y'] += 1},
         lambda{ |coordinate| coordinate['x'] -= 1; coordinate['y'] -= 1},
@@ -42,6 +48,8 @@ class HexagonalBoard < Board
         lambda{ |coordinate| coordinate['y'] += 1; coordinate['z'] += 1},
         lambda{ |coordinate| coordinate['y'] -= 1; coordinate['z'] -= 1}
       ]
+    else
+      raise "#{self.class}#directional_functions does not support type: #{type}"
     end
   end
 

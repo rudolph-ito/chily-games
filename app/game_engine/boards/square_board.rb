@@ -1,24 +1,35 @@
-class SquareBoard < Board
+class SquareBoard
+
+  attr_reader :rows, :columns
+
+  def initialize(rows, columns)
+    @rows = rows
+    @columns = columns
+  end
 
   def coordinate_valid?(coordinate)
-    0 <= coordinate['x'] && coordinate['x'] < @variant.board_columns && 0 <= coordinate['y'] && coordinate['y'] < @variant.board_rows
+    0 <= coordinate['x'] && coordinate['x'] < columns && 0 <= coordinate['y'] && coordinate['y'] < rows
+  end
+
+  def reduce_coordinate(coordinate)
+    coordinate
   end
 
   def center_coordinate
-    { 'x' => @variant.board_columns / 2, 'y' => @variant.board_rows / 2 }
+    { 'x' => columns / 2, 'y' => rows / 2 }
   end
 
   def territory(coordinate)
-    if @variant.board_rows.odd? && coordinate['y'] == @variant.board_rows / 2
+    if rows.odd? && coordinate['y'] == rows / 2
       'neutral'
-    elsif coordinate['y'] < @variant.board_rows / 2
+    elsif coordinate['y'] < rows / 2
       'alabaster'
     else
       'onyx'
     end
   end
 
-  def movement_function(type)
+  def directional_functions(type)
     if type == 'orthogonal'
       [
         lambda{ |coordinate| coordinate['x'] += 1},
@@ -26,14 +37,15 @@ class SquareBoard < Board
         lambda{ |coordinate| coordinate['y'] += 1},
         lambda{ |coordinate| coordinate['y'] -= 1}
       ]
-    else # type == 'diagonal'
+    elsif type == 'diagonal'
       [
         lambda{ |coordinate| coordinate['x'] += 1; coordinate['y'] += 1},
         lambda{ |coordinate| coordinate['x'] += 1; coordinate['y'] -= 1},
         lambda{ |coordinate| coordinate['x'] -= 1; coordinate['y'] += 1},
         lambda{ |coordinate| coordinate['x'] -= 1; coordinate['y'] -= 1}
       ]
+    else
+      raise "#{self.class}#directional_functions does not support type: #{type}"
     end
   end
-
 end
