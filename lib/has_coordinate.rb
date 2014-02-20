@@ -49,6 +49,10 @@ module HasCoordinate
   private
 
   module ClassMethods
+    def find_by_coordinate(coordinate)
+      for_coordinate(coordinate).first
+    end
+
     def decode_coordinate(string)
       values = string.split(',').map(&:to_i)
       out = {'x' => values[0].to_i, 'y' => values[1].to_i}

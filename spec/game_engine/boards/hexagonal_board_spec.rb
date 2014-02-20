@@ -1,5 +1,5 @@
 require 'minimal_spec_helper'
-require File.expand_path("../../../../app/game_engine/boards/hexagonal_board.rb", __FILE__)
+require ROOT_DIRECTORY + '/app/game_engine/boards/hexagonal_board.rb'
 
 describe HexagonalBoard do
   let(:board) { HexagonalBoard.new(size) }

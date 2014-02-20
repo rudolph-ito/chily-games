@@ -1,6 +1,8 @@
 require 'simplecov'
 SimpleCov.start 'rails'
 
+
+ROOT_DIRECTORY = File.expand_path("../..", __FILE__)
 Dir["light_support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|

@@ -1,7 +1,7 @@
 require 'minimal_spec_helper'
-require File.expand_path("../../../app/game_engine/boards/square_board.rb", __FILE__)
-require File.expand_path("../../../app/game_engine/boards/hexagonal_board.rb", __FILE__)
-require File.expand_path("../../../app/game_engine/board_factory.rb", __FILE__)
+require ROOT_DIRECTORY + '/app/game_engine/boards/square_board.rb'
+require ROOT_DIRECTORY + '/app/game_engine/boards/hexagonal_board.rb'
+require ROOT_DIRECTORY + '/app/game_engine/board_factory.rb'
 
 describe BoardFactory do
   context '.instance' do
