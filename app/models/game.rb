@@ -88,7 +88,7 @@ class Game < ActiveRecord::Base
     errors = []
 
     if user_pieces.count != variant.number_of_pieces
-      errors << "Please place #{variant.number_of_pieces} pieces. You placed #{pieces.count}."
+      errors << "Please place #{variant.number_of_pieces} pieces. You placed #{user_pieces.count}."
     end
 
     variant.piece_rules.each do |pr|

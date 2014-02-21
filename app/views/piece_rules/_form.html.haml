@@ -20,5 +20,5 @@
       = f.input :range_maximum, label: 'Maximum', as: :number, min: 1, step: 1, hint: 'Leave blank for no maximum'
 
   = f.actions do
-    = f.action :submit, name: "Save"
-    = f.action :cancel, name: "Cancel"
+    = f.action :submit
+    = f.action :cancel, :as => :link, :url => @piece_rule.variant

@@ -44,7 +44,7 @@ end
   name = tt.titleize
 
   attrs = {
-    image: File.open("lib/assets/terrain_types/#{tt}.png"),
+    image: File.open("lib/assets/terrain_types/#{tt}.svg"),
     name: name
   }
 

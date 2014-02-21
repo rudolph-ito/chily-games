@@ -262,6 +262,7 @@ class Board
       @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, coordinate)
       @move_piece_by_coordinate(@temporary_move.to, @temporary_move.from)
       @temporary_move = null
+      @dehighlight()
     else
       piece = @coordinate_maps.piece.get(coordinate)
       @select_piece(piece) if piece

@@ -16,5 +16,5 @@
       = f.input :block_range_piece_type_ids, label: 'Piece Types', as: :check_boxes, collection: f.object.variant.piece_rules.map{ |pr| [pr.piece_type.name, pr.piece_type.id.to_s] }
 
   = f.actions do
-    = f.action :submit, name: "Save"
-    = f.action :cancel, name: "Cancel"
+    = f.action :submit
+    = f.action :cancel, :as => :link, :url => @terrain_rule.variant
