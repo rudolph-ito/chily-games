@@ -15,7 +15,7 @@ class Controller
     @socket.emit 'leave'
 
   join: (room_id) ->
-    @socket.emit "join", userId: @user_id, roomId: room_id
+    @socket.emit "join", userId: @user_name, roomId: room_id
 
   emit_broadcast: (event, data, toSelf=true) ->
     @socket.emit 'send',

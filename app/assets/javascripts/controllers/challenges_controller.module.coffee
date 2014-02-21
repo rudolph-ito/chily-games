@@ -2,7 +2,7 @@ Controller = require('controller')
 
 class ChallengesController extends Controller
 
-  constructor: (@user_id) ->
+  constructor: (@user_id, @user_name) ->
     super
     @container = $('.challenges')
     @your = @container.find('table tbody.your')
@@ -45,7 +45,7 @@ class ChallengesController extends Controller
   load_game: (id) ->
     @deactivate()
     GameController = require('controllers/game_controller')
-    new GameController(@user_id, id).activate()
+    new GameController(id, @user_id, @user_name).activate()
 
   ########################################
   # Update UI

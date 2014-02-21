@@ -38,7 +38,7 @@
 :javascript
   $(function() {
     ChallengesController = require('controllers/challenges_controller')
-    new ChallengesController(#{current_user.id}).activate()
+    new ChallengesController(#{current_user.id}, '#{current_user.username}').activate()
 
     PieceType = require('piece_type')
     PieceType.set_data(#{ActiveSupport::JSON.encode(PieceType.urls)})

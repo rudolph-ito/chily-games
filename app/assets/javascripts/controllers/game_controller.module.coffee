@@ -3,7 +3,7 @@ Board = require('board')
 
 class GameController extends Controller
 
-  constructor: (@user_id, @game_id) ->
+  constructor: (@game_id, @user_id, @user_name) ->
     super
     @container = $('.game')
     @board_container = $('.board')
@@ -47,7 +47,7 @@ class GameController extends Controller
       @parse_data(data)
       @update_state()
       @update_actions()
-      @add_to_chat('server', data.message) if @user_in_setup()
+      @add_to_chat(data.message) if @user_in_setup()
 
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
@@ -70,7 +70,7 @@ class GameController extends Controller
     @board_container.html('')
     @deactivate()
     ChallengesController = require('controllers/challenges_controller')
-    new ChallengesController(@user_id).activate()
+    new ChallengesController(@user_id, @user_name).activate()
 
   top_player_name: ->
     if @color == 'onyx' then @alabaster_name else @onyx_name
@@ -111,7 +111,7 @@ class GameController extends Controller
       element = @container.find("[data-action=#{name}]")
       if should_display then element.show() else element.hide()
 
-  add_to_chat: (username, message) ->
+  add_to_chat: (message, username = 'server') ->
     last_div = @chat_container.find("> div:last-child")
     if last_div.data("username") is username
       div = last_div
@@ -133,7 +133,7 @@ class GameController extends Controller
       success: (data) =>
         @board.add_pieces(data.pieces)
         @board.add_terrains(data.terrains)
-        @add_to_chat('server', 'Let the battle begin!')
+        @add_to_chat('Let the battle begin!')
 
   finish_game_if_complete: ->
     if @action == 'complete'
@@ -152,7 +152,7 @@ class GameController extends Controller
     return if msg is ""
 
     @emit_broadcast 'chat',
-      username: @name()
+      username: @user_name
       message: msg
 
   setup_add: (type, type_id, coordinate) ->
@@ -193,14 +193,14 @@ class GameController extends Controller
           @action = data.action
           @action_to_id = data.action_to_id
           @update_controls()
-          @add_to_chat('server', 'Setup complete')
+          @add_to_chat('Setup complete')
 
           @emit_broadcast 'setup_complete', {action: @action, action_to_id: @action_to_id}, false
 
           @board.redraw()
           @finish_setup()
         else
-          @add_to_chat('server', data.errors.join("\n"))
+          @add_to_chat(data.errors.join("\n"))
 
   valid_piece_moves: (coordinate) ->
     $.ajax
@@ -241,13 +241,13 @@ class GameController extends Controller
   ########################################
 
   server_chat: (data) =>
-    @add_to_chat(data.broadcast.username, data.broadcast.message)
+    @add_to_chat(data.broadcast.message, data.broadcast.username)
 
   server_setup_complete: (data) =>
     @action = data.broadcast.action
     @action_to_id = data.broadcast.action_to_id
     @update_controls()
-    @add_to_chat('server', 'Opponent is ready')
+    @add_to_chat('Opponent is ready')
     @finish_setup()
 
   server_piece_move: (data) =>
@@ -287,6 +287,18 @@ class GameController extends Controller
     name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
     alert("Game over: #{name} wins by resignation")
     @load_challenges()
+
+  server_player_joined: (data) =>
+    if data.userId == @user_name
+      for name in data.usersInRoom when name isnt @user_name
+        @add_to_chat("#{name} is here")
+
+    else
+      @add_to_chat("#{data.userId} joined")
+
+  server_player_left: (data) =>
+    return if data.userId == @user_name
+    @add_to_chat("#{data.userId} left")
 
 
 module.exports = GameController
