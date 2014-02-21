@@ -53,13 +53,11 @@ describe Game do
   end
 
   describe '#setup_errors' do
-    let(:variant) { create(:variant, board_type: 'square', board_rows: 3, board_columns: 3, number_of_pieces: 2) }
+    let(:variant) { create(:variant, board_type: 'square', board_rows: 3, board_columns: 3) }
     let!(:piece_type1) { create(:piece_type, name: 'King') }
-    let!(:piece_rule1) { create(:piece_rule, variant: variant, piece_type: piece_type1, count_minimum: 1, count_maximum: 1) }
+    let!(:piece_rule1) { create(:piece_rule, variant: variant, piece_type: piece_type1, count: 1) }
     let!(:piece_type2) { create(:piece_type, name: 'Dragon') }
-    let!(:piece_rule2) { create(:piece_rule, variant: variant, piece_type: piece_type2, count_minimum: 0, count_maximum: 1) }
-    let!(:piece_type3) { create(:piece_type, name: 'Catapult') }
-    let!(:piece_rule3) { create(:piece_rule, variant: variant, piece_type: piece_type3, count_minimum: 0, count_maximum: 1) }
+    let!(:piece_rule2) { create(:piece_rule, variant: variant, piece_type: piece_type2, count: 1) }
 
     let(:user1) { create(:user) }
     let(:user2) { create(:user) }
@@ -83,27 +81,10 @@ describe Game do
       end
     end
 
-    context 'too few pieces' do
-      it 'returns errors' do
-        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
-        expect(game.setup_errors(user1)).to eql ['Please place 2 pieces. You placed 1.']
-      end
-    end
-
-    context 'too many pieces' do
-      it 'returns errors' do
-        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
-        game.setup_add(user1, 'piece', piece_type2.id, {'x' => 1, 'y' => 0})
-        game.setup_add(user1, 'piece', piece_type3.id, {'x' => 2, 'y' => 0})
-        expect(game.setup_errors(user1)).to eql ['Please place 2 pieces. You placed 3.']
-      end
-    end
-
     context 'too few of piece type' do
       it 'returns errors' do
-        game.setup_add(user1, 'piece', piece_type2.id, {'x' => 0, 'y' => 0})
-        game.setup_add(user1, 'piece', piece_type3.id, {'x' => 1, 'y' => 0})
-        expect(game.setup_errors(user1)).to eql ['Please place 1 king. You placed 0.']
+        game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
+        expect(game.setup_errors(user1)).to eql ['Please place 1 dragon. You placed 0.']
       end
     end
 
@@ -111,6 +92,7 @@ describe Game do
       it 'returns errors' do
         game.setup_add(user1, 'piece', piece_type1.id, {'x' => 0, 'y' => 0})
         game.setup_add(user1, 'piece', piece_type1.id, {'x' => 1, 'y' => 0})
+        game.setup_add(user1, 'piece', piece_type2.id, {'x' => 2, 'y' => 0})
         expect(game.setup_errors(user1)).to eql ['Please place 1 king. You placed 2.']
       end
     end

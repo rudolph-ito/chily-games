@@ -32,7 +32,7 @@ describe PieceRulesController do
 
   describe 'create' do
     let(:piece_type) { create(:piece_type) }
-    let(:valid_attributes) { { count_minimum: 1, count_maximum: 1, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1, piece_type_id: piece_type.id, capture_type: 'movement'} }
+    let(:valid_attributes) { { count: 1, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1, piece_type_id: piece_type.id, capture_type: 'movement'} }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do
@@ -50,7 +50,7 @@ describe PieceRulesController do
         context 'with invalid attributes' do
           it 'does not create and renders new' do
             expect {
-              post :create, variant_id: variant.id, piece_rule: valid_attributes.merge(count_minimum: '')
+              post :create, variant_id: variant.id, piece_rule: valid_attributes.merge(count: '')
               response.should render_template 'new'
             }.to change(PieceRule, :count).by(0)
           end
@@ -107,7 +107,7 @@ describe PieceRulesController do
   end
 
   describe 'update' do
-    let(:piece_rule) { create :piece_rule, variant: variant, count_maximum: 2 }
+    let(:piece_rule) { create :piece_rule, variant: variant, count: 2 }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do
@@ -115,16 +115,16 @@ describe PieceRulesController do
 
         context 'with valid attributes' do
           it 'updates and redirects to variant' do
-            put :update, id: piece_rule.id, piece_rule: { count_maximum: 3 }
-            piece_rule.reload.count_maximum.should == 3
+            put :update, id: piece_rule.id, piece_rule: { count: 3 }
+            piece_rule.reload.count.should == 3
             response.should redirect_to variant
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
-            put :update, id: piece_rule.id, piece_rule: { count_maximum: 0 }
-            piece_rule.reload.count_maximum.should == 2
+            put :update, id: piece_rule.id, piece_rule: { count: 0 }
+            piece_rule.reload.count.should == 2
             response.should render_template 'edit'
           end
         end
@@ -132,8 +132,8 @@ describe PieceRulesController do
 
       context 'for other variant' do
         it 'redirects to root' do
-          put :update, id: piece_rule.id, piece_rule: { count_maximum: 3 }
-          piece_rule.reload.count_maximum.should == 2
+          put :update, id: piece_rule.id, piece_rule: { count: 3 }
+          piece_rule.reload.count.should == 2
           response.should redirect_to root_path
         end
       end
@@ -141,8 +141,8 @@ describe PieceRulesController do
 
     context 'when not signed in' do
       it 'redirects to login' do
-        put :update, id: piece_rule.id, piece_rule: { count_maximum: 3 }
-        piece_rule.reload.count_maximum.should == 2
+        put :update, id: piece_rule.id, piece_rule: { count: 3 }
+        piece_rule.reload.count.should == 2
         response.should redirect_to new_user_session_path
       end
     end

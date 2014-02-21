@@ -21,8 +21,7 @@ FactoryGirl.define do
 
   factory :piece_rule do
     capture_type PieceRule::CAPTURE_TYPES.first
-    count_minimum 1
-    count_maximum 1
+    count 1
     movement_minimum 1
     movement_maximum 1
     movement_type PieceRule::DIRECTIONS.first
@@ -66,7 +65,6 @@ FactoryGirl.define do
     board_rows 8
     board_type 'square'
     sequence(:name) {|n| "variant #{n}" }
-    number_of_pieces 10
     user
 
     factory :variant_with_square_board do

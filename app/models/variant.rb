@@ -30,7 +30,6 @@ class Variant < ActiveRecord::Base
   validates :board_rows, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :square_board?
   validates :board_size, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :hexagonal_board?
   validates :board_type, presence: true, inclusion: { in: self.board_types }
-  validates :number_of_pieces, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :name, presence: true, uniqueness: true
   validates :user, presence: true
 
@@ -84,8 +83,7 @@ class Variant < ActiveRecord::Base
   def add_initial_king
     piece_rules.create!(
       capture_type: 'movement',
-      count_minimum: 1,
-      count_maximum: 1,
+      count: 1,
       movement_minimum: 1,
       movement_maximum: 1,
       movement_type: 'orthogonal_line',

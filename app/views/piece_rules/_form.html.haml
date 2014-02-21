@@ -1,10 +1,7 @@
 = semantic_form_for [@variant, @piece_rule] do |f|
   = f.inputs do
     = f.input :piece_type
-
-  = f.inputs 'Count' do
-    = f.input :count_minimum, label: 'Minimum', as: :number, min: 1, step: 1
-    = f.input :count_maximum, label: 'Maximum', as: :number, min: 1, step: 1, hint: 'Leave blank for no maximum'
+    = f.input :count, as: :number, min: 1, step: 1
 
   = f.inputs 'Movement' do
     = f.input :movement_type, collection: PieceRule::DIRECTIONS.map{|x| [x.humanize, x]}

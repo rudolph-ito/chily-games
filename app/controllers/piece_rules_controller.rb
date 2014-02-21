@@ -45,8 +45,7 @@ class PieceRulesController < ApplicationController
 
   def piece_rule_params
     params.require(:piece_rule).permit(
-      :piece_type_id,
-      :count_minimum, :count_maximum,
+      :piece_type_id, :count,
       :movement_type, :movement_minimum, :movement_maximum,
       :capture_type,
       :range_type, :range_minimum, :range_maximum

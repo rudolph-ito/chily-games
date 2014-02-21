@@ -47,8 +47,7 @@ class VariantsController < ApplicationController
   def variant_params
     params.require(:variant).permit(
       :name, :description,
-      :board_type, :board_size, :board_rows, :board_columns,
-      :number_of_pieces
+      :board_type, :board_size, :board_rows, :board_columns
     )
   end
 

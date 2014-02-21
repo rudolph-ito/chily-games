@@ -28,8 +28,7 @@ describe VariantsController do
     let(:valid_attributes) { {
       name: 'test',
       board_type: 'hexagonal',
-      board_size: 6,
-      number_of_pieces: 8
+      board_size: 6
     } }
 
     context 'when signed in', :signed_in do

@@ -9,23 +9,13 @@ describe PieceRule do
       specify { piece_rule.should be_valid }
     end
 
-    context 'no count_minimum' do
-      let(:piece_rule_params) { {count_minimum: nil} }
+    context 'no count' do
+      let(:piece_rule_params) { {count: nil} }
       specify { piece_rule.should be_invalid }
     end
 
-    context 'count_minimum < 0' do
-      let(:piece_rule_params) { {count_minimum: -1} }
-      specify { piece_rule.should be_invalid }
-    end
-
-    context 'no count_maximum' do
-      let(:piece_rule_params) { {count_maximum: nil} }
-      specify { piece_rule.should be_valid }
-    end
-
-    context 'count_maximum < count_minimum' do
-      let(:piece_rule_params) { {count_minimum: 2, count_maximum: 1} }
+    context 'count < 1' do
+      let(:piece_rule_params) { {count: 0} }
       specify { piece_rule.should be_invalid }
     end
 
@@ -62,13 +52,8 @@ describe PieceRule do
     context 'piece_type == king' do
       let(:piece_rule) { build(:piece_rule, piece_rule_params.merge(piece_type: create(:piece_type, name: 'King'))) }
 
-      context 'count_minimum != 1' do
-        let(:piece_rule_params) { {count_minimum: 0, count_maximum: 1} }
-        specify { piece_rule.should be_invalid }
-      end
-
-      context 'count_maximum != 1' do
-        let(:piece_rule_params) { {count_minimum: 1, count_maximum: 2} }
+      context 'count != 1' do
+        let(:piece_rule_params) { {count: 2} }
         specify { piece_rule.should be_invalid }
       end
     end
@@ -115,25 +100,6 @@ describe PieceRule do
     context 'no variant' do
       let(:piece_rule_params) { {variant: nil} }
       specify { piece_rule.should be_invalid }
-    end
-  end
-
-  context '#count_description' do
-    let(:piece_rule) { build(:piece_rule, piece_rule_params) }
-
-    context 'no count_maximum' do
-      let(:piece_rule) { build(:piece_rule, count_minimum: 1, count_maximum: nil ) }
-      specify { piece_rule.count_description.should == "1 or more" }
-    end
-
-    context 'count_minimum == count_maximum' do
-      let(:piece_rule) { build(:piece_rule, count_minimum: 2, count_maximum: 2 ) }
-      specify { piece_rule.count_description.should == "2" }
-    end
-
-    context 'count_minimum < count_maximum' do
-      let(:piece_rule) { build(:piece_rule, count_minimum: 0, count_maximum: 1 ) }
-      specify { piece_rule.count_description.should == "0 to 1" }
     end
   end
 

@@ -21,8 +21,7 @@ class PieceRule < ActiveRecord::Base
   validate :validate_king_count, if: lambda { |r| r.piece_type.try(:king?) }
 
   # Count
-  validates :count_minimum, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :count_maximum, numericality: { only_integer: true, greater_than_or_equal_to: lambda { |r| r.count_minimum || 0 } }, unless: lambda { |r| r.count_maximum.blank? }
+  validates :count, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   # Movement
   validates :movement_minimum, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
@@ -42,7 +41,7 @@ class PieceRule < ActiveRecord::Base
   ########################################
 
   def count_with_name
-    Messages.count_with_name(count_description, piece_type.name.downcase)
+    Messages.count_with_name(count, piece_type.name.downcase)
   end
 
   def range_capture?
@@ -50,10 +49,6 @@ class PieceRule < ActiveRecord::Base
   end
 
   # Descriptions
-
-  def count_description
-    Messages.range(self, 'count')
-  end
 
   def movement_description
     Messages.type_with_range(self, 'movement')
@@ -70,7 +65,7 @@ class PieceRule < ActiveRecord::Base
   private
 
   def validate_king_count
-    unless count_minimum == 1 && count_maximum == 1
+    unless count == 1
       errors.add(:count_minimum, 'There must be exactly one King.')
     end
   end

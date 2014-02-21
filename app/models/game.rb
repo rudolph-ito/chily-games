@@ -87,13 +87,9 @@ class Game < ActiveRecord::Base
     user_terrains = terrains.where(user_id: user.id)
     errors = []
 
-    if user_pieces.count != variant.number_of_pieces
-      errors << "Please place #{variant.number_of_pieces} pieces. You placed #{user_pieces.count}."
-    end
-
     variant.piece_rules.each do |pr|
       placed = user_pieces.where(piece_type_id: pr.piece_type_id).count
-      if placed < pr.count_minimum || placed > pr.count_maximum
+      if placed != pr.count
         errors << "Please place #{pr.count_with_name}. You placed #{placed}."
       end
     end

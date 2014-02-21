@@ -37,11 +37,6 @@ describe Variant do
       end
     end
 
-    context 'no number_of_pieces' do
-      let(:variant_params) { {number_of_pieces: ''} }
-      specify { variant.should be_invalid }
-    end
-
     context 'no name' do
       let(:variant_params) { {name: ''} }
       specify { variant.should be_invalid }
@@ -105,18 +100,18 @@ describe Variant do
   end
 
   context 'setup_message' do
-    let(:variant) { create(:variant, number_of_pieces: 3) }
-    let!(:piece_rule1) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'King'), count_minimum: 1, count_maximum: 1)}
-    let!(:piece_rule2) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'Spear'), count_minimum: 0, count_maximum: 2)}
-    let!(:piece_rule3) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'Crossbow'), count_minimum: 0, count_maximum: 2)}
+    let(:variant) { create(:variant) }
+    let!(:piece_rule1) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'King'), count: 1)}
+    let!(:piece_rule2) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'Spear'), count: 2)}
+    let!(:piece_rule3) { create(:piece_rule, variant: variant, piece_type: create(:piece_type, name: 'Crossbow'), count: 2)}
 
-    specify{ expect(variant.setup_message).to eql "Please place 3 pieces:\n1 king\n0 to 2 spears\n0 to 2 crossbows"}
+    specify{ expect(variant.setup_message).to eql "Please place the following pieces:\n1 king\n2 spears\n2 crossbows"}
 
     context 'with terrain rules' do
       let!(:terrain_rule1) { create(:terrain_rule, variant: variant, terrain_type: create(:terrain_type, name: 'Mountain'), count: 3)}
       let!(:terrain_rule2) { create(:terrain_rule, variant: variant, terrain_type: create(:terrain_type, name: 'River'), count: 1)}
 
-      specify{ expect(variant.setup_message).to eql "Please place 3 pieces:\n1 king\n0 to 2 spears\n0 to 2 crossbows\nPlease place the following terrain:\n3 mountains\n1 river"}
+      specify{ expect(variant.setup_message).to eql "Please place the following pieces:\n1 king\n2 spears\n2 crossbows\nPlease place the following terrain:\n3 mountains\n1 river"}
     end
   end
 end

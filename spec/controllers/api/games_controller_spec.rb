@@ -202,8 +202,8 @@ describe Api::GamesController do
   describe 'setup_complete' do
     let(:piece_type) { create :piece_type, name: 'Dragon' }
     let(:terrain_type) { create :terrain_type, name: 'Mountain' }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
-    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, count_minimum: 2, count_maximum: 2}
+    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
+    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, count: 2 }
     let!(:terrain_rule) { create :terrain_rule, variant: variant, terrain_type: terrain_type, count: 1}
 
     let(:game_parameters) { {} }
@@ -241,7 +241,7 @@ describe Api::GamesController do
           it 'returns errors' do
             put :setup_complete, id: game.id, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false, errors: ["Please place 2 pieces. You placed 0.", "Please place 2 dragons. You placed 0.", "Please place 1 mountain. You placed 0."]})
+            expect(response.body).to be_json({success: false, errors: ["Please place 2 dragons. You placed 0.", "Please place 1 mountain. You placed 0."]})
           end
         end
       end
@@ -277,7 +277,7 @@ describe Api::GamesController do
           it 'returns errors' do
             put :setup_complete, id: game.id, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false, errors: ["Please place 2 pieces. You placed 0.", "Please place 2 dragons. You placed 0.", "Please place 1 mountain. You placed 0."]})
+            expect(response.body).to be_json({success: false, errors: ["Please place 2 dragons. You placed 0.", "Please place 1 mountain. You placed 0."]})
           end
         end
       end
@@ -286,7 +286,7 @@ describe Api::GamesController do
 
   describe 'opponent_setup' do
     let(:piece_type) { create :piece_type }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
 
     let(:game_parameters) { {} }
@@ -308,7 +308,7 @@ describe Api::GamesController do
 
   describe 'valid_piece_moves' do
     let(:piece_type) { create :piece_type }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8, number_of_pieces: 2 }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
 
     let(:game_parameters) { {} }

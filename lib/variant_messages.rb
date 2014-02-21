@@ -1,7 +1,7 @@
 module VariantMessages
 
   def setup_message
-    msgs = ["Please place #{number_of_pieces} pieces:"]
+    msgs = ["Please place the following pieces:"]
     msgs += piece_rules.map do |pr|
       pr.count_with_name
     end

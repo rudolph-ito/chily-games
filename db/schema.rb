@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140213004327) do
+ActiveRecord::Schema.define(version: 20140221204148) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,8 +37,7 @@ ActiveRecord::Schema.define(version: 20140213004327) do
   create_table "piece_rules", force: true do |t|
     t.integer "piece_type_id"
     t.integer "variant_id"
-    t.integer "count_minimum"
-    t.integer "count_maximum"
+    t.integer "count"
     t.string  "movement_type"
     t.integer "movement_minimum"
     t.integer "movement_maximum"
@@ -113,7 +112,6 @@ ActiveRecord::Schema.define(version: 20140213004327) do
     t.string   "board_type"
     t.string   "description"
     t.string   "name"
-    t.integer  "number_of_pieces"
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
