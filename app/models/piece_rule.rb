@@ -4,6 +4,8 @@ class PieceRule < ActiveRecord::Base
   DIRECTIONS = %w( orthogonal_line diagonal_line orthogonal_or_diagonal_line orthogonal_with_turns diagonal_with_turns )
   CAPTURE_TYPES = %w( movement range )
 
+  default_scope { order('piece_type_id asc') }
+
   ########################################
   # Relations
   ########################################

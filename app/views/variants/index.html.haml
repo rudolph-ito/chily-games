@@ -1,23 +1,18 @@
-%h1 Variants
+%section.create.variants
+  = render 'create/sidebar'
+  = render :layout => "shared/content_with_sidebar" do
+    .title Variants
 
-%table
-  %tr
-    %th Name
-    %th Description
-    %th Board Type
+    %table.clickable
+      %thead
+        %tr
+          %th Name
+          %th Board Type
+          %th Games Played
 
-  - @variants.each do |variant|
-    %tr
-      %td= variant.name
-      %td= variant.description
-      %td= variant.board_type
-
-      %td
-        = link_to 'Show', variant
-        - if signed_in? && current_user.can_delete?(variant)
-          = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }
-
-%br
-
-- if signed_in? && current_user.can_create?(Variant)
-  = link_to 'New Variant', [:new, :variant]
+      %tbody
+        - @variants.each do |variant|
+          %tr{onclick: "window.location='#{variant_path(variant)}';"}
+            %td= variant.name
+            %td= variant.board_type
+            %td= variant.games.count

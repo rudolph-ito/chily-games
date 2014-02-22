@@ -1,0 +1,26 @@
+%table
+  %thead
+    %tr
+      %th Piece Type
+      %th Count
+      %th Movement
+      %th Capture
+
+  %tbody
+    - variant.piece_rules.each do |piece_rule|
+      %tr
+        %td= piece_rule.piece_type.name
+        %td= piece_rule.count
+        %td
+          = piece_rule.movement_description
+          = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "movement" }
+        %td
+          = piece_rule.capture_description
+          - if piece_rule.range_capture?
+            = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "range" }
+
+        %td
+          - if signed_in? && current_user.can_manage?(variant)
+            = link_to 'Edit', [:edit, piece_rule]
+            - unless piece_rule.piece_type.king?
+              = link_to 'Delete', piece_rule, method: :delete, data: { confirm: 'Are you sure?' }

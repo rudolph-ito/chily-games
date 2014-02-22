@@ -1,0 +1,29 @@
+@import mixins/colors
+
+section.create
+  height: 100%
+
+  &.variants
+    table
+      width: 100%
+
+  &.variant
+    .sub-section
+      padding: 20px 0
+      border-bottom: $border
+
+      table
+        thead
+          th
+            border-bottom: none
+
+      &:last-child
+        border-bottom: none
+
+      .title
+        font-size: 20px
+        padding-bottom: 10px
+
+        a
+          font-size: 0.8em
+          margin-left: 5px

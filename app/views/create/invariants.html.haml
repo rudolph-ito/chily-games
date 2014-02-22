@@ -1,0 +1,27 @@
+%section.create.invariants
+  = render 'create/sidebar'
+  = render :layout => "shared/content_with_sidebar" do
+    .title Invariants
+    .description Rules that do not change game to game.
+    .description
+
+    .subtitle Basics
+    %ol
+      %li It is a two player game. Alabaster against Onyx.
+      %li A game begins with each player setting up their pieces and terrain in secret.
+      %li When each side is done, the entire board is revealed.
+      %li Alabaster moves first.
+      %li A game ends when one sides's King is taken.
+
+    .subtitle Pieces
+    %ol
+      %li A player's turn consists of moving a single piece.
+      %li Capturing is not required.
+
+    .subtitle Terrain
+    %ol
+      %li Terrain cannot be moved and has the same effect regardless of who placed it.
+
+    .commentable
+      = link_to "Invariant Discussion", '#'
+      .description The place to discuss adding and removing invariants, as well as how they effect the game.

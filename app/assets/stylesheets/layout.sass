@@ -1,19 +1,7 @@
 @import compass/css3/box-sizing
+@import compass/utilities/general/clearfix
 
 $header-height: 40px
-$content-padding: 10px
-
-html
-  padding: 0
-  margin: 0
-  height: 100%
-
-body
-  padding: 0
-  margin: $header-height 0 0 0
-  height: calc(100% - #{$header-height})
-  min-height: 600px
-  min-width: 800px
 
 .header
   position: fixed
@@ -25,17 +13,23 @@ body
   background-color: #353839
 
   ul
-    list-style-type: none
-    margin: 0
-    padding: 0
+    height: 100%
+    +box-sizing(border-box)
 
     li
-      padding: 10px
+      padding-top: 10px
+      text-align: center
       float: left
+      width: 80px
+      height: 100%
+      +box-sizing(border-box)
 
       &.logo
-        font-size: 20px
-        padding: 5px 10px
+        width: 225px
+        text-align: left
+        font-size: 24px
+        padding-top: 5px
+        padding-left: 5px
 
       a
         text-decoration: none
@@ -44,11 +38,19 @@ body
         &:hover
           color: #D1CDBD
 
+  .left
+    float: left
+    li
+      border-right: 1px solid #555
+
   .right
     float: right
+    li
+      border-left: 1px solid #555
 
 .content
-  padding: $content-padding
+  padding: 10px
+  padding-top: $header-height + 10
   width: 100%
   height: 100%
   +box-sizing(border-box)

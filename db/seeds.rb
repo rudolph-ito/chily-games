@@ -92,8 +92,8 @@ unless Variant.find_by(name: 'sv1')
 
   variant.terrain_rules.create!(
     terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3,
-    block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id],
-    block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id]
+    block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
+    block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id.to_s]
   )
 end
 
@@ -129,7 +129,7 @@ unless Variant.find_by(name: 'hv1')
 
   variant.terrain_rules.create!(
     terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3,
-    block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id],
-    block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id]
+    block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
+    block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id.to_s]
   )
 end

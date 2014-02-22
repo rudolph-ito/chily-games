@@ -1,0 +1,51 @@
+@import compass/css3/box-sizing
+@import compass/css3
+@import mixins/colors
+
+section.sidebar
+  float: left
+  width: 15%
+  height: 100%
+  border-right: $border
+  +box-sizing(border-box)
+
+  ul
+    li
+      a
+        display: block
+        width: 100%
+        padding: 5px 10px
+        text-decoration: none
+        color: black
+        +box-sizing(border-box)
+
+        &:hover
+          text-decoration: underline
+
+section.content-with-sidebar
+  float: left
+  width: 85%
+  height: 100%
+  padding-left: 20px
+  +box-sizing(border-box)
+
+  .title
+    font-size: 30px
+
+  .description
+    margin-bottom: 15px
+
+  .commentable
+    margin-top: 25px
+
+  .subtitle
+    text-decoration: underline
+
+  ol
+    margin: 5px 0 10px
+
+  &:first-child
+    padding-top: 0
+
+  &:last-child
+    border-bottom: 0

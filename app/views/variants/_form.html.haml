@@ -1,7 +1,6 @@
 = semantic_form_for @variant do |f|
   = f.inputs do
     = f.input :name
-    = f.input :description
 
   = f.inputs "Board Options" do
     = f.input :board_type, collection: Variant.board_types, input_html: {'data-dependent' => 'board_type'}
@@ -15,4 +14,4 @@
 
   = f.actions do
     = f.action :submit, name: "Save"
-    = link_to 'Cancel', @variant || :variants
+    = f.action :cancel, url: @variant || :variants

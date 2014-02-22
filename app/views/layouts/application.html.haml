@@ -12,8 +12,7 @@
         %li.logo= link_to "Cyvasse Explorer", :root
         %li= link_to "Explore", :explore
         %li= link_to "Create", :create
-        - if current_user
-          %li= link_to "Play", "http://play.localhost:3001", onclick: "link_to_play(); return false;"
+        %li= link_to "Play", "http://play.localhost:3001", onclick: "link_to_play(); return false;"
 
       %ul.right
         - if current_user

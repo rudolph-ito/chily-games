@@ -1,0 +1,20 @@
+%table
+  %thead
+    %tr
+      %th Terrain Type
+      %th Count
+      %th Block Movement
+      %th Block Range
+
+  %tbody
+    - variant.terrain_rules.each do |terrain_rule|
+      %tr
+        %td= terrain_rule.terrain_type.name
+        %td= terrain_rule.count
+        %td= terrain_rule.block_movement
+        %td= terrain_rule.block_range
+
+        - if signed_in? && current_user.can_manage?(variant)
+          %td
+            = link_to 'Edit', [:edit, terrain_rule]
+            = link_to 'Delete', terrain_rule, method: :delete, data: { confirm: 'Are you sure?' }
