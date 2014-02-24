@@ -146,12 +146,12 @@ class Game < ActiveRecord::Base
     ply_calculator.valid_plies(piece, from, type)
   end
 
-  def ply_calculator
-    board = BoardFactory.instance(variant)
-    piece_repository = pieces
-    terrain_repository = terrains
+  def valid_plies_for_user(user, piece, from, type)
+    ply_calculator(user).valid_plies(piece, from, type)
+  end
 
-    PlyCalculator.new(board, pieces, terrains)
+  def ply_calculator(user = nil)
+    @ply_calculator ||= PlyCalculatorFactory.instance(self, user)
   end
 
 end

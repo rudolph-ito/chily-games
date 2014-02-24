@@ -308,29 +308,60 @@ describe Api::GamesController do
 
   describe 'valid_piece_moves' do
     let(:piece_type) { create :piece_type }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
-    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 5, board_columns: 5 }
+    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: nil }
 
     let(:game_parameters) { {} }
-    let(:game) { create :game, {variant: variant}.merge(game_parameters) }
-    let!(:piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
+    let(:game) { create :game, {action: action, variant: variant}.merge(game_parameters) }
+    let!(:alabaster_piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '1'} }
+    let!(:onyx_piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '3'} }
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
         let(:game_parameters) { { alabaster: current_user } }
 
-        it 'succeeds' do
-          get :valid_piece_moves, id: game.id, coordinate: piece.coordinate, format: :json
-          expect(response.status).to eql 200
+        context 'during setup' do
+          let(:action) { 'setup' }
+
+          it 'succeeds' do
+            get :valid_piece_moves, id: game.id, coordinate: alabaster_piece.coordinate, type: 'movement', format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json([{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>0}])
+          end
+        end
+
+        context 'during play' do
+          let(:action) { 'move' }
+
+          it 'succeeds' do
+            get :valid_piece_moves, id: game.id, coordinate: alabaster_piece.coordinate, type: 'movement', format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json([{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>0}])
+          end
         end
       end
 
       context 'as onyx' do
         let(:game_parameters) { { onyx: current_user } }
 
-        it 'succeeds' do
-          get :valid_piece_moves, id: game.id, coordinate: piece.coordinate, format: :json
-          expect(response.status).to eql 200
+        context 'during setup' do
+          let(:action) { 'setup' }
+
+          it 'succeeds' do
+            get :valid_piece_moves, id: game.id, coordinate: onyx_piece.coordinate, type: 'movement', format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json([{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}, {"x"=>0, "y"=>0}])
+          end
+        end
+
+        context 'during play' do
+          let(:action) { 'move' }
+
+          it 'succeeds' do
+            get :valid_piece_moves, id: game.id, coordinate: onyx_piece.coordinate, type: 'movement', format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json([{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}])
+          end
         end
       end
     end
