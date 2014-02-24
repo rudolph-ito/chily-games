@@ -62,6 +62,7 @@ class TerrainRule < ActiveRecord::Base
   def block?(type, piece_type_id)
     ids = public_send("block_#{type}_piece_type_ids")
     value = public_send("block_#{type}_type")
+    piece_type_id = piece_type_id.to_s
 
     case value
     when 'none'

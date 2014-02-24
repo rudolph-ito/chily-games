@@ -62,7 +62,7 @@ describe TerrainRule do
     context 'block_movement_type == include' do
       before do
         terrain_rule.block_movement_type = 'include'
-        terrain_rule.block_movement_piece_type_ids = [1]
+        terrain_rule.block_movement_piece_type_ids = ['1']
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
@@ -74,7 +74,7 @@ describe TerrainRule do
     context 'block_movement_type == exclude' do
       before do
         terrain_rule.block_movement_type = 'exclude'
-        terrain_rule.block_movement_piece_type_ids = [1]
+        terrain_rule.block_movement_piece_type_ids = ['1']
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
@@ -106,7 +106,7 @@ describe TerrainRule do
     context 'block_range_type == include' do
       before do
         terrain_rule.block_range_type = 'include'
-        terrain_rule.block_range_piece_type_ids = [1]
+        terrain_rule.block_range_piece_type_ids = ['1']
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
@@ -118,7 +118,7 @@ describe TerrainRule do
     context 'block_range_type == exclude' do
       before do
         terrain_rule.block_range_type = 'exclude'
-        terrain_rule.block_range_piece_type_ids = [1]
+        terrain_rule.block_range_piece_type_ids = ['1']
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
@@ -152,7 +152,7 @@ describe TerrainRule do
           before { terrain_rule["block_#{type}_type"] = 'include' }
 
           context 'piece_type_id included' do
-            before { terrain_rule["block_#{type}_piece_type_ids"] = [piece_type_id] }
+            before { terrain_rule["block_#{type}_piece_type_ids"] = [piece_type_id.to_s] }
             it 'returns true' do
               expect(terrain_rule.block?(type, piece_type_id)).to be_true
             end
@@ -170,7 +170,7 @@ describe TerrainRule do
           before { terrain_rule["block_#{type}_type"] = 'exclude' }
 
           context 'piece_type_id included' do
-            before { terrain_rule["block_#{type}_piece_type_ids"] = [piece_type_id] }
+            before { terrain_rule["block_#{type}_piece_type_ids"] = [piece_type_id.to_s] }
             it 'returns false' do
               expect(terrain_rule.block?(type, piece_type_id)).to be_false
             end
