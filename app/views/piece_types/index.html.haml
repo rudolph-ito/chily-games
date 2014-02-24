@@ -1,23 +1,24 @@
-%h1 Piece Types
+%section.explore.terrain_types
+  = render 'explore/sidebar'
+  = render :layout => "shared/content_with_sidebar" do
+    .title
+      Piece Types
+      - if signed_in? && current_user.can_create?(PieceType)
+        = link_to 'New', [:new, :piece_type]
 
-%table
-  %tr
-    %th Name
-    %th Alabaster Image
-    %th Onyx Image
+    %table
+      %tr
+        %th Name
+        %th Alabaster Image
+        %th Onyx Image
 
-  - @piece_types.each do |piece_type|
-    %tr
-      %td= piece_type.name
-      %td= image_tag piece_type.alabaster_image
-      %td= image_tag piece_type.onyx_image
+      - @piece_types.each do |piece_type|
+        %tr
+          %td= piece_type.name
+          %td= image_tag piece_type.alabaster_image
+          %td= image_tag piece_type.onyx_image
 
-      - if signed_in? && current_user.can_manage?(piece_type)
-        %td
-          = link_to 'Edit', [:edit, piece_type]
-          = link_to 'Destroy', piece_type, method: :delete, data: { confirm: 'Are you sure?' }
-
-%br
-
-- if signed_in? && current_user.can_create?(PieceType)
-  = link_to 'New Piece Type', [:new, :piece_type]
+          - if signed_in? && current_user.can_manage?(piece_type)
+            %td
+              = link_to 'Edit', [:edit, piece_type]
+              = link_to 'Destroy', piece_type, method: :delete, data: { confirm: 'Are you sure?' }

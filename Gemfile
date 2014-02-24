@@ -28,6 +28,7 @@ gem 'formtastic', "~> 2.3.0.rc2" # Forms
 gem 'haml-rails' # HAML for views
 gem 'jquery-rails' # JQuery for javascript
 gem 'rabl' # JSON API
+gem 'redcarpet' # For converting markdown to html (for quotes)
 gem 'thin' # Make server run faster
 gem 'turbolinks' # Turbolinks
 gem 'underscore-rails' # Underscore for javascript

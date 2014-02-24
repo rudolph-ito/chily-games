@@ -38,6 +38,16 @@ FactoryGirl.define do
     alabaster_image File.open('spec/support/fake_image.svg')
   end
 
+  factory :quote do
+    book_name 'A Feast for Crows'
+    book_number 4
+    chapter_name 'The Soiled Knight'
+    chapter_number 13
+    description 'Introduction'
+    number 1
+    text '*Cyvasse*, the game was called.'
+  end
+
   factory :terrain do
     game
     user

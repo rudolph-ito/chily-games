@@ -2,5 +2,4 @@
   %ul
     %li= link_to "Invariants", [:create, :invariants]
     %li= link_to "Variants", :variants
-    - if signed_in? && current_user.can_create?(Variant)
-      %li= link_to "New Variant", [:new, :variant]
+    %li= link_to "New Variant", [:new, :variant]

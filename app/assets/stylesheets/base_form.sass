@@ -68,12 +68,21 @@ form
 
   input
     &[type=text], &[type=number]
-      min-width: 200px
+      width: 200px
       padding: 2px 3px
       margin: 0
       border: 1px solid #ccc
       font-size: 12px
       +border-radius(3px)
+      +box-sizing(border-box)
+
+    &.long
+      width: 600px
+
+  textarea
+    width: 600px
+    height: 150px
+    +box-sizing(border-box)
 
   p
     margin: 2px 0 0 $label-width

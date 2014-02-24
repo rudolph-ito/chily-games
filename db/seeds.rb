@@ -133,3 +133,29 @@ unless Variant.find_by(name: 'hv1')
     block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id.to_s]
   )
 end
+
+
+########################################
+# Quotes
+########################################
+
+contents = File.read( Rails.root.join('references.md') )
+contents = contents.split("\n\n---\n\n")
+contents.each do |quote_section|
+  lines = quote_section.split("\n")
+
+  book_match = lines[0].match(/^Book\: (?<number>[0-9]+)\, (?<name>.*)$/)
+  chapter_match = lines[1].match(/^Chapter\: (?<number>[0-9]+)\, (?<name>.*)$/)
+  description_match = lines[2].match(/^Description\: (?<description>.*)$/)
+  number_match = lines[3].match(/^Number\: (?<number>[0-9]+)$/)
+  text = lines[5..-1].join("\n")
+
+  quote_data = {
+    book_number: book_match[:number], book_name: book_match[:name],
+    chapter_number: chapter_match[:number], chapter_name: chapter_match[:name],
+    description: description_match[:description], number: number_match[:number],
+    text: text
+  }
+
+  Quote.find_by(quote_data) || Quote.create(quote_data)
+end

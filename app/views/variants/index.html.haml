@@ -9,10 +9,16 @@
           %th Name
           %th Board Type
           %th Games Played
+          %th
 
       %tbody
         - @variants.each do |variant|
-          %tr{onclick: "window.location='#{variant_path(variant)}';"}
+          %tr
             %td= variant.name
             %td= variant.board_type
             %td= variant.games.count
+            %td
+              = link_to 'Show', variant
+
+              - if signed_in? && current_user.can_manage?(variant)
+                = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }

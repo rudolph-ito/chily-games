@@ -1,22 +1,23 @@
-%h1 Terrain Types
+%section.explore.terrain_types
+  = render 'explore/sidebar'
+  = render :layout => "shared/content_with_sidebar" do
+    .title
+      Terrain Types
+      - if signed_in? && current_user.can_create?(TerrainType)
+        = link_to 'New', [:new, :terrain_type]
 
-%table
-  %tr
-    %th Name
-    %th Image
-    %th
+    %table
+      %tr
+        %th Name
+        %th Image
+        %th
 
-  - @terrain_types.each do |terrain_type|
-    %tr
-      %td= terrain_type.name
-      %td= image_tag terrain_type.image
+      - @terrain_types.each do |terrain_type|
+        %tr
+          %td= terrain_type.name
+          %td= image_tag terrain_type.image
 
-      %td
-        - if signed_in? && current_user.can_manage?(terrain_type)
-          = link_to 'Edit', [:edit, terrain_type]
-          = link_to 'Destroy', terrain_type, method: :delete, data: { confirm: 'Are you sure?' }
-
-%br
-
-- if signed_in? && current_user.can_create?(PieceType)
-  = link_to 'New Terrain Type', [:new, :terrain_type]
+          %td
+            - if signed_in? && current_user.can_manage?(terrain_type)
+              = link_to 'Edit', [:edit, terrain_type]
+              = link_to 'Destroy', terrain_type, method: :delete, data: { confirm: 'Are you sure?' }

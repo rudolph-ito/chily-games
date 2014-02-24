@@ -4,7 +4,7 @@
 
     - if f.object.persisted?
       %li
-        %label Current Image
+        %label.label Current Image
         = image_tag f.object.image
       = f.input :image, required: false, label: 'Updated Image', input_html: { accept: '.svg' }
     - else

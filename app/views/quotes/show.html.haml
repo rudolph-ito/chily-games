@@ -1,0 +1,16 @@
+%section.explore.quote
+  = render 'explore/sidebar'
+  = render :layout => "shared/content_with_sidebar" do
+    %table
+      %tr
+        %th Book
+        %td= @quote.book_name
+      %tr
+        %th Chapter
+        %td= @quote.chapter_name
+      %tr
+        %th Description
+        %td= @quote.description
+      %tr
+        %th Text
+        %td= @quote.html

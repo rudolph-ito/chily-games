@@ -1,0 +1,27 @@
+%section.explore.quotes
+  = render 'explore/sidebar'
+  = render :layout => "shared/content_with_sidebar" do
+    .title
+      Quotes
+      - if signed_in? && current_user.can_create?(Quote)
+        = link_to 'New', [:new, :quote]
+
+    %table
+      %thead
+        %tr
+          %th Book
+          %th Chapter
+          %th Description
+          %th
+
+      %tbody
+        - @quotes.each do |quote|
+          %tr
+            %td= quote.book_name
+            %td= quote.chapter_name
+            %td= quote.description
+            %td
+              = link_to 'Show', quote
+              - if signed_in? && current_user.can_manage?(quote)
+                = link_to 'Edit', [:edit, quote]
+                = link_to 'Destroy', quote, method: :delete, data: { confirm: 'Are you sure?' }
