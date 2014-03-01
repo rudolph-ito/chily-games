@@ -1,5 +1,5 @@
 class PlyData
-  attr_accessor :capture, :coordinate, :directional_functions, :from, :minimum, :maximum, :piece, :piece_type_id, :type, :user
+  attr_accessor :capture, :directional_functions, :from, :minimum, :maximum, :piece, :piece_type_id, :type, :user_id
 
   def initialize(piece, from, board, type)
     @piece = piece
@@ -7,7 +7,7 @@ class PlyData
     @type = type
 
     @piece_type_id = piece.piece_type_id
-    @user = piece.user
+    @user_id = piece.user_id
     rule = piece.rule
 
     @directional_type = rule.public_send "#{type}_type"

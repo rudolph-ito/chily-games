@@ -46,9 +46,7 @@ class TerrainRule < ActiveRecord::Base
   ########################################
 
   def count_with_name
-    name = terrain_type.name.downcase
-    name = name.pluralize if count != 1
-    "#{count} #{name}"
+    Messages.count_with_name(count, terrain_type.name.downcase)
   end
 
   def block_movement

@@ -22,23 +22,33 @@ class Api::GamesController < ApplicationController
   end
 
   def setup_add
-    @game.setup_add(current_user, params[:type], params[:type_id], params[:coordinate])
+    klass = params[:type].constantize
+    object = klass.new(params[:coordinate], @game, params[:type_id], current_user.id)
+
+    AddToInitialSetup.new(@game, object).call
     head :ok
   end
 
   def setup_move
-    @game.setup_move(current_user, params[:type], params[:from], params[:to])
+    klass = params[:type].constantize
+    object = @game.setup_for_user(current_user).get(params[:from], klass)
+    RemoveFromInitialSetup.new(@game, object).call
+    object.coordinate = params[:to]
+    AddToInitialSetup.new(@game, object).call
     head :ok
   end
 
   def setup_remove
-    @game.setup_remove(current_user, params[:type], params[:coordinate])
+    klass = params[:type].constantize
+    object = @game.setup_for_user(current_user).get(params[:coordinate], klass)
+
+    RemoveFromInitialSetup.new(@game, object).call
     head :ok
   end
 
   def setup_complete
-    errors = @game.setup_errors(current_user)
-    if errors.empty?
+    result, errors = SetupValidator.new(@game, current_user).call
+    if result
       @game.setup_complete(current_user)
       render json: { success: true, action: @game.action, action_to_id: @game.action_to_id }
     else
@@ -51,21 +61,22 @@ class Api::GamesController < ApplicationController
   ########################################
 
   def opponent_setup
+    @opponent_setup = @game.current_setup.for_user_id( @game.opponent_id(current_user.id) )
   end
 
   def valid_piece_moves
-    piece = @game.pieces.for_coordinate(params[:coordinate]).first
+    piece = @game.get_piece(current_user, params[:coordinate])
     moves = piece ? @game.valid_plies_for_user(current_user, piece, piece.coordinate, 'movement') : []
     render json: moves
   end
 
   def piece_move
-    piece = @game.pieces.for_coordinate(params[:from]).first
-    if piece && @game.ply_valid?(piece, params[:to])
+    piece = @game.get_piece(current_user, params[:from])
+    if piece && PlyValidator.new(@game, piece, params[:to]).call
       if piece.rule.range_capture?
         render json: { success: false, from: params[:from], to: params[:to], range_captures: @game.valid_plies(piece, params[:to], 'range') }
       else
-        @game.move_piece(piece, params[:to])
+        MovePiece.new(@game, piece, params[:to]).call
         render json: { success: true, from: params[:from], to: params[:to], action: @game.action, action_to_id: @game.action_to_id }
       end
     else
@@ -74,9 +85,9 @@ class Api::GamesController < ApplicationController
   end
 
   def piece_move_with_range_capture
-    piece = @game.pieces.for_coordinate(params[:from]).first
-    if piece && @game.ply_valid?(piece, params[:to], params[:range_capture])
-      @game.move_piece(piece, params[:to], params[:range_capture])
+    piece = @game.get_piece(current_user, params[:from])
+    if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
+      MovePiece.new(@game, piece, params[:to], params[:range_capture]).call
       render json: { success: true, from: params[:from], to: params[:to], range_capture: params[:range_capture], action: @game.action, action_to_id: @game.action_to_id }
     else
       render json: { success: false }
@@ -99,7 +110,7 @@ class Api::GamesController < ApplicationController
   end
 
   def ensure_valid_type
-    head :unprocessable_entity unless ['piece', 'terrain'].include?(params[:type])
+    head :unprocessable_entity unless ['Piece', 'Terrain'].include?(params[:type])
   end
 
   def scrub_coordinates

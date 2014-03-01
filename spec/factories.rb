@@ -12,13 +12,6 @@ FactoryGirl.define do
     variant
   end
 
-  factory :piece do
-    game
-    user
-    piece_type
-    coordinate { {'x'=>1, 'y'=>1} }
-  end
-
   factory :piece_rule do
     capture_type PieceRule::CAPTURE_TYPES.first
     count 1
@@ -46,13 +39,6 @@ FactoryGirl.define do
     description 'Introduction'
     number 1
     text '*Cyvasse*, the game was called.'
-  end
-
-  factory :terrain do
-    game
-    user
-    terrain_type
-    coordinate { {'x'=>1, 'y'=>1} }
   end
 
   factory :terrain_rule do

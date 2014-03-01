@@ -70,7 +70,7 @@ class Variant < ActiveRecord::Base
 
     if opts[:piece_type_id]
       g = Game.new(variant: self)
-      p = Piece.new(game: g, piece_type_id: opts[:piece_type_id], coordinate: g.board.center_coordinate)
+      p = Piece.new(g.board.center_coordinate, g, opts[:piece_type_id], nil)
       out[:pieces] = [ { coordinate: p.coordinate, piece_type_id: p.piece_type_id, color: 'onyx' } ]
       out[:valid_plies] = { type: opts[:type], coordinates: g.valid_plies(p, p.coordinate, opts[:type]) }
     end

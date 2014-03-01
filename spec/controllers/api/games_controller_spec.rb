@@ -96,7 +96,6 @@ describe Api::GamesController do
     context 'piece' do
       let(:piece_type) { create :piece_type }
       let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
-      let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
 
       let(:game_parameters) { {} }
       let!(:game) { create :game, {action: 'setup', variant: variant}.merge(game_parameters) }
@@ -106,10 +105,12 @@ describe Api::GamesController do
           let(:game_parameters) { { alabaster: current_user } }
 
           it 'succeeds' do
-            expect {
-              put :setup_add, id: game.id, type: 'piece', type_id: piece_type.id, coordinate: {'x' => '0', 'y' => '0'}, format: :json
-              expect(response.status).to eql 200
-            }.to change(Piece, :count).by(1)
+            put :setup_add, id: game.id, type: 'Piece', type_id: piece_type.id, coordinate: {'x'=>'0', 'y'=>'0'}, format: :json
+            expect(response.status).to eql 200
+
+            piece = game.reload.initial_setup.get({'x'=>0, 'y'=>0}, Piece)
+            expect(piece.piece_type_id).to eql(piece_type.id)
+            expect(piece.user_id).to eql(current_user.id)
           end
         end
 
@@ -117,17 +118,19 @@ describe Api::GamesController do
           let(:game_parameters) { { onyx: current_user } }
 
           it 'succeeds' do
-            expect {
-              put :setup_add, id: game.id, type: 'piece', type_id: piece_type.id, coordinate: {'x' => '7', 'y' => '7'}, format: :json
-              expect(response.status).to eql 200
-            }.to change(Piece, :count).by(1)
+            put :setup_add, id: game.id, type: 'Piece', type_id: piece_type.id, coordinate: {'x'=>'7', 'y'=>'7'}, format: :json
+            expect(response.status).to eql 200
+
+            piece = game.reload.initial_setup.get({'x'=>7, 'y'=>7}, Piece)
+            expect(piece.piece_type_id).to eql(piece_type.id)
+            expect(piece.user_id).to eql(current_user.id)
           end
         end
       end
     end
   end
 
-  describe 'setuo_move' do
+  describe 'setup_move' do
     context 'piece' do
       let(:piece_type) { create :piece_type }
       let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
@@ -139,23 +142,29 @@ describe Api::GamesController do
       context 'when signed in', :signed_in do
         context 'as alabaster' do
           let(:game_parameters) { { alabaster: current_user } }
-          let!(:piece) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
+          before { AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, current_user.id)).call }
 
           it 'succeeds' do
-            put :setup_move, id: game.id, type: 'piece', from: {'x' => '0', 'y' => '0'}, to: {'x' => '2', 'y' => '2'}, format: :json
+            put :setup_move, id: game.id, type: 'Piece', from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'2'}, format: :json
             expect(response.status).to eql 200
-            expect(piece.reload.coordinate).to eql({'x' => 2, 'y' => 2})
+
+            game.reload
+            expect(game.initial_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+            expect(game.initial_setup.get({'x'=>2, 'y'=>2}, Piece)).not_to be_nil
           end
         end
 
         context 'as onyx' do
           let(:game_parameters) { { onyx: current_user } }
-          let!(:piece) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '7', 'y' => '7'} }
+          before { AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, current_user.id)).call }
 
           it 'succeeds' do
-            put :setup_move, id: game.id, type: 'piece', from: {'x' => '7', 'y' => '7'}, to: {'x' => '5', 'y' => '5'}, format: :json
+            put :setup_move, id: game.id, type: 'Piece', from: {'x'=>'7', 'y'=>'7'}, to: {'x'=>'5', 'y'=>'5'}, format: :json
             expect(response.status).to eql 200
-            expect(piece.reload.coordinate).to eql({'x' => 5, 'y' => 5})
+
+            game.reload
+            expect(game.initial_setup.get({'x'=>7, 'y'=>7}, Piece)).to be_nil
+            expect(game.initial_setup.get({'x'=>5, 'y'=>5}, Piece)).not_to be_nil
           end
         end
       end
@@ -166,7 +175,6 @@ describe Api::GamesController do
     context 'piece' do
       let(:piece_type) { create :piece_type }
       let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
-      let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
 
       let(:game_parameters) { {} }
       let!(:game) { create :game, {action: 'setup', variant: variant}.merge(game_parameters) }
@@ -174,25 +182,23 @@ describe Api::GamesController do
       context 'when signed in', :signed_in do
         context 'as alabaster' do
           let(:game_parameters) { { alabaster: current_user } }
-          let!(:piece) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
+          before { AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, current_user.id)).call }
 
           it 'succeeds' do
-            expect {
-              put :setup_remove, id: game.id, type: 'piece', coordinate: {'x' => '0', 'y' => '0'}, format: :json
-              expect(response.status).to eql 200
-            }.to change(Piece, :count).by(-1)
+            put :setup_remove, id: game.id, type: 'Piece', coordinate: {'x'=>'0', 'y'=>'0'}, format: :json
+            expect(response.status).to eql 200
+            expect(game.reload.initial_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
           end
         end
 
         context 'as onyx' do
           let(:game_parameters) { { onyx: current_user } }
-          let!(:piece) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '7', 'y' => '7'} }
+          before { AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, current_user.id)).call }
 
           it 'succeeds' do
-            expect {
-              put :setup_remove, id: game.id, type: 'piece', coordinate: {'x' => '7', 'y' => '7'}, format: :json
-              expect(response.status).to eql 200
-            }.to change(Piece, :count).by(-1)
+            put :setup_remove, id: game.id, type: 'Piece', coordinate: {'x'=>'7', 'y'=>'7'}, format: :json
+            expect(response.status).to eql 200
+            expect(game.reload.initial_setup.get({'x'=>7, 'y'=>7}, Piece)).to be_nil
           end
         end
       end
@@ -214,9 +220,11 @@ describe Api::GamesController do
         let(:game_parameters) { { alabaster: current_user } }
 
         context 'no errors' do
-          let!(:piece1) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
-          let!(:piece2) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '1'} }
-          let!(:terrain) { create :terrain, game: game, user: current_user, terrain_type: terrain_type, coordinate: {'x' => '0', 'y' => '2'} }
+          before do
+            AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, current_user.id)).call
+            AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>1}, game, piece_type.id, current_user.id)).call
+            AddToInitialSetup.new(game, Terrain.new({'x'=>0, 'y'=>2}, game, terrain_type.id, current_user.id)).call
+          end
 
           context 'opponent not setup' do
             it 'returns success and change state to onyx - setup' do
@@ -250,9 +258,11 @@ describe Api::GamesController do
         let(:game_parameters) { { onyx: current_user } }
 
         context 'no errors' do
-          let!(:piece1) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '7', 'y' => '7'} }
-          let!(:piece2) { create :piece, game: game, user: current_user, piece_type: piece_type, coordinate: {'x' => '7', 'y' => '6'} }
-          let!(:terrain) { create :terrain, game: game, user: current_user, terrain_type: terrain_type, coordinate: {'x' => '7', 'y' => '5'} }
+          before do
+            AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, current_user.id)).call
+            AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>6}, game, piece_type.id, current_user.id)).call
+            AddToInitialSetup.new(game, Terrain.new({'x'=>7, 'y'=>5}, game, terrain_type.id, current_user.id)).call
+          end
 
           context 'opponent not setup' do
             it 'returns success and change state to alabaster - setup' do
@@ -287,11 +297,15 @@ describe Api::GamesController do
   describe 'opponent_setup' do
     let(:piece_type) { create :piece_type }
     let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
-    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type }
 
     let(:game_parameters) { {} }
-    let(:game) { create :game, { variant: variant, action: 'move' }.merge(game_parameters) }
-    let!(:piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '7', 'y' => '7'} }
+    let(:game) { create :game, { variant: variant }.merge(game_parameters) }
+
+    before do
+      AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, game.onyx.id)).call
+      game.setup_complete(game.alabaster)
+      game.setup_complete(game.onyx)
+    end
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
@@ -300,7 +314,7 @@ describe Api::GamesController do
         it 'succeeds' do
           get :opponent_setup, id: game.id, format: :json
           expect(response.status).to eql 200
-          expect(response.body).to be_json({pieces: [{ piece_type_id: piece_type.id, coordinate: {'x' => 7, 'y' => 7}, color: 'onyx'}], terrains: []})
+          expect(response.body).to be_json({pieces: [{ piece_type_id: piece_type.id, coordinate: {'x'=>7, 'y'=>7}, color: 'onyx'}], terrains: []})
         end
       end
     end
@@ -312,29 +326,33 @@ describe Api::GamesController do
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: nil }
 
     let(:game_parameters) { {} }
-    let(:game) { create :game, {action: action, variant: variant}.merge(game_parameters) }
-    let!(:alabaster_piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '1'} }
-    let!(:onyx_piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '3'} }
+    let(:game) { create :game, {variant: variant}.merge(game_parameters) }
+
+    before do
+      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>1}, game, piece_type.id, game.alabaster.id)).call
+      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>3}, game, piece_type.id, game.onyx.id)).call
+    end
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
         let(:game_parameters) { { alabaster: current_user } }
 
         context 'during setup' do
-          let(:action) { 'setup' }
-
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: alabaster_piece.coordinate, type: 'movement', format: :json
+            get :valid_piece_moves, id: game.id, coordinate: {'x'=>0, 'y'=>1}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>0}])
           end
         end
 
         context 'during play' do
-          let(:action) { 'move' }
+          before do
+            game.setup_complete(game.alabaster)
+            game.setup_complete(game.onyx)
+          end
 
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: alabaster_piece.coordinate, type: 'movement', format: :json
+            get :valid_piece_moves, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>0}])
           end
@@ -345,20 +363,21 @@ describe Api::GamesController do
         let(:game_parameters) { { onyx: current_user } }
 
         context 'during setup' do
-          let(:action) { 'setup' }
-
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: onyx_piece.coordinate, type: 'movement', format: :json
+            get :valid_piece_moves, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}, {"x"=>0, "y"=>0}])
           end
         end
 
         context 'during play' do
-          let(:action) { 'move' }
+          before do
+            game.setup_complete(game.alabaster)
+            game.setup_complete(game.onyx)
+          end
 
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: onyx_piece.coordinate, type: 'movement', format: :json
+            get :valid_piece_moves, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}])
           end
@@ -369,14 +388,19 @@ describe Api::GamesController do
 
   describe 'piece_move' do
     let(:piece_type) { create :piece_type, name: 'King' }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 2, board_columns: 3 }
     let(:piece_rule_parameters) { {} }
     let!(:piece_rule) { create :piece_rule, {variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1}.merge(piece_rule_parameters) }
 
     let(:game_parameters) { {} }
     let(:game) { create :game, {action: 'move', variant: variant}.merge(game_parameters) }
-    let!(:piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
-    let!(:opponent_piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '1'} }
+
+    before do
+      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, game.alabaster.id)).call
+      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>1}, game, piece_type.id, game.onyx.id)).call
+      game.setup_complete(game.onyx)
+      game.setup_complete(game.alabaster)
+    end
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
@@ -387,18 +411,24 @@ describe Api::GamesController do
             let(:piece_rule_parameters) { { capture_type: 'movement' } }
 
             it 'succeeds' do
-              put :piece_move, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '1', 'y' => '0'}, format: :json
+              put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}, action: "move", action_to_id: game.onyx_id})
-              expect(piece.reload.coordinate).to eql({'x' => 1, 'y' => 0})
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
+
+              game.reload
+              expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+              expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
             end
 
             context 'taking king' do
               it 'succeeds' do
-                put :piece_move, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '0', 'y' => '1'}, format: :json
+                put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'1'}, format: :json
                 expect(response.status).to eql 200
-                expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 0, 'y' => 1}, action: "complete", action_to_id: game.alabaster_id})
-                expect(piece.reload.coordinate).to eql({'x' => 0, 'y' => 1})
+                expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, action: "complete", action_to_id: game.alabaster_id})
+
+                game.reload
+                expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+                expect(game.current_setup.get({'x'=>0, 'y'=>1}, Piece)).not_to be_nil
               end
             end
           end
@@ -407,21 +437,26 @@ describe Api::GamesController do
             let(:piece_rule_parameters) { { capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 1 } }
 
             it 'fails and returns possible range captures' do
-              put :piece_move, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '1', 'y' => '0'}, format: :json
+              put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json({success: false, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}, range_captures: [{"x"=>2, "y"=>0}, {"x"=>0, "y"=>0}, {"x"=>1, "y"=>1}]})
-              expect(piece.reload.coordinate).to eql({'x' => 0, 'y' => 0})
+
+              game.reload
+              expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).not_to be_nil
+              expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).to be_nil
             end
           end
         end
 
         context 'invalid_move' do
           it 'fails' do
-            put :piece_move, id: game.id, from: piece.coordinate, to: {'x' => '2', 'y' => '0'}, format: :json
+            put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json({success: false})
-            expect(piece.reload.coordinate).to eql({'x' => 0, 'y' => 0})
-            expect(game.reload.action_to).to eql(game.alabaster)
+
+            game.reload
+            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).not_to be_nil
+            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).to be_nil
           end
         end
       end
@@ -430,34 +465,69 @@ describe Api::GamesController do
 
   describe 'piece_move_with_range_capture' do
     let(:piece_type) { create :piece_type, name: 'King' }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 8, board_columns: 8 }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 2, board_columns: 3 }
     let(:piece_rule_parameters) { {} }
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1, capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 1 }
 
     let(:game_parameters) { {} }
-    let(:game) { create :game, {action: 'move', variant: variant}.merge(game_parameters) }
-    let!(:piece) { create :piece, game: game, user: game.alabaster, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '0'} }
-    let!(:opponent_piece) { create :piece, game: game, user: game.onyx, piece_type: piece_type, coordinate: {'x' => '0', 'y' => '1'} }
+    let(:game) { create :game, {variant: variant}.merge(game_parameters) }
+
+    before do
+      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, game.alabaster.id)).call
+      AddToInitialSetup.new(game, Piece.new({'x'=>1, 'y'=>1}, game, piece_type.id, game.onyx.id)).call
+      game.setup_complete(game.onyx)
+      game.setup_complete(game.alabaster)
+    end
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
         let(:game_parameters) { { alabaster: current_user, action_to: current_user } }
 
+        context 'no range_capture' do
+          it 'succeeds' do
+            put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: nil, format: :json
+            expect(response.status).to eql 200
+            expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: nil, action: "move", action_to_id: game.onyx_id})
+
+            game.reload
+            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
+          end
+        end
+
         context 'valid move' do
           it 'succeeds' do
-            put :piece_move_with_range_capture, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '1', 'y' => '0'}, range_capture: {'x' => '2', 'y' => '0'}, format: :json
+            put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: true, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}, range_capture: {'x' => 2, 'y' => 0}, action: "move", action_to_id: game.onyx_id})
-            expect(piece.reload.coordinate).to eql({'x' => 1, 'y' => 0})
+            expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>2, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
+
+            game.reload
+            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
+          end
+
+          context 'taking_king' do
+            it 'succeeds' do
+              put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'1', 'y'=>'1'}, format: :json
+              expect(response.status).to eql 200
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>1, 'y'=>1}, action: "complete", action_to_id: game.alabaster_id})
+
+              game.reload
+              expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+              expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
+            end
           end
         end
 
         context 'invalid move' do
           it 'fails' do
-            put :piece_move_with_range_capture, id: game.id, from: {'x' => '0', 'y' => '0'}, to: {'x' => '2', 'y' => '0'}, range_capture: {'x' => '3', 'y' => '0'}, format: :json
+            put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, range_capture: {'x'=>'3', 'y'=>'0'}, format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json({success: false})
-            expect(piece.reload.coordinate).to eql({'x' => 0, 'y' => 0})
+
+            game.reload
+            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).not_to be_nil
+            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).to be_nil
           end
         end
       end

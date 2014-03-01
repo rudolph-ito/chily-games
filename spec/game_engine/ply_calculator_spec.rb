@@ -2,18 +2,21 @@ require 'minimal_spec_helper'
 require ROOT_DIRECTORY + '/app/game_engine/boards/hexagonal_board.rb'
 require ROOT_DIRECTORY + '/app/game_engine/boards/square_board.rb'
 require ROOT_DIRECTORY + '/app/game_engine/ply_data.rb'
-require ROOT_DIRECTORY + '/lib/coordinate_distance.rb'
 require ROOT_DIRECTORY + '/app/game_engine/ply_calculator.rb'
+require ROOT_DIRECTORY + '/app/game_storage/piece.rb'
+require ROOT_DIRECTORY + '/app/game_storage/terrain.rb'
+require ROOT_DIRECTORY + '/lib/coordinate_distance.rb'
 
 describe PlyCalculator do
-  let(:ply_calculator) { PlyCalculator.new(board, piece_repository, terrain_repository) }
-  let(:piece_repository) { double :piece_repository, find_by_coordinate: nil }
-  let(:terrain_repository) { double :terrain_repository, find_by_coordinate: nil }
-  let(:piece) { double :piece, user: user1, piece_type_id: 1, rule: piece_rule }
-  let(:user1) { double :user }
-  let(:user2) { double :user }
+  let(:ply_calculator) { PlyCalculator.new(board, coordinate_map) }
+  let(:coordinate_map) { double :coordinate_map, get: nil }
+  let(:piece) { double :piece, coordinate: coordinate, user_id: user1_id, piece_type_id: 1, rule: piece_rule }
+  let(:user1_id) { 1 }
+  let(:user2_id) { 2 }
   let(:piece_rule) { double :piece_rule, piece_rule_parameters.merge(capture_type: capture_type) }
   let(:capture_type) { 'movement' }
+
+  before { coordinate_map.stub(:get).with(coordinate, Piece).and_return(piece) }
 
   context 'movement' do
     context 'hexagonal_board' do
@@ -142,12 +145,14 @@ describe PlyCalculator do
       let(:piece_rule_parameters) { { movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: nil } }
 
       context 'other pieces' do
-        let(:piece_at_2_0) { double :piece, user: user1 }
-        let(:piece_at_1_2) { double :piece, user: user2 }
+        let(:ally_piece_coordinate) { {'x'=>2, 'y'=>0} }
+        let(:ally_piece) { double :piece, coordinate: ally_piece_coordinate, user_id: user1_id }
+        let(:enemy_piece_coordinate) { {'x'=>1, 'y'=>2} }
+        let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id }
 
         before do
-          piece_repository.stub(:find_by_coordinate).with({'x'=>2, 'y'=>0}).and_return(piece_at_2_0)
-          piece_repository.stub(:find_by_coordinate).with({'x'=>1, 'y'=>2}).and_return(piece_at_1_2)
+          coordinate_map.stub(:get).with(ally_piece_coordinate, Piece).and_return(ally_piece)
+          coordinate_map.stub(:get).with(enemy_piece_coordinate, Piece).and_return(enemy_piece)
         end
 
         context 'capture_type == movement' do
@@ -174,13 +179,15 @@ describe PlyCalculator do
       end
 
       context 'terrain' do
-        let(:terrain_at_2_0) { double :piece, user: user1, rule: terrain_rule }
-        let(:terrain_at_1_2) { double :piece, user: user2, rule: terrain_rule }
+        let(:ally_terrain_coordinate) { {'x'=>2, 'y'=>0} }
+        let(:ally_terrain) { double :terrain, coordinate: ally_terrain_coordinate, user_id: user1_id, rule: terrain_rule }
+        let(:enemy_terrain_coordinate) { {'x'=>1, 'y'=>2} }
+        let(:enemy_terrain) { double :terrain, coordinate: enemy_terrain_coordinate, user_id: user2_id, rule: terrain_rule }
         let(:terrain_rule) { double :terrain_rule }
 
         before do
-          terrain_repository.stub(:find_by_coordinate).with({'x'=>2, 'y'=>0}).and_return(terrain_at_2_0)
-          terrain_repository.stub(:find_by_coordinate).with({'x'=>1, 'y'=>2}).and_return(terrain_at_1_2)
+          coordinate_map.stub(:get).with(ally_terrain_coordinate, Terrain).and_return(ally_terrain)
+          coordinate_map.stub(:get).with(enemy_terrain_coordinate, Terrain).and_return(enemy_terrain)
         end
 
         context 'blocking' do
@@ -337,13 +344,14 @@ describe PlyCalculator do
       let(:piece_rule_parameters) { { range_type: 'orthogonal_line', range_minimum: 1, range_maximum: nil } }
 
       context 'other pieces' do
-        let(:piece_at_2_0) { double :piece, user: user1 }
-        let(:piece_at_1_2) { double :piece, user: user2 }
+        let(:ally_piece_coordinate) { {'x'=>2, 'y'=>0} }
+        let(:ally_piece) { double :piece, coordinate: ally_piece_coordinate, user_id: user1_id }
+        let(:enemy_piece_coordinate) { {'x'=>1, 'y'=>2} }
+        let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id }
 
         before do
-          piece_repository.stub(:find_by_coordinate).with({'x'=>2, 'y'=>0}).and_return(piece_at_2_0)
-          piece_repository.stub(:find_by_coordinate).with({'x'=>1, 'y'=>2}).and_return(piece_at_1_2)
-          piece_repository.stub(:find_by_coordinate).with({'x'=>3, 'y'=>2}).and_return(piece)
+          coordinate_map.stub(:get).with(ally_piece_coordinate, Piece).and_return(ally_piece)
+          coordinate_map.stub(:get).with(enemy_piece_coordinate, Piece).and_return(enemy_piece)
         end
 
         it 'returns the correct coordinates' do
@@ -355,13 +363,15 @@ describe PlyCalculator do
       end
 
       context 'terrain' do
-        let(:terrain_at_2_0) { double :piece, user: user1, rule: terrain_rule }
-        let(:terrain_at_1_2) { double :piece, user: user2, rule: terrain_rule }
+        let(:ally_terrain_coordinate) { {'x'=>2, 'y'=>0} }
+        let(:ally_terrain) { double :terrain, coordinate: ally_terrain_coordinate, user_id: user1_id, rule: terrain_rule }
+        let(:enemy_terrain_coordinate) { {'x'=>1, 'y'=>2} }
+        let(:enemy_terrain) { double :terrain, coordinate: enemy_terrain_coordinate, user_id: user2_id, rule: terrain_rule }
         let(:terrain_rule) { double :terrain_rule }
 
         before do
-          terrain_repository.stub(:find_by_coordinate).with({'x'=>2, 'y'=>0}).and_return(terrain_at_2_0)
-          terrain_repository.stub(:find_by_coordinate).with({'x'=>1, 'y'=>2}).and_return(terrain_at_1_2)
+          coordinate_map.stub(:get).with(ally_terrain_coordinate, Terrain).and_return(ally_terrain)
+          coordinate_map.stub(:get).with(enemy_terrain_coordinate, Terrain).and_return(enemy_terrain)
         end
 
         context 'blocking' do

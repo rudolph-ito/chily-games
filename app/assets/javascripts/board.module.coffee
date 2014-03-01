@@ -259,7 +259,8 @@ class Board
       @piece_try_move(@selected_piece, coordinate)
       @deselect_piece()
     else if @temporary_move
-      @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, coordinate)
+      range_capture = if coordinate == @temporary_move.to then null else coordinate
+      @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, range_capture)
       @move_piece_by_coordinate(@temporary_move.to, @temporary_move.from)
       @temporary_move = null
       @dehighlight()
@@ -367,12 +368,12 @@ class Board
         @move_piece(piece, to)
 
         if from
-          @game_controller.setup_move('piece', from, to)
+          @game_controller.setup_move('Piece', from, to)
         else
-          @game_controller.setup_add('piece', piece.piece_type_id, to)
+          @game_controller.setup_add('Piece', piece.piece_type_id, to)
       else
         @remove_piece(piece)
-        @game_controller.setup_remove('piece', from) if from
+        @game_controller.setup_remove('Piece', from) if from
     else if to
       @reset_piece(piece)
       @game_controller.piece_move(from, to)
@@ -398,12 +399,12 @@ class Board
         @move_terrain(terrain, to)
 
         if from
-          @game_controller.setup_move('terrain', from, to)
+          @game_controller.setup_move('Terrain', from, to)
         else
-          @game_controller.setup_add('terrain', terrain.display_option, to)
+          @game_controller.setup_add('Terrain', terrain.display_option, to)
       else
         @remove_terrain(terrain)
-        @game_controller.setup_remove('terrain', from)
+        @game_controller.setup_remove('Terrain', from)
 
   ########################################
   # Highlight

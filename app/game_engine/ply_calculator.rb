@@ -1,14 +1,12 @@
 class PlyCalculator
 
-  attr_reader :board, :piece_repository, :terrain_repository
+  attr_reader :board, :coordinate_map
 
-  def initialize(board, piece_repository, terrain_repository)
+  def initialize(board, coordinate_map)
     @board = board
-    @piece_repository = piece_repository
-    @terrain_repository = terrain_repository
+    @coordinate_map = coordinate_map
   end
 
-  # Returns the array of valid plies for a piece
   def valid_plies(piece, from, type = 'movement')
     ply_data = PlyData.new(piece, from, board, type)
 
@@ -87,11 +85,11 @@ class PlyCalculator
     return [false, false] unless board.coordinate_valid?(to)
 
     # Get piece at square (ignore self)
-    occupying_piece = piece_repository.find_by_coordinate(to)
+    occupying_piece = coordinate_map.get(to, Piece)
 
-    if occupying_piece && occupying_piece != ply_data.piece
+    if occupying_piece && occupying_piece.coordinate != ply_data.piece.coordinate
       # Stop if ran into own piece
-      if occupying_piece.user == ply_data.user
+      if occupying_piece.user_id == ply_data.user_id
         return [false, false]
       # Stop if ran into enemy piece and cannot capture
       elsif !ply_data.capture
@@ -101,7 +99,7 @@ class PlyCalculator
       end
     end
 
-    occupying_terrain = terrain_repository.find_by_coordinate(to)
+    occupying_terrain = coordinate_map.get(to, Terrain)
 
     if occupying_terrain
       # Stop if ran into blocking terrain
