@@ -17,7 +17,7 @@ class SetupValidator
   def count_errors
     ['piece', 'terrain'].flat_map do |type|
       game.variant.send("#{type}_rules").map do |rule|
-        placed = send("#{type.pluralize}").count{ |o| o.send("#{type}_type_id") == rule.send("#{type}_type_id") }
+        placed = send("#{type.pluralize}").count{ |o| o.send("type_id") == rule.send("#{type}_type_id") }
         if placed != rule.count
           "Please place #{rule.count_with_name}. You placed #{placed}."
         end
@@ -28,7 +28,7 @@ class SetupValidator
   def placement_errors
     pieces.map do |piece|
       terrain = setup.get(piece.coordinate, Terrain)
-      if terrain && terrain.rule.block?('movement', piece.piece_type_id)
+      if terrain && terrain.rule.block?('movement', piece.type_id)
         "A #{piece.piece_type.name.downcase} cannot be placed on a #{terrain.terrain_type.name.downcase}."
       end
     end.compact

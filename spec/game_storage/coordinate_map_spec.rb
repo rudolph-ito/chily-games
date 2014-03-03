@@ -8,7 +8,7 @@ describe CoordinateMap do
   let(:game) { double :game, "[]=" => nil, save: nil }
   let(:data) { {} }
   let(:klass) { Piece }
-  let(:object) { klass.new({'x'=>0, 'y'=>0}, game, 1, 1) }
+  let(:object) { klass.new(game, {coordinate: {'x'=>0, 'y'=>0}, type_id: 1, user_id: 1}) }
 
   context '#get' do
     it 'returns nil if nothing there' do
@@ -77,8 +77,8 @@ describe CoordinateMap do
     let(:user_id) { 1000 }
     let(:opponent_id) { 1001 }
     let(:board) { double :board }
-    let(:object1) { klass.new({'x'=>0, 'y'=>0}, game, 1, user_id) }
-    let(:object2) { klass.new({'x'=>7, 'y'=>7}, game, 1, opponent_id) }
+    let(:object1) { klass.new(game, {coordinate: {'x'=>0, 'y'=>0}, type_id: 1, user_id: user_id}) }
+    let(:object2) { klass.new(game, {coordinate: {'x'=>7, 'y'=>7}, type_id: 1, user_id: opponent_id}) }
     let(:result) { coordinate_map.for_user_id(user_id) }
 
     before do
@@ -108,9 +108,9 @@ describe CoordinateMap do
   context '#for_class' do
     let(:klass1) { Piece }
     let(:klass2) { Terrain }
-    let(:object1) { klass1.new({'x'=>0, 'y'=>0}, game, 1, 1) }
-    let(:object2) { klass1.new({'x'=>0, 'y'=>1}, game, 1, 1) }
-    let(:object3) { klass2.new({'x'=>0, 'y'=>2}, game, 1, 1) }
+    let(:object1) { klass1.new(game, {coordinate: {'x'=>0, 'y'=>0}, type_id: 1, user_id: 1}) }
+    let(:object2) { klass1.new(game, {coordinate: {'x'=>0, 'y'=>1}, type_id: 1, user_id: 1}) }
+    let(:object3) { klass2.new(game, {coordinate: {'x'=>0, 'y'=>2}, type_id: 1, user_id: 1}) }
 
     before do
       coordinate_map.add(object1)

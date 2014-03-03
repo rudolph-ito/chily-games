@@ -2,9 +2,9 @@ class AddToInitialSetup
 
   attr_accessor :game, :object
 
-  def initialize(game, object)
+  def initialize(game, type, attrs)
     @game = game
-    @object = object
+    @object = type.new(game, attrs)
   end
 
   def call
@@ -14,15 +14,11 @@ class AddToInitialSetup
   private
 
   def should_add_object?
-    board.coordinate_valid?(coordinate) && board.territory(coordinate) == object.color
+    board.coordinate_valid?(object.coordinate) && board.territory(object.coordinate) == object.color
   end
 
   def board
     game.board
-  end
-
-  def coordinate
-    object.coordinate
   end
 
 end

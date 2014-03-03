@@ -6,7 +6,7 @@ class PlyData
     @from = from
     @type = type
 
-    @piece_type_id = piece.piece_type_id
+    @piece_type_id = piece.type_id
     @user_id = piece.user_id
     rule = piece.rule
 

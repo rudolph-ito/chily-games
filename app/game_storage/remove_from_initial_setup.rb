@@ -2,27 +2,13 @@ class RemoveFromInitialSetup
 
   attr_accessor :game, :object
 
-  def initialize(game, object)
+  def initialize(game, user, coordinate, type)
     @game = game
-    @object = object
+    @object = game.setup_for_user(user).get(coordinate, type)
   end
 
   def call
-    game.initial_setup.remove(object) if should_remove_object?
-  end
-
-  private
-
-  def should_remove_object?
-    board.coordinate_valid?(coordinate) && board.territory(coordinate) == object.color
-  end
-
-  def board
-    game.board
-  end
-
-  def coordinate
-    object.coordinate
+    game.initial_setup.remove(object) if object
   end
 
 end

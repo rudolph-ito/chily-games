@@ -10,7 +10,7 @@ require ROOT_DIRECTORY + '/lib/coordinate_distance.rb'
 describe PlyCalculator do
   let(:ply_calculator) { PlyCalculator.new(board, coordinate_map) }
   let(:coordinate_map) { double :coordinate_map, get: nil }
-  let(:piece) { double :piece, coordinate: coordinate, user_id: user1_id, piece_type_id: 1, rule: piece_rule }
+  let(:piece) { double :piece, coordinate: coordinate, user_id: user1_id, type_id: 1, rule: piece_rule }
   let(:user1_id) { 1 }
   let(:user2_id) { 2 }
   let(:piece_rule) { double :piece_rule, piece_rule_parameters.merge(capture_type: capture_type) }

@@ -25,7 +25,6 @@ class CoordinateMap
     remove(object)
     object.coordinate = new_coordinate
     add(object)
-    save
   end
 
   def remove(object)

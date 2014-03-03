@@ -22,32 +22,33 @@ class Api::GamesController < ApplicationController
   end
 
   def setup_add
-    klass = params[:type].constantize
-    object = klass.new(params[:coordinate], @game, params[:type_id], current_user.id)
+    type = params[:type].constantize
+    attrs = { coordinate: params[:coordinate], type_id: params[:type_id], user_id: current_user.id }
 
-    AddToInitialSetup.new(@game, object).call
+    AddToInitialSetup.new(@game, type, attrs).call
     head :ok
   end
 
   def setup_move
-    klass = params[:type].constantize
-    object = @game.setup_for_user(current_user).get(params[:from], klass)
-    RemoveFromInitialSetup.new(@game, object).call
-    object.coordinate = params[:to]
-    AddToInitialSetup.new(@game, object).call
+    from = params[:from]
+    to = params[:to]
+    type = params[:type].constantize
+
+    MoveInInitialSetup.new(@game, current_user, from, to, type).call
     head :ok
   end
 
   def setup_remove
-    klass = params[:type].constantize
-    object = @game.setup_for_user(current_user).get(params[:coordinate], klass)
+    coordinate = params[:coordinate]
+    type = params[:type].constantize
 
-    RemoveFromInitialSetup.new(@game, object).call
+    RemoveFromInitialSetup.new(@game, current_user, coordinate, type).call
     head :ok
   end
 
   def setup_complete
     result, errors = SetupValidator.new(@game, current_user).call
+
     if result
       @game.setup_complete(current_user)
       render json: { success: true, action: @game.action, action_to_id: @game.action_to_id }

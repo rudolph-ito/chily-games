@@ -22,13 +22,13 @@ end
 node(:pieces) do |g|
   pieces = g.setup_for_user(current_user).for_class(Piece)
   pieces.map do |p|
-    { piece_type_id: p.piece_type_id, coordinate: p.coordinate, color: p.color }
+    { piece_type_id: p.type_id, coordinate: p.coordinate, color: p.color }
   end
 end
 
 node(:terrains) do |g|
   terrains = g.setup_for_user(current_user).for_class(Terrain)
   terrains.map do |t|
-    { terrain_type_id: t.terrain_type_id, coordinate: t.coordinate }
+    { terrain_type_id: t.type_id, coordinate: t.coordinate }
   end
 end

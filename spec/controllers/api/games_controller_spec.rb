@@ -109,7 +109,7 @@ describe Api::GamesController do
             expect(response.status).to eql 200
 
             piece = game.reload.initial_setup.get({'x'=>0, 'y'=>0}, Piece)
-            expect(piece.piece_type_id).to eql(piece_type.id)
+            expect(piece.type_id).to eql(piece_type.id)
             expect(piece.user_id).to eql(current_user.id)
           end
         end
@@ -122,7 +122,7 @@ describe Api::GamesController do
             expect(response.status).to eql 200
 
             piece = game.reload.initial_setup.get({'x'=>7, 'y'=>7}, Piece)
-            expect(piece.piece_type_id).to eql(piece_type.id)
+            expect(piece.type_id).to eql(piece_type.id)
             expect(piece.user_id).to eql(current_user.id)
           end
         end
@@ -142,7 +142,7 @@ describe Api::GamesController do
       context 'when signed in', :signed_in do
         context 'as alabaster' do
           let(:game_parameters) { { alabaster: current_user } }
-          before { AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, current_user.id)).call }
+          before { AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: current_user.id}).call }
 
           it 'succeeds' do
             put :setup_move, id: game.id, type: 'Piece', from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'2'}, format: :json
@@ -156,7 +156,7 @@ describe Api::GamesController do
 
         context 'as onyx' do
           let(:game_parameters) { { onyx: current_user } }
-          before { AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, current_user.id)).call }
+          before { AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>7, 'y'=>7}, type_id: piece_type.id, user_id: current_user.id}).call }
 
           it 'succeeds' do
             put :setup_move, id: game.id, type: 'Piece', from: {'x'=>'7', 'y'=>'7'}, to: {'x'=>'5', 'y'=>'5'}, format: :json
@@ -182,7 +182,7 @@ describe Api::GamesController do
       context 'when signed in', :signed_in do
         context 'as alabaster' do
           let(:game_parameters) { { alabaster: current_user } }
-          before { AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, current_user.id)).call }
+          before { AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: current_user.id}).call }
 
           it 'succeeds' do
             put :setup_remove, id: game.id, type: 'Piece', coordinate: {'x'=>'0', 'y'=>'0'}, format: :json
@@ -193,7 +193,7 @@ describe Api::GamesController do
 
         context 'as onyx' do
           let(:game_parameters) { { onyx: current_user } }
-          before { AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, current_user.id)).call }
+          before { AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>7, 'y'=>7}, type_id: piece_type.id, user_id: current_user.id}).call }
 
           it 'succeeds' do
             put :setup_remove, id: game.id, type: 'Piece', coordinate: {'x'=>'7', 'y'=>'7'}, format: :json
@@ -221,9 +221,9 @@ describe Api::GamesController do
 
         context 'no errors' do
           before do
-            AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, current_user.id)).call
-            AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>1}, game, piece_type.id, current_user.id)).call
-            AddToInitialSetup.new(game, Terrain.new({'x'=>0, 'y'=>2}, game, terrain_type.id, current_user.id)).call
+            AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: current_user.id}).call
+            AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>1}, type_id: piece_type.id, user_id: current_user.id}).call
+            AddToInitialSetup.new(game, Terrain, {coordinate: {'x'=>0, 'y'=>2}, type_id: terrain_type.id, user_id: current_user.id}).call
           end
 
           context 'opponent not setup' do
@@ -259,9 +259,9 @@ describe Api::GamesController do
 
         context 'no errors' do
           before do
-            AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, current_user.id)).call
-            AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>6}, game, piece_type.id, current_user.id)).call
-            AddToInitialSetup.new(game, Terrain.new({'x'=>7, 'y'=>5}, game, terrain_type.id, current_user.id)).call
+            AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>7, 'y'=>7}, type_id: piece_type.id, user_id: current_user.id}).call
+            AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>7, 'y'=>6}, type_id: piece_type.id, user_id: current_user.id}).call
+            AddToInitialSetup.new(game, Terrain, {coordinate: {'x'=>7, 'y'=>5}, type_id: terrain_type.id, user_id: current_user.id}).call
           end
 
           context 'opponent not setup' do
@@ -302,7 +302,7 @@ describe Api::GamesController do
     let(:game) { create :game, { variant: variant }.merge(game_parameters) }
 
     before do
-      AddToInitialSetup.new(game, Piece.new({'x'=>7, 'y'=>7}, game, piece_type.id, game.onyx.id)).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>7, 'y'=>7}, type_id: piece_type.id, user_id: game.onyx_id}).call
       game.setup_complete(game.alabaster)
       game.setup_complete(game.onyx)
     end
@@ -329,8 +329,8 @@ describe Api::GamesController do
     let(:game) { create :game, {variant: variant}.merge(game_parameters) }
 
     before do
-      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>1}, game, piece_type.id, game.alabaster.id)).call
-      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>3}, game, piece_type.id, game.onyx.id)).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>1}, type_id: piece_type.id, user_id: game.alabaster_id}).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>3}, type_id: piece_type.id, user_id: game.onyx_id}).call
     end
 
     context 'when signed in', :signed_in do
@@ -396,8 +396,8 @@ describe Api::GamesController do
     let(:game) { create :game, {action: 'move', variant: variant}.merge(game_parameters) }
 
     before do
-      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, game.alabaster.id)).call
-      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>1}, game, piece_type.id, game.onyx.id)).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: game.alabaster_id}).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>1}, type_id: piece_type.id, user_id: game.onyx_id}).call
       game.setup_complete(game.onyx)
       game.setup_complete(game.alabaster)
     end
@@ -473,8 +473,8 @@ describe Api::GamesController do
     let(:game) { create :game, {variant: variant}.merge(game_parameters) }
 
     before do
-      AddToInitialSetup.new(game, Piece.new({'x'=>0, 'y'=>0}, game, piece_type.id, game.alabaster.id)).call
-      AddToInitialSetup.new(game, Piece.new({'x'=>1, 'y'=>1}, game, piece_type.id, game.onyx.id)).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: game.alabaster_id}).call
+      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>1, 'y'=>1}, type_id: piece_type.id, user_id: game.onyx_id}).call
       game.setup_complete(game.onyx)
       game.setup_complete(game.alabaster)
     end

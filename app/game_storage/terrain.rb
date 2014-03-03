@@ -1,16 +1,16 @@
 class Terrain
 
-  attr_accessor :coordinate, :game, :terrain_type_id, :user_id
+  attr_accessor :coordinate, :game, :type_id, :user_id
 
-  def initialize(coordinate, game, terrain_type_id, user_id)
-    @coordinate = coordinate
+  def initialize(game, attrs)
+    @coordinate = attrs[:coordinate]
     @game = game
-    @terrain_type_id = terrain_type_id
-    @user_id = user_id
+    @type_id = attrs[:type_id].to_i
+    @user_id = attrs[:user_id].to_i
   end
 
   def terrain_type
-    TerrainType.find(terrain_type_id)
+    TerrainType.find(type_id)
   end
 
   def color
@@ -18,15 +18,15 @@ class Terrain
   end
 
   def rule
-    game.variant.terrain_rules.find_by(terrain_type_id: terrain_type_id)
+    game.variant.terrain_rules.find_by(terrain_type_id: type_id)
   end
 
   def encode
-    [terrain_type_id.to_i, user_id.to_i]
+    [type_id, user_id]
   end
 
   def self.decode(coordinate, game, data)
-    self.new(coordinate, game, data[0], data[1])
+    self.new(game, {coordinate: coordinate, type_id: data[0], user_id: data[1]})
   end
 
 end
