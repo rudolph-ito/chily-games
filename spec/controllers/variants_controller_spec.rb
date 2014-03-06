@@ -11,14 +11,18 @@ describe VariantsController do
   describe 'new' do
     context 'when signed in', :signed_in do
       context 'as a creator' do
-        context 'with a variant' do
+        let(:current_user_params) { { creator: true } }
+
+        context 'without a variant' do
           it 'succeeds' do
             get :new
             response.status.should == 200
           end
         end
 
-        context 'without a variant' do
+        context 'with a variant' do
+          let!(:variant) { create(:variant, user: current_user) }
+
           it 'redirects to root_path' do
             get :new
             response.should redirect_to root_path
@@ -46,21 +50,42 @@ describe VariantsController do
     let(:valid_attributes) { { board_type: 'hexagonal', board_size: 6 } }
 
     context 'when signed in', :signed_in do
-      context 'with valid attributes' do
-        it 'creates and redirects' do
-          expect {
-            post :create, variant: valid_attributes
-            response.should redirect_to Variant.last
-          }.to change(Variant, :count).by(1)
+      context 'as a creator' do
+        let(:current_user_params) { { creator: true } }
+        context 'without a variant' do
+          context 'with valid attributes' do
+            it 'creates and redirects' do
+              expect {
+                post :create, variant: valid_attributes
+                response.should redirect_to Variant.last
+              }.to change(Variant, :count).by(1)
+            end
+          end
+
+          context 'with invalid attributes' do
+            it 'does not create and renders new' do
+              expect {
+                post :create, variant: valid_attributes.merge(board_type: '')
+                response.should render_template 'new'
+              }.to change(Variant, :count).by(0)
+            end
+          end
+        end
+
+        context 'with a variant' do
+          let!(:variant) { create(:variant, user: current_user) }
+
+          it 'redirects to root_path' do
+            get :new
+            response.should redirect_to root_path
+          end
         end
       end
 
-      context 'with invalid attributes' do
-        it 'does not create and renders new' do
-          expect {
-            post :create, variant: valid_attributes.merge(board_type: '')
-            response.should render_template 'new'
-          }.to change(Variant, :count).by(0)
+      context 'not as a creator' do
+        it 'redirects to root_path' do
+          get :new
+          response.should redirect_to root_path
         end
       end
     end

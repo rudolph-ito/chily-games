@@ -2,12 +2,14 @@ module DeviseRequestHelpers
   include Warden::Test::Helpers
 
   shared_context 'signed in', signed_in: true do
-    let(:current_user) { create :user }
+    let(:current_user_params) { {} }
+    let(:current_user) { create :user, current_user_params }
     before { sign_in current_user }
   end
 
   shared_context 'signed in as admin', signed_in_as_admin: true do
-    let(:current_user) { create :user, admin: true }
+    let(:current_user_params) { {} }
+    let(:current_user) { create :user, current_user_params.merge(admin: true) }
     before { sign_in current_user }
   end
 end

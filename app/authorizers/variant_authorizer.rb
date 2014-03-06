@@ -1,7 +1,7 @@
 class VariantAuthorizer < ApplicationAuthorizer
   class << self
     def creatable_by?(user)
-      true
+      user.creator && user.variants.empty?
     end
   end
 
