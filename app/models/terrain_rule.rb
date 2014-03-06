@@ -49,11 +49,15 @@ class TerrainRule < ActiveRecord::Base
     Messages.count_with_name(count, terrain_type.name.downcase)
   end
 
-  def block_movement
+  def rule_descriptions
+    [block_movement_description, block_range_description].compact
+  end
+
+  def block_movement_description
     block_message('movement')
   end
 
-  def block_range
+  def block_range_description
     block_message('range')
   end
 
@@ -77,25 +81,8 @@ class TerrainRule < ActiveRecord::Base
   private
 
   def block_message(type)
-    ids = public_send("block_#{type}_piece_type_ids")
-    value = public_send("block_#{type}_type")
-
-    if value == 'none'
-      'No'
-    elsif value == 'all'
-      'All pieces'
-    else
-      names = ids.map{ |pid| PieceType.find(pid).name }
-      if value == 'include'
-        'Only '
-      else
-        'All pieces except '
-      end + names.to_sentence
-    end
+    value = Messages.include_exclude(self, "block_#{type}")
+    "blocks #{type} for #{value}" if value
   end
-
-  # Options
-  # destructible
-  # protecttion
 
 end

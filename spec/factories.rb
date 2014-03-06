@@ -6,7 +6,7 @@ FactoryGirl.define do
   end
 
   factory :comment do
-    association :commentable, factory: :topic
+    topic
     text 'A comment'
     user
   end
@@ -68,9 +68,13 @@ FactoryGirl.define do
   end
 
   factory :topic do
-    discussion
+    association :parent, factory: :discussion
     sequence(:title) {|n| "topic #{n}" }
     user
+
+    after(:build) do |topic|
+      topic.comments << build(:comment, topic: topic)
+    end
   end
 
   factory :variant do

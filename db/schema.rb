@@ -25,18 +25,16 @@ ActiveRecord::Schema.define(version: 20140306174215) do
   end
 
   create_table "comments", force: true do |t|
-    t.integer  "commentable_id"
-    t.string   "commentable_type"
     t.text     "text"
+    t.integer  "topic_id"
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "discussions", force: true do |t|
-    t.string  "title"
-    t.text    "description"
-    t.integer "user_id"
+    t.string "title"
+    t.text   "description"
   end
 
   create_table "games", force: true do |t|
@@ -97,8 +95,9 @@ ActiveRecord::Schema.define(version: 20140306174215) do
   end
 
   create_table "topics", force: true do |t|
-    t.integer  "discussion_id"
     t.string   "title"
+    t.integer  "parent_id"
+    t.string   "parent_type"
     t.integer  "user_id"
     t.integer  "comments_count"
     t.datetime "created_at"

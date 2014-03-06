@@ -1,0 +1,68 @@
+@import compass/css3/box-sizing
+@import compass/css3/transform
+@import compass/utilities/general/clearfix
+
+section.topic
+  margin: 0 auto
+  width: 800px
+
+  ul.comments
+    li
+      padding: 2px 4px
+      +clearfix
+
+      &:nth-child(odd)
+        background-color: #eee
+      &:nth-child(even)
+        background-color: #ddd
+
+      .comment
+        float: left
+        .user-with-time
+          +clearfix
+          > *
+            float: left
+
+          .user
+            font-weight: bold
+          .time
+            font-style: italic
+            margin-left: 10px
+      .actions
+        float: right
+        +clearfix
+
+        > *
+          display: block
+          float: left
+          font-size: 20px
+
+  .agreement
+    margin: 4px
+
+  a.up-link
+    color: green
+    border: 1px solid transparent
+    &:hover
+      text-decoration: none
+      border: 1px solid green
+
+  a.down-link
+    border: 1px solid transparent
+    color: red
+    &:hover
+      text-decoration: none
+      border: 1px solid red
+
+  .new-comment
+    margin-top: 20px
+
+    .title
+      font-size: 16px
+      margin-bottom: 0
+
+    textarea
+      display: block
+      width: 400px
+      height: 75px
+      margin: 3px 0

@@ -1,9 +1,8 @@
 class CreateDiscussions < ActiveRecord::Migration
   def change
     create_table :comments do |t|
-      t.integer :commentable_id
-      t.string :commentable_type
       t.text :text
+      t.integer :topic_id
       t.integer :user_id
 
       t.datetime :created_at
@@ -13,12 +12,12 @@ class CreateDiscussions < ActiveRecord::Migration
     create_table :discussions do |t|
       t.string :title
       t.text :description
-      t.integer :user_id
     end
 
     create_table :topics do |t|
-      t.integer :discussion_id
       t.string :title
+      t.integer :parent_id
+      t.string :parent_type
       t.integer :user_id
 
       t.integer :comments_count

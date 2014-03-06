@@ -40,22 +40,22 @@ describe TerrainRule do
     end
   end
 
-  context 'block_movement' do
+  context 'block_movement_description' do
     let(:terrain_rule) { TerrainRule.new }
 
     context 'block_movement_type == none' do
       before { terrain_rule.block_movement_type = 'none' }
 
-      it 'returns No' do
-        expect(terrain_rule.block_movement).to eql 'No'
+      it 'returns nil' do
+        expect(terrain_rule.block_movement_description).to be_nil
       end
     end
 
     context 'block_movement_type == all' do
       before { terrain_rule.block_movement_type = 'all' }
 
-      it 'returns All pieces' do
-        expect(terrain_rule.block_movement).to eql 'All pieces'
+      it 'returns descriptive string' do
+        expect(terrain_rule.block_movement_description).to eql 'blocks movement for all pieces'
       end
     end
 
@@ -66,8 +66,8 @@ describe TerrainRule do
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
-      it 'returns "Only" plus a list of piece types' do
-        expect(terrain_rule.block_movement).to eql 'Only PieceType1'
+      it 'returns descriptive string' do
+        expect(terrain_rule.block_movement_description).to eql 'blocks movement for PieceType1'
       end
     end
 
@@ -78,28 +78,28 @@ describe TerrainRule do
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
-      it 'returns "All pieces excpet"' do
-        expect(terrain_rule.block_movement).to eql 'All pieces except PieceType1'
+      it 'returns descriptive string' do
+        expect(terrain_rule.block_movement_description).to eql 'blocks movement for all pieces except PieceType1'
       end
     end
   end
 
-  context 'block_range' do
+  context 'block_range_description' do
     let(:terrain_rule) { TerrainRule.new }
 
     context 'block_range_type == none' do
       before { terrain_rule.block_range_type = 'none' }
 
-      it 'returns No' do
-        expect(terrain_rule.block_range).to eql 'No'
+      it 'returns nil' do
+        expect(terrain_rule.block_range_description).to be_nil
       end
     end
 
     context 'block_range_type == all' do
       before { terrain_rule.block_range_type = 'all' }
 
-      it 'returns All pieces' do
-        expect(terrain_rule.block_range).to eql 'All pieces'
+      it 'returns descriptive string' do
+        expect(terrain_rule.block_range_description).to eql 'blocks range for all pieces'
       end
     end
 
@@ -110,8 +110,8 @@ describe TerrainRule do
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
-      it 'returns "Only" plus a list of piece types' do
-        expect(terrain_rule.block_range).to eql 'Only PieceType1'
+      it 'returns descriptive string' do
+        expect(terrain_rule.block_range_description).to eql 'blocks range for PieceType1'
       end
     end
 
@@ -122,8 +122,8 @@ describe TerrainRule do
         PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
       end
 
-      it 'returns "All pieces excpet"' do
-        expect(terrain_rule.block_range).to eql 'All pieces except PieceType1'
+      it 'returns descriptive string' do
+        expect(terrain_rule.block_range_description).to eql 'blocks range for all pieces except PieceType1'
       end
     end
   end

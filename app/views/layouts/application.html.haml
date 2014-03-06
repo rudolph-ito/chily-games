@@ -20,9 +20,6 @@
             Weclome,
             = link_to current_user.username, current_user
 
-          - if current_user.admin
-            %li= link_to 'Users', :users
-
           %li= link_to "Sign Out", [:destroy, :user, :session], :method => :delete
         - else
           %li= link_to "Sign In", [:new, :user, :session]
@@ -32,6 +29,4 @@
       = yield :navigation
 
       .content
-        = content_tag(:div, flash[:notice], class: 'flash alert') if flash[:notice]
-        = content_tag(:div, flash[:alert], class: 'flash alert') if flash[:alert]
         = yield

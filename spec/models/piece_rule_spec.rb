@@ -108,17 +108,17 @@ describe PieceRule do
 
     context 'no movement_maximum' do
       let(:piece_rule_params) { { movement_minimum: 1, movement_maximum: nil } }
-      specify { piece_rule.movement_description.should == "Orthogonal line - 1 or more space(s)" }
+      specify { piece_rule.movement_description.should == "movement: orthogonal line - 1 or more space(s)" }
     end
 
     context 'movement_minimum == movement_maximum' do
       let(:piece_rule_params) { { movement_minimum: 2, movement_maximum: 2 } }
-      specify { piece_rule.movement_description.should == "Orthogonal line - 2 space(s)" }
+      specify { piece_rule.movement_description.should == "movement: orthogonal line - 2 space(s)" }
     end
 
     context 'movement_minimum < movement_maximum' do
       let(:piece_rule_params) { { movement_minimum: 1, movement_maximum: 2 } }
-      specify { piece_rule.movement_description.should == "Orthogonal line - 1 to 2 space(s)" }
+      specify { piece_rule.movement_description.should == "movement: orthogonal line - 1 to 2 space(s)" }
     end
   end
 
@@ -127,7 +127,7 @@ describe PieceRule do
 
     context 'capture_type == movement' do
       let(:piece_rule_params) { {capture_type: 'movement'} }
-      specify { piece_rule.capture_description.should == "By movement" }
+      specify { piece_rule.capture_description.should == "capture by movement" }
     end
 
     context 'capture_type == range' do
@@ -135,17 +135,17 @@ describe PieceRule do
 
       context 'no range_maximum' do
         let(:piece_rule_params) { { range_minimum: 1, range_maximum: nil } }
-        specify { piece_rule.capture_description.should == "By range: Orthogonal line - 1 or more space(s)" }
+        specify { piece_rule.capture_description.should == "capture by range: orthogonal line - 1 or more space(s)" }
       end
 
       context 'range_minimum == range_maximum' do
         let(:piece_rule_params) { { range_minimum: 2, range_maximum: 2 } }
-        specify { piece_rule.capture_description.should == "By range: Orthogonal line - 2 space(s)" }
+        specify { piece_rule.capture_description.should == "capture by range: orthogonal line - 2 space(s)" }
       end
 
       context 'range_minimum < range_maximum' do
         let(:piece_rule_params) { { range_minimum: 1, range_maximum: 2 } }
-        specify { piece_rule.capture_description.should == "By range: Orthogonal line - 1 to 2 space(s)" }
+        specify { piece_rule.capture_description.should == "capture by range: orthogonal line - 1 to 2 space(s)" }
       end
     end
   end

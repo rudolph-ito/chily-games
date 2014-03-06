@@ -35,7 +35,7 @@ Cyvasse::Application.routes.draw do
     end
   end
 
-  resources :discussions do
+  resources :discussions, except: [:index] do
     resources :topics, only: [:new, :create]
   end
 
@@ -44,7 +44,10 @@ Cyvasse::Application.routes.draw do
   resources :quotes
   resources :terrain_rules, only: [:edit, :update, :destroy]
   resources :terrain_types
-  resources :topics, only: [:show, :edit, :update, :destroy]
+
+  resources :topics, only: [:show, :edit, :update, :destroy] do
+    resources :comments, only: [:create]
+  end
 
   devise_for :users
   resources :users

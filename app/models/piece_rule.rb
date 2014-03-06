@@ -53,14 +53,14 @@ class PieceRule < ActiveRecord::Base
   # Descriptions
 
   def movement_description
-    Messages.type_with_range(self, 'movement')
+    'movement: ' + Messages.type_with_range(self, 'movement')
   end
 
   def capture_description
-    if range_capture?
-      'By range: ' + Messages.type_with_range(self, 'range')
+    'capture ' + if range_capture?
+      'by range: ' + Messages.type_with_range(self, 'range')
     else
-      'By movement'
+      'by movement'
     end
   end
 

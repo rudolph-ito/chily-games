@@ -1,26 +1,30 @@
 = content_for :navigation do
-  = render 'shared/navigation', back: {name: 'Back', href: 'javascript:history.back()'}
+  = render 'shared/navigation', back: {name: 'Home', href: '/'}
 
 %section.discussion
-  .title Current Topics in #{@discussion.title}
+  .title= @discussion
   .description= @discussion.description
 
   - if signed_in? && current_user.can_create?(Topic)
     = link_to 'New Topic', [:new, @discussion, :topic]
+    %br
+    %br
+
+  - if @discussion.topics.count == 0
+    %em No topics
 
   %table
     %tbody
-    - @discussion.topics.each do |topic|
-      %tr{onclick: "window.location='#{topic_path(topic)}';"}
-        %td
-          = topic.title
+      - @discussion.topics.each do |topic|
+        %tr
+          %td{onclick: "window.location='#{topic_path(topic)}';"}
+            = topic.title
 
-          .stats
-            .stat
-              = topic.comments.count
-              Comments
-
-        - if signed_in? && current_user.can_manage?(topic)
-          %td
-            = link_to 'Edit', [:edit, topic]
-            = link_to 'Destroy', topic, method: :delete, data: { confirm: 'Are you sure?' }
+            .stats
+              .stat
+                = topic.comments_count
+                Comments
+              .stat
+                Last Comment:
+                = time_ago_in_words(topic.comments.last.created_at)
+                ago

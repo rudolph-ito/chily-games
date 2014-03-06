@@ -32,6 +32,8 @@ $header-height: 40px
         font-size: 24px
         padding: 5px
         border-right: none
+        a
+          text-decoration: none
 
     a
       color: #F3EFDF
@@ -46,6 +48,9 @@ $header-height: 40px
     float: right
     li
       border-left: 1px solid #555
+
+      &:first-child
+        border-left: none
 
 .content-with-navigation
   padding-top: $header-height

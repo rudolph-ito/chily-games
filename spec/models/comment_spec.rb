@@ -9,8 +9,8 @@ describe Comment do
       specify { expect(comment).to be_valid }
     end
 
-    context 'no commentable' do
-      let(:comment_params) { {commentable: nil} }
+    context 'no topic' do
+      let(:comment_params) { {topic: nil} }
       specify { expect(comment).to be_invalid }
     end
 

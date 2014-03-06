@@ -1,0 +1,27 @@
+= content_for :navigation do
+  = render 'shared/navigation', back: {name: @topic.parent, href: @topic.parent}
+
+%section.topic
+  .title= @topic.title
+  .description= @topic.parent
+
+  %ul.comments
+    - @topic.comments.each do |comment|
+      %li
+        .comment
+          .user-with-time
+            .user= comment.user
+            .time #{time_ago_in_words(comment.created_at)} ago
+          .text= comment.text
+
+        .actions
+          = link_to '&#x2B06;'.html_safe, '#', class: 'up-link', title: 'Agree'
+          .agreement= comment.agreement
+          = link_to '&#x2B07;'.html_safe, '#', class: 'down-link', title: 'Disagree'
+
+  .new-comment
+    .title New Comment
+
+    = form_for [@topic, Comment.new] do |f|
+      = f.text_area :text
+      = f.submit

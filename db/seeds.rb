@@ -89,11 +89,8 @@ end
 data = [
   {title: 'Quotes', description: 'Discuss anything and everything regarding quotes from A Song of Ice and Fire.'},
   {title: 'Invariants', description: 'Discuss invariants and propose additions and removals.'},
-  {title: 'Variant Options', description: 'Discuss variant options and propose additions and removals.'},
-  {title: 'Piece Rule Options', description: 'Discuss piece rule options and propose additions and removals.'},
-  {title: 'Terrain Rule Options', description: 'Discuss terrain rule options and propose additions and removals.'},
+  {title: 'Rule Support', description: 'Discuss rules supported and propose additions and removals.'},
   {title: 'Play', description: 'Discuss updates to the play interface. Please report bugs or anything that is not what you expected.'},
-  {title: 'Other', description: 'Discuss everything else that does fit into an existing discussion'}
 ]
 
 data.each do |datum|

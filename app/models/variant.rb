@@ -42,7 +42,7 @@ class Variant < ActiveRecord::Base
   # Instance Methods
   ########################################
 
-  def name
+  def to_s
     "Cyvasse by #{user.username}"
   end
 

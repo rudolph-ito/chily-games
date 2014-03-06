@@ -5,8 +5,12 @@
   = render 'shared/navigation', back: {name: 'Variants', href: :variants}
 
 %section.variant
-  .title
-    Variant by #{@variant.user.username}
+  .title= @variant
+  - if signed_in? && current_user.can_create?(@variant)
+    .description
+      Have an idea for a new rule you want supported? Think a rule needs to be changed? Please post
+      = succeed '.' do
+        = link_to 'here', Discussion.find_by(title: 'Rule Support')
 
   .sub-section
     .title
@@ -14,12 +18,8 @@
       - if signed_in? && current_user.can_manage?(@variant)
         = link_to 'Edit', [:edit, @variant]
 
-    %table
-      %tr
-        %th Board
-        %td
-          = @variant.board
-          = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
+    = @variant.board
+    = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
 
   .sub-section
     .title

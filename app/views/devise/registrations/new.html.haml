@@ -1,24 +1,15 @@
-%h2 Sign up
+.form-title Sign up
 
-= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f|
-  = devise_error_messages!
+= semantic_form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f|
+  = f.inputs do
+    = f.input :username
+    = f.input :email
+    = f.input :password
+    = f.input :password_confirmation, label: 'Confirm Password'
 
-  .control-group
-    = f.label :username
-    = f.text_field :username, :autofocus => true
+  = f.actions do
+    = f.action :submit, label: "Sign up"
+    = render "devise/shared/links"
 
-  .control-group
-    = f.label :email
-    = f.email_field :email
 
-  .control-group
-    = f.label :password
-    = f.password_field :password
 
-  .control-group
-    = f.label :password_confirmation, 'Confirm Password'
-    = f.password_field :password_confirmation
-
-  = f.submit "Sign up"
-
-= render "devise/shared/links"

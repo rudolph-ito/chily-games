@@ -5,7 +5,7 @@ class Comment < ActiveRecord::Base
   # Relations
   ########################################
 
-  belongs_to :topic
+  belongs_to :topic, inverse_of: :comments, counter_cache: true
   belongs_to :user
 
   ########################################
@@ -13,5 +13,13 @@ class Comment < ActiveRecord::Base
   ########################################
 
   validates :topic, :text, :user, presence: true
+
+  ########################################
+  # Instance Methods
+  ########################################
+
+  def agreement
+    0
+  end
 
 end

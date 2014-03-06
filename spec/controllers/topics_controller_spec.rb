@@ -37,7 +37,7 @@ describe TopicsController do
       context 'with invalid attributes' do
         it 'does not create and renders new' do
           expect {
-            post :create, topic: valid_attributes.merge(title: '')
+            post :create, discussion_id: discussion.id, topic: valid_attributes.merge(title: '')
             response.should render_template 'new'
           }.to change(Topic, :count).by(0)
         end
@@ -47,7 +47,7 @@ describe TopicsController do
     context 'when not signed in' do
       it 'redirects to login' do
         expect {
-          post :create, topic: valid_attributes
+          post :create, discussion_id: discussion.id, topic: valid_attributes
           response.should redirect_to new_user_session_path
         }.to change(Topic, :count).by(0)
       end
@@ -144,7 +144,7 @@ describe TopicsController do
         it 'destroys and redirects to topics' do
           expect{
             delete :destroy, id: topic.id
-            response.should redirect_to topics_path
+            response.should redirect_to topic.parent
           }.to change(Topic, :count).by(-1)
         end
       end

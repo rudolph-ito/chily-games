@@ -6,6 +6,6 @@ class QuoteAuthorizer < ApplicationAuthorizer
   end
 
   def managable_by?(user)
-    resource.id == user.id || user.admin?
+    user.admin?
   end
 end

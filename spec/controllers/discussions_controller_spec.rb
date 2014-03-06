@@ -1,13 +1,6 @@
 require 'spec_helper'
 
 describe DiscussionsController do
-  describe 'index' do
-    it 'succeeds' do
-      get :index
-      response.status.should == 200
-    end
-  end
-
   describe 'new' do
     context 'when signed in as admin', :signed_in_as_admin do
       it 'succeeds' do

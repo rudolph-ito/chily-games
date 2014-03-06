@@ -1,0 +1,11 @@
+= semantic_form_for [@parent, @topic] do |f|
+  = f.inputs do
+    = f.input :title
+
+    = f.semantic_fields_for :comments, [@topic.comments.first] do |comment_f|
+      = comment_f.input :text
+      = comment_f.input :user_id, as: :hidden, value: @topic.user_id
+
+  = f.actions do
+    = f.action :submit, name: "Save"
+    = f.action :cancel, url: @parent || @topic

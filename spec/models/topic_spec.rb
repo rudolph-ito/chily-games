@@ -9,27 +9,19 @@ describe Topic do
       specify { expect(topic).to be_valid }
     end
 
+    context 'no parent' do
+      let(:topic_params) { {parent: nil} }
+      specify { expect(topic).to be_invalid }
+    end
+
     context 'no title' do
       let(:topic_params) { {title: nil} }
       specify { expect(topic).to be_invalid }
     end
 
-    context 'duplicate title' do
-      context 'within discussion' do
-        let(:topic_params) { {discussion: create(:discussion), title: 'A topic'} }
-        before { create(:topic, topic_params) }
-        specify { expect(topic).to be_invalid }
-      end
-
-      context 'in different discussions' do
-        let(:topic_params) { {title: 'A topic'} }
-        before { create(:topic, topic_params) }
-        specify { expect(topic).to be_valid }
-      end
-    end
-
-    context 'no title' do
-      let(:topic_params) { {title: nil} }
+    context 'duplicate title within parent' do
+      let(:topic_params) { {parent: create(:discussion), title: 'A topic'} }
+      before { create(:topic, topic_params) }
       specify { expect(topic).to be_invalid }
     end
   end

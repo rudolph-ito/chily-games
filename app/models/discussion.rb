@@ -7,7 +7,7 @@ class Discussion < ActiveRecord::Base
   # Relations
   ########################################
 
-  has_many :topics
+  has_many :topics, as: :parent, dependent: :destroy
   has_many :comments, through: :topics
 
   ########################################
@@ -16,5 +16,13 @@ class Discussion < ActiveRecord::Base
 
   validates :description, presence: true
   validates :title, presence: true, uniqueness: true
+
+  ########################################
+  # Instance Methods
+  ########################################
+
+  def to_s
+    "Discussion: #{title}"
+  end
 
 end

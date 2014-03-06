@@ -25,11 +25,7 @@ describe VariantsController do
   end
 
   describe 'create' do
-    let(:valid_attributes) { {
-      name: 'test',
-      board_type: 'hexagonal',
-      board_size: 6
-    } }
+    let(:valid_attributes) { { board_type: 'hexagonal', board_size: 6 } }
 
     context 'when signed in', :signed_in do
       context 'with valid attributes' do
@@ -44,7 +40,7 @@ describe VariantsController do
       context 'with invalid attributes' do
         it 'does not create and renders new' do
           expect {
-            post :create, variant: valid_attributes.merge(name: '')
+            post :create, variant: valid_attributes.merge(board_type: '')
             response.should render_template 'new'
           }.to change(Variant, :count).by(0)
         end
@@ -100,24 +96,24 @@ describe VariantsController do
   end
 
   describe 'update' do
-    let(:variant) { create :variant, name: 'old' }
+    let(:variant) { create :variant, board_type: 'square', board_rows: 2 }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do
-        let(:variant) { create :variant, name: 'old', user: current_user }
+        let(:variant) { create :variant, board_type: 'square', board_rows: 2, user: current_user }
 
         context 'with valid attributes' do
           it 'updates and redirects to variant' do
-            put :update, id: variant.id, variant: { name: 'new' }
-            variant.reload.name.should == 'new'
+            put :update, id: variant.id, variant: { board_rows: 3 }
+            variant.reload.board_rows.should == 3
             response.should redirect_to variant
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
-            put :update, id: variant.id, variant: { name: '' }
-            variant.reload.name.should == 'old'
+            put :update, id: variant.id, variant: { board_rows: '' }
+            variant.reload.board_rows.should == 2
             response.should render_template 'edit'
           end
         end
@@ -125,8 +121,8 @@ describe VariantsController do
 
       context 'for other variant' do
         it 'redirects to root' do
-          put :update, id: variant.id, variant: { name: 'new' }
-          variant.reload.name.should == 'old'
+          put :update, id: variant.id, variant: { board_rows: 3 }
+          variant.reload.board_rows.should == 2
           response.should redirect_to root_path
         end
       end
@@ -134,8 +130,8 @@ describe VariantsController do
 
     context 'when not signed in' do
       it 'redirects to login' do
-        put :update, id: variant.id, variant: { name: 'new' }
-        variant.reload.name.should == 'old'
+        put :update, id: variant.id, variant: { board_rows: 3 }
+        variant.reload.board_rows.should == 2
         response.should redirect_to new_user_session_path
       end
     end

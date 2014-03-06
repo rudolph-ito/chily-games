@@ -15,7 +15,7 @@
     %ol
       %li It is a two player game. One player is alabaster, the other is onyx.
       %li A game begins with each player setting up their pieces and terrain in secret.
-      %li When each side is done, the entire board is revealed.
+      %li When both sides are done, the entire board is revealed.
       %li A player's turn consists of moving a single piece. Alabaster moves first.
       %li A game ends when one sides's king is captured.
 
@@ -29,6 +29,7 @@
         The different piece types are defined
         = succeed '.' do
           = link_to 'here', :piece_types
+      %Li There must be one and only one king.
       %li
         Pieces capture by movement or range.
         %ul.bullets
@@ -38,7 +39,7 @@
   .rule-set
     .subtitle Terrain
     .description
-      Elements that change the landscape of the board, a mountain for example.
+      Elements that effect piece movement and captures, a mountain for example.
 
     %ol
       %li
