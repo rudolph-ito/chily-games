@@ -38,7 +38,8 @@ form
         margin-right: 10px
 
   fieldset.inputs
-    margin-top: 20px
+    margin-top: 15px
+    padding-top: 5px
     +clearfix
 
     &.actions
@@ -47,6 +48,9 @@ form
       padding: 0
       margin: 0 0 20px $label-width
       font-size: 20px
+
+    li.boolean
+      margin-left: $label-width
 
   label.label, legend.label
     position: relative
@@ -67,7 +71,7 @@ form
       padding-left: 2px
 
   input
-    &[type=text], &[type=number]
+    &[type=text], &[type=number], &[type=email], &[type=password]
       width: 200px
       padding: 2px 3px
       margin: 0
@@ -75,6 +79,9 @@ form
       font-size: 12px
       +border-radius(3px)
       +box-sizing(border-box)
+
+    &[type=checkbox]
+      margin: -2ex 5px 0 0
 
     &.long
       width: 600px

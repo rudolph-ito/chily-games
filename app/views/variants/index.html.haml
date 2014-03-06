@@ -2,7 +2,10 @@
   = render 'shared/navigation', back: {name: 'Invariants', href: :invariants}, forward: {name: 'Play', link_partial: 'shared/play_link'}
 
 %section.variants
-  .title Variants
+  .title
+    Variants
+    - if signed_in? && current_user.can_create?(variant)
+      = link_to 'New', [:new, :variant]
 
   %table
     %thead

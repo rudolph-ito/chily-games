@@ -1,0 +1,9 @@
+.form-title Resend unlock instructions
+
+= semantic_form_for(resource, :as => resource_name, :url => unlock_path(resource_name), :html => { :method => :post }) do |f|
+  = f.inputs do
+    = f.input :email, input_html: { :autofocus => true }
+
+  = f.actions do
+    = f.action :submit, label: 'Resend unlock instructions'
+    = render "devise/shared/links"

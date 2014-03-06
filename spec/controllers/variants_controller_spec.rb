@@ -10,9 +10,27 @@ describe VariantsController do
 
   describe 'new' do
     context 'when signed in', :signed_in do
-      it 'succeeds' do
-        get :new
-        response.status.should == 200
+      context 'as a creator' do
+        context 'with a variant' do
+          it 'succeeds' do
+            get :new
+            response.status.should == 200
+          end
+        end
+
+        context 'without a variant' do
+          it 'redirects to root_path' do
+            get :new
+            response.should redirect_to root_path
+          end
+        end
+      end
+
+      context 'not as a creator' do
+        it 'redirects to root_path' do
+          get :new
+          response.should redirect_to root_path
+        end
       end
     end
 
