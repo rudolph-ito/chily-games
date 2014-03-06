@@ -30,8 +30,7 @@ class Variant < ActiveRecord::Base
   validates :board_rows, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :square_board?
   validates :board_size, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :hexagonal_board?
   validates :board_type, presence: true, inclusion: { in: self.board_types }
-  validates :name, presence: true, uniqueness: true
-  validates :user, presence: true
+  validates :user_id, presence: true, uniqueness: true
 
   ########################################
   # Callbacks
@@ -42,6 +41,10 @@ class Variant < ActiveRecord::Base
   ########################################
   # Instance Methods
   ########################################
+
+  def name
+    "Cyvasse by #{user.username}"
+  end
 
   self.board_types.each do |b|
     define_method(:"#{b}_board?") { self.board_type == b }

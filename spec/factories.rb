@@ -5,6 +5,17 @@ FactoryGirl.define do
     play_as 'alabaster'
   end
 
+  factory :comment do
+    association :commentable, factory: :topic
+    text 'A comment'
+    user
+  end
+
+  factory :discussion do
+    sequence(:title) {|n| "discussion #{n}" }
+    description 'a discussion'
+  end
+
   factory :game do
     action 'setup'
     association :alabaster, factory: :user
@@ -56,11 +67,16 @@ FactoryGirl.define do
     sequence(:name) {|n| "terrain #{n}" }
   end
 
+  factory :topic do
+    discussion
+    sequence(:title) {|n| "topic #{n}" }
+    user
+  end
+
   factory :variant do
     board_columns 8
     board_rows 8
     board_type 'square'
-    sequence(:name) {|n| "variant #{n}" }
     user
 
     factory :variant_with_square_board do

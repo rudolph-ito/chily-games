@@ -35,13 +35,16 @@ Cyvasse::Application.routes.draw do
     end
   end
 
+  resources :discussions do
+    resources :topics, only: [:new, :create]
+  end
+
   resources :piece_rules, only: [:edit, :update, :destroy]
   resources :piece_types
-
   resources :quotes
-
   resources :terrain_rules, only: [:edit, :update, :destroy]
   resources :terrain_types
+  resources :topics, only: [:show, :edit, :update, :destroy]
 
   devise_for :users
   resources :users
@@ -51,12 +54,9 @@ Cyvasse::Application.routes.draw do
     resources :terrain_rules, only: [:new, :create]
   end
 
-  get '/explore' => 'explore#index'
-
-  get '/create' => 'create#index'
-  get '/create/invariants' => 'create#invariants'
-
   get '/play' => 'play#play'
+
+  get '/invariants' => 'home#invariants'
 
   root to: 'home#index'
 end

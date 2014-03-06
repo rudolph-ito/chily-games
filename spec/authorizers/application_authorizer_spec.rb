@@ -11,6 +11,10 @@ describe ApplicationAuthorizer do
     specify { ApplicationAuthorizer.readable_by?(user).should be_true }
   end
 
+  describe "#readable_by" do
+    specify { ApplicationAuthorizer.new(user).readable_by?(user).should be_true }
+  end
+
   describe "#managable_by" do
     specify { ApplicationAuthorizer.new(user).managable_by?(user).should be_false }
   end

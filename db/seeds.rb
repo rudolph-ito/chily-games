@@ -58,11 +58,58 @@ end
 end
 
 ########################################
+# Quotes
+########################################
+
+contents = File.read( Rails.root.join('references.md') )
+contents = contents.split("\n\n---\n\n")
+contents.each do |quote_section|
+  lines = quote_section.split("\n")
+
+  book_match = lines[0].match(/^Book\: (?<number>[0-9]+)\, (?<name>.*)$/)
+  chapter_match = lines[1].match(/^Chapter\: (?<number>[0-9]+)\, (?<name>.*)$/)
+  description_match = lines[2].match(/^Description\: (?<description>.*)$/)
+  number_match = lines[3].match(/^Number\: (?<number>[0-9]+)$/)
+  text = lines[5..-1].join("\n")
+
+  quote_data = {
+    book_number: book_match[:number], book_name: book_match[:name],
+    chapter_number: chapter_match[:number], chapter_name: chapter_match[:name],
+    description: description_match[:description], number: number_match[:number],
+    text: text
+  }
+
+  Quote.find_by(quote_data) || Quote.create(quote_data)
+end
+
+########################################
+# Discussions
+########################################
+
+data = [
+  {title: 'Quotes', description: 'Discuss anything and everything regarding quotes from A Song of Ice and Fire.'},
+  {title: 'Invariants', description: 'Discuss invariants and propose additions and removals.'},
+  {title: 'Variant Options', description: 'Discuss variant options and propose additions and removals.'},
+  {title: 'Piece Rule Options', description: 'Discuss piece rule options and propose additions and removals.'},
+  {title: 'Terrain Rule Options', description: 'Discuss terrain rule options and propose additions and removals.'},
+  {title: 'Play', description: 'Discuss updates to the play interface. Please report bugs or anything that is not what you expected.'},
+  {title: 'Other', description: 'Discuss everything else that does fit into an existing discussion'}
+]
+
+data.each do |datum|
+  Discussion.find_by(datum) || Discussion.create(datum)
+end
+
+
+########################################
 # Variants
 ########################################
 
-unless Variant.find_by(name: 'sv1')
-  variant = Variant.create!(name: 'sv1', user: User.first, board_type: 'square', board_rows: 7, board_columns: 7)
+user1 = User.find_by(username: 'user1')
+user2 = User.find_by(username: 'user2')
+
+unless Variant.find_by(user_id: user1.id)
+  variant = Variant.create!(user_id: user1.id, board_type: 'square', board_rows: 7, board_columns: 7)
 
   variant.piece_rules.create!(
     piece_type: PieceType.find_by(name: 'Dragon'), count: 1,
@@ -98,8 +145,8 @@ unless Variant.find_by(name: 'sv1')
 end
 
 
-unless Variant.find_by(name: 'hv1')
-  variant = Variant.create!(name: 'hv1', user: User.first, board_type: 'hexagonal', board_size: 4)
+unless Variant.find_by(user_id: user2.id)
+  variant = Variant.create!(user_id: user2.id, board_type: 'hexagonal', board_size: 4)
 
   variant.piece_rules.create!(
     piece_type: PieceType.find_by(name: 'Dragon'), count: 1,
@@ -132,30 +179,4 @@ unless Variant.find_by(name: 'hv1')
     block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
     block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id.to_s]
   )
-end
-
-
-########################################
-# Quotes
-########################################
-
-contents = File.read( Rails.root.join('references.md') )
-contents = contents.split("\n\n---\n\n")
-contents.each do |quote_section|
-  lines = quote_section.split("\n")
-
-  book_match = lines[0].match(/^Book\: (?<number>[0-9]+)\, (?<name>.*)$/)
-  chapter_match = lines[1].match(/^Chapter\: (?<number>[0-9]+)\, (?<name>.*)$/)
-  description_match = lines[2].match(/^Description\: (?<description>.*)$/)
-  number_match = lines[3].match(/^Number\: (?<number>[0-9]+)$/)
-  text = lines[5..-1].join("\n")
-
-  quote_data = {
-    book_number: book_match[:number], book_name: book_match[:name],
-    chapter_number: chapter_match[:number], chapter_name: chapter_match[:name],
-    description: description_match[:description], number: number_match[:number],
-    text: text
-  }
-
-  Quote.find_by(quote_data) || Quote.create(quote_data)
 end

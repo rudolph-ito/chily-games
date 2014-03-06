@@ -1,24 +1,25 @@
-%section.create.variants
-  = render 'create/sidebar'
-  = render :layout => "shared/content_with_sidebar" do
-    .title Variants
+= content_for :navigation do
+  = render 'shared/navigation', back: {name: 'Invariants', href: :invariants}, forward: {name: 'Play', link_partial: 'shared/play_link'}
 
-    %table.clickable
-      %thead
+%section.variants
+  .title Variants
+
+  %table
+    %thead
+      %tr
+        %th Creator
+        %th Games Played
+        %th Rating
+        %th
+
+    %tbody
+      - @variants.each do |variant|
         %tr
-          %th Name
-          %th Board Type
-          %th Games Played
-          %th
+          %td= variant.user.username
+          %td= variant.games.count
+          %td
+          %td
+            = link_to 'View', variant
 
-      %tbody
-        - @variants.each do |variant|
-          %tr
-            %td= variant.name
-            %td= variant.board_type
-            %td= variant.games.count
-            %td
-              = link_to 'Show', variant
-
-              - if signed_in? && current_user.can_manage?(variant)
-                = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }
+            - if signed_in? && current_user.can_manage?(variant)
+              = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }

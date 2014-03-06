@@ -1,17 +1,22 @@
-%section.explore.terrain_types
-  = render 'explore/sidebar'
-  = render :layout => "shared/content_with_sidebar" do
-    .title
-      Terrain Types
-      - if signed_in? && current_user.can_create?(TerrainType)
-        = link_to 'New', [:new, :terrain_type]
+%section.terrain_types
+  .title
+    Terrain Types
+    - if signed_in? && current_user.can_create?(TerrainType)
+      = link_to 'New', [:new, :terrain_type]
 
-    %table
+  .description
+    The names and images of all the different types of terrain available.
+    %br
+    Variants are free to include or exclude any terrain type.
+
+  %table
+    %thead
       %tr
         %th Name
         %th Image
         %th
 
+    %tbody
       - @terrain_types.each do |terrain_type|
         %tr
           %td= terrain_type.name

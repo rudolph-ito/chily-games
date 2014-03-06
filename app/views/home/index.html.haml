@@ -1,29 +1,81 @@
 %section.home.index
   %section.top
-    .left
-      = image_tag @dragon_image_src
+    .vertical-center
+      .left
+        = image_tag @king_image_src
 
-    .center
-      .name Cyvasse Explorer
-      .mission
-        An online community forum to create and play variants of Cyvasse.
+      .center
+        .name
+          %em Cyvasse
+          Explorer
+        .mission
+          An online community forum dedicated to creating
+          %em cyvasse,
+          %br
+          a game described in the series A Song of Ice and Fire by George R. R. Martin
 
-    .right
-      = image_tag @dragon_image_src
+      .right
+        = image_tag @dragon_image_src
 
   %section.bottom
     %ul
-      %li
-        .title Explore
-        .subtitle
-          Explore quotes from A Song of Ice and Fire and join the discussion around their meaning.
+      %li.half
+        .title Ultimate Goal
+        .message
+          %ul.bullets
+            %li
+              As a community come to an agreement on rules for
+              = succeed '.' do
+                %em cyvasse
+            %li Get the game manufactered.
 
-      %li
-        .title Create
-        .subtitle
-          Build your own variant by specifing the board, pieces, and how they interact.
+      %li.half
+        .title Plan
+        .message
+          %ul.bullets
+            %li
+              Users create variants of
+              %em cyvasse
+              that are played by the community.
+            %li The community rates and reviews these variants.
+            %li Variants are updated by majority consensus.
+            %li Repeat until we are all playing a game we enjoy.
 
-      %li
-        .title Play
-        .subtitle
-          Play variants created by community, online, in real time.
+      %li.full
+        .title How to get started
+        .message
+          %ul.bullets
+            %li
+              If you've never heard of
+              = succeed ',' do
+                %em cyvasse
+              or just want to refersh your memory, check out the
+              = succeed '.' do
+                = link_to "quotes", :quotes
+
+            %li
+              Learn the
+              = succeed ',' do
+                = link_to "invariants", :invariants
+              the basic rules every variant of
+              %em cyvasse
+              will share.
+
+            %li
+              Explore the
+              = link_to "variants", :variants
+              currently being played. Inspect the rules. Read reviews.
+
+            %li
+              Jump in and
+              = succeed '.' do
+                = render 'shared/play_link', title: 'play'
+              Please rate and review along the way.
+
+            %li
+              If you'd like to create your own variant, start
+              = succeed '.' do
+                = link_to "here", '#'
+
+
+

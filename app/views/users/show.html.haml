@@ -1,4 +1,6 @@
-%h1 Account Details
+.title
+  Account Details
+  = link_to 'Edit', [:edit, @user]
 
 %table
   %tr
@@ -7,7 +9,3 @@
   %tr
     %th Email
     %td= @user.email
-
-Stats
-
-= link_to 'Edit', [:edit, @user]

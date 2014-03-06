@@ -9,4 +9,8 @@ class ApplicationController < ActionController::Base
       format.json { head 401 }
     end
   end
+
+  def after_sign_out_path_for(resource_or_scope)
+    request.referrer
+  end
 end

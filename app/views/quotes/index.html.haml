@@ -1,27 +1,45 @@
-%section.explore.quotes
-  = render 'explore/sidebar'
-  = render :layout => "shared/content_with_sidebar" do
-    .title
-      Quotes
-      - if signed_in? && current_user.can_create?(Quote)
-        = link_to 'New', [:new, :quote]
+= content_for :navigation do
+  = render 'shared/navigation', back: {name: 'Home', href: '/'}
 
-    %table
-      %thead
+%section.quotes
+  .title
+    Quotes
+    - if signed_in? && current_user.can_create?(Quote)
+      = link_to 'New', [:new, :quote]
+
+  .description
+    An exhaustive list of all the quotes about
+    %em cyvasse
+    in A Song of Ice and Fire.
+
+    %br
+
+    Read at your own risk. There may be
+    %strong SPOILERS
+    if you have not read the books.
+
+    %br
+
+    Is a quote missing? Found a typo in a quote? Want to discuss the meaning of the quote? Please post
+    = succeed '.' do
+      = link_to "here", Discussion.find_by(title: 'Quotes')
+
+  %table
+    %thead
+      %tr
+        %th Book
+        %th Chapter
+        %th Description
+        %th
+
+    %tbody
+      - @quotes.each do |quote|
         %tr
-          %th Book
-          %th Chapter
-          %th Description
-          %th
-
-      %tbody
-        - @quotes.each do |quote|
-          %tr
-            %td= quote.book_name
-            %td= quote.chapter_name
-            %td= quote.description
-            %td
-              = link_to 'Show', quote
-              - if signed_in? && current_user.can_manage?(quote)
-                = link_to 'Edit', [:edit, quote]
-                = link_to 'Destroy', quote, method: :delete, data: { confirm: 'Are you sure?' }
+          %td= quote.book_name
+          %td= quote.chapter_name
+          %td= quote.description
+          %td
+            = link_to 'View', quote
+            - if signed_in? && current_user.can_manage?(quote)
+              = link_to 'Edit', [:edit, quote]
+              = link_to 'Destroy', quote, method: :delete, data: { confirm: 'Are you sure?' }

@@ -3,11 +3,9 @@ class HomeController < ApplicationController
 
   def index
     @dragon_image_src = PieceType.find_by(name: 'Dragon').try(:alabaster_image)
+    @king_image_src = PieceType.find_by(name: 'King').try(:onyx_image)
   end
 
-  def explore
-  end
-
-  def create
+  def invariants
   end
 end

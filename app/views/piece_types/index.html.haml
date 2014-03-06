@@ -1,17 +1,25 @@
-%section.explore.terrain_types
-  = render 'explore/sidebar'
-  = render :layout => "shared/content_with_sidebar" do
-    .title
-      Piece Types
-      - if signed_in? && current_user.can_create?(PieceType)
-        = link_to 'New', [:new, :piece_type]
+%section.piece_types
+  .title
+    Piece Types
+    - if signed_in? && current_user.can_create?(PieceType)
+      = link_to 'New', [:new, :piece_type]
 
-    %table
+  .description
+    The names and images of all the different types of pieces available.
+    %br
+    Variants must have a King
+    = surround '(see ', '),' do
+      = link_to 'invariants', :invariants
+    but are otherwise free to include or exclude any other piece type.
+
+  %table
+    %thead
       %tr
         %th Name
         %th Alabaster Image
         %th Onyx Image
 
+    %tbody
       - @piece_types.each do |piece_type|
         %tr
           %td= piece_type.name

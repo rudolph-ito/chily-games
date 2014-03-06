@@ -37,13 +37,14 @@ describe Variant do
       end
     end
 
-    context 'no name' do
-      let(:variant_params) { {name: ''} }
+    context 'no user' do
+      let(:variant_params) { {user: nil} }
       specify { variant.should be_invalid }
     end
 
-    context 'no user' do
-      let(:variant_params) { {user: nil} }
+    context 'duplicate user' do
+      let(:duplicate) { create(:variant) }
+      let(:variant_params) { {user: duplicate.user} }
       specify { variant.should be_invalid }
     end
   end

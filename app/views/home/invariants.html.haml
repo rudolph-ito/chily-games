@@ -1,0 +1,49 @@
+= content_for :navigation do
+  = render 'shared/navigation', back: {name: 'Home', href: '/'}, forward: {name: 'Variants', href: :variants}
+
+%section.invariants
+  .title Invariants
+  .description
+    Rules that do not change from game to game.
+    %br
+    Think an invariant should be added or removed? Please comment
+    = link_to "here", Discussion.find_by(title: 'Invariants')
+
+  .rule-set
+    .subtitle Basics
+
+    %ol
+      %li It is a two player game. One player is alabaster, the other is onyx.
+      %li A game begins with each player setting up their pieces and terrain in secret.
+      %li When each side is done, the entire board is revealed.
+      %li A player's turn consists of moving a single piece. Alabaster moves first.
+      %li A game ends when one sides's king is captured.
+
+  .rule-set
+    .subtitle Pieces
+    .description
+      What you think it means, a king for example.
+
+    %ol
+      %li
+        The different piece types are defined
+        = succeed '.' do
+          = link_to 'here', :piece_types
+      %li
+        Pieces capture by movement or range.
+        %ul.bullets
+          %li Capture by movement by moving onto a space occupied by an enemy piece.
+          %li Capture by range by moving to an unoccupied space and selecting an enemy piece within your piece's range.
+
+  .rule-set
+    .subtitle Terrain
+    .description
+      Elements that change the landscape of the board, a mountain for example.
+
+    %ol
+      %li
+        The different terrain types are defined
+        = succeed '.' do
+          = link_to 'here', :terrain_types
+      %li Terrain cannot move.
+      %li Terrain has the same effect regardless of who placed it.

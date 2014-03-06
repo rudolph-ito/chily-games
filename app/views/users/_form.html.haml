@@ -2,8 +2,8 @@
   = f.inputs do
     = f.input :username
     = f.input :email
-    = f.input :password
-    = f.input :password_confirmation, required: true
+    = f.input :password, required: @user.new_record?
+    = f.input :password_confirmation, required: @user.new_record?
 
   = f.actions do
     = f.action :submit, name: "Save"

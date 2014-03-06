@@ -17,6 +17,10 @@ class ApplicationAuthorizer < Authority::Authorizer
     end
   end
 
+  def readable_by?(user)
+    true
+  end
+
   def managable_by?(user)
     false
   end

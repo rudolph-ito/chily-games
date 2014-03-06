@@ -1,40 +1,42 @@
 = content_for :page_specific_javascript do
   = javascript_include_tag "pages/variants/show"
 
-%section.create.variant
-  = render 'create/sidebar'
-  = render :layout => "shared/content_with_sidebar" do
-    .title Variant: #{@variant.name}
+= content_for :navigation do
+  = render 'shared/navigation', back: {name: 'Variants', href: :variants}
 
-    .sub-section
-      .title
-        Options
-        - if signed_in? && current_user.can_manage?(@variant)
-          = link_to 'Edit', [:edit, @variant]
+%section.variant
+  .title
+    Variant by #{@variant.user.username}
 
-      %table
-        %tr
-          %th Board
-          %td
-            = @variant.board
-            = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
+  .sub-section
+    .title
+      Options
+      - if signed_in? && current_user.can_manage?(@variant)
+        = link_to 'Edit', [:edit, @variant]
 
-    .sub-section
-      .title
-        Piece Rules
-        - if signed_in? && current_user.can_manage?(@variant)
-          = link_to 'New', [:new, @variant, :piece_rule]
+    %table
+      %tr
+        %th Board
+        %td
+          = @variant.board
+          = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
+
+  .sub-section
+    .title
+      Piece Rules
+      - if signed_in? && current_user.can_manage?(@variant)
+        = link_to 'New', [:new, @variant, :piece_rule]
 
 
-      = render partial: 'piece_rules/index', locals: { variant: @variant }
+    = render partial: 'piece_rules/index', locals: { variant: @variant }
 
-    .sub-section
-      .title
-        Terrain Rules
-        - if signed_in? && current_user.can_manage?(@variant)
-          = link_to 'New', [:new, @variant, :terrain_rule]
+  .sub-section
+    .title
+      Terrain Rules
+      - if signed_in? && current_user.can_manage?(@variant)
+        = link_to 'New', [:new, @variant, :terrain_rule]
 
-      = render partial: 'terrain_rules/index', locals: { variant: @variant }
+    = render partial: 'terrain_rules/index', locals: { variant: @variant }
 
 #preview.modal.hide
   .modal-header

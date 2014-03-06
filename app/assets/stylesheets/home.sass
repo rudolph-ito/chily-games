@@ -1,72 +1,69 @@
-@import compass/utilities/general/clearfix
 @import compass/css3
+@import compass/css3/box-sizing
+@import compass/utilities/general/clearfix
 
 section.home
-  height: 100%
+  section.top
+    padding: 100px 0
+    +clearfix
 
-  &.index
-    section.top
-      padding: 10% 0
-      +clearfix
+    .left
+      float: left
+      width: 15%
+      text-align: right
 
-      .left
-        float: left
-        width: 15%
-        text-align: right
-        img
-          +scale(-1,1)
+    .right
+      float: right
+      width: 15%
 
-      .right
-        float: right
-        width: 15%
+    .center
+      float: left
+      width: 70%
+      text-align: center
 
-      .center
-        float: left
-        width: 70%
-        text-align: center
+      .name
+        font-size: 40px
 
-        .name
-          font-size: 40px
+      .mission
+        margin-top: 10px
+        font-size: 20px
 
-        .mission
-          margin-top: 10px
+      .inspiration
+        margin-top: 10px
+
+        .quote
           font-size: 20px
+        .reference
+          font-size: 16px
+          .book
+            text-decoration: underline
 
-        .inspiration
-          margin-top: 10px
+  section.bottom
+    > ul
+      margin: 0
 
-          .quote
-            font-size: 20px
-          .reference
-            font-size: 16px
-            .book
-              text-decoration: underline
+      > li
+        position: relative
+        float: left
+        padding: 20px
+        border-top: 1px solid #ccc
+        +box-sizing(border-box)
 
-    section.bottom
-      ul
-        list-style-type: none
-        margin: 0
-        padding: 0
-        +clearfix
+        &.half
+          width: 50%
 
-        li
-          float: left
-          width: 33.3333333333%
-          height: 150px
-          padding: 20px 28px
-          border-right: 1px solid #ccc
-          +box-sizing(border-box)
-          +transition(all, 0.3s)
+        &.full
+          width: 100%
 
-          &:last-child
-            border-right: none
+        &:nth-child(2)
+          border-left: 1px solid #ccc
 
-          &:hover
-            background-color: #eee
+        &:last-child
+          border-right: none
 
-          .title
-            font-size: 30px
-            margin-bottom: 10px
+        .title
+          font-size: 30px
+          margin-bottom: 10px
 
-          .subtitle
-            font-size: 20px
+        .message
+          font-size: 20px
