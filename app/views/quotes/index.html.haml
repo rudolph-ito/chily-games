@@ -1,7 +1,7 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: 'Home', href: '/'}
 
-%section.quotes
+%section.centered.quotes
   .title
     Quotes
     - if signed_in? && current_user.can_create?(Quote)

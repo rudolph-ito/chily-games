@@ -1,10 +1,6 @@
 section.discussions, section.discussion
-  margin: 0 auto
-  width: 800px
-
   table
-    width: 100%
-    cursor: pointer
+
 
     tr
       &:nth-child(odd)
@@ -12,8 +8,10 @@ section.discussions, section.discussion
       &:nth-child(even)
         background-color: #f9f9f9
 
-      td[onclick]:hover
-        background-color: #ccc
+      td[onclick]
+        cursor: pointer
+        &:hover
+          background-color: #ccc
 
       td
         padding-left: 5px

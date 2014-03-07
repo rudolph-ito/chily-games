@@ -1,10 +1,10 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: 'Invariants', href: :invariants}, forward: {name: 'Play', link_partial: 'shared/play_link'}
 
-%section.variants
+%section.centered.variants
   .title
     Variants
-    - if signed_in? && current_user.can_create?(variant)
+    - if signed_in? && current_user.can_create?(Variant)
       = link_to 'New', [:new, :variant]
 
   %table

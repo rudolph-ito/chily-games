@@ -4,7 +4,7 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: 'Variants', href: :variants}
 
-%section.variant
+%section.centered.variant
   .title= @variant
   - if signed_in? && current_user.can_create?(@variant)
     .description

@@ -1,7 +1,7 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: 'Invariants', href: :invariants}
 
-%section.terrain_types
+%section.centered.terrain_types
   .title
     Terrain Types
     - if signed_in? && current_user.can_create?(TerrainType)

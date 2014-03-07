@@ -1,7 +1,7 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: @topic.parent, href: @topic.parent}
 
-%section.topic
+%section.centered.topic
   .title= @topic.title
   .description= @topic.parent
 

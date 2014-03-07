@@ -6,7 +6,7 @@ ActiveAdmin.setup do |config|
   config.current_user_method = :current_user
   config.filters = false
   config.logout_link_path = :destroy_user_session_path
-  config.root_to = 'variants#index'
+  config.root_to = 'users#index'
   config.site_title = "Cyvasse"
 end
 
