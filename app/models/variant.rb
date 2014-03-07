@@ -50,7 +50,7 @@ class Variant < ActiveRecord::Base
     define_method(:"#{b}_board?") { self.board_type == b }
   end
 
-  def board
+  def board_description
     if square_board?
       "Square Board (#{board_rows}x#{board_columns})"
     elsif hexagonal_board?

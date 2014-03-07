@@ -4,8 +4,4 @@ class CommentAuthorizer < ApplicationAuthorizer
       true
     end
   end
-
-  def managable_by?(user)
-    resource.user_id == user.id
-  end
 end

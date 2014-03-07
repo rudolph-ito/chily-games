@@ -1,4 +1,6 @@
 Cyvasse::Application.routes.draw do
+  ActiveAdmin.routes(self)
+
   namespace :api, defaults: { format: :json } do
     resources :challenges, only: [:index, :create, :destroy] do
       member do
@@ -35,13 +37,13 @@ Cyvasse::Application.routes.draw do
     end
   end
 
-  resources :discussions, except: [:index] do
+  resources :discussions, only: [:show] do
     resources :topics, only: [:new, :create]
   end
 
   resources :piece_rules, only: [:edit, :update, :destroy]
-  resources :piece_types
-  resources :quotes
+  resources :piece_types, only: [:index]
+  resources :quotes, only: [:index, :show]
   resources :terrain_rules, only: [:edit, :update, :destroy]
   resources :terrain_types
 
@@ -50,7 +52,7 @@ Cyvasse::Application.routes.draw do
   end
 
   devise_for :users
-  resources :users
+  resources :users, only: [:show, :edit, :update, :destroy]
 
   resources :variants do
     resources :piece_rules, only: [:new, :create]

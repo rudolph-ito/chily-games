@@ -1,19 +1,7 @@
 class UsersController < ApplicationController
-  before_filter :authenticate_user!, except: [:index, :show]
-  before_filter :build_user, only: [:new, :create]
-  before_filter :get_user, only: [:show, :edit, :update, :destroy]
-  before_filter :authorize, except: [:index, :show]
-
-  def index
-    @users = User.all
-  end
-
-  def new
-  end
-
-  def create
-    save "new"
-  end
+  before_filter :authenticate_user!, except: [:show]
+  before_filter :get_user
+  before_filter :authorize, except: [:show]
 
   def show
   end
@@ -35,10 +23,6 @@ class UsersController < ApplicationController
   end
 
   protected
-
-  def build_user
-    @user = User.new
-  end
 
   def get_user
     @user = User.find(params[:id])

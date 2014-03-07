@@ -14,12 +14,4 @@ class Comment < ActiveRecord::Base
 
   validates :topic, :text, :user, presence: true
 
-  ########################################
-  # Instance Methods
-  ########################################
-
-  def agreement
-    0
-  end
-
 end

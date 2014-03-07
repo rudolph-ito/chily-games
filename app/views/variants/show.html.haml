@@ -18,7 +18,7 @@
       - if signed_in? && current_user.can_manage?(@variant)
         = link_to 'Edit', [:edit, @variant]
 
-    = @variant.board
+    = @variant.board_description
     = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
 
   .sub-section

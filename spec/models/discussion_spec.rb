@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Discussion do
-  context 'validating' do
+  describe 'validating' do
     let(:discussion) { build(:discussion, discussion_params) }
     let(:discussion_params) { {} }
 
@@ -24,5 +24,10 @@ describe Discussion do
       before { create(:discussion, discussion_params) }
       specify { expect(discussion).to be_invalid }
     end
+  end
+
+  describe '#to_s' do
+    let(:discussion) { build(:discussion, title: 'Quotes') }
+    specify { expect(discussion.to_s).to eql 'Discussion: Quotes'}
   end
 end

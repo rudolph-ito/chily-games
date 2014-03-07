@@ -40,6 +40,14 @@ describe TerrainRule do
     end
   end
 
+  describe '#rule_descriptions' do
+    let(:terrain_rule) { TerrainRule.new(block_movement_type: 'none', block_range_type: 'all' ) }
+
+    it 'returns just the rules that are not none' do
+      expect(terrain_rule.rule_descriptions).to eql ['blocks range for all pieces']
+    end
+  end
+
   context 'block_movement_description' do
     let(:terrain_rule) { TerrainRule.new }
 

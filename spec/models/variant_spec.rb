@@ -88,15 +88,15 @@ describe Variant do
     end
   end
 
-  context '#board' do
+  context '#board_description' do
     context 'board_type == sqaure' do
       let(:variant) { build(:variant_with_square_board, board_rows: 2, board_columns: 3) }
-      specify { variant.board.should eql "Square Board (2x3)" }
+      specify { variant.board_description.should eql "Square Board (2x3)" }
     end
 
     context 'board_type == hexagonal' do
       let(:variant) { build(:variant_with_hexagonal_board, board_size: 5) }
-      specify { variant.board.should eql "Hexagonal Board (size 5)" }
+      specify { variant.board_description.should eql "Hexagonal Board (size 5)" }
     end
   end
 

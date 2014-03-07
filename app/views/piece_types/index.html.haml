@@ -2,11 +2,7 @@
   = render 'shared/navigation', back: {name: 'Invariants', href: :invariants}
 
 %section.piece_types
-  .title
-    Piece Types
-    - if signed_in? && current_user.can_create?(PieceType)
-      = link_to 'New', [:new, :piece_type]
-
+  .title Piece Types
   .description
     The names and images of all the different types of pieces available.
 
@@ -23,8 +19,3 @@
           %td= piece_type.name
           %td= image_tag piece_type.alabaster_image
           %td= image_tag piece_type.onyx_image
-
-          - if signed_in? && current_user.can_manage?(piece_type)
-            %td
-              = link_to 'Edit', [:edit, piece_type]
-              = link_to 'Destroy', piece_type, method: :delete, data: { confirm: 'Are you sure?' }

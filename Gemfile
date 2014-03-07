@@ -20,6 +20,7 @@ group :test do
   gem 'simplecov'
 end
 
+gem 'activeadmin', github: 'gregbell/active_admin' # Admin
 gem 'authority' # Authorization
 gem 'carrierwave' # File Upload
 gem 'devise' # User Sessions

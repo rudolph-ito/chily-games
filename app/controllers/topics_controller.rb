@@ -33,8 +33,6 @@ class TopicsController < ApplicationController
   def get_parent
     @parent = if params.has_key?(:discussion_id)
       Discussion.find(params[:discussion_id])
-    else
-      raise 'Parent class not implemented'
     end
   end
 

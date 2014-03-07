@@ -20,7 +20,7 @@ class CommentsController < ApplicationController
   end
 
   def authorize
-    authorize_action_for @topic
+    authorize_action_for @comment
   end
 
   def comment_params
