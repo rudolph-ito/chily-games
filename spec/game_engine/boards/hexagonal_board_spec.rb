@@ -10,15 +10,15 @@ describe HexagonalBoard do
       let(:size) { 3 }
 
       it 'center is valid' do
-        board.coordinate_valid?('x'=>0, 'y'=>0, 'z'=>0).should be_true
+        expect(board.coordinate_valid?('x'=>0, 'y'=>0, 'z'=>0)).to be_true
       end
 
       it 'edge is valid' do
-        board.coordinate_valid?('x'=>1, 'y'=>1, 'z'=>0).should be_true
+        expect(board.coordinate_valid?('x'=>1, 'y'=>1, 'z'=>0)).to be_true
       end
 
       it 'off board is not valid' do
-        board.coordinate_valid?('x'=>2, 'y'=>1, 'z'=>0).should be_false
+        expect(board.coordinate_valid?('x'=>2, 'y'=>1, 'z'=>0)).to be_false
       end
     end
   end
@@ -59,7 +59,7 @@ describe HexagonalBoard do
       let(:size) { 3 }
 
       it 'is 0,0,0' do
-        board.center_coordinate.should == {'x'=>0, 'y'=>0, 'z'=>0}
+        expect(board.center_coordinate).to eql('x'=>0, 'y'=>0, 'z'=>0)
       end
     end
   end
@@ -69,15 +69,15 @@ describe HexagonalBoard do
      let(:size) { 3 }
 
       it 'center line is neutral' do
-        board.territory({'x'=>0, 'y'=>0, 'z'=>0}).should == 'neutral'
+        expect(board.territory({'x'=>0, 'y'=>0, 'z'=>0})).to eql 'neutral'
       end
 
       it 'above center line is alabaster' do
-        board.territory({'x'=>0, 'y'=>1, 'z'=>1}).should == 'alabaster'
+        expect(board.territory({'x'=>0, 'y'=>1, 'z'=>1})).to eql 'alabaster'
       end
 
       it 'below center line is onyx' do
-        board.territory({'x'=>0, 'y'=>-1, 'z'=>-1}).should == 'onyx'
+        expect(board.territory({'x'=>0, 'y'=>-1, 'z'=>-1})).to eql 'onyx'
       end
     end
   end

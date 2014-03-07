@@ -10,14 +10,14 @@ describe 'admin users' do
 
     it 'succeeds' do
       get '/admin/users'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
   describe 'new' do
     it 'succeeds' do
       get '/admin/users/new'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -27,7 +27,7 @@ describe 'admin users' do
     it 'creates and redirects' do
       expect {
         post '/admin/users', user: valid_attributes
-        response.should redirect_to [:admin, User.last]
+        expect(response).to redirect_to [:admin, User.last]
       }.to change(User, :count).by(1)
     end
   end
@@ -37,7 +37,7 @@ describe 'admin users' do
 
     it 'succeeds' do
       get "/admin/users/#{user.id}/edit"
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -46,8 +46,8 @@ describe 'admin users' do
 
     it 'updates and redirects to user' do
       put "/admin/users/#{user.id}", user: { creator: true }
-      user.reload.creator.should == true
-      response.should redirect_to [:admin, user]
+      expect(user.reload.creator).to eql true
+      expect(response).to redirect_to [:admin, user]
     end
   end
 
@@ -57,7 +57,7 @@ describe 'admin users' do
     it 'destroys and redirects to users' do
       expect{
         delete "/admin/users/#{user.id}"
-        response.should redirect_to [:admin, :users]
+        expect(response).to redirect_to [:admin, :users]
       }.to change(User, :count).by(-1)
     end
   end

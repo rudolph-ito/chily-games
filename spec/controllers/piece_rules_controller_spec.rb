@@ -10,14 +10,14 @@ describe PieceRulesController do
 
         it 'succeeds' do
           get :new, variant_id: variant.id
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
 
       context 'for other variant' do
         it 'redirects to root' do
           get :new, variant_id: variant.id
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -25,7 +25,7 @@ describe PieceRulesController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :new, variant_id: variant.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -42,7 +42,7 @@ describe PieceRulesController do
           it 'creates and redirects' do
             expect {
               post :create, variant_id: variant.id, piece_rule: valid_attributes
-              response.should redirect_to variant
+              expect(response).to redirect_to variant
             }.to change(PieceRule, :count).by(1)
           end
         end
@@ -51,7 +51,7 @@ describe PieceRulesController do
           it 'does not create and renders new' do
             expect {
               post :create, variant_id: variant.id, piece_rule: valid_attributes.merge(count: '')
-              response.should render_template 'new'
+              expect(response).to render_template 'new'
             }.to change(PieceRule, :count).by(0)
           end
         end
@@ -61,7 +61,7 @@ describe PieceRulesController do
         it 'redirects to root' do
           expect {
             post :create, variant_id: variant.id, piece_rule: valid_attributes
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           }.to change(PieceRule, :count).by(0)
         end
       end
@@ -71,7 +71,7 @@ describe PieceRulesController do
       it 'redirects to login' do
         expect {
           post :create, variant_id: variant.id, piece_rule: valid_attributes
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(PieceRule, :count).by(0)
       end
     end
@@ -86,14 +86,14 @@ describe PieceRulesController do
 
         it 'succeeds' do
           get :edit, id: piece_rule.id
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
 
       context 'for other variant' do
         it 'redirects to root' do
           get :edit, id: piece_rule.id
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -101,7 +101,7 @@ describe PieceRulesController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :edit, id: piece_rule.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -116,16 +116,16 @@ describe PieceRulesController do
         context 'with valid attributes' do
           it 'updates and redirects to variant' do
             put :update, id: piece_rule.id, piece_rule: { count: 3 }
-            piece_rule.reload.count.should == 3
-            response.should redirect_to variant
+            expect(piece_rule.reload.count).to eql 3
+            expect(response).to redirect_to variant
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
             put :update, id: piece_rule.id, piece_rule: { count: 0 }
-            piece_rule.reload.count.should == 2
-            response.should render_template 'edit'
+            expect(piece_rule.reload.count).to eql 2
+            expect(response).to render_template 'edit'
           end
         end
       end
@@ -133,8 +133,8 @@ describe PieceRulesController do
       context 'for other variant' do
         it 'redirects to root' do
           put :update, id: piece_rule.id, piece_rule: { count: 3 }
-          piece_rule.reload.count.should == 2
-          response.should redirect_to root_path
+          expect(piece_rule.reload.count).to eql 2
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -142,8 +142,8 @@ describe PieceRulesController do
     context 'when not signed in' do
       it 'redirects to login' do
         put :update, id: piece_rule.id, piece_rule: { count: 3 }
-        piece_rule.reload.count.should == 2
-        response.should redirect_to new_user_session_path
+        expect(piece_rule.reload.count).to eql 2
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -162,7 +162,7 @@ describe PieceRulesController do
           it 'does not destroy and redirects to variant' do
             expect{
               delete :destroy, id: piece_rule.id
-              response.should redirect_to variant
+              expect(response).to redirect_to variant
             }.to change(PieceRule, :count).by(0)
           end
         end
@@ -171,7 +171,7 @@ describe PieceRulesController do
           it 'destroys and redirects to variant' do
             expect{
               delete :destroy, id: piece_rule.id
-              response.should redirect_to variant
+              expect(response).to redirect_to variant
             }.to change(PieceRule, :count).by(-1)
           end
         end
@@ -181,7 +181,7 @@ describe PieceRulesController do
         it 'redirects to root_path' do
           expect{
             delete :destroy, id: piece_rule.id
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           }.to change(PieceRule, :count).by(0)
         end
       end
@@ -191,7 +191,7 @@ describe PieceRulesController do
       it 'redirects to login' do
         expect{
           delete :destroy, id: piece_rule.id
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(PieceRule, :count).by(0)
       end
     end

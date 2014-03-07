@@ -6,17 +6,17 @@ describe TerrainType do
     let(:terrain_type_params) { {} }
 
     context 'with the default factory' do
-      specify { terrain_type.should be_valid }
+      specify { expect(terrain_type).to be_valid }
     end
 
     context 'no image' do
       let(:terrain_type_params) { {image: ''} }
-      specify { terrain_type.should be_invalid }
+      specify { expect(terrain_type).to be_invalid }
     end
 
     context 'no name' do
       let(:terrain_type_params) { {name: ''} }
-      specify { terrain_type.should be_invalid }
+      specify { expect(terrain_type).to be_invalid }
     end
   end
 

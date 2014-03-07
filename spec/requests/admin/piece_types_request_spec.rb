@@ -10,14 +10,14 @@ describe 'admin piece types' do
 
     it 'succeeds' do
       get '/admin/piece_types'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
   describe 'new' do
     it 'succeeds' do
       get '/admin/piece_types/new'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -31,7 +31,7 @@ describe 'admin piece types' do
     it 'creates and redirects' do
       expect {
         post '/admin/piece_types', piece_type: valid_attributes
-        response.should redirect_to [:admin, PieceType.last]
+        expect(response).to redirect_to [:admin, PieceType.last]
       }.to change(PieceType, :count).by(1)
     end
   end
@@ -41,7 +41,7 @@ describe 'admin piece types' do
 
     it 'succeeds' do
       get "/admin/piece_types/#{piece_type.id}/edit"
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -50,8 +50,8 @@ describe 'admin piece types' do
 
     it 'updates and redirects to piece_type' do
       put "/admin/piece_types/#{piece_type.id}", piece_type: { name: 'new' }
-      piece_type.reload.name.should == 'new'
-      response.should redirect_to [:admin, piece_type]
+      expect(piece_type.reload.name).to eql 'new'
+      expect(response).to redirect_to [:admin, piece_type]
     end
   end
 
@@ -61,7 +61,7 @@ describe 'admin piece types' do
     it 'destroys and redirects to piece_types' do
       expect{
         delete "/admin/piece_types/#{piece_type.id}"
-        response.should redirect_to [:admin, :piece_types]
+        expect(response).to redirect_to [:admin, :piece_types]
       }.to change(PieceType, :count).by(-1)
     end
   end

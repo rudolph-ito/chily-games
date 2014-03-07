@@ -6,12 +6,12 @@ describe Variant do
     let(:variant_params) { {} }
 
     context 'with the default factory' do
-      specify { variant.should be_valid }
+      specify { expect(variant).to be_valid }
     end
 
     context 'no board_type' do
       let(:variant_params) { {board_type: ''} }
-      specify { variant.should be_invalid }
+      specify { expect(variant).to be_invalid }
     end
 
     context 'square board' do
@@ -19,12 +19,12 @@ describe Variant do
 
       context 'no board_columns' do
         let(:variant_params) { {board_columns: ''} }
-        specify { variant.should be_invalid }
+        specify { expect(variant).to be_invalid }
       end
 
       context 'no board_rows' do
         let(:variant_params) { {board_rows: ''} }
-        specify { variant.should be_invalid }
+        specify { expect(variant).to be_invalid }
       end
     end
 
@@ -33,19 +33,19 @@ describe Variant do
 
       context 'no board_size' do
         let(:variant_params) { {board_size: ''} }
-        specify { variant.should be_invalid }
+        specify { expect(variant).to be_invalid }
       end
     end
 
     context 'no user' do
       let(:variant_params) { {user: nil} }
-      specify { variant.should be_invalid }
+      specify { expect(variant).to be_invalid }
     end
 
     context 'duplicate user' do
       let(:duplicate) { create(:variant) }
       let(:variant_params) { {user: duplicate.user} }
-      specify { variant.should be_invalid }
+      specify { expect(variant).to be_invalid }
     end
   end
 
@@ -58,8 +58,8 @@ describe Variant do
     it 'adds a piece rule for the king' do
       expect {
         variant = create(:variant)
-        variant.piece_rules.count.should == 1
-        variant.piece_rules[0].piece_type.should == @king_piece_type
+        expect(variant.piece_rules.count).to eql 1
+        expect(variant.piece_rules[0].piece_type).to eql @king_piece_type
       }.to change(PieceRule, :count).by(1)
     end
   end
@@ -67,36 +67,36 @@ describe Variant do
   context '#square_board?' do
     context 'board_type == sqaure' do
       let(:variant) { build(:variant_with_square_board) }
-      specify { variant.square_board?.should be_true }
+      specify { expect(variant.square_board?).to be_true }
     end
 
     context 'board_type == hexagonal' do
       let(:variant) { build(:variant_with_hexagonal_board) }
-      specify { variant.square_board?.should be_false }
+      specify { expect(variant.square_board?).to be_false }
     end
   end
 
   context 'hexagonal_board?' do
     context 'board_type == sqaure' do
       let(:variant) { build(:variant_with_square_board) }
-      specify { variant.hexagonal_board?.should be_false }
+      specify { expect(variant.hexagonal_board?).to be_false }
     end
 
     context 'board_type == hexagonal' do
       let(:variant) { build(:variant_with_hexagonal_board) }
-      specify { variant.hexagonal_board?.should be_true }
+      specify { expect(variant.hexagonal_board?).to be_true }
     end
   end
 
   context '#board_description' do
     context 'board_type == sqaure' do
       let(:variant) { build(:variant_with_square_board, board_rows: 2, board_columns: 3) }
-      specify { variant.board_description.should eql "Square Board (2x3)" }
+      specify { expect(variant.board_description).to eql "Square Board (2x3)" }
     end
 
     context 'board_type == hexagonal' do
       let(:variant) { build(:variant_with_hexagonal_board, board_size: 5) }
-      specify { variant.board_description.should eql "Hexagonal Board (size 5)" }
+      specify { expect(variant.board_description).to eql "Hexagonal Board (size 5)" }
     end
   end
 

@@ -12,23 +12,23 @@ describe SquareBoard do
       let(:columns) { 2 }
 
       it 'on board is valid' do
-        board.coordinate_valid?('x'=>0, 'y'=>0).should be_true
+        expect(board.coordinate_valid?('x'=>0, 'y'=>0)).to be_true
       end
 
       it 'off to the left is invalid' do
-        board.coordinate_valid?('x'=>-1, 'y'=>0).should be_false
+        expect(board.coordinate_valid?('x'=>-1, 'y'=>0)).to be_false
       end
 
       it 'off to the bottom is invalid' do
-        board.coordinate_valid?('x'=>0, 'y'=>-1).should be_false
+        expect(board.coordinate_valid?('x'=>0, 'y'=>-1)).to be_false
       end
 
       it 'off to the right is invalid' do
-        board.coordinate_valid?('x'=>2, 'y'=>0).should be_false
+        expect(board.coordinate_valid?('x'=>2, 'y'=>0)).to be_false
       end
 
       it 'off to the top is invalid' do
-        board.coordinate_valid?('x'=>0, 'y'=>2).should be_false
+        expect(board.coordinate_valid?('x'=>0, 'y'=>2)).to be_false
       end
     end
   end
@@ -46,7 +46,7 @@ describe SquareBoard do
       let(:columns) { 2 }
 
       it 'is 1,1' do
-        board.center_coordinate.should == {'x'=>1, 'y'=>1}
+        expect(board.center_coordinate).to eql('x'=>1, 'y'=>1)
       end
     end
 
@@ -55,7 +55,7 @@ describe SquareBoard do
       let(:columns) { 2 }
 
       it 'is 1,1' do
-        board.center_coordinate.should == {'x'=>1, 'y'=>1}
+        expect(board.center_coordinate).to eql('x'=>1, 'y'=>1)
       end
     end
 
@@ -64,7 +64,7 @@ describe SquareBoard do
       let(:columns) { 3 }
 
       specify do
-        board.center_coordinate.should == {'x'=>1, 'y'=>1}
+        expect(board.center_coordinate).to eql('x'=>1, 'y'=>1)
       end
     end
 
@@ -73,7 +73,7 @@ describe SquareBoard do
       let(:columns) { 3 }
 
       it 'is 1,1' do
-        board.center_coordinate.should == {'x'=>1, 'y'=>1}
+        expect(board.center_coordinate).to eql('x'=>1, 'y'=>1)
       end
     end
 
@@ -83,7 +83,7 @@ describe SquareBoard do
       let(:columns) { 4 }
 
       it 'is 2,2' do
-        board.center_coordinate.should == {'x'=>2, 'y'=>2}
+        expect(board.center_coordinate).to eql('x'=>2, 'y'=>2)
       end
     end
   end
@@ -94,11 +94,11 @@ describe SquareBoard do
       let(:columns) { 2 }
 
       it 'top half is alabaster' do
-        board.territory('x'=>0, 'y'=>0).should == 'alabaster'
+        expect(board.territory('x'=>0, 'y'=>0)).to eql 'alabaster'
       end
 
       it 'bottom half is onyx' do
-        board.territory('x'=>0, 'y'=>1).should == 'onyx'
+        expect(board.territory('x'=>0, 'y'=>1)).to eql 'onyx'
       end
     end
 
@@ -107,15 +107,15 @@ describe SquareBoard do
       let(:columns) { 2 }
 
       it 'center line is neutral' do
-        board.territory('x'=>0, 'y'=>1).should == 'neutral'
+        expect(board.territory('x'=>0, 'y'=>1)).to eql 'neutral'
       end
 
       it 'above center line is alabaster' do
-        board.territory('x'=>0, 'y'=>0).should == 'alabaster'
+        expect(board.territory('x'=>0, 'y'=>0)).to eql 'alabaster'
       end
 
       it 'beloew center line half is onyx' do
-        board.territory('x'=>0, 'y'=>2).should == 'onyx'
+        expect(board.territory('x'=>0, 'y'=>2)).to eql 'onyx'
       end
     end
   end

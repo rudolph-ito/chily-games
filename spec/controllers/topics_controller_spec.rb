@@ -7,14 +7,14 @@ describe TopicsController do
     context 'when signed in', :signed_in do
       it 'succeeds' do
         get :new, discussion_id: discussion.id
-        response.status.should == 200
+        expect(response.status).to eql 200
       end
     end
 
     context 'when not signed in' do
       it 'redirects to login' do
         get :new, discussion_id: discussion.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -29,7 +29,7 @@ describe TopicsController do
         it 'creates and redirects' do
           expect {
             post :create, discussion_id: discussion.id, topic: valid_attributes
-            response.should redirect_to Topic.last
+            expect(response).to redirect_to Topic.last
           }.to change(Topic, :count).by(1)
         end
       end
@@ -38,7 +38,7 @@ describe TopicsController do
         it 'does not create and renders new' do
           expect {
             post :create, discussion_id: discussion.id, topic: valid_attributes.merge(title: '')
-            response.should render_template 'new'
+            expect(response).to render_template 'new'
           }.to change(Topic, :count).by(0)
         end
       end
@@ -48,7 +48,7 @@ describe TopicsController do
       it 'redirects to login' do
         expect {
           post :create, discussion_id: discussion.id, topic: valid_attributes
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(Topic, :count).by(0)
       end
     end
@@ -59,7 +59,7 @@ describe TopicsController do
 
     it 'succeeds' do
       get :show, id: topic.id
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -72,14 +72,14 @@ describe TopicsController do
 
         it 'succeeds' do
           get :edit, id: topic.id
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
 
       context 'for other topic' do
         it 'redirects to root' do
           get :edit, id: topic.id
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -87,7 +87,7 @@ describe TopicsController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :edit, id: topic.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -102,16 +102,16 @@ describe TopicsController do
         context 'with valid attributes' do
           it 'updates and redirects to topic' do
             put :update, id: topic.id, topic: { title: 'new' }
-            topic.reload.title.should == 'new'
-            response.should redirect_to topic
+            expect(topic.reload.title).to eql 'new'
+            expect(response).to redirect_to topic
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
             put :update, id: topic.id, topic: { title: '' }
-            topic.reload.title.should == 'old'
-            response.should render_template 'edit'
+            expect(topic.reload.title).to eql 'old'
+            expect(response).to render_template 'edit'
           end
         end
       end
@@ -119,8 +119,8 @@ describe TopicsController do
       context 'for other topic' do
         it 'redirects to root' do
           put :update, id: topic.id, topic: { title: 'new' }
-          topic.reload.title.should == 'old'
-          response.should redirect_to root_path
+          expect(topic.reload.title).to eql 'old'
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -128,8 +128,8 @@ describe TopicsController do
     context 'when not signed in' do
       it 'redirects to login' do
         put :update, id: topic.id, topic: { title: 'new' }
-        topic.reload.title.should == 'old'
-        response.should redirect_to new_user_session_path
+        expect(topic.reload.title).to eql 'old'
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -144,7 +144,7 @@ describe TopicsController do
         it 'destroys and redirects to topics' do
           expect{
             delete :destroy, id: topic.id
-            response.should redirect_to topic.parent
+            expect(response).to redirect_to topic.parent
           }.to change(Topic, :count).by(-1)
         end
       end
@@ -153,7 +153,7 @@ describe TopicsController do
         it 'redirects to root_path' do
           expect{
             delete :destroy, id: topic.id
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           }.to_not change(Topic, :count)
         end
       end
@@ -163,7 +163,7 @@ describe TopicsController do
       it 'redirects to login' do
         expect{
           delete :destroy, id: topic.id
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to_not change(Topic, :count)
       end
     end

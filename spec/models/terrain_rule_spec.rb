@@ -6,37 +6,37 @@ describe TerrainRule do
     let(:terrain_rule_params) { {} }
 
     context 'with the default factory' do
-      specify { terrain_rule.should be_valid }
+      specify { expect(terrain_rule).to be_valid }
     end
 
     context 'no terrain_type' do
       let(:terrain_rule_params) { {terrain_type: nil} }
-      specify { terrain_rule.should be_invalid }
+      specify { expect(terrain_rule).to be_invalid }
     end
 
     context 'no variant' do
       let(:terrain_rule_params) { {variant: nil} }
-      specify { terrain_rule.should be_invalid }
+      specify { expect(terrain_rule).to be_invalid }
     end
 
     context 'no count' do
       let(:terrain_rule_params) { {count: nil} }
-      specify { terrain_rule.should be_invalid }
+      specify { expect(terrain_rule).to be_invalid }
     end
 
     context 'count is <= 0' do
       let(:terrain_rule_params) { {count: 0} }
-      specify { terrain_rule.should be_invalid }
+      specify { expect(terrain_rule).to be_invalid }
     end
 
     context 'no block_movement_type' do
       let(:terrain_rule_params) { {block_movement_type: nil} }
-      specify { terrain_rule.should be_invalid }
+      specify { expect(terrain_rule).to be_invalid }
     end
 
     context 'no block_range_type' do
       let(:terrain_rule_params) { {block_range_type: nil} }
-      specify { terrain_rule.should be_invalid }
+      specify { expect(terrain_rule).to be_invalid }
     end
   end
 

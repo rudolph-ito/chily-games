@@ -6,12 +6,12 @@ describe Challenge do
     let(:challenge_params) { {} }
 
     context 'with the default factory' do
-      specify { challenge.should be_valid }
+      specify { expect(challenge).to be_valid }
     end
 
     context 'no challenger' do
       let(:challenge_params) { {challenger: nil} }
-      specify { challenge.should be_invalid }
+      specify { expect(challenge).to be_invalid }
     end
   end
 

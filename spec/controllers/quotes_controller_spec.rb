@@ -4,7 +4,7 @@ describe QuotesController do
   describe 'index' do
     it 'succeeds' do
       get :index
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -13,7 +13,7 @@ describe QuotesController do
 
     it 'succeeds' do
       get :show, id: quote.id
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 end

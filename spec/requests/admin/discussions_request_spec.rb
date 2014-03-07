@@ -10,14 +10,14 @@ describe 'admin discussions' do
 
     it 'succeeds' do
       get '/admin/discussions'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
   describe 'new' do
     it 'succeeds' do
       get '/admin/discussions/new'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -27,7 +27,7 @@ describe 'admin discussions' do
     it 'creates and redirects' do
       expect {
         post '/admin/discussions', discussion: valid_attributes
-        response.should redirect_to [:admin, Discussion.last]
+        expect(response).to redirect_to [:admin, Discussion.last]
       }.to change(Discussion, :count).by(1)
     end
   end
@@ -37,7 +37,7 @@ describe 'admin discussions' do
 
     it 'succeeds' do
       get "/admin/discussions/#{discussion.id}/edit"
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -46,8 +46,8 @@ describe 'admin discussions' do
 
     it 'updates and redirects to discussion' do
       put "/admin/discussions/#{discussion.id}", discussion: { title: 'new' }
-      discussion.reload.title.should == 'new'
-      response.should redirect_to [:admin, discussion]
+      expect(discussion.reload.title).to eql 'new'
+      expect(response).to redirect_to [:admin, discussion]
     end
   end
 
@@ -57,7 +57,7 @@ describe 'admin discussions' do
     it 'destroys and redirects to discussions' do
       expect{
         delete "/admin/discussions/#{discussion.id}"
-        response.should redirect_to [:admin, :discussions]
+        expect(response).to redirect_to [:admin, :discussions]
       }.to change(Discussion, :count).by(-1)
     end
   end

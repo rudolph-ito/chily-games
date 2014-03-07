@@ -10,14 +10,14 @@ describe TerrainRulesController do
 
         it 'succeeds' do
           get :new, variant_id: variant.id
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
 
       context 'for other variant' do
         it 'redirects to root' do
           get :new, variant_id: variant.id
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -25,7 +25,7 @@ describe TerrainRulesController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :new, variant_id: variant.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -42,7 +42,7 @@ describe TerrainRulesController do
           it 'creates and redirects' do
             expect {
               post :create, variant_id: variant.id, terrain_rule: valid_attributes
-              response.should redirect_to variant
+              expect(response).to redirect_to variant
             }.to change(TerrainRule, :count).by(1)
           end
         end
@@ -51,7 +51,7 @@ describe TerrainRulesController do
           it 'does not create and renders new' do
             expect {
               post :create, variant_id: variant.id, terrain_rule: valid_attributes.merge(block_movement_type: nil)
-              response.should render_template 'new'
+              expect(response).to render_template 'new'
             }.to change(TerrainRule, :count).by(0)
           end
         end
@@ -61,7 +61,7 @@ describe TerrainRulesController do
         it 'redirects to root' do
           expect {
             post :create, variant_id: variant.id, terrain_rule: valid_attributes
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           }.to change(TerrainRule, :count).by(0)
         end
       end
@@ -71,7 +71,7 @@ describe TerrainRulesController do
       it 'redirects to login' do
         expect {
           post :create, variant_id: variant.id, terrain_rule: valid_attributes
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(TerrainRule, :count).by(0)
       end
     end
@@ -86,14 +86,14 @@ describe TerrainRulesController do
 
         it 'succeeds' do
           get :edit, id: terrain_rule.id
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
 
       context 'for other variant' do
         it 'redirects to root' do
           get :edit, id: terrain_rule.id
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -101,7 +101,7 @@ describe TerrainRulesController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :edit, id: terrain_rule.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -116,16 +116,16 @@ describe TerrainRulesController do
         context 'with valid attributes' do
           it 'updates and redirects to variant' do
             put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: 'all' }
-            terrain_rule.reload.block_movement_type.should == 'all'
-            response.should redirect_to variant
+            expect(terrain_rule.reload.block_movement_type).to eql 'all'
+            expect(response).to redirect_to variant
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
             put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: nil }
-            terrain_rule.reload.block_movement_type.should == 'none'
-            response.should render_template 'edit'
+            expect(terrain_rule.reload.block_movement_type).to eql 'none'
+            expect(response).to render_template 'edit'
           end
         end
       end
@@ -133,8 +133,8 @@ describe TerrainRulesController do
       context 'for other variant' do
         it 'redirects to root' do
           put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: 'all' }
-          terrain_rule.reload.block_movement_type.should == 'none'
-          response.should redirect_to root_path
+          expect(terrain_rule.reload.block_movement_type).to eql 'none'
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -142,8 +142,8 @@ describe TerrainRulesController do
     context 'when not signed in' do
       it 'redirects to login' do
         put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: 'all' }
-        terrain_rule.reload.block_movement_type.should == 'none'
-        response.should redirect_to new_user_session_path
+        expect(terrain_rule.reload.block_movement_type).to eql 'none'
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -158,7 +158,7 @@ describe TerrainRulesController do
         it 'destroys and redirects to variant' do
           expect{
             delete :destroy, variant_id: variant.id, id: terrain_rule.id
-            response.should redirect_to variant
+            expect(response).to redirect_to variant
           }.to change(TerrainRule, :count).by(-1)
         end
       end
@@ -167,7 +167,7 @@ describe TerrainRulesController do
         it 'redirects to root_path' do
           expect{
             delete :destroy, variant_id: variant.id, id: terrain_rule.id
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           }.to change(TerrainRule, :count).by(0)
         end
       end
@@ -177,7 +177,7 @@ describe TerrainRulesController do
       it 'redirects to login' do
         expect{
           delete :destroy, variant_id: variant.id, id: terrain_rule.id
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(TerrainRule, :count).by(0)
       end
     end

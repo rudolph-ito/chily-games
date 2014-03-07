@@ -7,31 +7,31 @@ describe 'Login' do
 
   it 'with username' do
     post path, user: { login: user.username, password: password }
-    response.should redirect_to root_path
-    flash[:notice].should == "Signed in successfully."
+    expect(response).to redirect_to root_path
+    expect(flash[:notice]).to eql "Signed in successfully."
   end
 
   it 'with email' do
     post path, user: { login: user.email, password: password }
-    response.should redirect_to root_path
-    flash[:notice].should == "Signed in successfully."
+    expect(response).to redirect_to root_path
+    expect(flash[:notice]).to eql "Signed in successfully."
   end
 
   it 'invalid password' do
     post path, user:  { login: user.email, password: 'invalid' }
-    response.status.should == 200
-    flash[:alert].should == "Invalid username/email or password."
+    expect(response.status).to eql 200
+    expect(flash[:alert]).to eql "Invalid username/email or password."
   end
 
   it 'invalid username' do
     post path, user: { login: 'invalid', password: 'invalid' }
-    response.status.should == 200
-    flash[:alert].should == "Invalid username/email or password."
+    expect(response.status).to eql 200
+    expect(flash[:alert]).to eql "Invalid username/email or password."
   end
 
   it 'nothing passed in' do
     post path, user: { }
-    response.status.should == 200
-    flash[:alert].should == "Invalid username/email or password."
+    expect(response.status).to eql 200
+    expect(flash[:alert]).to eql "Invalid username/email or password."
   end
 end

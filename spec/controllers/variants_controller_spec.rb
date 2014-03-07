@@ -4,7 +4,7 @@ describe VariantsController do
   describe 'index' do
     it 'succeeds' do
       get :index
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -16,7 +16,7 @@ describe VariantsController do
         context 'without a variant' do
           it 'succeeds' do
             get :new
-            response.status.should == 200
+            expect(response.status).to eql 200
           end
         end
 
@@ -25,7 +25,7 @@ describe VariantsController do
 
           it 'redirects to root_path' do
             get :new
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           end
         end
       end
@@ -33,7 +33,7 @@ describe VariantsController do
       context 'not as a creator' do
         it 'redirects to root_path' do
           get :new
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -41,7 +41,7 @@ describe VariantsController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :new
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -57,7 +57,7 @@ describe VariantsController do
             it 'creates and redirects' do
               expect {
                 post :create, variant: valid_attributes
-                response.should redirect_to Variant.last
+                expect(response).to redirect_to Variant.last
               }.to change(Variant, :count).by(1)
             end
           end
@@ -66,7 +66,7 @@ describe VariantsController do
             it 'does not create and renders new' do
               expect {
                 post :create, variant: valid_attributes.merge(board_type: '')
-                response.should render_template 'new'
+                expect(response).to render_template 'new'
               }.to change(Variant, :count).by(0)
             end
           end
@@ -77,7 +77,7 @@ describe VariantsController do
 
           it 'redirects to root_path' do
             get :new
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           end
         end
       end
@@ -85,7 +85,7 @@ describe VariantsController do
       context 'not as a creator' do
         it 'redirects to root_path' do
           get :new
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -94,7 +94,7 @@ describe VariantsController do
       it 'redirects to login' do
         expect {
           post :create, variant: valid_attributes
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(Variant, :count).by(0)
       end
     end
@@ -105,7 +105,7 @@ describe VariantsController do
 
     it 'succeeds' do
       get :show, id: variant.id
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -118,14 +118,14 @@ describe VariantsController do
 
         it 'succeeds' do
           get :edit, id: variant.id
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
 
       context 'for other variant' do
         it 'redirects to root' do
           get :edit, id: variant.id
-          response.should redirect_to root_path
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -133,7 +133,7 @@ describe VariantsController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :edit, id: variant.id
-        response.should redirect_to new_user_session_path
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -148,16 +148,16 @@ describe VariantsController do
         context 'with valid attributes' do
           it 'updates and redirects to variant' do
             put :update, id: variant.id, variant: { board_rows: 3 }
-            variant.reload.board_rows.should == 3
-            response.should redirect_to variant
+            expect(variant.reload.board_rows).to eql 3
+            expect(response).to redirect_to variant
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
             put :update, id: variant.id, variant: { board_rows: '' }
-            variant.reload.board_rows.should == 2
-            response.should render_template 'edit'
+            expect(variant.reload.board_rows).to eql 2
+            expect(response).to render_template 'edit'
           end
         end
       end
@@ -165,8 +165,8 @@ describe VariantsController do
       context 'for other variant' do
         it 'redirects to root' do
           put :update, id: variant.id, variant: { board_rows: 3 }
-          variant.reload.board_rows.should == 2
-          response.should redirect_to root_path
+          expect(variant.reload.board_rows).to eql 2
+          expect(response).to redirect_to root_path
         end
       end
     end
@@ -174,8 +174,8 @@ describe VariantsController do
     context 'when not signed in' do
       it 'redirects to login' do
         put :update, id: variant.id, variant: { board_rows: 3 }
-        variant.reload.board_rows.should == 2
-        response.should redirect_to new_user_session_path
+        expect(variant.reload.board_rows).to eql 2
+        expect(response).to redirect_to new_user_session_path
       end
     end
   end
@@ -190,7 +190,7 @@ describe VariantsController do
         it 'destroys and redirects to variants' do
           expect{
             delete :destroy, id: variant.id
-            response.should redirect_to variants_path
+            expect(response).to redirect_to variants_path
           }.to change(Variant, :count).by(-1)
         end
       end
@@ -199,7 +199,7 @@ describe VariantsController do
         it 'redirects to root_path' do
           expect{
             delete :destroy, id: variant.id
-            response.should redirect_to root_path
+            expect(response).to redirect_to root_path
           }.to_not change(Variant, :count)
         end
       end
@@ -209,7 +209,7 @@ describe VariantsController do
       it 'redirects to login' do
         expect{
           delete :destroy, id: variant.id
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to_not change(Variant, :count)
       end
     end

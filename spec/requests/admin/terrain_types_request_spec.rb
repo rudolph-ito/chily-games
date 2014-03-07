@@ -10,14 +10,14 @@ describe 'admin terrain types' do
 
     it 'succeeds' do
       get '/admin/terrain_types'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
   describe 'new' do
     it 'succeeds' do
       get '/admin/terrain_types/new'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -30,7 +30,7 @@ describe 'admin terrain types' do
     it 'creates and redirects' do
       expect {
         post '/admin/terrain_types', terrain_type: valid_attributes
-        response.should redirect_to [:admin, TerrainType.last]
+        expect(response).to redirect_to [:admin, TerrainType.last]
       }.to change(TerrainType, :count).by(1)
     end
   end
@@ -40,7 +40,7 @@ describe 'admin terrain types' do
 
     it 'succeeds' do
       get "/admin/terrain_types/#{terrain_type.id}/edit"
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -49,8 +49,8 @@ describe 'admin terrain types' do
 
     it 'updates and redirects to terrain_type' do
       put "/admin/terrain_types/#{terrain_type.id}", terrain_type: { name: 'new' }
-      terrain_type.reload.name.should == 'new'
-      response.should redirect_to [:admin, terrain_type]
+      expect(terrain_type.reload.name).to eql 'new'
+      expect(response).to redirect_to [:admin, terrain_type]
     end
   end
 
@@ -60,7 +60,7 @@ describe 'admin terrain types' do
     it 'destroys and redirects to terrain_types' do
       expect{
         delete "/admin/terrain_types/#{terrain_type.id}"
-        response.should redirect_to [:admin, :terrain_types]
+        expect(response).to redirect_to [:admin, :terrain_types]
       }.to change(TerrainType, :count).by(-1)
     end
   end

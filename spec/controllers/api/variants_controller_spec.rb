@@ -9,8 +9,8 @@ describe Api::VariantsController do
 
       it 'returns the needed info to display the board' do
         get :preview, id: variant.id, format: :json
-        response.should be_success
-        response.body.should be_json(
+        expect(response).to be_success
+        expect(response.body).to be_json(
           color: 'onyx',
           options: {
             board_type: variant.board_type,
@@ -26,8 +26,8 @@ describe Api::VariantsController do
 
       it 'returns the needed info to display the board' do
         get :preview, id: variant.id, format: :json
-        response.should be_success
-        response.body.should be_json(
+        expect(response).to be_success
+        expect(response.body).to be_json(
           color: 'onyx',
           options: {
             board_type: variant.board_type,
@@ -44,8 +44,8 @@ describe Api::VariantsController do
 
       it 'returns the board info and the valid plies for the piece' do
         get :preview, id: variant.id, piece_type_id: piece_type.id, type: 'movement', format: :json
-        response.should be_success
-        response.body.should be_json(
+        expect(response).to be_success
+        expect(response.body).to be_json(
           color: 'onyx',
           options: {
             board_type: variant.board_type,

@@ -4,7 +4,7 @@ describe TerrainTypesController do
   describe 'index' do
     it 'succeeds' do
       get :index
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 end

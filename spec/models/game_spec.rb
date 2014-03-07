@@ -8,33 +8,33 @@ describe Game do
     context 'action' do
       context 'equal to setup' do
         let(:game_params) { {action: 'setup'} }
-        specify { game.should be_valid }
+        specify { expect(game).to be_valid }
       end
 
       context 'equal to move' do
         let(:game_params) { {action: 'move'} }
-        specify { game.should be_valid }
+        specify { expect(game).to be_valid }
       end
 
       context 'equal to anything else' do
         let(:game_params) { {action: nil} }
-        specify { game.should be_invalid }
+        specify { expect(game).to be_invalid }
       end
     end
 
     context 'no alabaster' do
       let(:game_params) { {alabaster: nil} }
-      specify { game.should be_invalid }
+      specify { expect(game).to be_invalid }
     end
 
     context 'no onyx' do
       let(:game_params) { {onyx: nil} }
-      specify { game.should be_invalid }
+      specify { expect(game).to be_invalid }
     end
 
     context 'no variant' do
       let(:game_params) { {variant: nil} }
-      specify { game.should be_invalid }
+      specify { expect(game).to be_invalid }
     end
   end
 

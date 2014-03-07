@@ -10,14 +10,14 @@ describe 'admin quotes' do
 
     it 'succeeds' do
       get '/admin/quotes'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
   describe 'new' do
     it 'succeeds' do
       get '/admin/quotes/new'
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -31,7 +31,7 @@ describe 'admin quotes' do
     it 'creates and redirects' do
       expect {
         post '/admin/quotes', quote: valid_attributes
-        response.should redirect_to [:admin, Quote.last]
+        expect(response).to redirect_to [:admin, Quote.last]
       }.to change(Quote, :count).by(1)
     end
   end
@@ -41,7 +41,7 @@ describe 'admin quotes' do
 
     it 'succeeds' do
       get "/admin/quotes/#{quote.id}/edit"
-      response.status.should == 200
+      expect(response.status).to eql 200
     end
   end
 
@@ -50,8 +50,8 @@ describe 'admin quotes' do
 
     it 'updates and redirects to quote' do
       put "/admin/quotes/#{quote.id}", quote: { description: 'new' }
-      quote.reload.description.should == 'new'
-      response.should redirect_to [:admin, quote]
+      expect(quote.reload.description).to eql 'new'
+      expect(response).to redirect_to [:admin, quote]
     end
   end
 
@@ -61,7 +61,7 @@ describe 'admin quotes' do
     it 'destroys and redirects to quotes' do
       expect{
         delete "/admin/quotes/#{quote.id}"
-        response.should redirect_to [:admin, :quotes]
+        expect(response).to redirect_to [:admin, :quotes]
       }.to change(Quote, :count).by(-1)
     end
   end

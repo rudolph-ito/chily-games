@@ -6,47 +6,47 @@ describe PieceRule do
     let(:piece_rule_params) { {} }
 
     context 'with the default factory' do
-      specify { piece_rule.should be_valid }
+      specify { expect(piece_rule).to be_valid }
     end
 
     context 'no count' do
       let(:piece_rule_params) { {count: nil} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'count < 1' do
       let(:piece_rule_params) { {count: 0} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'no movement_type' do
       let(:piece_rule_params) { {movement_type: nil} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'no movement_minimum' do
       let(:piece_rule_params) { {movement_minimum: nil} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'movement_maximum < 1' do
       let(:piece_rule_params) { {movement_minimum: 0} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'no movement_maximum' do
       let(:piece_rule_params) { {movement_maximum: nil} }
-      specify { piece_rule.should be_valid }
+      specify { expect(piece_rule).to be_valid }
     end
 
     context 'movement_maximum < movement_minimum' do
       let(:piece_rule_params) { {movement_minimum: 2, movement_maximum: 1} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'no piece_type' do
       let(:piece_rule_params) { {piece_type: nil} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'piece_type == king' do
@@ -54,18 +54,18 @@ describe PieceRule do
 
       context 'count != 1' do
         let(:piece_rule_params) { {count: 2} }
-        specify { piece_rule.should be_invalid }
+        specify { expect(piece_rule).to be_invalid }
       end
     end
 
     context 'no capture_type' do
       let(:piece_rule_params) { {capture_type: nil} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
 
     context 'capture_type == movement' do
       let(:piece_rule_params) { {capture_type: 'movement'} }
-      specify { piece_rule.should be_valid }
+      specify { expect(piece_rule).to be_valid }
     end
 
     context 'capture_type == range' do
@@ -73,33 +73,33 @@ describe PieceRule do
 
       context 'no range_type' do
         let(:piece_rule_params) { {range_type: nil} }
-        specify { piece_rule.should be_invalid }
+        specify { expect(piece_rule).to be_invalid }
       end
 
       context 'no range_minimum' do
         let(:piece_rule_params) { {range_minimum: nil} }
-        specify { piece_rule.should be_invalid }
+        specify { expect(piece_rule).to be_invalid }
       end
 
       context 'range_maximum < 1' do
         let(:piece_rule_params) { {range_minimum: 0} }
-        specify { piece_rule.should be_invalid }
+        specify { expect(piece_rule).to be_invalid }
       end
 
       context 'no range_maximum' do
         let(:piece_rule_params) { {range_maximum: nil} }
-        specify { piece_rule.should be_valid }
+        specify { expect(piece_rule).to be_valid }
       end
 
       context 'range_maximum < range_minimum' do
         let(:piece_rule_params) { {range_minimum: 2, range_maximum: 1} }
-        specify { piece_rule.should be_invalid }
+        specify { expect(piece_rule).to be_invalid }
       end
     end
 
     context 'no variant' do
       let(:piece_rule_params) { {variant: nil} }
-      specify { piece_rule.should be_invalid }
+      specify { expect(piece_rule).to be_invalid }
     end
   end
 
@@ -108,17 +108,17 @@ describe PieceRule do
 
     context 'no movement_maximum' do
       let(:piece_rule_params) { { movement_minimum: 1, movement_maximum: nil } }
-      specify { piece_rule.movement_description.should == "movement: orthogonal line - 1 or more space(s)" }
+      specify { expect(piece_rule.movement_description).to eql "movement: orthogonal line - 1 or more space(s)" }
     end
 
     context 'movement_minimum == movement_maximum' do
       let(:piece_rule_params) { { movement_minimum: 2, movement_maximum: 2 } }
-      specify { piece_rule.movement_description.should == "movement: orthogonal line - 2 space(s)" }
+      specify { expect(piece_rule.movement_description).to eql "movement: orthogonal line - 2 space(s)" }
     end
 
     context 'movement_minimum < movement_maximum' do
       let(:piece_rule_params) { { movement_minimum: 1, movement_maximum: 2 } }
-      specify { piece_rule.movement_description.should == "movement: orthogonal line - 1 to 2 space(s)" }
+      specify { expect(piece_rule.movement_description).to eql "movement: orthogonal line - 1 to 2 space(s)" }
     end
   end
 
@@ -127,7 +127,7 @@ describe PieceRule do
 
     context 'capture_type == movement' do
       let(:piece_rule_params) { {capture_type: 'movement'} }
-      specify { piece_rule.capture_description.should == "capture by movement" }
+      specify { expect(piece_rule.capture_description).to eql "capture by movement" }
     end
 
     context 'capture_type == range' do
@@ -135,17 +135,17 @@ describe PieceRule do
 
       context 'no range_maximum' do
         let(:piece_rule_params) { { range_minimum: 1, range_maximum: nil } }
-        specify { piece_rule.capture_description.should == "capture by range: orthogonal line - 1 or more space(s)" }
+        specify { expect(piece_rule.capture_description).to eql "capture by range: orthogonal line - 1 or more space(s)" }
       end
 
       context 'range_minimum == range_maximum' do
         let(:piece_rule_params) { { range_minimum: 2, range_maximum: 2 } }
-        specify { piece_rule.capture_description.should == "capture by range: orthogonal line - 2 space(s)" }
+        specify { expect(piece_rule.capture_description).to eql "capture by range: orthogonal line - 2 space(s)" }
       end
 
       context 'range_minimum < range_maximum' do
         let(:piece_rule_params) { { range_minimum: 1, range_maximum: 2 } }
-        specify { piece_rule.capture_description.should == "capture by range: orthogonal line - 1 to 2 space(s)" }
+        specify { expect(piece_rule.capture_description).to eql "capture by range: orthogonal line - 1 to 2 space(s)" }
       end
     end
   end

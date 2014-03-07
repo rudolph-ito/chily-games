@@ -7,13 +7,13 @@ describe Api::ChallengesController do
     context 'when signed in', :signed_in do
       it 'succeeds' do
         get :index, format: :json
-        response.status.should == 200
+        expect(response.status).to eql 200
       end
 
       context 'your' do
         it 'succeeds' do
           get :index, your: 1, format: :json
-          response.status.should == 200
+          expect(response.status).to eql 200
         end
       end
     end
@@ -21,7 +21,7 @@ describe Api::ChallengesController do
     context 'when not signed in' do
       it 'redirects to login' do
         get :index, format: :json
-        response.status.should == 401
+        expect(response.status).to eql 401
       end
     end
   end
@@ -35,7 +35,7 @@ describe Api::ChallengesController do
         it 'creates and returns the challenge' do
           expect {
             post :create, challenge: valid_attributes, format: :json
-            response.status.should == 200
+            expect(response.status).to eql 200
           }.to change(Challenge, :count).by(1)
         end
       end
@@ -44,8 +44,8 @@ describe Api::ChallengesController do
         it 'does not create and renders new' do
           expect {
             post :create, challenge: valid_attributes.merge(variant_id: ''), format: :json
-            response.status.should == 422
-            response.body.should be_json(variant: ["can't be blank"])
+            expect(response.status).to eql 422
+            expect(response.body).to be_json(variant: ["can't be blank"])
           }.to change(Challenge, :count).by(0)
         end
       end
@@ -55,7 +55,7 @@ describe Api::ChallengesController do
       it 'redirects to login' do
         expect {
           post :create, challenge: valid_attributes, format: :json
-          response.status.should == 401
+          expect(response.status).to eql 401
         }.to change(Challenge, :count).by(0)
       end
     end
@@ -71,8 +71,8 @@ describe Api::ChallengesController do
         it 'destroys' do
           expect{
             delete :destroy, id: challenge.id, format: :json
-            response.status.should == 200
-            response.body.should be_json(challenge_id: challenge.id)
+            expect(response.status).to eql 200
+            expect(response.body).to be_json(challenge_id: challenge.id)
           }.to change(Challenge, :count).by(-1)
         end
       end
@@ -81,7 +81,7 @@ describe Api::ChallengesController do
         it 'redirects to root_path' do
           expect{
             delete :destroy, id: challenge.id, format: :json
-            response.status.should == 401
+            expect(response.status).to eql 401
           }.to change(Challenge, :count).by(0)
         end
       end
@@ -91,7 +91,7 @@ describe Api::ChallengesController do
       it 'redirects to login' do
         expect{
           delete :destroy, id: challenge.id, format: :json
-          response.status.should == 401
+          expect(response.status).to eql 401
         }.to change(Challenge, :count).by(0)
       end
     end
@@ -113,10 +113,10 @@ describe Api::ChallengesController do
             it 'creates a game and returns the id and destroys the challenge' do
               expect {
                 put :accept, id: challenge.id, format: :json
-                response.status.should == 200
+                expect(response.status).to eql 200
 
                 game = Game.last
-                response.body.should be_json(challenge_id: challenge.id, game: {id: game.id, alabaster_id: game.alabaster_id, onyx_id: game.onyx_id})
+                expect(response.body).to be_json(challenge_id: challenge.id, game: {id: game.id, alabaster_id: game.alabaster_id, onyx_id: game.onyx_id})
               }.to change(Game, :count).by(1)
             end
 
@@ -131,8 +131,8 @@ describe Api::ChallengesController do
             it 'returns success and destroys the challenge' do
               expect {
                 put :decline, id: challenge.id, format: :json
-                response.status.should == 200
-                response.body.should be_json(challenge_id: challenge.id)
+                expect(response.status).to eql 200
+                expect(response.body).to be_json(challenge_id: challenge.id)
               }.to change(Challenge, :count).by(-1)
             end
           end
@@ -144,14 +144,14 @@ describe Api::ChallengesController do
           context 'accepting' do
             it 'is unauthorized' do
               put :accept, id: challenge.id, format: :json
-              response.status.should == 401
+              expect(response.status).to eql 401
             end
           end
 
           context 'declining' do
             it 'is unauthorized' do
               put :decline, id: challenge.id, format: :json
-              response.status.should == 401
+              expect(response.status).to eql 401
             end
           end
         end
@@ -167,10 +167,10 @@ describe Api::ChallengesController do
             it 'creates a game and returns the game id' do
               expect {
                 put :accept, id: challenge.id, format: :json
-                response.status.should == 200
+                expect(response.status).to eql 200
 
                 game = Game.last
-                response.body.should be_json(challenge_id: challenge.id, game: {id: game.id, alabaster_id: game.alabaster_id, onyx_id: game.onyx_id})
+                expect(response.body).to be_json(challenge_id: challenge.id, game: {id: game.id, alabaster_id: game.alabaster_id, onyx_id: game.onyx_id})
               }.to change(Game, :count).by(1)
             end
 
@@ -184,7 +184,7 @@ describe Api::ChallengesController do
           context 'declining' do
             it 'is unauthorized' do
               put :decline, id: challenge.id, format: :json
-              response.status.should == 401
+              expect(response.status).to eql 401
             end
           end
         end
@@ -195,14 +195,14 @@ describe Api::ChallengesController do
           context 'accepting' do
             it 'is unauthorized' do
               put :accept, id: challenge.id, format: :json
-              response.status.should == 401
+              expect(response.status).to eql 401
             end
           end
 
           context 'declining' do
             it 'is unauthorized' do
               put :decline, id: challenge.id, format: :json
-              response.status.should == 401
+              expect(response.status).to eql 401
             end
           end
         end
@@ -215,14 +215,14 @@ describe Api::ChallengesController do
       context 'accepting' do
         it 'redirects to login' do
           put :accept, id: challenge.id, format: :json
-          response.status.should == 401
+          expect(response.status).to eql 401
         end
       end
 
       context 'declining' do
         it 'redirects to login' do
           put :decline, id: challenge.id, format: :json
-          response.status.should == 401
+          expect(response.status).to eql 401
         end
       end
     end

@@ -11,7 +11,7 @@ describe CommentsController do
         it 'creates and redirects' do
           expect {
             post :create, topic_id: topic.id, comment: valid_attributes
-            response.should redirect_to topic
+            expect(response).to redirect_to topic
           }.to change(Comment, :count).by(1)
         end
       end
@@ -20,7 +20,7 @@ describe CommentsController do
         it 'does not create and renders new' do
           expect {
             post :create, topic_id: topic.id, comment: valid_attributes.merge(text: '')
-            response.should redirect_to topic
+            expect(response).to redirect_to topic
           }.to change(Comment, :count).by(0)
         end
       end
@@ -30,7 +30,7 @@ describe CommentsController do
       it 'redirects to login' do
         expect {
           post :create, topic_id: topic.id, comment: valid_attributes
-          response.should redirect_to new_user_session_path
+          expect(response).to redirect_to new_user_session_path
         }.to change(Comment, :count).by(0)
       end
     end
