@@ -1,0 +1,49 @@
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <g>
+  <title>Layer 1</title>
+  <rect id="svg_37" height="100" width="100" y="0" x="0" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0" stroke="#0000ff" fill="#96d0f7"/>
+  <g id="svg_3">
+   <g id="svg_10">
+    <path fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m5,30c6.5,-0.049999 15,-3.5 15,-10" id="svg_2"/>
+    <path id="svg_1" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m20,20c-0.049999,6.5 8.5,10 15,10"/>
+   </g>
+   <g id="svg_11">
+    <path id="svg_12" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m65,30c6.5,-0.049999 15,-3.5 15,-10"/>
+    <path id="svg_13" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m80,20c-0.049995,6.5 8.5,10 15,10"/>
+   </g>
+   <g id="svg_14">
+    <path id="svg_15" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m35,30c6.5,-0.049999 14.999996,-3.5 14.999996,-10"/>
+    <path id="svg_16" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m49.999996,20c-0.049995,6.5 8.500008,10 15.000004,10"/>
+   </g>
+  </g>
+  <g id="svg_17">
+   <g id="svg_18">
+    <path id="svg_19" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m5,54.918434c6.5,-0.049999 15,-3.5 15,-10"/>
+    <path id="svg_20" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m20,44.918434c-0.049999,6.5 8.5,10 15,10"/>
+   </g>
+   <g id="svg_21">
+    <path id="svg_22" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m65,54.918434c6.5,-0.049999 15,-3.5 15,-10"/>
+    <path id="svg_23" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m80,44.918434c-0.049995,6.5 8.5,10 15,10"/>
+   </g>
+   <g id="svg_24">
+    <path id="svg_25" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m35,54.918434c6.5,-0.049999 14.999996,-3.5 14.999996,-10"/>
+    <path id="svg_26" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m49.999996,44.918434c-0.049995,6.5 8.500008,10 15.000004,10"/>
+   </g>
+  </g>
+  <g id="svg_27">
+   <g id="svg_28">
+    <path id="svg_29" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m5,80c6.5,-0.049995 15,-3.5 15,-10"/>
+    <path id="svg_30" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m20,70c-0.049999,6.5 8.5,10 15,10"/>
+   </g>
+   <g id="svg_31">
+    <path id="svg_32" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m65,80c6.5,-0.049995 15,-3.5 15,-10"/>
+    <path id="svg_33" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m80,70c-0.049995,6.5 8.5,10 15,10"/>
+   </g>
+   <g id="svg_34">
+    <path id="svg_35" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m35,80c6.5,-0.049995 14.999996,-3.5 14.999996,-10"/>
+    <path id="svg_36" fill-opacity="0" fill="#000000" stroke="#0000ff" stroke-width="2" d="m49.999996,70c-0.049995,6.5 8.500008,10 15.000004,10"/>
+   </g>
+  </g>
+ </g>
+</svg>

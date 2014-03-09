@@ -5,10 +5,10 @@
     = csrf_meta_tags
     = stylesheet_link_tag "application", :media => "all"
     = javascript_include_tag "application"
-  %body
+  %body.play
     .header
       %ul.left
-        %li.logo= link_to "Cyvasse Explorer", :root
+        %li.logo= "Cyvasse Explorer"
 
     .content
       = yield

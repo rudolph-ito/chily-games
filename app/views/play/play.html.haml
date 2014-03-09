@@ -18,7 +18,7 @@
           %ul
             %li
               = label_tag 'variant_id', 'Variant:'
-              = select_tag 'variant_id', options_from_collection_for_select(Variant.all, :id, :name)
+              = select_tag 'variant_id', options_from_collection_for_select(Variant.all, :id, :to_s)
             %li
               = label_tag 'play_as', 'I Play As:'
               = select_tag 'play_as', options_for_select(['alabaster', 'onyx', 'random'].map{ |x| [x.capitalize, x] })

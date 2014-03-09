@@ -40,7 +40,7 @@ end
 # Terrain Types
 ########################################
 
-%w( mountain ).each do |tt|
+%w( forest mountain water ).each do |tt|
   name = tt.titleize
 
   attrs = {

@@ -1,0 +1,13 @@
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <g>
+  <title>Layer 1</title>
+  <rect id="svg_7" height="100" width="100" y="0" x="0" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0" stroke="#048844" fill="#2b4f3c"/>
+  <rect id="svg_6" height="12" width="8" y="73" x="63" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0.2" stroke="#56560d" fill="#66660e"/>
+  <rect id="svg_2" height="12" width="8" y="73" x="29" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0.2" stroke="#56560d" fill="#66660e"/>
+  <rect id="svg_1" height="12" width="8" y="78" x="46" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0.2" stroke="#56560d" fill="#66660e"/>
+  <path id="svg_3" d="m33,10l-8,16l4,0l-8,16l4,0l-8,16l4,0l-8,16l40,0l-8,-16l4,0l-8,-16.148819l4,0l-8,-16.000002l4,0l-8,-15.999999l0,0.14882z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0.2" stroke="#1a5436" fill="#0c6d3b"/>
+  <path id="svg_5" d="m67,10l-8,16l4,0l-8,16l4,0l-8,16l4,0l-8,16.000008l40,0l-8,-16.000008l4,0l-8,-16.148819l4,0l-8,-16.000002l4,0l-8,-15.999999l0,0.14882z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0.2" stroke="#1a5436" fill="#0c6d3b"/>
+  <path id="svg_4" d="m50,15l-8,16l4,0l-8,16l4,0l-8,16l4,0l-8,16l40,0l-8,-16l4,0l-8,-16.148819l4,0l-8,-16.000002l4,0l-8,-15.999999l0,0.14882z" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="0.2" stroke="#1a5436" fill="#048844"/>
+ </g>
+</svg>
