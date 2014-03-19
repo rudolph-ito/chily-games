@@ -20,6 +20,10 @@ group :test do
   gem 'simplecov'
 end
 
+group :production do
+  gem 'fog'
+end
+
 gem 'activeadmin', github: 'gregbell/active_admin' # Admin
 gem 'authority' # Authorization
 gem 'carrierwave' # File Upload
