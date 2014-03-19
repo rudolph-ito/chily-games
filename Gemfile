@@ -2,14 +2,27 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.0.1'
 
+gem 'activeadmin', github: 'gregbell/active_admin' # Admin
+gem 'authority' # Authorization
+gem 'carrierwave' # File Upload
+gem 'coffee-rails', '~> 4.0.1'
+gem 'compass-rails'
+gem 'devise' # User Sessions
+gem 'foreman' # Process Manager
+gem 'formtastic', "~> 2.3.0.rc2" # Forms
+gem 'haml-rails' # HAML for views
+gem 'jquery-rails' # JQuery for javascript
 gem 'pg' # database
+gem 'rabl' # JSON API
+gem 'redcarpet' # For converting markdown to html (for quotes)
+gem 'sass-rails',   '~> 4.0.1'
+gem 'sprockets-commonjs'
+gem 'thin' # Make server run faster
+gem 'turbolinks' # Turbolinks
+gem 'uglifier', '>= 1.0.3'
+gem 'underscore-rails' # Underscore for javascript
 
-group :development, :assets do
-  gem 'coffee-rails', '~> 4.0.1'
-  gem 'sass-rails',   '~> 4.0.1'
-  gem 'compass-rails'
-  gem 'sprockets-commonjs'
-  gem 'uglifier', '>= 1.0.3'
+group :development, :test do
   gem 'teaspoon'
 end
 
@@ -22,18 +35,5 @@ end
 
 group :production do
   gem 'fog'
+  gem 'rails_12factor'
 end
-
-gem 'activeadmin', github: 'gregbell/active_admin' # Admin
-gem 'authority' # Authorization
-gem 'carrierwave' # File Upload
-gem 'devise' # User Sessions
-gem 'foreman' # Process Manager
-gem 'formtastic', "~> 2.3.0.rc2" # Forms
-gem 'haml-rails' # HAML for views
-gem 'jquery-rails' # JQuery for javascript
-gem 'rabl' # JSON API
-gem 'redcarpet' # For converting markdown to html (for quotes)
-gem 'thin' # Make server run faster
-gem 'turbolinks' # Turbolinks
-gem 'underscore-rails' # Underscore for javascript
