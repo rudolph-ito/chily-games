@@ -32,3 +32,5 @@ Cyvasse::Application.configure do
   config.action_mailer.delivery_method = :sendmail
   config.action_mailer.perform_deliveries = true
 end
+
+ENV['PLAY_HOST'] = 'play.localhost:3001'

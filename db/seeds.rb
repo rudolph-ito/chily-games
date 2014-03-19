@@ -88,8 +88,7 @@ end
 
 data = [
   {title: 'Quotes', description: 'Discuss anything and everything regarding quotes from A Song of Ice and Fire.'},
-  {title: 'Invariants', description: 'Discuss invariants and propose additions and removals.'},
-  {title: 'Rule Support', description: 'Discuss rules supported and propose additions and removals.'},
+  {title: 'Invariants and Rule Support', description: 'Discuss invariants and propose additions and removals.'},
   {title: 'Play', description: 'Discuss updates to the play interface. Please report bugs or anything that is not what you expected.'},
 ]
 
@@ -102,8 +101,13 @@ end
 # Variants
 ########################################
 
+admin = User.find_by(username: 'admin')
 user1 = User.find_by(username: 'user1')
 user2 = User.find_by(username: 'user2')
+
+unless Variant.find_by(user_id: admin.id)
+  variant = Variant.create!(user_id: admin.id, board_type: 'hexagonal', board_size: 2)
+end
 
 unless Variant.find_by(user_id: user1.id)
   variant = Variant.create!(user_id: user1.id, board_type: 'square', board_rows: 7, board_columns: 7)

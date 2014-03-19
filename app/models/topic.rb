@@ -15,7 +15,7 @@ class Topic < ActiveRecord::Base
   # Validations
   ########################################
 
-  validates :parent, :title, :user, presence: true
+  validates :parent, :title, presence: true
   validates :title, uniqueness: { scope: [:parent_id, :parent_type] }
 
   ########################################
@@ -35,6 +35,6 @@ class Topic < ActiveRecord::Base
   private
 
   def set_initial_comment_user_id
-    comments.first.user_id = self.user_id
+    comments.first.user_id = self.user_id if comments.first
   end
 end

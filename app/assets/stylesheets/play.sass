@@ -1,4 +1,5 @@
 @import compass/css3/box-sizing
+@import compass/utilities/general/clearfix
 
 $actions-height: 20px
 $state-height: 30px
@@ -17,7 +18,7 @@ section.play
 
   .board
     float: left
-    width: 75%
+    width: calc(75% - 10px)
     height: 100%
     text-align: center
 
@@ -96,3 +97,37 @@ section.play
         +box-sizing(border-box)
         border-radius: 5px
         border: 1px solid #CCC
+
+.modal.review
+  .message
+    font-size: 20px
+
+  .instructions
+    margin: 20px 0
+    padding-bottom: 20px
+    border-bottom: 1px solid #ccc
+
+  .variant
+    margin-left: 60px
+    text-decoration: underline
+
+  li
+    margin-bottom: 10px
+    +clearfix
+
+  label
+    text-align: left
+    width: 60px
+
+  .rating
+    float: left
+
+  textarea
+    width: calc(100% - 60px)
+
+  fieldset.actions
+    border: none
+    margin-top: 0
+
+    ol
+      margin-left: 60px

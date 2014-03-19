@@ -7,6 +7,11 @@
     - if signed_in? && current_user.can_create?(Variant)
       = link_to 'New', [:new, :variant]
 
+  .description
+    Have an idea for a new rule you want supported? Think a rule needs to be changed? Please post
+    = succeed '.' do
+      = link_to 'here', Discussion.find_by(title: 'Rule Support')
+
   %table
     %thead
       %tr

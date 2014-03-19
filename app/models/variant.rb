@@ -17,9 +17,11 @@ class Variant < ActiveRecord::Base
   # Relations
   ########################################
 
-  has_many :games
+  has_many :games, dependent: :destroy
   has_many :piece_rules, dependent: :destroy
   has_many :terrain_rules, dependent: :destroy
+  has_many :ratings, dependent: :destroy
+  has_many :topics, as: :parent, dependent: :destroy
   belongs_to :user
 
   ########################################
@@ -36,7 +38,7 @@ class Variant < ActiveRecord::Base
   # Callbacks
   ########################################
 
-  after_create :add_initial_king
+  after_create :add_initial_king, :create_review_topic
 
   ########################################
   # Instance Methods
@@ -44,6 +46,14 @@ class Variant < ActiveRecord::Base
 
   def to_s
     "Cyvasse by #{user.username}"
+  end
+
+  def average_rating
+    ratings.average('value')
+  end
+
+  def review_topic
+    topics.find_by(title: 'Reviews')
   end
 
   self.board_types.each do |b|
@@ -92,6 +102,10 @@ class Variant < ActiveRecord::Base
       movement_type: 'orthogonal_line',
       piece_type: PieceType.find_by(name: 'King'),
     )
+  end
+
+  def create_review_topic
+    topics.create(title: 'Reviews')
   end
 
 end

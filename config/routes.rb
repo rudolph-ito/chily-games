@@ -33,6 +33,8 @@ Cyvasse::Application.routes.draw do
     resources :variants, only: [] do
       member do
         get 'preview'
+        get 'review'
+        put 'update_review'
       end
     end
   end

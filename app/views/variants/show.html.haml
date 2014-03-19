@@ -5,8 +5,11 @@
   = render 'shared/navigation', back: {name: 'Variants', href: :variants}
 
 %section.centered.variant
-  .title= @variant
-  - if signed_in? && current_user.can_create?(@variant)
+  .top-section
+    .title= @variant
+    .rating
+    .link= link_to 'Reviews', @variant.review_topic
+
     .description
       Have an idea for a new rule you want supported? Think a rule needs to be changed? Please post
       = succeed '.' do
@@ -38,18 +41,23 @@
 
     = render partial: 'terrain_rules/index', locals: { variant: @variant }
 
-#preview.modal.hide
-  .modal-header
-    %button.close(type='button' data-dismiss='modal') ×
-    %h3 Preview
-  .modal-body
-    .board
+= content_for :modal do
+  .modal#preview
+    .modal-dialog
+      .modal-content
+        .modal-header
+          %button.close(type='button' data-dismiss='modal') ×
+          .title Preview
+        .modal-body
+          .board
 
 :javascript
   $(function() {
-    PieceType = require('piece_type')
-    PieceType.set_data(#{ActiveSupport::JSON.encode(PieceType.urls)})
+    PieceType = require('piece_type');
+    PieceType.set_data(#{ActiveSupport::JSON.encode(PieceType.urls)});
 
-    TerrainType = require('terrain_type')
-    TerrainType.set_data(#{ActiveSupport::JSON.encode(TerrainType.urls)})
+    TerrainType = require('terrain_type');
+    TerrainType.set_data(#{ActiveSupport::JSON.encode(TerrainType.urls)});
+
+    $('.rating').raty({half: true, path: '/assets/', readOnly: true, size: 24, score: #{@variant.average_rating}})
   });

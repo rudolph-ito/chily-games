@@ -1,3 +1,3 @@
 node do |v|
-  @preview
+  @variant.preview(params)
 end

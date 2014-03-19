@@ -6,6 +6,9 @@ class User < ActiveRecord::Base
   # Relations
   ########################################
 
+  has_many :comments
+  has_many :ratings
+  has_many :topics
   has_many :variants
 
   ########################################

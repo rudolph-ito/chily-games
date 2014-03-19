@@ -3,6 +3,7 @@ attributes :action, :action_to_id, :alabaster_id, :onyx_id
 node(:color) { |g| g.color(current_user.id) }
 node(:alabaster_name) { |g| g.alabaster.username }
 node(:onyx_name) { |g| g.onyx.username }
+node(:variant_id) { |g| g.variant_id }
 
 node :options do |g|
   out = g.variant.board_info

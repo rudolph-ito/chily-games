@@ -3,6 +3,79 @@ require 'spec_helper'
 describe Api::VariantsController do
   render_views
 
+  describe 'review' do
+    let(:variant) { create :variant }
+
+    context 'signed in', :signed_in do
+      context 'no rating or comment' do
+        it 'return current rating and comment' do
+          get :review, id: variant.id, format: :json
+          expect(response.body).to be_json({rating: nil, comment: nil})
+        end
+      end
+
+      context 'rating exists' do
+        let!(:rating) { create(:rating, value: 5, variant: variant, user: current_user) }
+
+        it 'return current rating and comment' do
+          get :review, id: variant.id, format: :json
+          expect(response.body).to be_json({rating: 5, comment: nil})
+        end
+      end
+
+      context 'comment exists' do
+        let(:topic) { variant.topics.find_by(title: 'Reviews') }
+        let!(:comment) { create(:comment, text: 'The dragon is too weak', topic: topic, user: current_user) }
+
+        it 'return current rating and comment' do
+          get :review, id: variant.id, format: :json
+          expect(response.body).to be_json({rating: nil, comment: 'The dragon is too weak'})
+        end
+      end
+
+      context 'rating and comment exist' do
+        let!(:rating) { create(:rating, value: 5, variant: variant, user: current_user) }
+        let(:topic) { variant.topics.find_by(title: 'Reviews') }
+        let!(:comment) { create(:comment, text: 'The dragon is too weak', topic: topic, user: current_user) }
+
+        it 'return current rating and comment' do
+          get :review, id: variant.id, format: :json
+          expect(response.body).to be_json({rating: 5, comment: 'The dragon is too weak'})
+        end
+      end
+    end
+
+    context 'not signed in' do
+      it 'returns 401' do
+        get :review, id: variant.id, format: :json
+        expect(response.status).to eql 401
+      end
+    end
+  end
+
+  describe 'update_review' do
+    let(:variant) { create :variant }
+    let(:params) { { id: variant.id, format: :json, rating: '6', comment: 'The dragon is too strong' } }
+
+    context 'signed in', :signed_in do
+      let(:update_review) { double :update_review, call: nil }
+      before { UpdateReview.stub(:new).with(variant, current_user, '6', 'The dragon is too strong').and_return(update_review) }
+
+      it 'calls UpdateReview' do
+        put :update_review, params
+        expect(response.status).to eql 204
+        expect(update_review).to have_received(:call)
+      end
+    end
+
+    context 'not signed in' do
+      it 'returns 401' do
+        put :update_review, params
+        expect(response.status).to eql 401
+      end
+    end
+  end
+
   describe 'preview' do
     context 'square board' do
       let(:variant) { create :variant_with_square_board }

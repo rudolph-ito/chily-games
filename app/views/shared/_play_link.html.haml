@@ -1,3 +1,6 @@
 - title ||= 'Play'
 
-= link_to title, "http://play.localhost:3001", onclick: "link_to_play(); return false;"
+- if signed_in?
+  = link_to title, ENV['PLAY_HOST'], onclick: "link_to_play('#{ENV['PLAY_HOST']}'); return false;"
+- else
+  = link_to title, new_user_session_path

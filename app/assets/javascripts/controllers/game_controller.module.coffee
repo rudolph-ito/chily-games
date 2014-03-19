@@ -65,8 +65,9 @@ class GameController extends Controller
     @color = data.color
     @onyx_id = data.onyx_id
     @onyx_name = data.onyx_name
+    @variant_id = data.variant_id
 
-  load_challenges: ->
+  load_challenges: =>
     @board_container.html('')
     @deactivate()
     ChallengesController = require('controllers/challenges_controller')
@@ -138,8 +139,48 @@ class GameController extends Controller
   finish_game_if_complete: ->
     if @action == 'complete'
       name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
-      alert("Game over: #{name} wins by death")
-      @load_challenges()
+      @review("#{name} wins by death")
+
+  abort: ->
+    $('.modal').off 'hide.bs.modal'
+    $('.modal').on 'hide.bs.modal', @load_challenges
+    $('.modal .message').text('Game Aborted')
+    $('.modal .review').hide()
+    $('.modal').modal()
+
+  review: (message) ->
+    $('.modal').off 'click', '[data-action=submit]'
+    $('.modal').off 'hide.bs.modal'
+    $('.modal').on 'hide.bs.modal', @load_challenges
+    $('.modal').on 'click', '[data-action=submit]', @submit_review
+    $('.modal .message').text("Game Over - #{message}")
+    $('.modal .review').show()
+
+    raty_options =
+      half: true
+      path: '/assets/'
+      target: '[name=rating]'
+      targetKeep: true
+      targetType: 'score'
+
+    $.getJSON "/api/variants/#{@variant_id}/review", (data) =>
+      $('.modal .review .rating').raty(raty_options).raty('score', data.rating)
+      $('.modal .review [name=comment]').val(data.comment)
+
+    $('.modal').modal()
+
+  submit_review: (e) =>
+    e.preventDefault()
+
+    $.ajax
+      url: "/api/variants/#{@variant_id}/update_review"
+      dataType: 'json'
+      method: 'PUT'
+      data:
+        rating: $('.modal [name=rating]').val()
+        comment: $('.modal [name=comment]').val()
+
+    $('.modal').trigger('hide.bs.modal')
 
   ########################################
   # User initiated actions
@@ -277,16 +318,14 @@ class GameController extends Controller
       @finish_game_if_complete()
 
   server_game_abort: (data) =>
-    alert("Game aborted")
-    @load_challenges()
+    @abort()
 
   server_game_resign: (data) =>
     @action = data.action
     @action_to_id = data.action_to_id
 
     name = if (@action_to_id == @alabaster_id) then @alabaster_name else @onyx_name
-    alert("Game over: #{name} wins by resignation")
-    @load_challenges()
+    @review("#{name} wins by resignation")
 
   server_player_joined: (data) =>
     if data.userId == @user_name

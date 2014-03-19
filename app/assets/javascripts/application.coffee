@@ -14,6 +14,7 @@
 #= require jquery
 #= require jquery_ujs
 #= require jquery.cookie
+#= require jquery.raty
 #= require underscore
 #= require bootstrap-modal
 #= require kinetic
@@ -36,7 +37,7 @@
 #= require board.module
 #= require_directory ./boards
 
-window.link_to_play = ->
+window.link_to_play = (host) ->
   session = $.cookie("_Cyvasse_session")
   cookies = "_Cyvasse_session=#{session}; path=/"
-  window.open("http://play.localhost:3001/login/#{cookies}")
+  window.open("http://#{host}/login/#{cookies}")

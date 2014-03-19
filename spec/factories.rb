@@ -52,6 +52,12 @@ FactoryGirl.define do
     text '*Cyvasse*, the game was called.'
   end
 
+  factory :rating do
+    value 0
+    variant
+    user
+  end
+
   factory :terrain_rule do
     block_movement_type 'none'
     block_movement_piece_type_ids []
