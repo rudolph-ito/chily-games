@@ -7,13 +7,13 @@
 %section.centered.variant
   .top-section
     .title= @variant
-    .rating
+    .rating{ 'data-score' => @variant.average_rating }
     .link= link_to 'Reviews', @variant.review_topic
 
     .description
       Have an idea for a new rule you want supported? Think a rule needs to be changed? Please post
       = succeed '.' do
-        = link_to 'here', Discussion.find_by(title: 'Rule Support')
+        = link_to 'here', Discussion.find_by(title: 'Invariants and Rule Support')
 
   .sub-section
     .title
@@ -59,5 +59,5 @@
     TerrainType = require('terrain_type');
     TerrainType.set_data(#{ActiveSupport::JSON.encode(TerrainType.urls)});
 
-    $('.rating').raty({half: true, path: '/assets/', readOnly: true, size: 24, score: #{@variant.average_rating}})
+    $('.rating').raty({readOnly: true})
   });

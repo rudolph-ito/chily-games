@@ -49,7 +49,7 @@ class Variant < ActiveRecord::Base
   end
 
   def average_rating
-    ratings.average('value')
+    ratings.average('value') || 0
   end
 
   def review_topic

@@ -10,14 +10,15 @@
   .description
     Have an idea for a new rule you want supported? Think a rule needs to be changed? Please post
     = succeed '.' do
-      = link_to 'here', Discussion.find_by(title: 'Rule Support')
+      = link_to 'here', Discussion.find_by(title: 'Invariants and Rule Support')
 
   %table
     %thead
       %tr
         %th Creator
         %th Games Played
-        %th Rating
+        %th Number of Reviews
+        %th Average Rating
         %th
 
     %tbody
@@ -25,9 +26,16 @@
         %tr
           %td= variant.user.username
           %td= variant.games.count
+          %td=variant.review_topic.comments.count
           %td
+            .rating{ 'data-score' => variant.average_rating }
           %td
             = link_to 'View', variant
 
             - if signed_in? && current_user.can_manage?(variant)
               = link_to 'Destroy', variant, method: :delete, data: { confirm: 'Are you sure?' }
+
+:javascript
+  $(function() {
+    $('.rating').raty({readOnly: true});
+  });

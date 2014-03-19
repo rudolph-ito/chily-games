@@ -3,7 +3,7 @@
 ########################################
 
 unless User.find_by(username: 'admin')
-  User.create!(username: 'admin', email: 'admin@cyvasse.com', password: '12345678', password_confirmation: '12345678', admin: true)
+  User.create!(username: 'admin', email: 'admin@cyvasse.com', password: 'trustNO1', password_confirmation: 'trustNO1', admin: true)
 end
 
 unless User.find_by(username: 'user1')
@@ -88,7 +88,7 @@ end
 
 data = [
   {title: 'Quotes', description: 'Discuss anything and everything regarding quotes from A Song of Ice and Fire.'},
-  {title: 'Invariants and Rule Support', description: 'Discuss invariants and propose additions and removals.'},
+  {title: 'Invariants and Rule Support', description: 'Discuss invariants and rule support and propose additions and removals.'},
   {title: 'Play', description: 'Discuss updates to the play interface. Please report bugs or anything that is not what you expected.'},
 ]
 

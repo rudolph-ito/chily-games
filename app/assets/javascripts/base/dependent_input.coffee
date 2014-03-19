@@ -17,4 +17,3 @@ $ ->
           d.hide()
 
     input.change()
-

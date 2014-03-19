@@ -157,8 +157,6 @@ class GameController extends Controller
     $('.modal .review').show()
 
     raty_options =
-      half: true
-      path: '/assets/'
       target: '[name=rating]'
       targetKeep: true
       targetType: 'score'
@@ -180,7 +178,7 @@ class GameController extends Controller
         rating: $('.modal [name=rating]').val()
         comment: $('.modal [name=comment]').val()
 
-    $('.modal').trigger('hide.bs.modal')
+    $('.modal').modal('hide')
 
   ########################################
   # User initiated actions
