@@ -5,7 +5,7 @@ class Controller
 
   activate: ->
     @container.show()
-    @socket = io.connect "http://#{window.location.hostname}:3001"
+    @socket = io.connect window.location.origin
 
     @socket.on "room joined", @server_player_joined
     @socket.on "room left", @server_player_left

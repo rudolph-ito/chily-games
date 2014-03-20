@@ -28,4 +28,4 @@ Cyvasse::Application.configure do
   config.assets.debug = true
 end
 
-ENV['PLAY_HOST'] = 'play.localhost:5001'
+ENV['PLAY_HOST'] = 'play.localhost:5000'
