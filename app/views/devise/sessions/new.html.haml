@@ -3,7 +3,7 @@
 = semantic_form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f|
   = f.inputs do
     = f.input :login, label: "Username or Email", input_html: { autofocus: true }
-    = f.input :password
+    = f.input :password, required: false
     = f.input :remember_me, as: :boolean
 
   = f.actions do

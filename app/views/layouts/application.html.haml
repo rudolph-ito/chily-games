@@ -7,6 +7,12 @@
     = javascript_include_tag "application"
     = yield :page_specific_javascript
   %body
+    .flash
+      - if notice
+        .notice= notice
+      - if alert
+        .alert= alert
+
     .header
       %ul.left
         %li.logo
