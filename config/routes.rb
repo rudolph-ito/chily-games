@@ -63,7 +63,9 @@ Cyvasse::Application.routes.draw do
 
   get '/play' => 'play#play'
 
+  get '/creator' => 'home#creator'
   get '/invariants' => 'home#invariants'
+  put '/request_creator' => 'home#request_creator'
 
   root to: 'home#index'
 end

@@ -79,6 +79,7 @@ end
 ########################################
 
 data = [
+  {title: 'Creator Policies', description: 'Discuss updates to the creator policies.'},
   {title: 'Quotes', description: 'Discuss anything and everything regarding quotes from A Song of Ice and Fire.'},
   {title: 'Invariants and Rule Support', description: 'Discuss invariants and rule support and propose additions and removals.'},
   {title: 'Play', description: 'Discuss updates to the play interface. Please report bugs or anything that is not what you expected.'},
