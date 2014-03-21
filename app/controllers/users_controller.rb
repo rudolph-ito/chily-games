@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
-  before_filter :authenticate_user!, except: [:show]
+  before_filter :authenticate_user!
   before_filter :get_user
-  before_filter :authorize, except: [:show]
+  before_filter :authorize
 
   def show
   end

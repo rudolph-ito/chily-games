@@ -4,9 +4,27 @@ describe UsersController do
   describe 'show' do
     let(:user) { create :user }
 
-    it 'succeeds' do
-      get :show, id: user.id
-      expect(response.status).to eql 200
+    context 'when signed in', :signed_in do
+      context 'for self' do
+        it 'succeeds' do
+          get :show, id: current_user.id
+          expect(response.status).to eql 200
+        end
+      end
+
+      context 'for other user' do
+        it 'redirects to root' do
+          get :show, id: user.id
+          expect(response).to redirect_to root_path
+        end
+      end
+    end
+
+    context 'when not signed in' do
+      it 'redirects to login' do
+        get :show, id: user.id
+        expect(response).to redirect_to new_user_session_path
+      end
     end
   end
 
