@@ -36,6 +36,8 @@
 #
 #= require board.module
 #= require_directory ./boards
+#=
+#= require_tree ./pages
 
 window.link_to_play = (host) ->
   session = $.cookie("_Cyvasse_session")
