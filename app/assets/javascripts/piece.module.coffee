@@ -2,7 +2,7 @@ PieceType = require('piece_type')
 
 class Piece
 
-  constructor: (@board, {@color, @coordinate, @piece_type_id, @x, @y}) ->
+  constructor: ({@board, @color, @coordinate, @layer, @piece_type_id, @x, @y}) ->
     @init()
     @update()
     @load_image()
@@ -27,7 +27,11 @@ class Piece
     image.src = PieceType.url_for(@piece_type_id, @color)
     image.onload = =>
       @element.setImage(image)
-      @board.piece_ready()
+      @layer.draw()
+
+  update_coordinate: (coordinate) ->
+    @coordinate = coordinate
+    @update_position()
 
   update_position: ->
     {@x, @y} = @board.position(@coordinate) if @coordinate

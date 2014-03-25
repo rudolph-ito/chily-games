@@ -3,7 +3,7 @@ Piece = require('piece')
 describe 'Piece', ->
   beforeEach ->
     @board = { click: (->), color: 'alabaster', piece_drag_start: (->), piece_drag_end: (->), piece_size: 5, position: (-> {x:100,y:200}) }
-    @options = {}
+    @options = { board: @board }
     sinon.stub Piece::, 'load_image'
 
   afterEach ->
@@ -12,33 +12,33 @@ describe 'Piece', ->
   context '#constuctor', ->
 
     it 'creates element', ->
-      piece = new Piece @board, @options
+      piece = new Piece @options
       expect(piece.element).to.be.instanceOf Kinetic.Image
 
     context 'color matches board color', ->
       it 'sets element draggable to true', ->
-        piece = new Piece @board, { color: 'alabaster' }
+        piece = new Piece($.extend @options, color: 'alabaster')
         expect(piece.element.attrs.draggable).to.eql true
 
     context 'color does not match board color', ->
       it 'sets element draggable to false', ->
-        piece = new Piece @board, { color: 'onyx' }
+        piece = new Piece($.extend @options, color: 'onyx')
         expect(piece.element.attrs.draggable).to.eql false
 
     it 'calls update', ->
       sinon.stub Piece::, 'update'
-      new Piece @board, @options
+      new Piece @options
       expect(Piece::update).to.have.been.called
       Piece::update.restore()
 
     it 'calls load_image', ->
-      new Piece @board, @options
+      new Piece @options
       expect(Piece::load_image).to.have.been.called
 
   context '#update_position', ->
     context 'with a coordinate', ->
       beforeEach ->
-        @piece = new Piece @board, { coordinate: {x:1, y:1} }
+        @piece = new Piece($.extend @options, coordinate: {x:1, y:1})
         @piece.x = 0
         @piece.y = 0
         @piece.element.attrs.x = 0
@@ -58,7 +58,7 @@ describe 'Piece', ->
 
     context 'without a coordinate', ->
       beforeEach ->
-        @piece = new Piece @board, { x:25, y:75 }
+        @piece = new Piece($.extend @options, x:25, y:75)
         @piece.element.attrs.x = 0
         @piece.element.attrs.y = 0
 
@@ -69,7 +69,7 @@ describe 'Piece', ->
 
   context '#update_size', ->
     beforeEach ->
-      @piece = new Piece @board, @options
+      @piece = new Piece @options
       @board.piece_size = 10
 
     it 'updates @size', ->
@@ -82,7 +82,7 @@ describe 'Piece', ->
       expect(@piece.element.attrs.height).to.eql 10
 
   context '#click', ->
-    beforeEach -> @piece = new Piece @board, { coordinate: {x:1, y:1} }
+    beforeEach -> @piece = new Piece($.extend @options, coordinate: {x:1, y:1})
 
     context 'not dragging', ->
       beforeEach -> @piece.dragging = false
@@ -103,7 +103,7 @@ describe 'Piece', ->
         @board.click.restore()
 
   context '#drag_start', ->
-    beforeEach -> @piece = new Piece @board, @options
+    beforeEach -> @piece = new Piece @options
 
     it 'sets dragging to true', ->
       @piece.drag_start()
@@ -116,7 +116,7 @@ describe 'Piece', ->
       @board.piece_drag_start.restore()
 
   context '#drag_end', ->
-    beforeEach -> @piece = new Piece @board, @options
+    beforeEach -> @piece = new Piece @options
 
     it 'sets dragging to false', ->
       @piece.drag_end()
@@ -129,7 +129,7 @@ describe 'Piece', ->
       @board.piece_drag_end.restore()
 
   context '#setup', ->
-    beforeEach -> @piece = new Piece @board, @options
+    beforeEach -> @piece = new Piece @options
 
     context 'with a coordinate', ->
       beforeEach -> @piece.coordinate = {x:1, y:1}
@@ -145,7 +145,7 @@ describe 'Piece', ->
 
   context '#current_position', ->
     beforeEach ->
-      @piece = new Piece @board, @options
+      @piece = new Piece @options
       @piece.element.attrs.x = 25
       @piece.element.attrs.y = 75
 
@@ -154,7 +154,7 @@ describe 'Piece', ->
 
   context '#reset_position', ->
     beforeEach ->
-      @piece = new Piece @board, {x: 100, y: 200}
+      @piece = new Piece($.extend @options, x:100, y:200)
       @piece.element.attrs.x = 25
       @piece.element.attrs.y = 75
 
@@ -164,7 +164,7 @@ describe 'Piece', ->
       expect(@piece.element.attrs.y).to.eql 200
 
   context 'remove', ->
-    beforeEach -> @piece = new Piece @board, @options
+    beforeEach -> @piece = new Piece @options
 
     it 'calls remove on element', ->
       sinon.stub @piece.element, 'remove'

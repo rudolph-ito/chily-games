@@ -66,14 +66,14 @@ describe 'HexagonalBoard', ->
         @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 3}, null)
         @hexagonal_board.setup()
         @hexagonal_board.add_spaces()
-        expect(@hexagonal_board.layers.space.children.length).to.eql(19)
+        expect(@hexagonal_board.space_layer.element.children.length).to.eql(19)
 
     context "board_size 6", ->
       it 'draws all the spaces', ->
         @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 6}, null)
         @hexagonal_board.setup()
         @hexagonal_board.add_spaces()
-        expect(@hexagonal_board.layers.space.children.length).to.eql(91)
+        expect(@hexagonal_board.space_layer.element.children.length).to.eql(91)
 
   describe '#position', ->
     beforeEach ->

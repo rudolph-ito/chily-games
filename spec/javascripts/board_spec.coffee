@@ -1,10 +1,14 @@
 Board = require("board")
-CoordinateMap = require("lib/coordinate_map")
+CoordinateMap = require('lib/coordinate_map')
 HexagonalBoard = require("boards/hexagonal_board")
-Piece = require("piece")
+HighlightLayer = require('layers/highlight_layer')
+Piece = require('piece')
+PieceLayer = require('layers/piece_layer')
 Set = require('lib/set')
-Space = require("space")
+SpaceLayer = require('layers/space_layer')
 SquareBoard = require("boards/square_board")
+TerrainLayer = require('layers/terrain_layer')
+TerritoryLayer = require('layers/territory_layer')
 
 describe 'Board', ->
   before ->
@@ -18,12 +22,9 @@ describe 'Board', ->
 
   beforeEach ->
     @board = new Board(@container, @color, @options, @game_controller)
-    sinon.stub Board::, '_add_space'
-    sinon.stub Board::, 'add_piece'
-
-  afterEach ->
-    Board::_add_space.restore()
-    Board::add_piece.restore()
+    sinon.stub @board, 'add_space'
+    sinon.stub @board, 'add_piece'
+    sinon.stub @board, 'add_terrain'
 
   describe '.preview', ->
     beforeEach ->
@@ -99,43 +100,32 @@ describe 'Board', ->
       expect(@board.header_height).to.eql(30)
       expect(@board.footer_height).to.eql(30)
 
-    it 'initializes setup_pieces as a Set', ->
-      expect(@board.setup_pieces).to.be.an.instanceOf Set
-
-    it 'initializes setup_terrain as a Set', ->
-      expect(@board.setup_terrain).to.be.an.instanceOf Set
-
     it 'creates the stage', ->
       expect(@board.stage).to.be.an.instanceOf Kinetic.Stage
 
-    it 'creates the space layer to draw the spaces and a space coordinate_map', ->
-      expect(@board.coordinate_maps.space).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.space).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.space)
+    it 'creates the space layer', ->
+      expect(@board.space_layer).to.be.an.instanceOf SpaceLayer
+      expect(@board.stage.children).to.include(@board.space_layer.element)
 
-    it 'creates the terrain layer to draw the terrain and a terrain coordinate_map', ->
-      expect(@board.coordinate_maps.terrain).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.terrain).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.terrain)
+    it 'creates the terrain layer', ->
+      expect(@board.terrain_layer).to.be.an.instanceOf TerrainLayer
+      expect(@board.stage.children).to.include(@board.terrain_layer.element)
 
-    it 'creates the territory layer to mark spaces as specific territory and a territory coordinate_map', ->
-      expect(@board.coordinate_maps.territory).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.territory).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.territory)
+    it 'creates the territory layer', ->
+      expect(@board.territory_layer).to.be.an.instanceOf TerritoryLayer
+      expect(@board.stage.children).to.include(@board.territory_layer.element)
 
-    it 'creates the highlight layer to highlight spaces and a highlight coordinate_map', ->
-      expect(@board.coordinate_maps.highlight).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.highlight).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.highlight)
+    it 'creates the highlight layer', ->
+      expect(@board.highlight_layer).to.be.an.instanceOf HighlightLayer
+      expect(@board.stage.children).to.include(@board.highlight_layer.element)
 
     it 'creates the piece layer to draw the pieces and a piece coordinate_map', ->
-      expect(@board.coordinate_maps.piece).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.piece).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.piece)
+      expect(@board.piece_layer).to.be.an.instanceOf PieceLayer
+      expect(@board.stage.children).to.include(@board.piece_layer.element)
 
     it 'creates the info layer for any informative data', ->
-      expect(@board.layers.info).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.info)
+      expect(@board.info_layer).to.be.an.instanceOf Kinetic.Layer
+      expect(@board.stage.children).to.include(@board.info_layer)
 
   describe '#max_board_height', ->
     beforeEach ->
@@ -202,10 +192,9 @@ describe 'Board', ->
       expect(@board.header).to.be.instanceOf Kinetic.Text
 
     it 'adds to info layer', ->
-      sinon.spy @board.layers.info, 'add'
+      sinon.spy @board.info_layer, 'add'
       @board.add_header()
-      expect(@board.layers.info.add).to.have.been.called
-      @board.layers.info.add.restore()
+      expect(@board.info_layer.add).to.have.been.called
 
   describe 'add_footer', ->
     it 'sets footer', ->
@@ -213,9 +202,6 @@ describe 'Board', ->
       expect(@board.footer).to.be.instanceOf Kinetic.Text
 
     it 'adds to info layer', ->
-      sinon.spy @board.layers.info, 'add'
+      sinon.spy @board.info_layer, 'add'
       @board.add_footer()
-      expect(@board.layers.info.add).to.have.been.called
-      @board.layers.info.add.restore()
-
-
+      expect(@board.info_layer.add).to.have.been.called

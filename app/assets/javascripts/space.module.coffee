@@ -2,7 +2,7 @@ TerrainType = require('terrain_type')
 
 class Space
 
-  constructor: (@board, {@coordinate, @display_type, @display_option, @x, @y}) ->
+  constructor: ({@board, @coordinate, @display_type, @display_option, @layer, @x, @y}) ->
     @init()
     @update()
     @set_display()
@@ -66,7 +66,7 @@ class Space
       @element.setFillPatternImage(image)
       @element.setFillPatternOffset(@terrain_offset(image.width, image.height))
       @update_terrain_size()
-      @board.terrain_ready()
+      @layer.draw()
 
   ############################################################
   # Handlers
