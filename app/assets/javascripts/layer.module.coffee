@@ -8,6 +8,7 @@ class Layer
     @element.draw()
 
   update: ->
+    # TODO update all children
     @element.draw()
 
   clear: ->

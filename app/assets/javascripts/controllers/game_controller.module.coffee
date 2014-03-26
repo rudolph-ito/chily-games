@@ -54,8 +54,11 @@ class GameController extends Controller
       @board.add_terrains(data.terrains)
       @board.add_pieces(data.pieces)
 
+  in_setup: ->
+    @action == 'setup'
+
   user_in_setup: ->
-    @action == 'setup' && (@action_to_id == null || @action_to_id == @user_id)
+    @in_setup() && (@action_to_id == null || @action_to_id == @user_id)
 
   parse_data: (data) ->
     @action = data.action

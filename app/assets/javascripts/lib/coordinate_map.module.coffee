@@ -19,10 +19,23 @@ class CoordinateMap
   clear: ->
     @data = {}
 
+  keys: ->
+    @_key_to_coordinate(k) for k,v of @data
+
   values: ->
-    (v for k,v of @data)
+    v for k,v of @data
+
+  # Helpers
 
   _coordinate_to_key: (coordinate) ->
-    (v for k,v of coordinate).join(',')
+    ("#{k}:#{v}" for k,v of coordinate).join(',')
+
+  _key_to_coordinate: (key) ->
+    out = {}
+    for pair in key.split(',')
+      [k,v] = pair.split(':')
+      out[k] = parseInt(v)
+    out
+
 
 module.exports = CoordinateMap

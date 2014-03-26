@@ -54,11 +54,11 @@ class Piece
 
   drag_start: =>
     @dragging = true
-    @board.piece_drag_start(@)
+    @layer.drag_start(@)
 
   drag_end: =>
     @dragging = false
-    @board.piece_drag_end(@)
+    @layer.drag_end(@)
 
   ############################################################
   # Helpers
@@ -80,5 +80,19 @@ class Piece
 
   remove: ->
     @element.remove()
+
+  ############################################################
+  # Clone
+  ############################################################
+
+  clone: ->
+    new @.constructor
+      board: @board
+      color: @color
+      coordinate: @coordinate
+      layer: @layer
+      piece_type_id: @piece_type_id
+      x: @x
+      y: @y
 
 module.exports = Piece

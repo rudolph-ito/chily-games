@@ -10,7 +10,7 @@ class TerritoryLayer extends Layer
      display_option: color
      layer: @
 
-    space = new @board.space_constructor()
+    space = new @board.space_constructor(attrs)
     @element.add(space.element)
 
 module.exports = TerritoryLayer

@@ -11,16 +11,20 @@ TerrainLayer = require('layers/terrain_layer')
 TerritoryLayer = require('layers/territory_layer')
 
 describe 'Board', ->
-  before ->
+  beforeEach ->
     @container = $("<div style='height:100px;width:100px;'>")
     @color = 'alabaster'
     @options = { piece_types: [1,2,3], terrain_types: [4] }
     @game_controller =
       bottom_player_name: -> 'Player2'
       top_player_name: -> 'Player1'
+      in_setup: -> false
       user_in_setup: -> false
+      piece_move: sinon.spy()
+      setup_add: sinon.spy()
+      setup_move: sinon.spy()
+      setup_remove: sinon.spy()
 
-  beforeEach ->
     @board = new Board(@container, @color, @options, @game_controller)
     sinon.stub @board, 'add_space'
     sinon.stub @board, 'add_piece'
@@ -158,33 +162,61 @@ describe 'Board', ->
       expect(@board.stage.getHeight()).to.eql(224)
       expect(@board.stage.getWidth()).to.eql(224)
 
-  describe 'draw', ->
+  describe '#draw', ->
     it 'calls setup', ->
       sinon.spy @board, 'setup'
       @board.draw()
       expect(@board.setup).to.have.been.called
-      @board.setup.restore()
 
     it 'calls draw_space_layer', ->
       sinon.spy @board, 'draw_space_layer'
       @board.draw()
       expect(@board.draw_space_layer).to.have.been.called
-      @board.draw_space_layer.restore()
 
     context 'game_controller exists', ->
       it 'calls draw_info_layer', ->
         sinon.spy @board, 'draw_info_layer'
         @board.draw()
         expect(@board.draw_info_layer).to.have.been.called
-        @board.draw_info_layer.restore()
+
+      context 'action is setup', ->
+        beforeEach -> sinon.stub @game_controller, 'in_setup', -> true
+        it 'calls draw territories', ->
+          sinon.spy @board, 'draw_territories'
+          @board.draw()
+          expect(@board.draw_territories).to.have.been.called
 
       context 'user is in setup', ->
-        before -> @game_controller.user_in_setup = -> true
+        beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> true
         it 'calls draw setup', ->
           sinon.spy @board, 'add_setup'
           @board.draw()
           expect(@board.add_setup).to.have.been.called
-          @board.add_setup.restore()
+
+  describe 'add_territories', ->
+    beforeEach ->
+      sinon.stub @board.space_layer.coordinate_map, 'keys', -> [{x:0,y:0}, {x:0,y:1}, {x:0,y:2}]
+      territory_stub = sinon.stub @board, 'territory'
+      territory_stub.withArgs({x:0,y:0}).returns('alabaster')
+      territory_stub.withArgs({x:0,y:1}).returns('neutral')
+      territory_stub.withArgs({x:0,y:2}).returns('onyx')
+      sinon.stub @board.territory_layer, 'add'
+      @board.add_territories()
+
+    it 'does not a territory for a home space', ->
+      expect(@board.territory_layer.add).not.to.have.been.calledWith {x:0,y:0}, sinon.match.any
+
+    it 'adds a light grey territory for a netural space', ->
+      expect(@board.territory_layer.add).to.have.been.calledWith {x:0,y:1}, '#A8A8A8'
+
+    it 'adds a dark grey territory for an enemy space', ->
+      expect(@board.territory_layer.add).to.have.been.calledWith {x:0,y:2}, '#505050'
+
+  describe 'remove_territories', ->
+    it 'calls clear on territory_layer', ->
+      sinon.stub @board.territory_layer, 'clear'
+      @board.remove_territories()
+      expect(@board.territory_layer.clear).to.have.been.called
 
   describe 'add_header', ->
     it 'sets header', ->
@@ -205,3 +237,106 @@ describe 'Board', ->
       sinon.spy @board.info_layer, 'add'
       @board.add_footer()
       expect(@board.info_layer.add).to.have.been.called
+
+  describe '#try_move', ->
+
+
+    itShouldBeRemoved = ->
+      it 'calls layer.remove', ->
+        @board.try_move(@layer, @object, @to)
+        expect(@layer.remove).to.have.been.calledWith @object
+
+      context 'from is null', ->
+        beforeEach -> @object.coordinate = null
+
+        it 'calls game_controller.setup_remove', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.setup_remove).not.to.have.been.calledWith
+
+      context 'from is not null', ->
+        beforeEach -> @object.coordinate = {x:0,y:0}
+
+        it 'calls game_controller.setup_remove', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.setup_remove).to.have.been.calledWith 'Piece', {x:0,y:0}
+
+
+    itShouldBeMoved = ->
+      it 'calls layer.move with the object', ->
+        @board.try_move(@layer, @object, @to)
+        expect(@layer.move).to.have.been.calledWith @object, @to
+
+
+    beforeEach ->
+      @layer = { move: sinon.spy(), remove: sinon.spy(), reset: sinon.spy() }
+      @object = { constructor: { name: 'Piece' }, coordinate: {x:0,y:0} }
+      @to = {x:1,y:1}
+
+    context 'during setup', ->
+      beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> true
+
+      context 'to is null', ->
+        beforeEach -> @to = null
+        itShouldBeRemoved()
+
+      context 'to is not null', ->
+        beforeEach -> @to = {x:1,y:1}
+
+        context 'to is not a home square', ->
+          beforeEach -> sinon.stub @board, 'home_space', -> false
+          itShouldBeRemoved()
+
+        context 'to is a home square', ->
+          beforeEach -> sinon.stub @board, 'home_space', -> true
+
+          context 'from == to', ->
+            beforeEach -> @object.coordinate = {x:1,y:1}
+
+            it 'calls layer.reset', ->
+              @board.try_move(@layer, @object, @to)
+              expect(@layer.reset).to.have.been.calledWith @object
+
+          context 'from != to', ->
+            context 'from is null', ->
+              beforeEach -> @object.coordinate = null
+              itShouldBeMoved()
+              it 'calls game_controller.setup_add', ->
+                @board.try_move(@layer, @object, @to)
+                expect(@game_controller.setup_add).to.have.been.calledWith 'Piece', 1, @to
+
+            context 'from is not null', ->
+              beforeEach -> @object.coordinate = {x:0,y:0}
+              itShouldBeMoved()
+              it 'calls game_controller.setup_move', ->
+                @board.try_move(@layer, @object, @to)
+                expect(@game_controller.setup_move).to.have.been.calledWith 'Piece', {x:0,y:0}, {x:1,y:1}
+
+    context 'during play', ->
+      beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> false
+
+      beforeEach ->
+        @object.coordinate = {x:0,y:0}
+        @to = {x:1,y:1}
+
+      context 'to is not null', ->
+        beforeEach -> @to = {x:1,y:1}
+
+        it 'calls layer.reset', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@layer.reset).to.have.been.calledWith @object
+
+        it 'calls game_controller.piece_move', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.piece_move).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}
+
+      context 'to is null', ->
+        beforeEach -> @to = null
+
+        it 'calls layer.reset', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@layer.reset).to.have.been.calledWith @object
+
+        it 'does not call game_controller.piece_move', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.piece_move).not.to.have.been.called
+
