@@ -21,14 +21,22 @@ describe 'Board', ->
       in_setup: -> false
       user_in_setup: -> false
       piece_move: sinon.spy()
+      piece_move_with_range_capture: sinon.spy()
       setup_add: sinon.spy()
       setup_move: sinon.spy()
       setup_remove: sinon.spy()
+      valid_piece_moves: sinon.spy()
 
     @board = new Board(@container, @color, @options, @game_controller)
     sinon.stub @board, 'add_space'
     sinon.stub @board, 'add_piece'
     sinon.stub @board, 'add_terrain'
+    sinon.stub Piece::, 'load_image'
+    sinon.stub Piece::, 'update'
+
+  afterEach ->
+    Piece::load_image.restore()
+    Piece::update.restore()
 
   describe '.preview', ->
     beforeEach ->
@@ -218,6 +226,41 @@ describe 'Board', ->
       @board.remove_territories()
       expect(@board.territory_layer.clear).to.have.been.called
 
+  describe '#highlight_valid_plies', ->
+    beforeEach ->
+      sinon.stub @board.highlight_layer, 'add'
+      sinon.stub @board.highlight_layer, 'draw'
+
+    context 'type is movement', ->
+      beforeEach -> @board.highlight_valid_plies('movement', {x:0,y:0}, [{x:0,y:1}, {x:0,y:2}])
+      it 'add the proper number of highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledThrice
+      it 'adds the piece highlight', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:0}, '#00CC00'
+      it 'adds the space highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:1}, '#006633'
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:2}, '#006633'
+      it 'calls draw on highlight_layer', ->
+        expect(@board.highlight_layer.draw).to.have.been.called
+
+    context 'type is range', ->
+      beforeEach -> @board.highlight_valid_plies('range', {x:0,y:0}, [{x:0,y:1}, {x:0,y:2}])
+      it 'add the proper number of highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledThrice
+      it 'adds the piece highlight', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:0}, '#CC0000'
+      it 'adds the space highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:1}, '#660033'
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:2}, '#660033'
+      it 'calls draw on highlight_layer', ->
+        expect(@board.highlight_layer.draw).to.have.been.called
+
+  describe '#dehighlight', ->
+    it 'calls clear on highlight_layer', ->
+      sinon.stub @board.highlight_layer, 'clear'
+      @board.dehighlight()
+      expect(@board.highlight_layer.clear).to.have.been.called
+
   describe 'add_header', ->
     it 'sets header', ->
       @board.add_header()
@@ -237,6 +280,79 @@ describe 'Board', ->
       sinon.spy @board.info_layer, 'add'
       @board.add_footer()
       expect(@board.info_layer.add).to.have.been.called
+
+
+  describe '#click', ->
+    context 'a piece is selected', ->
+      beforeEach ->
+        @piece = new Piece { board: @board, layer: @board.piece_layer }
+        @board.selected_piece = @piece
+
+      it 'calls try move', ->
+        sinon.stub @board, 'try_move'
+        @board.click({x:0,y:0})
+        expect(@board.try_move).to.have.been.calledWith @board.piece_layer, @piece, {x:0,y:0}
+
+      it 'clears selected_piece', ->
+        @board.click({x:0,y:0})
+        expect(@board.selected_piece).to.eql null
+
+      it 'dehighlight the board', ->
+        sinon.stub @board, 'dehighlight'
+        @board.click({x:0,y:0})
+        expect(@board.dehighlight).to.have.been.called
+
+    context 'there is temporary move', ->
+      beforeEach -> @board.temporary_move = { from: {x:1,y:1}, to: {x:0,y:1} }
+
+      context 'coordinate is equal to the temporary move location', ->
+        beforeEach -> @board.click({x:0,y:1})
+        it 'calls game_controller.piece_move_with_range_capture properly', ->
+          expect(@game_controller.piece_move_with_range_capture).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
+
+      context 'coordinate is not equal to the temporary move location', ->
+        beforeEach -> @board.click({x:0,y:0})
+        it 'calls game_controller.piece_move_with_range_capture properly', ->
+          expect(@game_controller.piece_move_with_range_capture).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
+
+      it 'undoes the temporary move', ->
+        sinon.stub @board.piece_layer, 'move_by_coordinate'
+        @board.click({x:0,y:0})
+        expect(@board.piece_layer.move_by_coordinate).to.have.been.calledWith {x:0,y:1}, {x:1,y:1}
+
+      it 'clears the temporary move', ->
+        @board.click({x:0,y:0})
+        expect(@board.temporary_move).to.eql null
+
+      it 'dehighlights the board', ->
+        sinon.stub @board, 'dehighlight'
+        @board.click({x:0,y:0})
+        expect(@board.dehighlight).to.have.been.called
+
+    context 'no piece selected, no temporary move', ->
+      context 'there is a piece at that coordinate', ->
+        beforeEach ->
+          @piece = new Piece { board: @board, coordinate: {x:0,y:0}, layer: @board.piece_layer }
+          get_piece_stub = sinon.stub @board.piece_layer.coordinate_map, 'get'
+          get_piece_stub.withArgs({x:0,y:0}).returns(@piece)
+
+        it 'selects the piece', ->
+          @board.click({x:0,y:0})
+          expect(@board.selected_piece).to.eql @piece
+
+        it 'calls game_controller.valid_piece_moves', ->
+          @board.click({x:0,y:0})
+          expect(@game_controller.valid_piece_moves).to.have.been.calledWith {x:0,y:0}
+
+      context 'there is no piece at that coordinate', ->
+        beforeEach ->
+          get_piece_stub = sinon.stub @board.piece_layer.coordinate_map, 'get'
+          get_piece_stub.withArgs({x:0,y:0}).returns(null)
+
+        it 'does nothing', ->
+          @board.click({x:0,y:0})
+          expect(@board.selected_piece).to.eql undefined
+          expect(@game_controller.valid_piece_moves).not.to.have.been.called
 
   describe '#try_move', ->
 

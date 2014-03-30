@@ -259,14 +259,12 @@ class Board
 
   click: (coordinate) ->
     if @selected_piece?
-      @piece_try_move(@selected_piece, coordinate)
+      @try_move(@piece_layer, @selected_piece, coordinate)
       @deselect_piece()
     else if @temporary_move
-      range_capture = if coordinate == @temporary_move.to then null else coordinate
+      range_capture = if _.isEqual(coordinate, @temporary_move.to) then null else coordinate
       @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, range_capture)
-      @move_piece_by_coordinate(@temporary_move.to, @temporary_move.from)
-      @temporary_move = null
-      @dehighlight()
+      @clear_temporary_move()
     else
       piece = @piece_layer.coordinate_map.get(coordinate)
       @select_piece(piece) if piece
@@ -277,6 +275,11 @@ class Board
 
   deselect_piece: ->
     @selected_piece = null
+    @dehighlight()
+
+  clear_temporary_move: ->
+    @piece_layer.move_by_coordinate(@temporary_move.to, @temporary_move.from)
+    @temporary_move = null
     @dehighlight()
 
   get_range_capture_input: (from, to, range_captures) ->
