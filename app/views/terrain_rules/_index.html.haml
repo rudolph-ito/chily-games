@@ -5,8 +5,11 @@
     - variant.terrain_rules.each do |terrain_rule|
       %tr
         %td.type-with-count
-          = terrain_rule.terrain_type.name
-          (#{terrain_rule.count})
+          .text
+            = terrain_rule.terrain_type.name
+            (#{terrain_rule.count})
+          .image
+            = image_tag terrain_rule.terrain_type.image, size: '50x50'
         %td
           - terrain_rule.rule_descriptions.each do |r|
             .rule= r

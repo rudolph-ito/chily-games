@@ -5,8 +5,12 @@
     - variant.piece_rules.each do |piece_rule|
       %tr
         %td.type-with-count
-          = piece_rule.piece_type.name
-          (#{piece_rule.count})
+          .text
+            = piece_rule.piece_type.name
+            (#{piece_rule.count})
+          .images
+            = image_tag piece_rule.piece_type.alabaster_image, size: '50x50'
+            = image_tag piece_rule.piece_type.onyx_image, size: '50x50'
         %td
           .movement
             = piece_rule.movement_description
