@@ -34,6 +34,9 @@
 #= require piece_type.module
 #= require piece.module
 #
+#= require layer.module
+#= require_directory ./layers
+#
 #= require board.module
 #= require_directory ./boards
 #=

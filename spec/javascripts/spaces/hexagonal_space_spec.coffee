@@ -4,7 +4,7 @@ Space = require('space')
 describe 'HexagonalSpace', ->
   beforeEach ->
     @board = {space_radius: 5}
-    @hexagonal_space = new HexagonalSpace @board, {x: 1, y: 2}
+    @hexagonal_space = new HexagonalSpace board: @board, x: 1, y: 2
     sinon.stub Space::, 'init'
     sinon.stub Space::, 'update_size'
 

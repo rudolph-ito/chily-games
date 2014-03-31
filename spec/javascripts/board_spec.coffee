@@ -1,29 +1,42 @@
 Board = require("board")
-CoordinateMap = require("lib/coordinate_map")
+CoordinateMap = require('lib/coordinate_map')
 HexagonalBoard = require("boards/hexagonal_board")
-Piece = require("piece")
+HighlightLayer = require('layers/highlight_layer')
+Piece = require('piece')
+PieceLayer = require('layers/piece_layer')
 Set = require('lib/set')
-Space = require("space")
+SpaceLayer = require('layers/space_layer')
 SquareBoard = require("boards/square_board")
+TerrainLayer = require('layers/terrain_layer')
+TerritoryLayer = require('layers/territory_layer')
 
 describe 'Board', ->
-  before ->
+  beforeEach ->
     @container = $("<div style='height:100px;width:100px;'>")
     @color = 'alabaster'
     @options = { piece_types: [1,2,3], terrain_types: [4] }
     @game_controller =
       bottom_player_name: -> 'Player2'
       top_player_name: -> 'Player1'
+      in_setup: -> false
       user_in_setup: -> false
+      piece_move: sinon.spy()
+      piece_move_with_range_capture: sinon.spy()
+      setup_add: sinon.spy()
+      setup_move: sinon.spy()
+      setup_remove: sinon.spy()
+      valid_piece_moves: sinon.spy()
 
-  beforeEach ->
     @board = new Board(@container, @color, @options, @game_controller)
-    sinon.stub Board::, '_add_space'
-    sinon.stub Board::, 'add_piece'
+    sinon.stub @board, 'add_space'
+    sinon.stub @board, 'add_piece'
+    sinon.stub @board, 'add_terrain'
+    sinon.stub Piece::, 'load_image'
+    sinon.stub Piece::, 'update'
 
   afterEach ->
-    Board::_add_space.restore()
-    Board::add_piece.restore()
+    Piece::load_image.restore()
+    Piece::update.restore()
 
   describe '.preview', ->
     beforeEach ->
@@ -99,43 +112,32 @@ describe 'Board', ->
       expect(@board.header_height).to.eql(30)
       expect(@board.footer_height).to.eql(30)
 
-    it 'initializes setup_pieces as a Set', ->
-      expect(@board.setup_pieces).to.be.an.instanceOf Set
-
-    it 'initializes setup_terrain as a Set', ->
-      expect(@board.setup_terrain).to.be.an.instanceOf Set
-
     it 'creates the stage', ->
       expect(@board.stage).to.be.an.instanceOf Kinetic.Stage
 
-    it 'creates the space layer to draw the spaces and a space coordinate_map', ->
-      expect(@board.coordinate_maps.space).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.space).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.space)
+    it 'creates the space layer', ->
+      expect(@board.space_layer).to.be.an.instanceOf SpaceLayer
+      expect(@board.stage.children).to.include(@board.space_layer.element)
 
-    it 'creates the terrain layer to draw the terrain and a terrain coordinate_map', ->
-      expect(@board.coordinate_maps.terrain).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.terrain).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.terrain)
+    it 'creates the terrain layer', ->
+      expect(@board.terrain_layer).to.be.an.instanceOf TerrainLayer
+      expect(@board.stage.children).to.include(@board.terrain_layer.element)
 
-    it 'creates the territory layer to mark spaces as specific territory and a territory coordinate_map', ->
-      expect(@board.coordinate_maps.territory).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.territory).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.territory)
+    it 'creates the territory layer', ->
+      expect(@board.territory_layer).to.be.an.instanceOf TerritoryLayer
+      expect(@board.stage.children).to.include(@board.territory_layer.element)
 
-    it 'creates the highlight layer to highlight spaces and a highlight coordinate_map', ->
-      expect(@board.coordinate_maps.highlight).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.highlight).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.highlight)
+    it 'creates the highlight layer', ->
+      expect(@board.highlight_layer).to.be.an.instanceOf HighlightLayer
+      expect(@board.stage.children).to.include(@board.highlight_layer.element)
 
     it 'creates the piece layer to draw the pieces and a piece coordinate_map', ->
-      expect(@board.coordinate_maps.piece).to.be.an.instanceOf CoordinateMap
-      expect(@board.layers.piece).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.piece)
+      expect(@board.piece_layer).to.be.an.instanceOf PieceLayer
+      expect(@board.stage.children).to.include(@board.piece_layer.element)
 
     it 'creates the info layer for any informative data', ->
-      expect(@board.layers.info).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.layers.info)
+      expect(@board.info_layer).to.be.an.instanceOf Kinetic.Layer
+      expect(@board.stage.children).to.include(@board.info_layer)
 
   describe '#max_board_height', ->
     beforeEach ->
@@ -168,33 +170,96 @@ describe 'Board', ->
       expect(@board.stage.getHeight()).to.eql(224)
       expect(@board.stage.getWidth()).to.eql(224)
 
-  describe 'draw', ->
+  describe '#draw', ->
     it 'calls setup', ->
       sinon.spy @board, 'setup'
       @board.draw()
       expect(@board.setup).to.have.been.called
-      @board.setup.restore()
 
     it 'calls draw_space_layer', ->
       sinon.spy @board, 'draw_space_layer'
       @board.draw()
       expect(@board.draw_space_layer).to.have.been.called
-      @board.draw_space_layer.restore()
 
     context 'game_controller exists', ->
       it 'calls draw_info_layer', ->
         sinon.spy @board, 'draw_info_layer'
         @board.draw()
         expect(@board.draw_info_layer).to.have.been.called
-        @board.draw_info_layer.restore()
+
+      context 'action is setup', ->
+        beforeEach -> sinon.stub @game_controller, 'in_setup', -> true
+        it 'calls draw territories', ->
+          sinon.spy @board, 'draw_territories'
+          @board.draw()
+          expect(@board.draw_territories).to.have.been.called
 
       context 'user is in setup', ->
-        before -> @game_controller.user_in_setup = -> true
+        beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> true
         it 'calls draw setup', ->
           sinon.spy @board, 'add_setup'
           @board.draw()
           expect(@board.add_setup).to.have.been.called
-          @board.add_setup.restore()
+
+  describe 'add_territories', ->
+    beforeEach ->
+      sinon.stub @board.space_layer.coordinate_map, 'keys', -> [{x:0,y:0}, {x:0,y:1}, {x:0,y:2}]
+      territory_stub = sinon.stub @board, 'territory'
+      territory_stub.withArgs({x:0,y:0}).returns('alabaster')
+      territory_stub.withArgs({x:0,y:1}).returns('neutral')
+      territory_stub.withArgs({x:0,y:2}).returns('onyx')
+      sinon.stub @board.territory_layer, 'add'
+      @board.add_territories()
+
+    it 'does not a territory for a home space', ->
+      expect(@board.territory_layer.add).not.to.have.been.calledWith {x:0,y:0}, sinon.match.any
+
+    it 'adds a light grey territory for a netural space', ->
+      expect(@board.territory_layer.add).to.have.been.calledWith {x:0,y:1}, '#A8A8A8'
+
+    it 'adds a dark grey territory for an enemy space', ->
+      expect(@board.territory_layer.add).to.have.been.calledWith {x:0,y:2}, '#505050'
+
+  describe 'remove_territories', ->
+    it 'calls clear on territory_layer', ->
+      sinon.stub @board.territory_layer, 'clear'
+      @board.remove_territories()
+      expect(@board.territory_layer.clear).to.have.been.called
+
+  describe '#highlight_valid_plies', ->
+    beforeEach ->
+      sinon.stub @board.highlight_layer, 'add'
+      sinon.stub @board.highlight_layer, 'draw'
+
+    context 'type is movement', ->
+      beforeEach -> @board.highlight_valid_plies('movement', {x:0,y:0}, [{x:0,y:1}, {x:0,y:2}])
+      it 'add the proper number of highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledThrice
+      it 'adds the piece highlight', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:0}, '#00CC00'
+      it 'adds the space highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:1}, '#006633'
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:2}, '#006633'
+      it 'calls draw on highlight_layer', ->
+        expect(@board.highlight_layer.draw).to.have.been.called
+
+    context 'type is range', ->
+      beforeEach -> @board.highlight_valid_plies('range', {x:0,y:0}, [{x:0,y:1}, {x:0,y:2}])
+      it 'add the proper number of highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledThrice
+      it 'adds the piece highlight', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:0}, '#CC0000'
+      it 'adds the space highlights', ->
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:1}, '#660033'
+        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:2}, '#660033'
+      it 'calls draw on highlight_layer', ->
+        expect(@board.highlight_layer.draw).to.have.been.called
+
+  describe '#dehighlight', ->
+    it 'calls clear on highlight_layer', ->
+      sinon.stub @board.highlight_layer, 'clear'
+      @board.dehighlight()
+      expect(@board.highlight_layer.clear).to.have.been.called
 
   describe 'add_header', ->
     it 'sets header', ->
@@ -202,10 +267,9 @@ describe 'Board', ->
       expect(@board.header).to.be.instanceOf Kinetic.Text
 
     it 'adds to info layer', ->
-      sinon.spy @board.layers.info, 'add'
+      sinon.spy @board.info_layer, 'add'
       @board.add_header()
-      expect(@board.layers.info.add).to.have.been.called
-      @board.layers.info.add.restore()
+      expect(@board.info_layer.add).to.have.been.called
 
   describe 'add_footer', ->
     it 'sets footer', ->
@@ -213,9 +277,182 @@ describe 'Board', ->
       expect(@board.footer).to.be.instanceOf Kinetic.Text
 
     it 'adds to info layer', ->
-      sinon.spy @board.layers.info, 'add'
+      sinon.spy @board.info_layer, 'add'
       @board.add_footer()
-      expect(@board.layers.info.add).to.have.been.called
-      @board.layers.info.add.restore()
+      expect(@board.info_layer.add).to.have.been.called
 
+
+  describe '#click', ->
+    context 'a piece is selected', ->
+      beforeEach ->
+        @piece = new Piece { board: @board, layer: @board.piece_layer }
+        @board.selected_piece = @piece
+
+      it 'calls try move', ->
+        sinon.stub @board, 'try_move'
+        @board.click({x:0,y:0})
+        expect(@board.try_move).to.have.been.calledWith @board.piece_layer, @piece, {x:0,y:0}
+
+      it 'clears selected_piece', ->
+        @board.click({x:0,y:0})
+        expect(@board.selected_piece).to.eql null
+
+      it 'dehighlight the board', ->
+        sinon.stub @board, 'dehighlight'
+        @board.click({x:0,y:0})
+        expect(@board.dehighlight).to.have.been.called
+
+    context 'there is temporary move', ->
+      beforeEach -> @board.temporary_move = { from: {x:1,y:1}, to: {x:0,y:1} }
+
+      context 'coordinate is equal to the temporary move location', ->
+        beforeEach -> @board.click({x:0,y:1})
+        it 'calls game_controller.piece_move_with_range_capture properly', ->
+          expect(@game_controller.piece_move_with_range_capture).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
+
+      context 'coordinate is not equal to the temporary move location', ->
+        beforeEach -> @board.click({x:0,y:0})
+        it 'calls game_controller.piece_move_with_range_capture properly', ->
+          expect(@game_controller.piece_move_with_range_capture).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
+
+      it 'undoes the temporary move', ->
+        sinon.stub @board.piece_layer, 'move_by_coordinate'
+        @board.click({x:0,y:0})
+        expect(@board.piece_layer.move_by_coordinate).to.have.been.calledWith {x:0,y:1}, {x:1,y:1}
+
+      it 'clears the temporary move', ->
+        @board.click({x:0,y:0})
+        expect(@board.temporary_move).to.eql null
+
+      it 'dehighlights the board', ->
+        sinon.stub @board, 'dehighlight'
+        @board.click({x:0,y:0})
+        expect(@board.dehighlight).to.have.been.called
+
+    context 'no piece selected, no temporary move', ->
+      context 'there is a piece at that coordinate', ->
+        beforeEach ->
+          @piece = new Piece { board: @board, coordinate: {x:0,y:0}, layer: @board.piece_layer }
+          get_piece_stub = sinon.stub @board.piece_layer.coordinate_map, 'get'
+          get_piece_stub.withArgs({x:0,y:0}).returns(@piece)
+
+        it 'selects the piece', ->
+          @board.click({x:0,y:0})
+          expect(@board.selected_piece).to.eql @piece
+
+        it 'calls game_controller.valid_piece_moves', ->
+          @board.click({x:0,y:0})
+          expect(@game_controller.valid_piece_moves).to.have.been.calledWith {x:0,y:0}
+
+      context 'there is no piece at that coordinate', ->
+        beforeEach ->
+          get_piece_stub = sinon.stub @board.piece_layer.coordinate_map, 'get'
+          get_piece_stub.withArgs({x:0,y:0}).returns(null)
+
+        it 'does nothing', ->
+          @board.click({x:0,y:0})
+          expect(@board.selected_piece).to.eql undefined
+          expect(@game_controller.valid_piece_moves).not.to.have.been.called
+
+  describe '#try_move', ->
+
+
+    itShouldBeRemoved = ->
+      it 'calls layer.remove', ->
+        @board.try_move(@layer, @object, @to)
+        expect(@layer.remove).to.have.been.calledWith @object
+
+      context 'from is null', ->
+        beforeEach -> @object.coordinate = null
+
+        it 'calls game_controller.setup_remove', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.setup_remove).not.to.have.been.calledWith
+
+      context 'from is not null', ->
+        beforeEach -> @object.coordinate = {x:0,y:0}
+
+        it 'calls game_controller.setup_remove', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.setup_remove).to.have.been.calledWith 'Piece', {x:0,y:0}
+
+
+    itShouldBeMoved = ->
+      it 'calls layer.move with the object', ->
+        @board.try_move(@layer, @object, @to)
+        expect(@layer.move).to.have.been.calledWith @object, @to
+
+
+    beforeEach ->
+      @layer = { move: sinon.spy(), remove: sinon.spy(), reset: sinon.spy() }
+      @object = { constructor: { name: 'Piece' }, coordinate: {x:0,y:0} }
+      @to = {x:1,y:1}
+
+    context 'during setup', ->
+      beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> true
+
+      context 'to is null', ->
+        beforeEach -> @to = null
+        itShouldBeRemoved()
+
+      context 'to is not null', ->
+        beforeEach -> @to = {x:1,y:1}
+
+        context 'to is not a home square', ->
+          beforeEach -> sinon.stub @board, 'home_space', -> false
+          itShouldBeRemoved()
+
+        context 'to is a home square', ->
+          beforeEach -> sinon.stub @board, 'home_space', -> true
+
+          context 'from == to', ->
+            beforeEach -> @object.coordinate = {x:1,y:1}
+
+            it 'calls layer.reset', ->
+              @board.try_move(@layer, @object, @to)
+              expect(@layer.reset).to.have.been.calledWith @object
+
+          context 'from != to', ->
+            context 'from is null', ->
+              beforeEach -> @object.coordinate = null
+              itShouldBeMoved()
+              it 'calls game_controller.setup_add', ->
+                @board.try_move(@layer, @object, @to)
+                expect(@game_controller.setup_add).to.have.been.calledWith 'Piece', 1, @to
+
+            context 'from is not null', ->
+              beforeEach -> @object.coordinate = {x:0,y:0}
+              itShouldBeMoved()
+              it 'calls game_controller.setup_move', ->
+                @board.try_move(@layer, @object, @to)
+                expect(@game_controller.setup_move).to.have.been.calledWith 'Piece', {x:0,y:0}, {x:1,y:1}
+
+    context 'during play', ->
+      beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> false
+
+      beforeEach ->
+        @object.coordinate = {x:0,y:0}
+        @to = {x:1,y:1}
+
+      context 'to is not null', ->
+        beforeEach -> @to = {x:1,y:1}
+
+        it 'calls layer.reset', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@layer.reset).to.have.been.calledWith @object
+
+        it 'calls game_controller.piece_move', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.piece_move).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}
+
+      context 'to is null', ->
+        beforeEach -> @to = null
+
+        it 'calls layer.reset', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@layer.reset).to.have.been.calledWith @object
+
+        it 'does not call game_controller.piece_move', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.piece_move).not.to.have.been.called
 

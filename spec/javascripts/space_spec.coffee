@@ -2,8 +2,9 @@ Space = require('space')
 
 describe 'Space', ->
   beforeEach ->
-    @board = { click: (->), color: 'alabaster', position: (-> {x:100,y:200}), terrain_drag_start: (->), terrain_drag_end: (->) }
-    @options = {}
+    @layer = { drag_start: sinon.spy(), drag_end: sinon.spy() }
+    @board = { click: sinon.spy(), color: 'alabaster', position: (-> {x:100,y:200}) }
+    @options = { board: @board, layer: @layer }
     sinon.stub Space::, 'init', -> @element = new Kinetic.Shape
     sinon.stub Space::, 'load_terrain_image'
 
@@ -14,25 +15,25 @@ describe 'Space', ->
   context '#constuctor', ->
 
     it 'calls init', ->
-      space = new Space @board, @options
+      space = new Space @options
       expect(Space::init).to.have.been.called
 
     it 'calls update', ->
       sinon.stub Space::, 'update'
-      new Space @board, @options
+      new Space @options
       expect(Space::update).to.have.been.called
       Space::update.restore()
 
     it 'calls set_display', ->
       sinon.stub Space::, 'set_display'
-      new Space @board, @options
+      new Space @options
       expect(Space::set_display).to.have.been.called
       Space::set_display.restore()
 
   context '#update_position', ->
     context 'with a coordinate', ->
       beforeEach ->
-        @space = new Space @board, { coordinate: {x:1, y:1} }
+        @space = new Space($.extend @options, coordinate: {x:1, y:1})
         @space.x = 0
         @space.y = 0
         @space.element.attrs.x = 0
@@ -52,7 +53,9 @@ describe 'Space', ->
 
     context 'without a coordinate', ->
       beforeEach ->
-        @space = new Space @board, { x:25, y:75 }
+        @options.x = 25
+        @options.y = 75
+        @space = new Space @options
         @space.element.attrs.x = 0
         @space.element.attrs.y = 0
 
@@ -64,11 +67,9 @@ describe 'Space', ->
   context '#update_size', ->
     context 'display_type is terrain', ->
       beforeEach ->
-        @space = new Space @board, {display_type: 'terrain'}
+        @space = new Space($.extend @options, {display_type: 'terrain'})
         @space.size = 50
         sinon.stub @space.element, 'getFillPatternImage', -> { width: 200, height: 200 }
-      afterEach ->
-        @space.element.getFillPatternImage.restore()
 
       it 'sets fillPatternScale', ->
         sinon.stub @space.element, 'setFillPatternScale'
@@ -78,23 +79,21 @@ describe 'Space', ->
   context '#set_display', ->
     context 'display_type is highlight', ->
       beforeEach ->
-        @space = new Space @board, {display_type: 'highlight', display_option: '#333'}
+        @space = new Space($.extend @options, {display_type: 'highlight', display_option: '#333'})
 
       it 'sets the fill to display_option', ->
         sinon.stub @space.element, 'setFill'
         @space.set_display()
         expect(@space.element.setFill).to.have.been.calledWith '#333'
-        @space.element.setFill.restore()
 
       it 'sets the opacity to 0.75', ->
         sinon.stub @space.element, 'setOpacity'
         @space.set_display()
         expect(@space.element.setOpacity).to.have.been.calledWith 0.75
-        @space.element.setOpacity.restore()
 
     context 'display_type is territory', ->
       beforeEach ->
-        @space = new Space @board, {display_type: 'territory', display_option: '#111'}
+        @space = new Space($.extend @options, {display_type: 'territory', display_option: '#111'})
 
       it 'sets the fill to display_option', ->
         sinon.stub @space.element, 'setFill'
@@ -103,37 +102,31 @@ describe 'Space', ->
 
     context 'display_type is terrain', ->
       beforeEach ->
-        @space = new Space @board, {display_type: 'terrain'}
+        @space = new Space($.extend @options, {display_type: 'terrain'})
       it 'sets the fillPatternRepeat', ->
       it 'call load_terrain_image', ->
 
   context '#click', ->
-    beforeEach -> @space = new Space @board, { coordinate: {x:1, y:1} }
+    beforeEach -> @space = new Space($.extend @options, coordinate: {x:1, y:1})
 
     context 'not dragging', ->
       beforeEach -> @space.dragging = false
 
       it 'calls @board.click with @coordinate', ->
-        sinon.stub @board, 'click'
         @space.click()
         expect(@board.click).to.have.been.calledWith {x:1, y:1}
-        @board.click.restore()
 
     context 'dragging', ->
       beforeEach -> @space.dragging = true
 
       it 'does no call board.click', ->
-        sinon.stub @board, 'click'
         @space.click()
         expect(@board.click).to.not.have.been.called
-        @board.click.restore()
 
   context '#drag_start', ->
     beforeEach ->
-      @space = new Space @board, @options
+      @space = new Space @options
       sinon.stub @space.element, 'moveToTop'
-    afterEach ->
-      @space.element.moveToTop.restore()
 
     it 'sets dragging to true', ->
       @space.drag_start()
@@ -143,27 +136,23 @@ describe 'Space', ->
       @space.drag_start()
       expect(@space.element.moveToTop).to.have.been.called
 
-    it 'calls @board.terrain_drag_start', ->
-      sinon.stub @board, 'terrain_drag_start'
+    it 'calls @layer.drag_start', ->
       @space.drag_start()
-      expect(@board.terrain_drag_start).to.have.been.calledWith(@space)
-      @board.terrain_drag_start.restore()
+      expect(@layer.drag_start).to.have.been.calledWith(@space)
 
   context '#drag_end', ->
-    beforeEach -> @space = new Space @board, @options
+    beforeEach -> @space = new Space @options
 
     it 'sets dragging to false', ->
       @space.drag_end()
       expect(@space.dragging).to.eql false
 
-    it 'calls @board.terrain_drag_end', ->
-      sinon.stub @board, 'terrain_drag_end'
+    it 'calls @layer.drag_end', ->
       @space.drag_end()
-      expect(@board.terrain_drag_end).to.have.been.calledWith(@space)
-      @board.terrain_drag_end.restore()
+      expect(@layer.drag_end).to.have.been.calledWith(@space)
 
   context '#setup', ->
-    beforeEach -> @space = new Space @board, @options
+    beforeEach -> @space = new Space @options
 
     context 'with a coordinate', ->
       beforeEach -> @space.coordinate = {x:1, y:1}
@@ -179,7 +168,7 @@ describe 'Space', ->
 
   context '#current_position', ->
     beforeEach ->
-      @space = new Space @board, @options
+      @space = new Space @options
       @space.element.attrs.x = 25
       @space.element.attrs.y = 75
 
@@ -188,7 +177,7 @@ describe 'Space', ->
 
   context '#reset_position', ->
     beforeEach ->
-      @space = new Space @board, {x: 100, y: 200}
+      @space = new Space($.extend @options, coordinate: {x:100, y:200})
       @space.element.attrs.x = 25
       @space.element.attrs.y = 75
 
@@ -198,10 +187,38 @@ describe 'Space', ->
       expect(@space.element.attrs.y).to.eql 200
 
   context 'remove', ->
-    beforeEach -> @space = new Space @board, @options
+    beforeEach -> @space = new Space @options
 
     it 'calls remove on element', ->
       sinon.stub @space.element, 'remove'
       @space.remove()
       expect(@space.element.remove).to.have.been.called
       @space.element.remove()
+
+  context 'clone', ->
+    beforeEach ->
+      @space = new Space
+        board: @board
+        coordinate: undefined
+        layer: @layer
+        display_type: 'highlight'
+        display_option: '#123456'
+        x: 100
+        y: 200
+
+      @clone = @space.clone()
+
+    it 'returns a Piece', ->
+      expect(@clone).to.be.instanceOf Space
+
+    it 'returns a copy', ->
+      expect(@clone).not.to.eql @space
+
+    it 'copies all attributes', ->
+      expect(@clone.board).to.eql @space.board
+      expect(@clone.coordinate).to.eql @space.coordinate
+      expect(@clone.layer).to.eql @space.layer
+      expect(@clone.display_type).to.eql @space.display_type
+      expect(@clone.display_option).to.eql @space.display_option
+      expect(@clone.x).to.eql @space.x
+      expect(@clone.y).to.eql @space.y

@@ -2,7 +2,7 @@ TerrainType = require('terrain_type')
 
 class Space
 
-  constructor: (@board, {@coordinate, @display_type, @display_option, @x, @y}) ->
+  constructor: ({@board, @coordinate, @display_type, @display_option, @layer, @x, @y}) ->
     @init()
     @update()
     @set_display()
@@ -66,7 +66,7 @@ class Space
       @element.setFillPatternImage(image)
       @element.setFillPatternOffset(@terrain_offset(image.width, image.height))
       @update_terrain_size()
-      @board.terrain_ready()
+      @layer.draw()
 
   ############################################################
   # Handlers
@@ -79,11 +79,11 @@ class Space
   drag_start: =>
     @dragging = true
     @element.moveToTop()
-    @board.terrain_drag_start(@)
+    @layer.drag_start(@)
 
   drag_end: =>
     @dragging = false
-    @board.terrain_drag_end(@)
+    @layer.drag_end(@)
 
   ############################################################
   # Helpers
@@ -105,5 +105,19 @@ class Space
 
   remove: ->
     @element.remove()
+
+  ############################################################
+  # Clone
+  ############################################################
+
+  clone: ->
+    new @.constructor
+      board: @board
+      coordinate: @coordinate
+      layer: @layer
+      display_type: @display_type
+      display_option: @display_option
+      x: @x
+      y: @y
 
 module.exports = Space

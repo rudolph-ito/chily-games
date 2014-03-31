@@ -4,7 +4,7 @@ Space = require('space')
 describe 'SquareSpace', ->
   beforeEach ->
     @board = {space_size: 10}
-    @square_space = new SquareSpace @board, {x: 1, y: 2}
+    @square_space = new SquareSpace board: @board, x: 1, y: 2
     sinon.stub Space::, 'init'
     sinon.stub Space::, 'update_size'
 

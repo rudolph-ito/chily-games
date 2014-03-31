@@ -3,7 +3,7 @@ HexagonalSpace = require("spaces/hexagonal_space")
 
 class HexagonalBoard extends Board
 
-  Space: HexagonalSpace
+  space_constructor: HexagonalSpace
 
   constructor: (container, color, options, game_controller) ->
     super

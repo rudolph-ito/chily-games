@@ -1,6 +1,11 @@
 CoordinateMap = require('lib/coordinate_map')
+HighlightLayer = require('layers/highlight_layer')
 Piece = require('piece')
+PieceLayer = require('layers/piece_layer')
 Set = require('lib/set')
+SpaceLayer = require('layers/space_layer')
+TerrainLayer = require('layers/terrain_layer')
+TerritoryLayer = require('layers/territory_layer')
 
 class Board
 
@@ -39,17 +44,16 @@ class Board
     @header_height = @footer_height = 30
     @padding = 2
 
-    @setup_pieces = new Set
-    @setup_terrain = new Set
-
-    @coordinate_maps = {}
-
     @stage = new Kinetic.Stage container: @container[0]
-    @layers = {}
 
-    for key in ['space', 'territory', 'terrain', 'highlight', 'piece', 'info']
-      @coordinate_maps[key] = new CoordinateMap if key isnt 'info'
-      @stage.add( @layers[key] = new Kinetic.Layer() )
+    @space_layer = new SpaceLayer(@)
+    @territory_layer = new TerritoryLayer(@)
+    @terrain_layer = new TerrainLayer(@)
+    @highlight_layer = new HighlightLayer(@)
+    @piece_layer = new PieceLayer(@)
+
+    @info_layer = new Kinetic.Layer()
+    @stage.add(@info_layer)
 
   max_board_height: ->
     @container.height() - @header_height - @footer_height - @padding
@@ -71,76 +75,119 @@ class Board
   # Draw
   ########################################
 
+  add_layer: (layer) ->
+    @stage.add(layer)
+
   draw: ->
     @setup()
     @draw_space_layer()
-    @draw_info_layer() if @game_controller
-    @draw_territories() if @game_controller?.action == 'setup'
-    @add_setup() if @game_controller?.user_in_setup()
 
-  # Draw Layers
+    if @game_controller
+      @draw_info_layer()
+      @draw_territories() if @game_controller.in_setup()
+      @add_setup() if @game_controller.user_in_setup()
+
+  ########################################
+  # Space Layer
+  ########################################
 
   draw_space_layer: ->
     @add_spaces()
-    @layers.space.draw()
+    @space_layer.draw()
 
-  draw_info_layer: ->
-    @add_header()
-    @add_footer()
-    @layers.info.draw()
+  add_spaces: ->
+    # Overwrite
+
+  add_space: (coordinate) ->
+    @space_layer.add(coordinate)
+
+  ########################################
+  # Territory Layer
+  ########################################
 
   draw_territories: ->
     @add_territories()
-    @layers.territory.draw()
+    @territory_layer.draw()
 
-  # Add Many Entities
-
-  add_spaces: ->
-
+  # Adds neutral and enemny territories to the board
+  # Does not draw the layer
   add_territories: ->
-    for space in @coordinate_maps.space.values()
-      territory = @territory(space.coordinate)
+    for coordinate in @space_layer.coordinate_map.keys()
+      territory = @territory(coordinate)
       continue if territory is @color
       color = if territory is 'neutral' then '#A8A8A8' else '#505050'
-      @add_territory(space.coordinate, color)
+      @territory_layer.add(coordinate, color)
 
-  add_terrains: (terrains) ->
-    @add_terrain(terrain_data) for terrain_data in terrains
+  # Removes territories from the board and draws
+  remove_territories: ->
+    @territory_layer.clear()
+
+  # Returns whose territory a coordinate is in during setup
+  # Returns alabaster, onyx, or neutral
+  territory: (coordinate) ->
+
+  ########################################
+  # Highlight Layer
+  ########################################
+
+  add_highlight: (coordinate, color) ->
+    @highlight_layer.add(coordinate, color)
 
   add_highlights: (coordinates, color) ->
     @add_highlight(coordinate, color) for coordinate in coordinates
 
-  add_pieces: (pieces) ->
-    @add_piece(piece_data) for piece_data in pieces
+  dehighlight: ->
+    @highlight_layer.clear()
 
-  # Add Single Entities
+  highlight_valid_plies: (type, piece_coordinate, space_coordinates) ->
+    [piece_highlight_color, space_highlight_color] = if type == 'movement'
+      ['#00CC00', '#006633']
+    else
+      ['#CC0000', '#660033']
 
-  _add_space: (data) ->
-    space = new @Space(@, data)
-    @layers[space.display_type].add(space.element)
-    @coordinate_maps[space.display_type].set(space.coordinate, space)
-    space
+    @add_highlight(piece_coordinate, piece_highlight_color)
+    @add_highlights(space_coordinates, space_highlight_color)
+    @highlight_layer.draw()
 
-  add_space: (coordinate) ->
-    @_add_space(coordinate: coordinate, display_type: 'space')
+  ########################################
+  # Object Layers
+  ########################################
 
-  add_territory: (coordinate, color) ->
-    @_add_space(coordinate: coordinate, display_type: 'territory', display_option: color)
+  add_pieces: (data) ->
+    @add_piece(datum) for datum in data
 
-  add_terrain: (data) ->
-    $.extend(data, {display_type: 'terrain', display_option: data.terrain_type_id})
-    @_add_space(data)
+  add_piece: (datum) ->
+    @piece_layer.add_from_data(datum)
 
-  add_highlight: (coordinate, color) ->
-    @_add_space(coordinate: coordinate, display_type: 'highlight', display_option: color)
 
-  add_piece: (data) ->
-    piece = new Piece(@, data)
-    @layers.piece.add(piece.element)
-    @coordinate_maps.piece.set(piece.coordinate, piece) if piece.coordinate
-    piece
+  add_terrains: (data) ->
+    @add_terrain(datum) for datum in data
 
-  # Add Sections
+  add_terrain: (datum) ->
+    @terrain_layer.add_from_data(datum)
+
+
+  add_setup: ->
+    index = 0
+
+    for piece_type_id in @piece_types
+      {x,y} = @setup_position(index)
+      @add_piece(x: x, y: y, piece_type_id: piece_type_id, color: @color)
+      index++
+
+    for terrain_type_id in @terrain_types
+      {x,y} = @setup_position(index)
+      @add_terrain(x: x, y: y, terrain_type_id: terrain_type_id)
+      index++
+
+  ########################################
+  # Info Layer
+  ########################################
+
+  draw_info_layer: ->
+    @add_header()
+    @add_footer()
+    @info_layer.draw()
 
   add_header: ->
     @header = new Kinetic.Text
@@ -155,7 +202,7 @@ class Board
       fontWeight: 'bold'
       fill: 'black'
 
-    @layers.info.add(@header)
+    @info_layer.add(@header)
 
   add_footer: ->
     @footer = new Kinetic.Text
@@ -170,76 +217,7 @@ class Board
       fontWeight: 'bold'
       fill: 'black'
 
-    @layers.info.add(@footer)
-
-  add_setup: ->
-    index = 0
-
-    for piece_type_id in @piece_types
-      {x,y} = @setup_position(index)
-      @add_setup_piece(x: x, y: y, piece_type_id: piece_type_id, color: @color)
-      index++
-
-    for terrain_type_id in @terrain_types
-      {x,y} = @setup_position(index)
-      @add_setup_terrain(x: x, y: y, terrain_type_id: terrain_type_id)
-      index++
-
-  ########################################
-  # Setup Piece
-  ########################################
-
-  add_setup_piece: (data) ->
-    piece = @add_piece(data)
-    @setup_pieces.add(piece)
-    piece
-
-  replace_setup_piece: (piece) ->
-    @setup_pieces.remove(piece)
-    @add_setup_piece(x: piece.x, y: piece.y, piece_type_id: piece.piece_type_id, color: piece.color)
-
-  remove_setup_pieces: ->
-    piece.remove() for piece in @setup_pieces.values()
-    @setup_pieces.clear()
-
-  ########################################
-  # Setup Terrain
-  ########################################
-
-  add_setup_terrain: (data) ->
-    terrain = @add_terrain(data)
-    @setup_terrain.add(terrain)
-    terrain
-
-  replace_setup_terrain: (terrain) ->
-    @setup_terrain.remove(terrain)
-    @add_setup_terrain(x: terrain.x, y: terrain.y, terrain_type_id: terrain.display_option)
-
-  remove_setup_terrain: ->
-    terrain.remove() for terrain in @setup_terrain.values()
-    @setup_terrain.clear()
-
-  ########################################
-  # Redraw
-  ########################################
-
-  redraw: ->
-    @setup()
-
-    unless @game_controller.action == 'setup'
-      @remove_territories()
-
-    unless @game_controller?.user_in_setup()
-      @remove_setup_pieces()
-      @remove_setup_terrain()
-
-    for key, map of @coordinate_maps
-      object.update() for object in map.values()
-      @layers[key].draw()
-
-    @update_header()
-    @update_footer()
-    @layers.info.draw()
+    @info_layer.add(@footer)
 
   update_header: ->
     @header.attrs.x = 0
@@ -250,22 +228,45 @@ class Board
     @footer.attrs.y = @board_height + @header_height + 5
     @footer.attrs.width = @board_width
 
+
+  ########################################
+  # Redraw
+  ########################################
+
+  redraw: ->
+    @setup()
+
+    unless @game_controller.in_setup()
+      @remove_territories()
+
+    unless @game_controller.user_in_setup()
+      @piece_layer.setup_clear()
+      @terrain_layer.setup_clear()
+
+    @space_layer.update()
+    @territory_layer.update()
+    @terrain_layer.update()
+    @highlight_layer.update()
+    @piece_layer.update()
+
+    @update_header()
+    @update_footer()
+    @info_layer.draw()
+
   ########################################
   # CLick Interaction
   ########################################
 
   click: (coordinate) ->
     if @selected_piece?
-      @piece_try_move(@selected_piece, coordinate)
+      @try_move(@piece_layer, @selected_piece, coordinate)
       @deselect_piece()
     else if @temporary_move
-      range_capture = if coordinate == @temporary_move.to then null else coordinate
+      range_capture = if _.isEqual(coordinate, @temporary_move.to) then null else coordinate
       @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, range_capture)
-      @move_piece_by_coordinate(@temporary_move.to, @temporary_move.from)
-      @temporary_move = null
-      @dehighlight()
+      @clear_temporary_move()
     else
-      piece = @coordinate_maps.piece.get(coordinate)
+      piece = @piece_layer.coordinate_map.get(coordinate)
       @select_piece(piece) if piece
 
   select_piece: (piece) ->
@@ -276,6 +277,11 @@ class Board
     @selected_piece = null
     @dehighlight()
 
+  clear_temporary_move: ->
+    @piece_layer.move_by_coordinate(@temporary_move.to, @temporary_move.from)
+    @temporary_move = null
+    @dehighlight()
+
   get_range_capture_input: (from, to, range_captures) ->
     return unless @coordinate_maps.piece.get(from).color == @color
 
@@ -283,152 +289,34 @@ class Board
     @move_piece_by_coordinate(from, to)
     @highlight_valid_plies('range', to, range_captures)
 
-  ################################################
-  # Move/Place/Remove/Reset Pieces
-  ################################################
-
-  move_piece_by_coordinate: (from, to) ->
-    piece = @coordinate_maps.piece.get(from)
-    @move_piece(piece, to) if piece
-
-  move_piece: (piece, to) ->
-    @remove_piece_by_coordinate(to)
-
-    @coordinate_maps.piece.remove(piece.coordinate)
-    piece.coordinate = to
-    piece.update_position()
-    @coordinate_maps.piece.set(piece.coordinate, piece)
-
-    @layers.piece.draw()
-
-  remove_piece_by_coordinate: (coordinate) ->
-    piece = @coordinate_maps.piece.get(coordinate)
-    @remove_piece(piece) if piece
-
-  remove_piece: (piece) ->
-    @coordinate_maps.piece.remove(piece.coordinate)
-    piece.remove()
-    @layers.piece.draw()
-
-  reset_piece: (piece) ->
-    piece.reset_position()
-    @layers.piece.draw()
-
-  piece_ready: ->
-    @layers.piece.draw()
-
-  ################################################
-  # Move/Place/Remove Terrain
-  ################################################
-
-  move_terrain: (terrain, to) ->
-    @remove_terrain_by_coordinate(to)
-
-    @coordinate_maps.terrain.remove(terrain.coordinate)
-    terrain.coordinate = to
-    terrain.update_position()
-    @coordinate_maps.terrain.set(terrain.coordinate, terrain)
-
-    @layers.terrain.draw()
-
-  remove_terrain_by_coordinate: (coordinate) ->
-    terrain = @coordinate_maps.terrain.get(coordinate)
-    @remove_terrain(terrain) if terrain
-
-  remove_terrain: (terrain) ->
-    @coordinate_maps.terrain.remove(terrain.coordinate)
-    terrain.remove()
-    @layers.terrain.draw()
-
-  reset_terrain: (terrain) ->
-    terrain.reset_position()
-    @layers.terrain.draw()
-
-  terrain_ready: ->
-    @layers.terrain.draw()
-
-  ########################################
-  # Piece Interation
-  ########################################
-
-  piece_drag_start: (piece) ->
-    @replace_setup_piece(piece) if @game_controller.user_in_setup() and piece.setup()
-
-  piece_drag_end: (piece) ->
-    to = @nearest_space( piece.current_position() )?.coordinate
-    @piece_try_move(piece, to)
-
-  piece_try_move: (piece, to) ->
-    from = piece.coordinate
-
-    if to? and from is to
-      @reset_piece(piece)
-    else if @game_controller.user_in_setup()
-      if to and @home_space(to)
-        @move_piece(piece, to)
-
-        if from
-          @game_controller.setup_move('Piece', from, to)
-        else
-          @game_controller.setup_add('Piece', piece.piece_type_id, to)
-      else
-        @remove_piece(piece)
-        @game_controller.setup_remove('Piece', from) if from
-    else if to
-      @reset_piece(piece)
-      @game_controller.piece_move(from, to)
-
-  ########################################
-  # Terrain Interaction
-  ########################################
-
-  terrain_drag_start: (terrain) ->
-    @replace_setup_terrain(terrain) if @game_controller.user_in_setup() and terrain.setup()
-
-  terrain_drag_end: (terrain) ->
-    to = @nearest_space( terrain.current_position() )?.coordinate
-    @terrain_try_move(terrain, to)
-
-  terrain_try_move: (terrain, to) ->
-    from = terrain.coordinate
-
-    if to? and from is to
-      @reset_terrain(terrain)
-    else if @game_controller.user_in_setup()
-      if to and @home_space(to)
-        @move_terrain(terrain, to)
-
-        if from
-          @game_controller.setup_move('Terrain', from, to)
-        else
-          @game_controller.setup_add('Terrain', terrain.display_option, to)
-      else
-        @remove_terrain(terrain)
-        @game_controller.setup_remove('Terrain', from)
-
-  ########################################
-  # Highlight
-  ########################################
-
-  dehighlight: ->
-    @layers.highlight.removeChildren()
-    @coordinate_maps.highlight.clear()
-    @layers.highlight.draw()
-
-  highlight_valid_plies: (type, piece_coordinate, space_coordinates) ->
-    [piece_highlight_color, space_highlight_color] = if type == 'movement'
-      ['#00CC00', '#006633']
+  try_move: (layer, object, to) ->
+    if @game_controller.user_in_setup()
+      @setup_try_move(layer, object, to)
     else
-      ['#CC0000', '#660033']
+      @play_try_move(layer, object, to)
 
-    @add_highlight(piece_coordinate, piece_highlight_color)
-    @add_highlights(space_coordinates, space_highlight_color)
-    @layers.highlight.draw()
+  setup_try_move: (layer, object, to) ->
+    from = object.coordinate
+    type = object.constructor.name
 
-  remove_territories: ->
-    @layers.territory.removeChildren()
-    @coordinate_maps.territory.clear()
-    @layers.territory.draw()
+    if !to? or !@home_space(to)
+      layer.remove(object)
+      @game_controller.setup_remove(type, from) if from
+    else if _.isEqual(from, to)
+      layer.reset(object)
+    else
+      layer.move(object, to)
+
+      if from
+        @game_controller.setup_move(type, from, to)
+      else
+        @game_controller.setup_add(type, 1, to)
+
+  play_try_move: (layer, object, to) ->
+     from = object.coordinate
+     @game_controller.piece_move(from, to) if to?
+     layer.reset(object)
+
 
   ########################################
   # Helpers
@@ -437,8 +325,11 @@ class Board
   home_space: (coord) ->
     @territory(coord) == @color
 
+  nearest_coordinate: (arg) ->
+    @nearest_space(arg)?.coordinate
+
   nearest_space: ({x, y}) ->
-    for space in @coordinate_maps.space.values()
+    for space in @space_layer.coordinate_map.values()
       return space if space.contains(x, y)
     null
 

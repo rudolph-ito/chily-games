@@ -3,7 +3,7 @@ SquareSpace = require("spaces/square_space")
 
 class SquareBoard extends Board
 
-  Space: SquareSpace
+  space_constructor: SquareSpace
 
   constructor: (container, color, options, game_controller) ->
     super

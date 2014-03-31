@@ -69,14 +69,14 @@ describe 'SquareBoard', ->
         @square_board = new SquareBoard(@container, 'alabaster', {board_rows: 3, board_columns: 4}, null)
         @square_board.setup()
         @square_board.add_spaces()
-        expect(@square_board.layers.space.children.length).to.eql(12)
+        expect(@square_board.space_layer.element.children.length).to.eql(12)
 
    context "board_rows 8, board_columns 8", ->
       it 'does not error', ->
         @square_board = new SquareBoard(@container, 'alabaster', {board_rows: 8, board_columns: 8}, null)
         @square_board.setup()
         @square_board.add_spaces()
-        expect(@square_board.layers.space.children.length).to.eql(64)
+        expect(@square_board.space_layer.element.children.length).to.eql(64)
 
   describe '#position', ->
     beforeEach ->
