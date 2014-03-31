@@ -64,6 +64,11 @@ class PieceRule < ActiveRecord::Base
     end
   end
 
+  def range_capture_restriction
+    prefix = if move_and_range_capture? then 'can' else 'cannot' end
+    prefix + ' move and capture on the same turn'
+  end
+
   private
 
   def validate_king_count

@@ -15,6 +15,7 @@
       = f.input :range_type, collection: PieceRule::DIRECTIONS.map{|x| [x.humanize, x]}
       = f.input :range_minimum, label: 'Minimum', as: :number, min: 1, step: 1
       = f.input :range_maximum, label: 'Maximum', as: :number, min: 1, step: 1, placeholder: 'Leave blank for no maximum'
+      = f.input :move_and_range_capture, label: 'Can move and capture in the same turn?'
 
   = f.actions do
     = f.action :submit

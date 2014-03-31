@@ -320,7 +320,7 @@ describe Api::GamesController do
     end
   end
 
-  describe 'valid_piece_moves' do
+  describe 'valid_plies' do
     let(:piece_type) { create :piece_type }
     let(:variant) { create :variant, board_type: 'square', board_rows: 5, board_columns: 5 }
     let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: nil }
@@ -339,7 +339,7 @@ describe Api::GamesController do
 
         context 'during setup' do
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: {'x'=>0, 'y'=>1}, type: 'movement', format: :json
+            get :valid_plies, id: game.id, coordinate: {'x'=>0, 'y'=>1}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>0}])
           end
@@ -352,7 +352,7 @@ describe Api::GamesController do
           end
 
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
+            get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>0}])
           end
@@ -364,7 +364,7 @@ describe Api::GamesController do
 
         context 'during setup' do
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
+            get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}, {"x"=>0, "y"=>0}])
           end
@@ -377,7 +377,7 @@ describe Api::GamesController do
           end
 
           it 'succeeds' do
-            get :valid_piece_moves, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
+            get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json([{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}])
           end
@@ -386,7 +386,7 @@ describe Api::GamesController do
     end
   end
 
-  describe 'piece_move' do
+  describe 'move' do
     let(:piece_type) { create :piece_type, name: 'King' }
     let(:variant) { create :variant, board_type: 'square', board_rows: 2, board_columns: 3 }
     let(:piece_rule_parameters) { {} }
@@ -404,124 +404,67 @@ describe Api::GamesController do
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do
-        let(:game_parameters) { { alabaster: current_user, action_to: current_user } }
+        let(:game_parameters) { { alabaster: current_user } }
 
-        context 'valid move' do
-          context 'movement capture' do
+        context 'valid' do
+          context 'movement only' do
             let(:piece_rule_parameters) { { capture_type: 'movement' } }
 
             it 'succeeds' do
-              put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
+              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: nil, action: "move", action_to_id: game.onyx_id})
 
               game.reload
               expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
               expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
             end
-
-            context 'taking king' do
-              it 'succeeds' do
-                put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'1'}, format: :json
-                expect(response.status).to eql 200
-                expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, action: "complete", action_to_id: game.alabaster_id})
-
-                game.reload
-                expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
-                expect(game.current_setup.get({'x'=>0, 'y'=>1}, Piece)).not_to be_nil
-              end
-            end
           end
 
-          context 'range_capture' do
-            let(:piece_rule_parameters) { { capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 1 } }
+          context 'range capture only' do
+            let(:piece_rule_parameters) { { capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 2 } }
 
-            it 'fails and returns possible range captures' do
-              put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
-              expect(response.status).to eql 200
-              expect(response.body).to be_json({success: false, from: {'x' => 0, 'y' => 0}, to: {'x' => 1, 'y' => 0}, range_captures: [{"x"=>2, "y"=>0}, {"x"=>0, "y"=>0}, {"x"=>1, "y"=>1}]})
-
-              game.reload
-              expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).not_to be_nil
-              expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).to be_nil
-            end
-          end
-        end
-
-        context 'invalid_move' do
-          it 'fails' do
-            put :piece_move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, format: :json
-            expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false})
-
-            game.reload
-            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).not_to be_nil
-            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).to be_nil
-          end
-        end
-      end
-    end
-  end
-
-  describe 'piece_move_with_range_capture' do
-    let(:piece_type) { create :piece_type, name: 'King' }
-    let(:variant) { create :variant, board_type: 'square', board_rows: 2, board_columns: 3 }
-    let(:piece_rule_parameters) { {} }
-    let!(:piece_rule) { create :piece_rule, variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1, capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 1 }
-
-    let(:game_parameters) { {} }
-    let(:game) { create :game, {variant: variant}.merge(game_parameters) }
-
-    before do
-      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: game.alabaster_id}).call
-      AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>1, 'y'=>1}, type_id: piece_type.id, user_id: game.onyx_id}).call
-      game.setup_complete(game.onyx)
-      game.setup_complete(game.alabaster)
-    end
-
-    context 'when signed in', :signed_in do
-      context 'as alabaster' do
-        let(:game_parameters) { { alabaster: current_user, action_to: current_user } }
-
-        context 'no range_capture' do
-          it 'succeeds' do
-            put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: nil, format: :json
-            expect(response.status).to eql 200
-            expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: nil, action: "move", action_to_id: game.onyx_id})
-
-            game.reload
-            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
-            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
-          end
-        end
-
-        context 'valid move' do
-          it 'succeeds' do
-            put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
-            expect(response.status).to eql 200
-            expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>2, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
-
-            game.reload
-            expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
-            expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
-          end
-
-          context 'taking_king' do
             it 'succeeds' do
-              put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'1', 'y'=>'1'}, format: :json
+              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>1, 'y'=>1}, action: "complete", action_to_id: game.alabaster_id})
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: nil, range_capture: {'x'=>2, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
+            end
+          end
+
+          context 'movement and range capture' do
+            let(:piece_rule_parameters) { { capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 1, move_and_range_capture: true } }
+
+            it 'succeeds' do
+              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
+              expect(response.status).to eql 200
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>2, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
 
               game.reload
               expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
               expect(game.current_setup.get({'x'=>1, 'y'=>0}, Piece)).not_to be_nil
             end
           end
+
+          context 'capturing king' do
+            let(:piece_rule_parameters) { { capture_type: 'movement' } }
+
+            it 'succeeds' do
+              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'1'}, format: :json
+              expect(response.status).to eql 200
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, range_capture: nil, action: "complete", action_to_id: game.alabaster_id})
+
+              game.reload
+              expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
+              expect(game.current_setup.get({'x'=>0, 'y'=>1}, Piece)).not_to be_nil
+            end
+          end
         end
 
-        context 'invalid move' do
+        context 'invalid' do
+          let(:piece_rule_parameters) { { capture_type: 'movement' } }
+
           it 'fails' do
-            put :piece_move_with_range_capture, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, range_capture: {'x'=>'3', 'y'=>'0'}, format: :json
+            put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json({success: false})
 

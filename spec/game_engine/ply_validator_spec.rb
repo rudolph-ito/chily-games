@@ -11,56 +11,130 @@ describe PlyValidator do
   let(:piece_rule) { double :piece_rule }
   let(:from) { {'x'=>1, 'y'=>0} }
   let(:to) { {'x'=>1, 'y'=>1} }
-  let(:range_capture) { nil }
   let(:ply_calculator) { double :ply_calculator }
 
   before { PlyCalculator.stub(:new).with(board, current_setup).and_return(ply_calculator) }
 
-  context 'movement is invalid' do
-    before { ply_calculator.stub(:valid_plies).with(piece, piece.coordinate, 'movement').and_return([]) }
-
+  shared_examples 'returns false' do
     it 'returns false' do
       expect(ply_validator.call).to be_false
     end
   end
 
-  context 'movement is valid' do
-    before { ply_calculator.stub(:valid_plies).with(piece, piece.coordinate, 'movement').and_return([to]) }
+  shared_examples 'returns true' do
+    it 'returns true' do
+      expect(ply_validator.call).to be_true
+    end
+  end
 
-    context 'piece captures by movement' do
-      before { piece_rule.stub(:range_capture?).and_return(false) }
+  context 'piece captures by movement' do
+    let(:range_capture) { nil }
+    before { piece_rule.stub(:range_capture?).and_return(false) }
 
-      it 'returns true' do
-        expect(ply_validator.call).to be_true
-      end
+    context 'no movement' do
+      let(:to) { nil }
+      include_examples 'returns false'
     end
 
-    context 'piece captures by range' do
-      before { piece_rule.stub(:range_capture?).and_return(true) }
+    context 'movement invalid' do
+      before { ply_calculator.stub(:valid_plies).with(piece, from, 'movement').and_return([]) }
+      include_examples 'returns false'
+    end
 
-      context 'range_capture not specified' do
-        it 'returns true' do
-          expect(ply_validator.call).to be_true
+    context 'movement valid' do
+      before { ply_calculator.stub(:valid_plies).with(piece, from, 'movement').and_return([to]) }
+      include_examples 'returns true'
+    end
+  end
+
+  context 'piece captures by range' do
+    let(:range_capture) { {'x'=>1, 'y'=>2} }
+    before { piece_rule.stub(:range_capture?).and_return(true) }
+
+    context 'piece can move and range capture' do
+      before { piece_rule.stub(:move_and_range_capture?).and_return(true) }
+
+      context 'no movement' do
+        let(:to) { nil }
+
+        context 'no range capture' do
+          let(:range_capture) { nil }
+          include_examples 'returns false'
+        end
+
+        context 'range capture invalid' do
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([]) }
+          include_examples 'returns false'
+        end
+
+        context 'range capture valid' do
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([range_capture]) }
+          include_examples 'returns true'
         end
       end
 
-      context 'range capture specified' do
-        let(:range_capture) { {'x'=>2, 'y'=>2} }
+      context 'movement invalid' do
+        before { ply_calculator.stub(:valid_plies).with(piece, from, 'movement').and_return([]) }
+        include_examples 'returns false'
+      end
+
+      context 'movement valid' do
+        before { ply_calculator.stub(:valid_plies).with(piece, from, 'movement').and_return([to]) }
+
+        context 'no range capture' do
+          let(:range_capture) { nil }
+          include_examples 'returns true'
+        end
 
         context 'range capture invalid' do
           before { ply_calculator.stub(:valid_plies).with(piece, to, 'range').and_return([]) }
-
-          it 'returns false' do
-            expect(ply_validator.call).to be_false
-          end
+          include_examples 'returns false'
         end
 
         context 'range capture valid' do
           before { ply_calculator.stub(:valid_plies).with(piece, to, 'range').and_return([range_capture]) }
+          include_examples 'returns true'
+        end
+      end
+    end
 
-          it 'returns true' do
-            expect(ply_validator.call).to be_true
-          end
+    context 'piece cannot move and range capture' do
+      before { piece_rule.stub(:move_and_range_capture?).and_return(false) }
+
+      context 'no movement' do
+        let(:to) { nil }
+
+        context 'no range capture' do
+          let(:range_capture) { nil }
+          include_examples 'returns false'
+        end
+
+        context 'range capture invalid' do
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([]) }
+          include_examples 'returns false'
+        end
+
+        context 'range capture valid' do
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([range_capture]) }
+          include_examples 'returns true'
+        end
+      end
+
+      context 'movement invalid' do
+        before { ply_calculator.stub(:valid_plies).with(piece, from, 'movement').and_return([]) }
+        include_examples 'returns false'
+      end
+
+      context 'movement valid' do
+        before { ply_calculator.stub(:valid_plies).with(piece, from, 'movement').and_return([to]) }
+
+        context 'no range capture' do
+          let(:range_capture) { nil }
+          include_examples 'returns true'
+        end
+
+        context 'range capture specified' do
+          include_examples 'returns false'
         end
       end
     end

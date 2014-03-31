@@ -38,13 +38,12 @@ Authority.configure do |config|
     # Game
     abort: 'abort',
     opponent_setup: 'opponent_setup_read',
-    piece_move: 'move',
-    piece_move_with_range_capture: 'move',
+    move: 'move',
     setup_add: 'setup',
     setup_move: 'setup',
     setup_remove: 'setup',
     setup_complete: 'setup',
-    valid_piece_moves: 'read',
+    valid_plies: 'read',
     resign: 'resign'
   )
 

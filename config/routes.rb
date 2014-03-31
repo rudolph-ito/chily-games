@@ -15,7 +15,7 @@ Cyvasse::Application.routes.draw do
       end
 
       member do
-        get 'valid_piece_moves'
+        get 'valid_plies'
         get 'opponent_setup'
 
         put 'abort'
@@ -24,8 +24,7 @@ Cyvasse::Application.routes.draw do
         put 'setup_remove'
         put 'setup_complete'
 
-        put 'piece_move'
-        put 'piece_move_with_range_capture'
+        put 'move'
         put 'resign'
       end
     end

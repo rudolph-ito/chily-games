@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140321175726) do
+ActiveRecord::Schema.define(version: 20140330184344) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -61,6 +61,7 @@ ActiveRecord::Schema.define(version: 20140321175726) do
     t.integer "range_minimum"
     t.integer "range_maximum"
     t.string  "range_type"
+    t.boolean "move_and_range_capture"
   end
 
   create_table "piece_types", force: true do |t|

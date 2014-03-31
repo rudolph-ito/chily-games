@@ -19,6 +19,9 @@
             = piece_rule.capture_description
             - if piece_rule.range_capture?
               = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "range" }
+          .restriction
+            - if piece_rule.range_capture?
+              = piece_rule.range_capture_restriction
         - if include_actions
           %td.actions
             = link_to 'Edit', [:edit, piece_rule]

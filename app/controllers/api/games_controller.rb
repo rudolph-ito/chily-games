@@ -2,7 +2,7 @@ class Api::GamesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :get_game, except: [:current]
   before_filter :authorize, except: [:current]
-  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_piece_moves, :piece_move, :piece_move_with_range_capture]
+  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_plies, :move]
   before_filter :ensure_valid_type, only: [:setup_add, :setup_move, :setup_remove]
 
   def current
@@ -65,27 +65,19 @@ class Api::GamesController < ApplicationController
     @opponent_setup = @game.current_setup.for_user_id( @game.opponent_id(current_user.id) )
   end
 
-  def valid_piece_moves
-    piece = @game.get_piece(current_user, params[:coordinate])
-    moves = piece ? @game.valid_plies_for_user(current_user, piece, piece.coordinate, 'movement') : []
-    render json: moves
-  end
+  def valid_plies
+    plies = []
 
-  def piece_move
-    piece = @game.get_piece(current_user, params[:from])
-    if piece && PlyValidator.new(@game, piece, params[:to]).call
-      if piece.rule.range_capture?
-        render json: { success: false, from: params[:from], to: params[:to], range_captures: @game.valid_plies(piece, params[:to], 'range') }
-      else
-        MovePiece.new(@game, piece, params[:to]).call
-        render json: { success: true, from: params[:from], to: params[:to], action: @game.action, action_to_id: @game.action_to_id }
-      end
-    else
-      render json: { success: false }
+    if piece = @game.get_piece(current_user, params[:coordinate])
+      from = params[:from] || piece.coordinate
+      type = params[:type] || 'movement'
+      plies = @game.valid_plies_for_user(current_user, piece, from, type)
     end
+
+    render json: plies
   end
 
-  def piece_move_with_range_capture
+  def move
     piece = @game.get_piece(current_user, params[:from])
     if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
       MovePiece.new(@game, piece, params[:to], params[:range_capture]).call
