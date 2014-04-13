@@ -240,7 +240,7 @@ describe Api::GamesController do
             it 'returns success and change state to alabaster - move' do
               put :setup_complete, id: game.id, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, action: 'move', action_to_id: game.alabaster_id})
+              expect(response.body).to be_json({success: true, action: 'play', action_to_id: game.alabaster_id})
             end
           end
         end
@@ -278,7 +278,7 @@ describe Api::GamesController do
             it 'returns success and change state to alabaster - move' do
               put :setup_complete, id: game.id, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, action: 'move', action_to_id: game.alabaster_id})
+              expect(response.body).to be_json({success: true, action: 'play', action_to_id: game.alabaster_id})
             end
           end
         end
@@ -386,14 +386,14 @@ describe Api::GamesController do
     end
   end
 
-  describe 'move' do
+  describe 'ply' do
     let(:piece_type) { create :piece_type, name: 'King' }
     let(:variant) { create :variant, board_type: 'square', board_rows: 2, board_columns: 3 }
     let(:piece_rule_parameters) { {} }
     let!(:piece_rule) { create :piece_rule, {variant: variant, piece_type: piece_type, movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 1}.merge(piece_rule_parameters) }
 
     let(:game_parameters) { {} }
-    let(:game) { create :game, {action: 'move', variant: variant}.merge(game_parameters) }
+    let(:game) { create :game, {action: 'play', variant: variant}.merge(game_parameters) }
 
     before do
       AddToInitialSetup.new(game, Piece, {coordinate: {'x'=>0, 'y'=>0}, type_id: piece_type.id, user_id: game.alabaster_id}).call
@@ -411,9 +411,9 @@ describe Api::GamesController do
             let(:piece_rule_parameters) { { capture_type: 'movement' } }
 
             it 'succeeds' do
-              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
+              put :ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'1', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: nil, action: "move", action_to_id: game.onyx_id})
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: nil, action: 'play', action_to_id: game.onyx_id})
 
               game.reload
               expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
@@ -425,9 +425,9 @@ describe Api::GamesController do
             let(:piece_rule_parameters) { { capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 2 } }
 
             it 'succeeds' do
-              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
+              put :ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: nil, range_capture: {'x'=>2, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: nil, range_capture: {'x'=>2, 'y'=>0}, action: 'play', action_to_id: game.onyx_id})
             end
           end
 
@@ -435,9 +435,9 @@ describe Api::GamesController do
             let(:piece_rule_parameters) { { capture_type: 'range', range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 1, move_and_range_capture: true } }
 
             it 'succeeds' do
-              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
+              put :ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '1', 'y'=>'0'}, range_capture: {'x'=>'2', 'y'=>'0'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>2, 'y'=>0}, action: "move", action_to_id: game.onyx_id})
+              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>1, 'y'=>0}, range_capture: {'x'=>2, 'y'=>0}, action: 'play', action_to_id: game.onyx_id})
 
               game.reload
               expect(game.current_setup.get({'x'=>0, 'y'=>0}, Piece)).to be_nil
@@ -449,7 +449,7 @@ describe Api::GamesController do
             let(:piece_rule_parameters) { { capture_type: 'movement' } }
 
             it 'succeeds' do
-              put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'1'}, format: :json
+              put :ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'1'}, format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, range_capture: nil, action: "complete", action_to_id: game.alabaster_id})
 
@@ -464,7 +464,7 @@ describe Api::GamesController do
           let(:piece_rule_parameters) { { capture_type: 'movement' } }
 
           it 'fails' do
-            put :move, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, format: :json
+            put :ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'0'}, format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json({success: false})
 
@@ -479,7 +479,7 @@ describe Api::GamesController do
 
   describe 'resign' do
     let(:game_parameters) { {} }
-    let!(:game) { create :game, {action: 'move'}.merge(game_parameters) }
+    let!(:game) { create :game, {action: 'play'}.merge(game_parameters) }
 
     context 'when signed in', :signed_in do
       context 'as alabaster' do

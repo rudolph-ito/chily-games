@@ -16,8 +16,7 @@ class GameController extends Controller
     @socket.on 'chat', @server_chat
     @socket.on 'abort', @server_game_abort
     @socket.on 'setup_complete', @server_setup_complete
-    @socket.on 'piece_move', @server_piece_move
-    @socket.on 'piece_move_with_range_capture', @server_piece_move_with_range_capture
+    @socket.on 'ply', @server_ply
     @socket.on 'resign', @server_game_resign
 
     @container.on 'keyup', 'input[name=message]', @chat
@@ -66,8 +65,10 @@ class GameController extends Controller
     @alabaster_id = data.alabaster_id
     @alabaster_name = data.alabaster_name
     @color = data.color
+    @move_and_range_capture_piece_type_ids = data.move_and_range_capture_piece_type_ids
     @onyx_id = data.onyx_id
     @onyx_name = data.onyx_name
+    @range_capture_piece_type_ids = data.range_capture_piece_type_ids
     @variant_id = data.variant_id
 
   load_challenges: =>
@@ -244,33 +245,38 @@ class GameController extends Controller
         else
           @add_to_chat(data.errors.join("\n"))
 
-  valid_piece_moves: (coordinate) ->
+  valid_plies: (coordinate, type, from) ->
     $.ajax
-      url: @url('valid_piece_moves')
+      url: @url('valid_plies')
       dataType: 'json'
       method: 'GET'
       data:
         coordinate: coordinate
+        type: type
+        from: from
       success: (data) =>
         @board.dehighlight()
-        @board.highlight_valid_plies('movement', coordinate, data)
+        @board.highlight_valid_plies(type, from || coordinate, data)
 
-  piece_move: (from_coordinate, to_coordinate) =>
-    @emit_request 'piece_move',
-      path: @url('piece_move')
+  ply_valid: (from, to, success_callback) ->
+    $.ajax
+      url: @url('ply_valid')
+      dataType: 'json'
+      method: 'GET'
+      data:
+        from: from
+        to: to
+      success: (valid) ->
+        success_callback() if valid
+
+  ply: (from, to, range_capture) =>
+    @emit_request 'ply',
+      path: @url('ply')
       method: 'PUT'
       data:
-        from: from_coordinate
-        to: to_coordinate
-
-  piece_move_with_range_capture: (from_coordinate, to_coordinate, range_capture_coordinate) =>
-    @emit_request 'piece_move_with_range_capture',
-      path: @url('piece_move_with_range_capture')
-      method: 'PUT'
-      data:
-        from: from_coordinate
-        to: to_coordinate
-        range_capture: range_capture_coordinate
+        from: from
+        to: to
+        range_capture: range_capture
 
   abort_game: =>
     @emit_request 'abort', { path: @url('abort'), method: 'PUT' }
@@ -292,7 +298,7 @@ class GameController extends Controller
     @add_to_chat('Opponent is ready')
     @finish_setup()
 
-  server_piece_move: (data) =>
+  server_ply: (data) =>
     return unless data.backendResponse.status == 200
     data = $.parseJSON data.backendResponse.body
     if data.success
@@ -300,22 +306,8 @@ class GameController extends Controller
       @action_to_id = data.action_to_id
       @update_state()
 
-      @board.move_piece_by_coordinate(data.from, data.to)
-      @finish_game_if_complete()
-
-    else if data.range_captures
-      @board.get_range_capture_input(data.from, data.to, data.range_captures)
-
-  server_piece_move_with_range_capture: (data) =>
-    return unless data.backendResponse.status == 200
-    data = $.parseJSON data.backendResponse.body
-    if data.success
-      @action = data.action
-      @action_to_id = data.action_to_id
-      @update_state()
-
-      @board.move_piece_by_coordinate(data.from, data.to)
-      @board.remove_piece_by_coordinate(data.range_capture)
+      @board.piece_layer.move_by_coordinate(data.from, data.to) if data.to?
+      @board.piece_layer.remove_by_coordinate(data.range_capture) if data.range_capture?
       @finish_game_if_complete()
 
   server_game_abort: (data) =>

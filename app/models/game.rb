@@ -6,7 +6,7 @@ class Game < ActiveRecord::Base
   ########################################
 
   def self.actions
-    %w( setup move complete )
+    %w( setup play complete )
   end
 
   def self.sides
@@ -99,7 +99,7 @@ class Game < ActiveRecord::Base
     if action_to_id == nil
       self.action_to_id = opponent_id(user.id)
     else
-      self.action = 'move'
+      self.action = 'play'
       self.action_to_id = alabaster_id
       self.current_setup_json = self.initial_setup_json
     end

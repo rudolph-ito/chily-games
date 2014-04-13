@@ -1,10 +1,9 @@
-CoordinateMap = require("lib/coordinate_map")
 ObjectLayer = require('layers/object_layer')
 Set = require('lib/set')
 
 describe 'ObjectLayer', ->
   beforeEach ->
-    @board = { add_layer: sinon.spy(), nearest_coordinate: sinon.stub(), try_move: sinon.spy() }
+    @board = { add_layer: sinon.spy(), dragging: sinon.spy(), nearest_coordinate: sinon.stub(), try_move: sinon.spy() }
     @clone = {}
     @object = { clone: (=> @clone), coordinate: {x:0,y:0}, element: {}, remove: sinon.spy(), reset_position: sinon.spy(), update_coordinate: sinon.spy() }
 
@@ -14,9 +13,6 @@ describe 'ObjectLayer', ->
     sinon.stub @object_layer.element, 'add'
 
   describe '#constructor', ->
-    it 'sets coordinate_map as a CoordinateMap element to the board', ->
-      expect(@object_layer.coordinate_map).to.be.an.instanceOf CoordinateMap
-
     it 'sets setup as a Set', ->
       expect(@object_layer.setup).to.be.an.instanceOf Set
 
@@ -168,6 +164,10 @@ describe 'ObjectLayer', ->
     beforeEach ->
       @object = {}
       sinon.stub @object_layer, 'setup_replace'
+
+    it 'calls board.dragging', ->
+      @object_layer.drag_start(@object)
+      expect(@board.dragging).to.have.been.calledWith @object
 
     context 'object has no coordinate', ->
       it 'calls setup_replace', ->

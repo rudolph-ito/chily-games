@@ -1,8 +1,8 @@
-class MovePiece
+class Ply
 
   attr_accessor :game, :piece, :to, :range_capture
 
-  def initialize(game, piece, to, range_capture = nil)
+  def initialize(game, piece, to, range_capture)
     @game = game
     @piece = piece
     @to = to
@@ -18,12 +18,13 @@ class MovePiece
   private
 
   def move_piece
+    return unless should_move_piece?
     game.current_setup.move(piece, to)
   end
 
   def range_capture_piece
     return unless should_remove_range_captured_piece?
-    remove_range_captured_piece
+    game.current_setup.remove(range_captured_piece)
   end
 
   def update_game
@@ -36,16 +37,16 @@ class MovePiece
     game.update_attributes(attrs)
   end
 
-  def range_captured_piece
-    game.current_setup.get(range_capture, Piece)
+  def should_move_piece?
+    !to.nil?
   end
 
   def should_remove_range_captured_piece?
-    range_capture && range_captured_piece
+    !range_capture.nil? && range_captured_piece
   end
 
-  def remove_range_captured_piece
-    game.current_setup.remove(range_captured_piece)
+  def range_captured_piece
+    game.current_setup.get(range_capture, Piece)
   end
 
 end

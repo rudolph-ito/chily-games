@@ -1,4 +1,3 @@
-CoordinateMap = require("lib/coordinate_map")
 SpaceLayer = require('layers/space_layer')
 
 describe 'SpaceLayer', ->
@@ -10,10 +9,6 @@ describe 'SpaceLayer', ->
     @layer = new SpaceLayer @board
 
     sinon.stub @layer.element, 'add'
-
-  describe '#constructor', ->
-    it 'sets coordinate_map as a CoordinateMap element to the board', ->
-      expect(@layer.coordinate_map).to.be.an.instanceOf CoordinateMap
 
   describe '#add', ->
     it 'creates a piece', ->

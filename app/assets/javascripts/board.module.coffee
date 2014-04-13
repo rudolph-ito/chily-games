@@ -259,35 +259,50 @@ class Board
 
   click: (coordinate) ->
     if @selected_piece?
-      @try_move(@piece_layer, @selected_piece, coordinate)
-      @deselect_piece()
+      if _.isEqual(coordinate, @selected_piece.coordinate)
+        @update_selected_piece()
+      else
+        @try_move(@piece_layer, @selected_piece, coordinate)
+        @deselect_piece()
     else if @temporary_move
       range_capture = if _.isEqual(coordinate, @temporary_move.to) then null else coordinate
-      @game_controller.piece_move_with_range_capture(@temporary_move.from, @temporary_move.to, range_capture)
+      @game_controller.ply(@temporary_move.from, @temporary_move.to, range_capture)
       @clear_temporary_move()
     else
       piece = @piece_layer.coordinate_map.get(coordinate)
       @select_piece(piece) if piece
 
+  dragging: (object) ->
+    @deselect_piece() unless object is @selected_piece
+
   select_piece: (piece) ->
     @selected_piece = piece
-    @game_controller.valid_piece_moves(piece.coordinate)
+    @highlight_selected_piece('movement')
+
+  highlight_selected_piece: (type) ->
+    @game_controller.valid_plies(@selected_piece.coordinate, type)
+    @highlighting = type
 
   deselect_piece: ->
     @selected_piece = null
+    @highlighting = null
     @dehighlight()
+
+  update_selected_piece: ->
+    if @selected_piece.type_id() in @game_controller.range_capture_piece_type_ids and @highlighting == 'movement'
+      @highlight_selected_piece('range')
+    else
+      @deselect_piece()
+
+  get_range_capture_input: (from, to) ->
+    @temporary_move = from: from, to: to
+    @piece_layer.move_by_coordinate(from, to)
+    @game_controller.valid_plies(from, 'range', to)
 
   clear_temporary_move: ->
     @piece_layer.move_by_coordinate(@temporary_move.to, @temporary_move.from)
     @temporary_move = null
     @dehighlight()
-
-  get_range_capture_input: (from, to, range_captures) ->
-    return unless @coordinate_maps.piece.get(from).color == @color
-
-    @temporary_move = from: from, to: to
-    @move_piece_by_coordinate(from, to)
-    @highlight_valid_plies('range', to, range_captures)
 
   try_move: (layer, object, to) ->
     if @game_controller.user_in_setup()
@@ -297,7 +312,7 @@ class Board
 
   setup_try_move: (layer, object, to) ->
     from = object.coordinate
-    type = object.constructor.name
+    type = object.type()
 
     if !to? or !@home_space(to)
       layer.remove(object)
@@ -310,13 +325,20 @@ class Board
       if from
         @game_controller.setup_move(type, from, to)
       else
-        @game_controller.setup_add(type, 1, to)
+        @game_controller.setup_add(type, object.type_id(), to)
 
   play_try_move: (layer, object, to) ->
-     from = object.coordinate
-     @game_controller.piece_move(from, to) if to?
-     layer.reset(object)
+    from = object.coordinate
+    layer.reset(object)
 
+    return if !to? or _.isEqual(from, to)
+
+    if object.type_id() in @game_controller.move_and_range_capture_piece_type_ids
+      @game_controller.ply_valid from, to, => @get_range_capture_input(from, to)
+    else if @highlighting == 'range'
+      @game_controller.ply(from, null, to)
+    else
+      @game_controller.ply(from, to, null)
 
   ########################################
   # Helpers

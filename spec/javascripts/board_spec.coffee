@@ -16,16 +16,20 @@ describe 'Board', ->
     @color = 'alabaster'
     @options = { piece_types: [1,2,3], terrain_types: [4] }
     @game_controller =
+      range_capture_piece_type_ids: []
+      move_and_range_capture_piece_type_ids: []
+
       bottom_player_name: -> 'Player2'
       top_player_name: -> 'Player1'
       in_setup: -> false
       user_in_setup: -> false
-      piece_move: sinon.spy()
-      piece_move_with_range_capture: sinon.spy()
+
+      ply: sinon.spy()
+      ply_valid: sinon.stub()
       setup_add: sinon.spy()
       setup_move: sinon.spy()
       setup_remove: sinon.spy()
-      valid_piece_moves: sinon.spy()
+      valid_plies: sinon.spy()
 
     @board = new Board(@container, @color, @options, @game_controller)
     sinon.stub @board, 'add_space'
@@ -288,32 +292,65 @@ describe 'Board', ->
         @piece = new Piece { board: @board, layer: @board.piece_layer }
         @board.selected_piece = @piece
 
-      it 'calls try move', ->
-        sinon.stub @board, 'try_move'
-        @board.click({x:0,y:0})
-        expect(@board.try_move).to.have.been.calledWith @board.piece_layer, @piece, {x:0,y:0}
+      context 'the coordinate clicked is the same as the pieces coordinate', ->
+        beforeEach -> @piece.coordinate = {x:0,y:0}
 
-      it 'clears selected_piece', ->
-        @board.click({x:0,y:0})
-        expect(@board.selected_piece).to.eql null
+        context 'piece can range capture and currently highlighting movement', ->
+          beforeEach ->
+            @board.highlighting = 'movement'
+            @piece.type_id = -> 1
+            @game_controller.range_capture_piece_type_ids = [1]
 
-      it 'dehighlight the board', ->
-        sinon.stub @board, 'dehighlight'
-        @board.click({x:0,y:0})
-        expect(@board.dehighlight).to.have.been.called
+          it 'highlights range', ->
+            @board.click({x:0,y:0})
+            expect(@game_controller.valid_plies).to.have.been.calledWith {x:0,y:0}, 'range'
+
+        context 'otherwise', ->
+          it 'clears selected_piece', ->
+            @board.click({x:0,y:0})
+            expect(@board.selected_piece).to.eql null
+
+          it 'clears highlighting', ->
+            @board.click({x:0,y:0})
+            expect(@board.highlighting).to.eql null
+
+          it 'dehighlight the board', ->
+            sinon.stub @board, 'dehighlight'
+            @board.click({x:0,y:0})
+            expect(@board.dehighlight).to.have.been.called
+
+      context 'coordinate clicked is not the same as the piece coordinate', ->
+
+        it 'calls try move', ->
+          sinon.stub @board, 'try_move'
+          @board.click({x:0,y:0})
+          expect(@board.try_move).to.have.been.calledWith @board.piece_layer, @piece, {x:0,y:0}
+
+        it 'clears selected_piece', ->
+          @board.click({x:0,y:0})
+          expect(@board.selected_piece).to.eql null
+
+        it 'clears highlighting', ->
+          @board.click({x:0,y:0})
+          expect(@board.highlighting).to.eql null
+
+        it 'dehighlight the board', ->
+          sinon.stub @board, 'dehighlight'
+          @board.click({x:0,y:0})
+          expect(@board.dehighlight).to.have.been.called
 
     context 'there is temporary move', ->
       beforeEach -> @board.temporary_move = { from: {x:1,y:1}, to: {x:0,y:1} }
 
       context 'coordinate is equal to the temporary move location', ->
         beforeEach -> @board.click({x:0,y:1})
-        it 'calls game_controller.piece_move_with_range_capture properly', ->
-          expect(@game_controller.piece_move_with_range_capture).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
+        it 'calls game_controller.ply properly', ->
+          expect(@game_controller.ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
 
       context 'coordinate is not equal to the temporary move location', ->
         beforeEach -> @board.click({x:0,y:0})
-        it 'calls game_controller.piece_move_with_range_capture properly', ->
-          expect(@game_controller.piece_move_with_range_capture).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
+        it 'calls game_controller.ply properly', ->
+          expect(@game_controller.ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
 
       it 'undoes the temporary move', ->
         sinon.stub @board.piece_layer, 'move_by_coordinate'
@@ -340,9 +377,9 @@ describe 'Board', ->
           @board.click({x:0,y:0})
           expect(@board.selected_piece).to.eql @piece
 
-        it 'calls game_controller.valid_piece_moves', ->
+        it 'calls game_controller.valid_plies', ->
           @board.click({x:0,y:0})
-          expect(@game_controller.valid_piece_moves).to.have.been.calledWith {x:0,y:0}
+          expect(@game_controller.valid_plies).to.have.been.calledWith {x:0,y:0}, 'movement'
 
       context 'there is no piece at that coordinate', ->
         beforeEach ->
@@ -352,7 +389,7 @@ describe 'Board', ->
         it 'does nothing', ->
           @board.click({x:0,y:0})
           expect(@board.selected_piece).to.eql undefined
-          expect(@game_controller.valid_piece_moves).not.to.have.been.called
+          expect(@game_controller.valid_plies).not.to.have.been.called
 
   describe '#try_move', ->
 
@@ -385,7 +422,7 @@ describe 'Board', ->
 
     beforeEach ->
       @layer = { move: sinon.spy(), remove: sinon.spy(), reset: sinon.spy() }
-      @object = { constructor: { name: 'Piece' }, coordinate: {x:0,y:0} }
+      @object = { constructor: { name: 'Piece' }, coordinate: {x:0,y:0}, type: (-> 'Piece'), type_id: (-> 1) }
       @to = {x:1,y:1}
 
     context 'during setup', ->
@@ -428,22 +465,9 @@ describe 'Board', ->
                 expect(@game_controller.setup_move).to.have.been.calledWith 'Piece', {x:0,y:0}, {x:1,y:1}
 
     context 'during play', ->
-      beforeEach -> sinon.stub @game_controller, 'user_in_setup', -> false
-
       beforeEach ->
+        sinon.stub @game_controller, 'user_in_setup', -> false
         @object.coordinate = {x:0,y:0}
-        @to = {x:1,y:1}
-
-      context 'to is not null', ->
-        beforeEach -> @to = {x:1,y:1}
-
-        it 'calls layer.reset', ->
-          @board.try_move(@layer, @object, @to)
-          expect(@layer.reset).to.have.been.calledWith @object
-
-        it 'calls game_controller.piece_move', ->
-          @board.try_move(@layer, @object, @to)
-          expect(@game_controller.piece_move).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}
 
       context 'to is null', ->
         beforeEach -> @to = null
@@ -452,7 +476,56 @@ describe 'Board', ->
           @board.try_move(@layer, @object, @to)
           expect(@layer.reset).to.have.been.calledWith @object
 
-        it 'does not call game_controller.piece_move', ->
+        it 'does nothing', ->
           @board.try_move(@layer, @object, @to)
-          expect(@game_controller.piece_move).not.to.have.been.called
+          expect(@game_controller.ply).not.to.have.been.called
+          expect(@game_controller.ply_valid).not.to.have.been.called
+
+      context 'to is the same as object.coordinate', ->
+        beforeEach -> @to = {x:0,y:0}
+
+        it 'calls layer.reset', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@layer.reset).to.have.been.calledWith @object
+
+        it 'does nothing', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@game_controller.ply).not.to.have.been.called
+          expect(@game_controller.ply_valid).not.to.have.been.called
+
+      context 'to is not null and is not the same as object.coordinate', ->
+        beforeEach -> @to = {x:1,y:1}
+
+        it 'calls layer.reset', ->
+          @board.try_move(@layer, @object, @to)
+          expect(@layer.reset).to.have.been.calledWith @object
+
+        context 'object.type_id() is in move_and_range_capture_piece_type_ids', ->
+          beforeEach ->
+            @object.type_id = -> 1
+            @game_controller.move_and_range_capture_piece_type_ids = [1]
+
+          it 'calls game_controller.ply_valid', ->
+            @board.try_move(@layer, @object, @to)
+            expect(@game_controller.ply_valid).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}, sinon.match.func
+
+          context 'on success', ->
+            beforeEach -> @game_controller.ply_valid.callsArg(2)
+
+            it 'calls get_range_capture_input', ->
+              sinon.stub @board, 'get_range_capture_input'
+              @board.try_move(@layer, @object, @to)
+              expect(@board.get_range_capture_input).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}
+
+        context 'highlighting range', ->
+          beforeEach -> @board.highlighting = 'range'
+
+          it 'calls game_controller.ply', ->
+            @board.try_move(@layer, @object, @to)
+            expect(@game_controller.ply).to.have.been.calledWith {x:0,y:0}, null, {x:1,y:1}
+
+        context 'otherwise', ->
+          it 'calls game_controller.ply', ->
+            @board.try_move(@layer, @object, @to)
+            expect(@game_controller.ply).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}, null
 

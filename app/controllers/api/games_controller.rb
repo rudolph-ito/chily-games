@@ -2,7 +2,7 @@ class Api::GamesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :get_game, except: [:current]
   before_filter :authorize, except: [:current]
-  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_plies, :move]
+  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_plies, :ply_valid, :ply]
   before_filter :ensure_valid_type, only: [:setup_add, :setup_move, :setup_remove]
 
   def current
@@ -70,17 +70,26 @@ class Api::GamesController < ApplicationController
 
     if piece = @game.get_piece(current_user, params[:coordinate])
       from = params[:from] || piece.coordinate
-      type = params[:type] || 'movement'
+      type = params[:type]
       plies = @game.valid_plies_for_user(current_user, piece, from, type)
     end
 
     render json: plies
   end
 
-  def move
+  def ply_valid
     piece = @game.get_piece(current_user, params[:from])
     if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
-      MovePiece.new(@game, piece, params[:to], params[:range_capture]).call
+      render json: true
+    else
+      render json: false
+    end
+  end
+
+  def ply
+    piece = @game.get_piece(current_user, params[:from])
+    if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
+      Ply.new(@game, piece, params[:to], params[:range_capture]).call
       render json: { success: true, from: params[:from], to: params[:to], range_capture: params[:range_capture], action: @game.action, action_to_id: @game.action_to_id }
     else
       render json: { success: false }

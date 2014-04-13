@@ -24,7 +24,8 @@ Cyvasse::Application.routes.draw do
         put 'setup_remove'
         put 'setup_complete'
 
-        put 'move'
+        get 'ply_valid'
+        put 'ply'
         put 'resign'
       end
     end

@@ -1,4 +1,3 @@
-CoordinateMap = require('lib/coordinate_map')
 Layer = require('layer')
 Set = require('lib/set')
 
@@ -6,7 +5,6 @@ class ObjectLayer extends Layer
 
   constructor: ->
     super
-    @coordinate_map = new CoordinateMap
     @setup = new Set
 
   # Add
@@ -63,6 +61,7 @@ class ObjectLayer extends Layer
 
   drag_start: (object) ->
     @setup_replace(object) if !object.coordinate?
+    @board.dragging(object)
 
   drag_end: (object) ->
     pos = object.current_position()

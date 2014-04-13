@@ -1,11 +1,6 @@
-CoordinateMap = require('lib/coordinate_map')
 Layer = require('layer')
 
 class SpaceLayer extends Layer
-
-  constructor: ->
-    super
-    @coordinate_map = new CoordinateMap
 
   add: (coordinate) ->
     attrs =

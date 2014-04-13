@@ -22,6 +22,10 @@ class Space
     @update_position()
     @update_draggable()
 
+  update_coordinate: (coordinate) ->
+    @coordinate = coordinate
+    @update_position()
+
   update_position: ->
     {@x, @y} = @board.position(@coordinate) if @coordinate
     @element.attrs.x = @x
@@ -105,6 +109,12 @@ class Space
 
   remove: ->
     @element.remove()
+
+  type: ->
+    'Terrain'
+
+  type_id: ->
+    @display_option
 
   ############################################################
   # Clone

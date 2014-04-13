@@ -4,19 +4,19 @@ class GameAuthorizer < ApplicationAuthorizer
   end
 
   def opponent_setup_readable_by?(user)
-    resource.action == 'move' && in_game?(user)
+    resource.action == 'play' && in_game?(user)
   end
 
   def abortable_by?(user)
     resource.action == 'setup' && in_game?(user)
   end
 
-  def moveable_by?(user)
-    resource.action == 'move' && action_to?(user)
+  def ply_creatable_by?(user)
+    resource.action == 'play' && action_to?(user)
   end
 
   def resignable_by?(user)
-    ['attack', 'move'].include?(resource.action) && in_game?(user)
+    resource.action == 'play' && in_game?(user)
   end
 
   def setupable_by?(user)

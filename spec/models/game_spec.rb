@@ -11,8 +11,13 @@ describe Game do
         specify { expect(game).to be_valid }
       end
 
-      context 'equal to move' do
-        let(:game_params) { {action: 'move'} }
+      context 'equal to play' do
+        let(:game_params) { {action: 'play'} }
+        specify { expect(game).to be_valid }
+      end
+
+      context 'equal to complete' do
+        let(:game_params) { {action: 'complete'} }
         specify { expect(game).to be_valid }
       end
 

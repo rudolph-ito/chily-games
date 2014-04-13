@@ -33,3 +33,15 @@ node(:terrains) do |g|
     { terrain_type_id: t.type_id, coordinate: t.coordinate }
   end
 end
+
+node(:range_capture_piece_type_ids) do |g|
+  g.variant.piece_rules.select do |pr|
+    pr.range_capture?
+  end.map(&:piece_type_id)
+end
+
+node(:move_and_range_capture_piece_type_ids) do |g|
+  g.variant.piece_rules.select do |pr|
+    pr.range_capture? && pr.move_and_range_capture?
+  end.map(&:piece_type_id)
+end

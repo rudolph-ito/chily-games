@@ -38,7 +38,8 @@ Authority.configure do |config|
     # Game
     abort: 'abort',
     opponent_setup: 'opponent_setup_read',
-    move: 'move',
+    ply: 'ply_create',
+    ply_valid: 'read',
     setup_add: 'setup',
     setup_move: 'setup',
     setup_remove: 'setup',
@@ -69,9 +70,8 @@ Authority.configure do |config|
     decline: 'declinable',
     #Game
     abort: 'abortable',
-    attack: 'attackable',
-    move: 'moveable',
     opponent_setup_read: 'opponent_setup_readable',
+    ply_create: 'ply_creatable',
     resign: 'resignable',
     setup: 'setupable'
   )
