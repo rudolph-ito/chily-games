@@ -1,29 +1,33 @@
-- include_actions = signed_in? && current_user.can_manage?(variant)
+- exclude_actions = exclude_actions
+- include_actions = !exclude_actions && signed_in? && current_user.can_manage?(variant)
 
-%table
-  %tbody
-    - variant.piece_rules.each do |piece_rule|
-      %tr
-        %td.type-with-count
-          .text
-            = piece_rule.piece_type.name
-            (#{piece_rule.count})
-          .images
-            = image_tag piece_rule.piece_type.alabaster_image, size: '50x50'
-            = image_tag piece_rule.piece_type.onyx_image, size: '50x50'
-        %td
-          .movement
+%ul.rule-list
+  - variant.piece_rules.each do |piece_rule|
+    %li
+      .type
+        .name-and-count
+          = piece_rule.piece_type.name
+          (#{piece_rule.count})
+        .images
+          = image_tag piece_rule.piece_type.alabaster_image, size: '50x50'
+          = image_tag piece_rule.piece_type.onyx_image, size: '50x50'
+
+      .rules
+        %ul
+          %li.movement
             = piece_rule.movement_description
             = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "movement" }
-          .capture
+          %li.capture
             = piece_rule.capture_description
             - if piece_rule.range_capture?
               = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "range" }
-          .restriction
-            - if piece_rule.range_capture?
+          - if piece_rule.range_capture?
+            %li.restriction
               = piece_rule.range_capture_restriction
-        - if include_actions
-          %td.actions
-            = link_to 'Edit', [:edit, piece_rule]
-            - unless piece_rule.piece_type.king?
-              = link_to 'Delete', piece_rule, method: :delete, data: { confirm: 'Are you sure?' }
+
+      - if include_actions
+        .actions
+          = link_to 'Edit', [:edit, piece_rule]
+          %br
+          - unless piece_rule.piece_type.king?
+            = link_to 'Delete', piece_rule, method: :delete, data: { confirm: 'Are you sure?' }

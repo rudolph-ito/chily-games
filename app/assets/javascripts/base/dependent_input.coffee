@@ -1,4 +1,8 @@
 $ ->
+  $(document).on 'page:load', setupDependentInputs
+  setupDependentInputs()
+
+setupDependentInputs = ->
   $("[data-dependent]").each () ->
     input = $(this)
     name = input.data("dependent")

@@ -249,7 +249,7 @@ describe Api::GamesController do
           it 'returns errors' do
             put :setup_complete, id: game.id, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false, errors: ["Please place 2 dragons. You placed 0.", "Please place 1 mountain. You placed 0."]})
+            expect(response.body).to be_json({success: false, errors: ['You have not placed all your pieces.']})
           end
         end
       end
@@ -287,7 +287,7 @@ describe Api::GamesController do
           it 'returns errors' do
             put :setup_complete, id: game.id, format: :json
             expect(response.status).to eql 200
-            expect(response.body).to be_json({success: false, errors: ["Please place 2 dragons. You placed 0.", "Please place 1 mountain. You placed 0."]})
+            expect(response.body).to be_json({success: false, errors: ['You have not placed all your pieces.']})
           end
         end
       end

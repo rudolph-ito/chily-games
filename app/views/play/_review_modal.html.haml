@@ -1,0 +1,30 @@
+= content_for :modal do
+  .modal.review
+    .modal-dialog
+      .modal-content
+        .modal-body
+          %button.close(data-dismiss="modal") ×
+          .message
+          .form
+            .instructions
+              Please review the variant you just played.
+              %br
+              Feel free to play more before reviewing if you prefer.
+              %br
+              You can also update your review after playing more.
+            .variant
+              Cyvasse by admin
+            %form
+              %fieldset.inputs
+                %ol
+                  %li.input
+                    = label_tag 'rating', 'Rating', class: 'label'
+                    .rating
+                    = hidden_field_tag 'rating'
+                  %li.input
+                    = label_tag 'comment', 'Review', class: 'label'
+                    = text_area_tag 'comment'
+              %fieldset.actions
+                %ol
+                  %li.action
+                    %button(data-action='submit') Submit

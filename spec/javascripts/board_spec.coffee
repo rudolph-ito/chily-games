@@ -1,10 +1,8 @@
 Board = require("board")
-CoordinateMap = require('lib/coordinate_map')
 HexagonalBoard = require("boards/hexagonal_board")
 HighlightLayer = require('layers/highlight_layer')
 Piece = require('piece')
 PieceLayer = require('layers/piece_layer')
-Set = require('lib/set')
 SpaceLayer = require('layers/space_layer')
 SquareBoard = require("boards/square_board")
 TerrainLayer = require('layers/terrain_layer')
@@ -14,7 +12,8 @@ describe 'Board', ->
   beforeEach ->
     @container = $("<div style='height:100px;width:100px;'>")
     @color = 'alabaster'
-    @options = { piece_types: [1,2,3], terrain_types: [4] }
+    @setup_data = { piece_types: [{id: 1, count: 1}, {id: 2, count: 1}, {id: 3, count: 1}], terrain_types: [{id: 4, count: 3}] }
+    @options = { setup_data: @setup_data }
     @game_controller =
       range_capture_piece_type_ids: []
       move_and_range_capture_piece_type_ids: []
@@ -103,18 +102,11 @@ describe 'Board', ->
     it 'sets the color', ->
       expect(@board.color).to.eql('alabaster')
 
-    it 'sets the piece_types', ->
-      expect(@board.piece_types).to.eql([1,2,3])
-
-    it 'sets the terrain_types', ->
-      expect(@board.terrain_types).to.eql([4])
+    it 'sets the setup_data', ->
+      expect(@board.setup_data).to.eql(@setup_data)
 
     it 'sets the game_controller', ->
       expect(@board.game_controller).to.eql(@game_controller)
-
-    it 'sets header_height and footer_height', ->
-      expect(@board.header_height).to.eql(30)
-      expect(@board.footer_height).to.eql(30)
 
     it 'creates the stage', ->
       expect(@board.stage).to.be.an.instanceOf Kinetic.Stage
@@ -139,40 +131,33 @@ describe 'Board', ->
       expect(@board.piece_layer).to.be.an.instanceOf PieceLayer
       expect(@board.stage.children).to.include(@board.piece_layer.element)
 
-    it 'creates the info layer for any informative data', ->
-      expect(@board.info_layer).to.be.an.instanceOf Kinetic.Layer
-      expect(@board.stage.children).to.include(@board.info_layer)
-
   describe '#max_board_height', ->
     beforeEach ->
       @board.container = { height: -> 200 }
-      @board.header_height = 10
-      @board.footer_height = 10
-      @board.padding = 2
+      @board.padding = 5
 
-    it 'returns container height minus header and footer', ->
-      expect(@board.max_board_height()).to.eql(178)
+    it 'returns container height minus padding', ->
+      expect(@board.max_board_height()).to.eql(190)
 
   describe '#max_board_width', ->
     beforeEach ->
       @board.container = { width: -> 200 }
+      @board.padding = 5
 
-    it 'returns container width', ->
-      expect(@board.max_board_width()).to.eql(198)
+    it 'returns container width minus padding', ->
+      expect(@board.max_board_width()).to.eql(190)
 
   describe '#setup', ->
     beforeEach ->
       @board.board_height = 200
       @board.board_width = 200
-      @board.header_height = 10
-      @board.footer_height = 10
-      @board.padding = 2
       @board.setup_width = 20
+      @board.padding = 5
 
     it 'sets the stages height and width', ->
       @board.setup()
-      expect(@board.stage.getHeight()).to.eql(224)
-      expect(@board.stage.getWidth()).to.eql(224)
+      expect(@board.stage.getHeight()).to.eql(210)
+      expect(@board.stage.getWidth()).to.eql(230)
 
   describe '#draw', ->
     it 'calls setup', ->
@@ -186,11 +171,6 @@ describe 'Board', ->
       expect(@board.draw_space_layer).to.have.been.called
 
     context 'game_controller exists', ->
-      it 'calls draw_info_layer', ->
-        sinon.spy @board, 'draw_info_layer'
-        @board.draw()
-        expect(@board.draw_info_layer).to.have.been.called
-
       context 'action is setup', ->
         beforeEach -> sinon.stub @game_controller, 'in_setup', -> true
         it 'calls draw territories', ->
@@ -264,27 +244,6 @@ describe 'Board', ->
       sinon.stub @board.highlight_layer, 'clear'
       @board.dehighlight()
       expect(@board.highlight_layer.clear).to.have.been.called
-
-  describe 'add_header', ->
-    it 'sets header', ->
-      @board.add_header()
-      expect(@board.header).to.be.instanceOf Kinetic.Text
-
-    it 'adds to info layer', ->
-      sinon.spy @board.info_layer, 'add'
-      @board.add_header()
-      expect(@board.info_layer.add).to.have.been.called
-
-  describe 'add_footer', ->
-    it 'sets footer', ->
-      @board.add_footer()
-      expect(@board.footer).to.be.instanceOf Kinetic.Text
-
-    it 'adds to info layer', ->
-      sinon.spy @board.info_layer, 'add'
-      @board.add_footer()
-      expect(@board.info_layer.add).to.have.been.called
-
 
   describe '#click', ->
     context 'a piece is selected', ->
@@ -393,32 +352,15 @@ describe 'Board', ->
 
   describe '#try_move', ->
 
-
-    itShouldBeRemoved = ->
-      it 'calls layer.remove', ->
+    itShouldBeReset = ->
+      it 'calls layer.reset', ->
         @board.try_move(@layer, @object, @to)
-        expect(@layer.remove).to.have.been.calledWith @object
-
-      context 'from is null', ->
-        beforeEach -> @object.coordinate = null
-
-        it 'calls game_controller.setup_remove', ->
-          @board.try_move(@layer, @object, @to)
-          expect(@game_controller.setup_remove).not.to.have.been.calledWith
-
-      context 'from is not null', ->
-        beforeEach -> @object.coordinate = {x:0,y:0}
-
-        it 'calls game_controller.setup_remove', ->
-          @board.try_move(@layer, @object, @to)
-          expect(@game_controller.setup_remove).to.have.been.calledWith 'Piece', {x:0,y:0}
-
+        expect(@layer.reset).to.have.been.calledWith @object
 
     itShouldBeMoved = ->
       it 'calls layer.move with the object', ->
         @board.try_move(@layer, @object, @to)
         expect(@layer.move).to.have.been.calledWith @object, @to
-
 
     beforeEach ->
       @layer = { move: sinon.spy(), remove: sinon.spy(), reset: sinon.spy() }
@@ -430,24 +372,21 @@ describe 'Board', ->
 
       context 'to is null', ->
         beforeEach -> @to = null
-        itShouldBeRemoved()
+        itShouldBeReset()
 
       context 'to is not null', ->
         beforeEach -> @to = {x:1,y:1}
 
         context 'to is not a home square', ->
           beforeEach -> sinon.stub @board, 'home_space', -> false
-          itShouldBeRemoved()
+          itShouldBeReset()
 
         context 'to is a home square', ->
           beforeEach -> sinon.stub @board, 'home_space', -> true
 
           context 'from == to', ->
             beforeEach -> @object.coordinate = {x:1,y:1}
-
-            it 'calls layer.reset', ->
-              @board.try_move(@layer, @object, @to)
-              expect(@layer.reset).to.have.been.calledWith @object
+            itShouldBeReset()
 
           context 'from != to', ->
             context 'from is null', ->

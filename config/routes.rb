@@ -15,6 +15,7 @@ Cyvasse::Application.routes.draw do
       end
 
       member do
+        get 'rules'
         get 'valid_plies'
         get 'opponent_setup'
 

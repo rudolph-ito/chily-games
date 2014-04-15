@@ -16,23 +16,20 @@ class SquareBoard extends Board
 
   setup: (max_width, max_height) ->
     if @game_controller?.user_in_setup()
-      @setup_rows = @board_rows
-      @setup_columns = Math.ceil((@piece_types.length + @terrain_types.length) / @board_rows)
-
-      setup_spaces = @setup_columns
-      setup_padding = 10
+      @setup_rows = Math.floor(@board_rows / 1.1)
+      @setup_columns = Math.ceil(@setup_count() / @setup_rows)
+      setup_spaces = @setup_columns * 1.1 + 0.05
     else
       setup_spaces = 0
-      setup_padding = 0
 
-    max_space_width = (@max_board_width() - setup_padding) / (@board_columns + setup_spaces)
+    max_space_width = @max_board_width() / (@board_columns + setup_spaces)
     max_space_height = @max_board_height() / @board_rows
 
     @space_size = Math.min.apply(null, [max_space_width, max_space_height])
     @piece_size = @space_size * 0.9
 
-    @setup_size = @space_size
-    @setup_width = @space_size * setup_spaces + setup_padding
+    @setup_size = @space_size * 1.1
+    @setup_width = @space_size * setup_spaces
     @board_width = @space_size * @board_columns
     @board_height = @space_size * @board_rows
 

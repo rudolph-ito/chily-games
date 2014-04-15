@@ -7,8 +7,9 @@ class GameController extends Controller
     super
     @container = $('.game')
     @board_container = $('.board')
-    @chat_container = @container.find(".chat")
-    @chat_input = @container.find("input[name=message]")
+    @chat_messages = @container.find(".chat .messages")
+    @chat_input = @container.find(".chat input[name=message]")
+    @help_container = @container.find('.help')
 
   activate: ->
     super
@@ -24,7 +25,7 @@ class GameController extends Controller
     @container.on 'click', '[data-action=setup_complete]', @setup_complete
     @container.on 'click', '[data-action=resign]', @resign_game
 
-    @chat_container.html('')
+    @chat_messages.html('')
     @join("g#{@game_id}")
 
     @load_game()
@@ -44,14 +45,19 @@ class GameController extends Controller
   load_game: ->
     $.getJSON @url(), (data) =>
       @parse_data(data)
-      @update_state()
-      @update_actions()
-      @add_to_chat(data.message) if @user_in_setup()
+      @update_controls()
+      @update_players()
 
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
       @board.add_terrains(data.terrains)
       @board.add_pieces(data.pieces)
+
+    $.ajax
+      url: @url('rules.html')
+      method: 'GET'
+      success: (data) =>
+        @container.find('#rules').html(data)
 
   in_setup: ->
     @action == 'setup'
@@ -83,54 +89,56 @@ class GameController extends Controller
   bottom_player_name: ->
     if @color == 'onyx' then @onyx_name else @alabaster_name
 
+  opponent_name: ->
+    if @user_id == @alabaster_id
+      @onyx_name
+    else
+      @alabaster_name
+
   ########################################
   # Update UI
   ########################################
 
   update_controls: ->
-    @update_state()
-    @update_actions()
+    @update_status()
 
-  update_state: ->
-    @container.find('.state').text( @state() )
-
-  state: ->
-    name = switch @action_to_id
-      when @alabaster_id then @alabaster_name
-      when @onyx_id then @onyx_name
-      else "Both players"
-
-    if @action == 'setup'
-      "#{name} to complete setup"
+  update_status: ->
+    [message, cssClass] = if @user_in_setup()
+      ['Please place your pieces. <a data-action="setup_complete">Click here when done.</a>', 'green']
+    else if @in_setup()
+      ["Waiting for #{@opponent_name()} to place their pieces", 'yellow']
+    else if @action_to_id == @user_id
+      ['Your move', 'green']
     else
-      "#{name} to move"
+      player = if @action_to_id == @alabaster_id then @alabaster_name else @onyx_name
+      ["#{@opponent_name()} to move", 'yellow']
 
-  update_actions: ->
-    actions = {
-      setup_complete: @user_in_setup()
-      abort: @action == 'setup'
-      resign: @action == 'move'
-    }
+    @container.find('.status').html(message).removeClass('green yellow').addClass(cssClass)
 
-    for name, should_display of actions
-      element = @container.find("[data-action=#{name}]")
-      if should_display then element.show() else element.hide()
+  update_help: (message) ->
+    @help_container.html(message.replace(/\n/g, '<br/>'))
 
-  add_to_chat: (message, username = 'server') ->
-    last_div = @chat_container.find("> div:last-child")
-    if last_div.data("username") is username
-      div = last_div
-    else
-      div = $('<div data-username="' + username + '">')
-      div.append $('<div class="username">').text(username)
-      @chat_container.append(div)
+    @container.find('a[href="#game"]').tab('show')
 
-    div.append($('<div class="message">').html(message.replace(/\n/g, "<br/>")))
+    @help_container.addClass('highlight')
+    dehighlight = => @help_container.removeClass('highlight')
+    setTimeout dehighlight, 250
+
+  update_players: ->
+    @container.find('.top-player').text( @top_player_name() )
+    @container.find('.bottom-player').text( @bottom_player_name() )
+
+  add_to_chat: (message, username) ->
+    @chat_messages.append $('<div class="message">').html("#{username}: #{message}")
+
+  connection_message: (message, connected) ->
+    cssClass = if connected then 'connect' else 'disconnect'
+    @chat_messages.append $('<div>').addClass(cssClass).html(message)
 
   finish_setup: ->
-    return unless @action == 'move'
-
     @board.redraw()
+
+    return unless @action == 'play'
 
     $.ajax
       url: @url('opponent_setup')
@@ -138,7 +146,6 @@ class GameController extends Controller
       success: (data) =>
         @board.add_pieces(data.pieces)
         @board.add_terrains(data.terrains)
-        @add_to_chat('Let the battle begin!')
 
   finish_game_if_complete: ->
     if @action == 'complete'
@@ -158,7 +165,7 @@ class GameController extends Controller
     $('.modal').on 'hide.bs.modal', @load_challenges
     $('.modal').on 'click', '[data-action=submit]', @submit_review
     $('.modal .message').text("Game Over - #{message}")
-    $('.modal .review').show()
+    $('.modal .form').show()
 
     raty_options =
       target: '[name=rating]'
@@ -169,7 +176,7 @@ class GameController extends Controller
       $('.modal .review .rating').raty(raty_options).raty('score', data.rating)
       $('.modal .review [name=comment]').val(data.comment)
 
-    $('.modal').modal()
+    $('.modal.review').modal()
 
   submit_review: (e) =>
     e.preventDefault()
@@ -236,14 +243,11 @@ class GameController extends Controller
           @action = data.action
           @action_to_id = data.action_to_id
           @update_controls()
-          @add_to_chat('Setup complete')
+          @finish_setup()
 
           @emit_broadcast 'setup_complete', {action: @action, action_to_id: @action_to_id}, false
-
-          @board.redraw()
-          @finish_setup()
         else
-          @add_to_chat(data.errors.join("\n"))
+          @update_help(data.errors.join("\n"))
 
   valid_plies: (coordinate, type, from) ->
     $.ajax
@@ -295,7 +299,6 @@ class GameController extends Controller
     @action = data.broadcast.action
     @action_to_id = data.broadcast.action_to_id
     @update_controls()
-    @add_to_chat('Opponent is ready')
     @finish_setup()
 
   server_ply: (data) =>
@@ -304,7 +307,7 @@ class GameController extends Controller
     if data.success
       @action = data.action
       @action_to_id = data.action_to_id
-      @update_state()
+      @update_status()
 
       @board.piece_layer.move_by_coordinate(data.from, data.to) if data.to?
       @board.piece_layer.remove_by_coordinate(data.range_capture) if data.range_capture?
@@ -323,14 +326,14 @@ class GameController extends Controller
   server_player_joined: (data) =>
     if data.userId == @user_name
       for name in data.usersInRoom when name isnt @user_name
-        @add_to_chat("#{name} is here")
+        @connection_message("#{name} is here", true)
 
     else
-      @add_to_chat("#{data.userId} joined")
+      @connection_message("#{data.userId} joined", true)
 
   server_player_left: (data) =>
     return if data.userId == @user_name
-    @add_to_chat("#{data.userId} left")
+    @connection_message("#{data.userId} left", false)
 
 
 module.exports = GameController

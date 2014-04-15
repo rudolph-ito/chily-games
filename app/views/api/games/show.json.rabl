@@ -8,28 +8,31 @@ node(:variant_id) { |g| g.variant_id }
 node :options do |g|
   out = g.variant.board_info
 
-  if g.action == 'setup'
-     out[:piece_types] = g.variant.piece_rules.pluck(:piece_type_id)
-     out[:terrain_types] = g.variant.terrain_rules.pluck(:terrain_type_id)
+  if g.action == 'setup' && (g.action_to_id == nil || g.action_to_id == current_user.id)
+    piece_types = g.variant.piece_rules.select([:piece_type_id, :count]).map do |pr|
+      count = pr.count - @pieces.count{ |p| p.type_id == pr.piece_type_id }
+      { id: pr.piece_type_id, count: count }
+    end
+
+    terrain_types = g.variant.terrain_rules.select([:terrain_type_id, :count]).map do |tr|
+      count = tr.count - @terrains.count{ |t| t.type_id == tr.terrain_type_id }
+      { id: tr.terrain_type_id, count: count }
+    end
+
+    out[:setup_data] = { piece_types: piece_types, terrain_types: terrain_types }
   end
 
   out
 end
 
-node(:message, :if => lambda { |g| g.action == 'setup' }) do |g|
-  g.variant.setup_message
-end
-
-node(:pieces) do |g|
-  pieces = g.setup_for_user(current_user).for_class(Piece)
-  pieces.map do |p|
+node(:pieces) do
+  @pieces.map do |p|
     { piece_type_id: p.type_id, coordinate: p.coordinate, color: p.color }
   end
 end
 
-node(:terrains) do |g|
-  terrains = g.setup_for_user(current_user).for_class(Terrain)
-  terrains.map do |t|
+node(:terrains) do
+  @terrains.map do |t|
     { terrain_type_id: t.type_id, coordinate: t.coordinate }
   end
 end

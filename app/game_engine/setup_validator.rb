@@ -15,14 +15,18 @@ class SetupValidator
   private
 
   def count_errors
-    ['piece', 'terrain'].flat_map do |type|
-      game.variant.send("#{type}_rules").map do |rule|
+    error = ['piece', 'terrain'].any? do |type|
+      game.variant.send("#{type}_rules").any? do |rule|
         placed = send("#{type.pluralize}").count{ |o| o.send("type_id") == rule.send("#{type}_type_id") }
-        if placed != rule.count
-          "Please place #{rule.count_with_name}. You placed #{placed}."
-        end
+        placed != rule.count
       end
-    end.compact
+    end
+
+    if error
+      ["You have not placed all your pieces."]
+    else
+      []
+    end
   end
 
   def placement_errors

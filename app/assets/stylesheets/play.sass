@@ -1,10 +1,14 @@
 @import compass/css3/box-sizing
+@import compass/css3/transition
 @import compass/utilities/general/clearfix
 
-$actions-height: 20px
-$state-height: 30px
+$status-height: 30px
+$status-margin: 10px
+$player-height: 30px
+$help-height: 150px
+$help-margin: 5px
 $input-height: 24px
-$margin: 10px
+$input-margin: 5px
 
 body.play
   overflow: hidden
@@ -16,61 +20,69 @@ body.play
 section.play
   height: 100%
 
-  .board
-    float: left
-    width: calc(75% - 10px)
+  .game
     height: 100%
+    width: 100%
+    display: none
+
+  .board-wrapper
+    float: left
+    height: 100%
+    width: calc(75% - 10px)
+
+  .status
+    height: $status-height
+    margin-bottom: $status-margin
+    padding: 2px
+    text-align: center
+    font-size: 24px
+
+    &.green
+      background-color: #ccdfcd
+    &.yellow
+      background-color: #f7f1d3
+
+  .top-player, .bottom-player
+    height: $player-height
+    text-align: center
+    line-height: 30px
+    font-size: 20px
+
+  .board
+    height: calc(100% - #{$status-height} - #{$status-margin} - #{$player-height} * 2)
+    width: 100%
     text-align: center
 
     .kineticjs-content
       text-align: left
 
-  .control
+  .aside
     float: right
     width: 25%
     height: 100%
-    padding: 30px 0
     +box-sizing(border-box)
 
-    .challenges
-      margin: 0 auto
-      display: none
+    .help
+      height: $help-height
+      margin-bottom: $help-margin
+      background-color: #f5f1c5
+      +box-sizing(border-box)
+      padding: 5px 10px
+      +transition(all, 0.25s)
 
-      .title
-        font-weight: bold
-        margin-bottom: 10px
+      &.highlight
+        background-color: darken(#f5f1c5, 25%)
 
-      .new
-        margin-bottom: 10px
+    .chat
+      height: calc(100% - #{$help-height} - #{$help-margin})
+      background-color: #eee
 
-        ul
-          list-style: none
-          padding: 0
-          margin: 0
+      $input-margin: 5px
 
-          li
-            padding: 0 10px 5px 0
+      .messages
+        height: calc(100% - #{$input-height} - #{$input-margin} * 2)
+        padding: 5px 10px
 
-    .game
-      height: 100%
-      display: none
-
-      .actions
-        height: $actions-height
-        margin-bottom: $margin
-        +box-sizing(border-box)
-
-      .state
-        height: $state-height
-        margin-bottom: $margin
-        padding: 5px
-        +box-sizing(border-box)
-
-      .chat
-        height: calc(100% - #{$actions-height} - #{$state-height} - #{$input-height} - 3 * #{$margin})
-        margin-bottom: $margin
-        padding: 5px
-        border: 1px solid black
         +box-sizing(border-box)
         overflow: scroll
 
@@ -85,18 +97,63 @@ section.play
           text-transform: uppercase
 
         .message
-          padding: 5px 10px
           background-color: #F0F0F0
           border-radius: 10px
-          margin-bottom: 3px
+
+        .disconnect
+          color: red
+
+        .connect
+          color: green
 
       input
+        width: calc(100% - #{$input-margin} * 2)
         height: $input-height
-        width: 100%
         padding: 2px 5px
+        margin: $input-margin
         +box-sizing(border-box)
         border-radius: 5px
         border: 1px solid #CCC
+
+    ul.rule-list
+      > li
+        margin-bottom: 30px
+
+      .type
+        +clearfix
+
+        > *
+          float: left
+
+        .name-and-count
+          height: 50px
+          line-height: 50px
+          margin-right: 25px
+
+
+      .rules
+        ul
+          list-style-type: disc
+          margin-left: 20px
+
+  .challenges
+    margin: 0 auto
+    display: none
+
+    .title
+      font-weight: bold
+      margin-bottom: 10px
+
+    .new
+      margin-bottom: 10px
+
+      ul
+        list-style: none
+        padding: 0
+        margin: 0
+
+        li
+          padding: 0 10px 5px 0
 
 .modal.review
   .message

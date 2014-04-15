@@ -1,19 +1,22 @@
-- include_actions = signed_in? && current_user.can_manage?(variant)
+- exclude_actions = exclude_actions
+- include_actions = !exclude_actions && signed_in? && current_user.can_manage?(variant)
 
-%table
-  %tbody
-    - variant.terrain_rules.each do |terrain_rule|
-      %tr
-        %td.type-with-count
-          .text
-            = terrain_rule.terrain_type.name
-            (#{terrain_rule.count})
-          .image
-            = image_tag terrain_rule.terrain_type.image, size: '50x50'
-        %td
-          - terrain_rule.rule_descriptions.each do |r|
-            .rule= r
-        - if include_actions
-          %td.actions
-            = link_to 'Edit', [:edit, terrain_rule]
-            = link_to 'Delete', terrain_rule, method: :delete, data: { confirm: 'Are you sure?' }
+%ul.rule-list
+  - variant.terrain_rules.each do |terrain_rule|
+    .type
+      .name-and-count
+        = terrain_rule.terrain_type.name
+        (#{terrain_rule.count})
+      .image
+        = image_tag terrain_rule.terrain_type.image, size: '50x50'
+
+    .rules
+      %ul
+        - terrain_rule.rule_descriptions.each do |r|
+          %li.rule= r
+
+    - if include_actions
+      .actions
+        = link_to 'Edit', [:edit, terrain_rule]
+        %br
+        = link_to 'Delete', terrain_rule, method: :delete, data: { confirm: 'Are you sure?' }

@@ -45,7 +45,8 @@ Authority.configure do |config|
     setup_remove: 'setup',
     setup_complete: 'setup',
     valid_plies: 'read',
-    resign: 'resign'
+    resign: 'resign',
+    rules: 'read'
   )
 
   # ABILITIES

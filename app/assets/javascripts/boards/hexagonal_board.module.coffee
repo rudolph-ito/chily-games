@@ -18,16 +18,14 @@ class HexagonalBoard extends Board
     horizontal_radii = 2 * (2 * @board_size - 1) * Math.cos(Math.PI/6)
 
     if @game_controller?.user_in_setup()
-      @setup_rows = Math.floor(vertical_radii / 2)
-      @setup_columns = Math.ceil((@piece_types.length + @terrain_types.length) / @setup_rows)
+      @setup_rows = Math.floor(vertical_radii / 2 / 1.1)
+      @setup_columns = Math.ceil(@setup_count() / @setup_rows)
 
-      setup_horizontal_radii = @setup_columns * 2
-      setup_padding = 10
+      setup_horizontal_radii = @setup_columns * 2 * 1.1 + 0.1
     else
       setup_horizontal_radii = 0
-      setup_padding = 0
 
-    max_horizontal_radius = (@max_board_width() - setup_padding) / (horizontal_radii + setup_horizontal_radii)
+    max_horizontal_radius = @max_board_width() / (horizontal_radii + setup_horizontal_radii)
     max_vertical_radius = @max_board_height() / vertical_radii
 
     @space_radius = Math.min.apply(null, [max_vertical_radius, max_horizontal_radius])
@@ -37,8 +35,8 @@ class HexagonalBoard extends Board
 
     @piece_size = @delta_x / Math.sqrt(2) * 2
 
-    @setup_size = @space_radius * 2
-    @setup_width = @space_radius * setup_horizontal_radii + setup_padding
+    @setup_size = @space_radius * 2 * 1.1
+    @setup_width = @space_radius * setup_horizontal_radii
     @board_width = @space_radius * horizontal_radii
     @board_height = @space_radius * vertical_radii
 

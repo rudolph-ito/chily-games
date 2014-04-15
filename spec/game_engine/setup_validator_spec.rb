@@ -21,43 +21,13 @@ describe SetupValidator do
     end
 
     context 'setup is invalid' do
-      context 'too few of piece type' do
-        let(:initial_setup_json) { {'1,0'=>{'Terrain'=>[terrain_type.id, user.id]}} }
+      context 'not all pieces placed' do
+        let(:initial_setup_json) { {} }
 
         it 'returns false with errors' do
           result, errors = setup_validator.call
           expect(result).to be_false
-          expect(errors).to eql ['Please place 1 king. You placed 0.']
-        end
-      end
-
-      context 'too many of piece type' do
-        let(:initial_setup_json) { {'0,0'=>{'Piece'=>[piece_type.id, user.id]}, '1,0'=>{'Terrain'=>[terrain_type.id, user.id]}, '2,0'=>{'Piece'=>[piece_type.id, user.id]}} }
-
-        it 'returns false with errors' do
-          result, errors = setup_validator.call
-          expect(result).to be_false
-          expect(errors).to eql ['Please place 1 king. You placed 2.']
-        end
-      end
-
-      context 'too few of terrain type' do
-        let(:initial_setup_json) { {'0,0'=>{'Piece'=>[piece_type.id, user.id]}} }
-
-        it 'returns false with errors' do
-          result, errors = setup_validator.call
-          expect(result).to be_false
-          expect(errors).to eql ['Please place 1 mountain. You placed 0.']
-        end
-      end
-
-      context 'too many of terrain type' do
-        let(:initial_setup_json) { {'0,0'=>{'Piece'=>[piece_type.id, user.id]}, '1,0'=>{'Terrain'=>[terrain_type.id, user.id]}, '2,0'=>{'Terrain'=>[terrain_type.id, user.id]}} }
-
-        it 'returns false with errors' do
-          result, errors = setup_validator.call
-          expect(result).to be_false
-          expect(errors).to eql ['Please place 1 mountain. You placed 2.']
+          expect(errors).to eql ["You have not placed all your pieces."]
         end
       end
 

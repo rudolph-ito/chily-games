@@ -37,14 +37,24 @@ section.variant
       a
         font-weight: normal
 
-    table
-      td
-        vertical-align: top
+    ul.rule-list
+      li
+        +clearfix
 
-        &.type-with-count
-          width: 120px
-        &.actions
-          width: 80px
+    .type
+      float: left
+      width: 120px
+      margin-right: 20px
+
+    .rules
+      float: left
+      width: 560px
+      margin-right: 20px
+
+    .actions
+      float: right
+      width: 80px
+      text-align: right
 
 #preview.modal
   top: 10%

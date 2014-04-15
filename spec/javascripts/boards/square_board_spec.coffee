@@ -14,7 +14,7 @@ describe 'SquareBoard', ->
           @square_board.max_board_height = -> 600
           @square_board.max_board_width = -> 800
 
-        it 'sets the radius properly', ->
+        it 'sets the dimensions properly', ->
           @square_board.setup()
           expect(@square_board.space_size).to.eql(75)
           expect(@square_board.board_height).to.eql(600)
@@ -26,7 +26,7 @@ describe 'SquareBoard', ->
           @square_board.max_board_height = -> 600
           @square_board.max_board_width = -> 400
 
-        it 'sets the radius properly', ->
+        it 'sets the dimensions properly', ->
           @square_board.setup()
           expect(@square_board.space_size).to.eql(50)
           expect(@square_board.board_height).to.eql(400)
@@ -41,27 +41,25 @@ describe 'SquareBoard', ->
 
       context 'one column for setup', ->
         beforeEach ->
-          @square_board.piece_types = [1,2,3,4,5,6,7]
-          @square_board.terrain_types = [8]
+          @square_board.setup_count = -> 7
 
-        it 'sets the radius properly', ->
+        it 'sets the dimensions properly', ->
           @square_board.setup()
           expect(@square_board.space_size).to.eql(75)
           expect(@square_board.board_height).to.eql(600)
           expect(@square_board.board_width).to.eql(600)
-          expect(@square_board.setup_width).to.eql(85)
+          expect(@square_board.setup_width).to.be.within(86, 87)
 
       context 'two columns for setup', ->
         beforeEach ->
-          @square_board.piece_types = [1,2,3,4,5,6,7]
-          @square_board.terrain_types = [8,9]
+          @square_board.setup_count = -> 8
 
-        it 'sets the radius properly', ->
+        it 'sets the dimensions properly', ->
           @square_board.setup()
           expect(@square_board.space_size).to.eql(75)
           expect(@square_board.board_height).to.eql(600)
           expect(@square_board.board_width).to.eql(600)
-          expect(@square_board.setup_width).to.eql(160)
+          expect(@square_board.setup_width).to.be.within(168, 169)
 
   describe '#add_spaces', ->
     context "board_rows 3, board_columns 4", ->

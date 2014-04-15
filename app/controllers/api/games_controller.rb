@@ -10,6 +10,12 @@ class Api::GamesController < ApplicationController
   end
 
   def show
+    @pieces = @game.setup_for_user(current_user).for_class(Piece)
+    @terrains = @game.setup_for_user(current_user).for_class(Terrain)
+  end
+
+  def rules
+    render :rules, layout: false
   end
 
   ########################################

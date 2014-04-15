@@ -1,5 +1,4 @@
 ObjectLayer = require('layers/object_layer')
-Set = require('lib/set')
 
 describe 'ObjectLayer', ->
   beforeEach ->
@@ -11,10 +10,6 @@ describe 'ObjectLayer', ->
 
     sinon.stub @object_layer, 'draw'
     sinon.stub @object_layer.element, 'add'
-
-  describe '#constructor', ->
-    it 'sets setup as a Set', ->
-      expect(@object_layer.setup).to.be.an.instanceOf Set
 
   describe '#add', ->
     it 'adds the piece to the element', ->
@@ -30,10 +25,10 @@ describe 'ObjectLayer', ->
     context 'piece does not have a coordinate', ->
       beforeEach -> delete @object.coordinate
 
-      it 'adds the piece to setup', ->
-        sinon.stub @object_layer.setup, 'add'
+      it 'does not add the piece to coordinate_map', ->
+        sinon.stub @object_layer.coordinate_map, 'set'
         @object_layer.add(@object)
-        expect(@object_layer.setup.add).to.have.been.calledWith @object
+        expect(@object_layer.coordinate_map.set).to.not.have.been.called
 
   describe '#remove', ->
     it 'removes the piece from the coordinate_map', ->
@@ -133,53 +128,13 @@ describe 'ObjectLayer', ->
       @object_layer.reset(@object)
       expect(@object_layer.draw).to.have.been.called
 
-  describe '#setup_replace', ->
-    it 'removes the object from the setup', ->
-      sinon.stub @object_layer.setup, 'remove'
-      @object_layer.setup_replace(@object)
-      expect(@object_layer.setup.remove).to.have.been.calledWith @object
-
-    it 'calls add with the objects clone', ->
-      sinon.stub @object_layer, 'add'
-      @object_layer.setup_replace(@object)
-      expect(@object_layer.add).to.have.been.calledWith @clone
-
-  describe '#setup_clear', ->
-    beforeEach ->
-      @object1 = { remove: sinon.spy() }
-      @object2 = { remove: sinon.spy() }
-
-    it 'calls remove on all the pieces in setup', ->
-      sinon.stub @object_layer.setup, 'values', => [@object1, @object2]
-      @object_layer.setup_clear()
-      expect(@object1.remove).to.have.been.called
-      expect(@object2.remove).to.have.been.called
-
-    it 'calls clear on setup', ->
-      sinon.stub @object_layer.setup, 'clear'
-      @object_layer.setup_clear()
-      expect(@object_layer.setup.clear).to.have.been.called
-
   describe 'drag_start', ->
     beforeEach ->
       @object = {}
-      sinon.stub @object_layer, 'setup_replace'
 
     it 'calls board.dragging', ->
       @object_layer.drag_start(@object)
       expect(@board.dragging).to.have.been.calledWith @object
-
-    context 'object has no coordinate', ->
-      it 'calls setup_replace', ->
-        @object_layer.drag_start(@object)
-        expect(@object_layer.setup_replace).to.have.been.calledWith @object
-
-    context 'object has a coordinate', ->
-      beforeEach -> @object.coordinate = {x:0,y:0}
-
-      it 'does not call setup_replace', ->
-        @object_layer.drag_start(@object)
-        expect(@object_layer.setup_replace).not.to.have.been.called
 
   describe 'drag_end', ->
     beforeEach ->

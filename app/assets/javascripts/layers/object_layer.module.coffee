@@ -1,21 +1,12 @@
 Layer = require('layer')
-Set = require('lib/set')
 
 class ObjectLayer extends Layer
-
-  constructor: ->
-    super
-    @setup = new Set
 
   # Add
 
   add: (object) ->
     @element.add(object.element)
-
-    if object.coordinate
-      @coordinate_map.set(object.coordinate, object)
-    else
-      @setup.add(object)
+    @coordinate_map.set(object.coordinate, object) if object.coordinate
 
   # Remove
 
@@ -47,20 +38,9 @@ class ObjectLayer extends Layer
     object.reset_position()
     @draw()
 
-  # Setup
-
-  setup_replace: (object) ->
-    @setup.remove(object)
-    @add(object.clone())
-
-  setup_clear: ->
-    object.remove() for object in @setup.values()
-    @setup.clear()
-
   # Handlers
 
   drag_start: (object) ->
-    @setup_replace(object) if !object.coordinate?
     @board.dragging(object)
 
   drag_end: (object) ->

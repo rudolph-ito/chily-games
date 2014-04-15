@@ -1,8 +1,6 @@
-CoordinateMap = require('lib/coordinate_map')
 HighlightLayer = require('layers/highlight_layer')
 Piece = require('piece')
 PieceLayer = require('layers/piece_layer')
-Set = require('lib/set')
 SpaceLayer = require('layers/space_layer')
 TerrainLayer = require('layers/terrain_layer')
 TerritoryLayer = require('layers/territory_layer')
@@ -38,11 +36,9 @@ class Board
     @container = $(container)
     @container.html('')
 
-    @piece_types = options.piece_types
-    @terrain_types = options.terrain_types
+    @setup_data = options.setup_data
 
-    @header_height = @footer_height = 30
-    @padding = 2
+    @padding = 1
 
     @stage = new Kinetic.Stage container: @container[0]
 
@@ -52,24 +48,21 @@ class Board
     @highlight_layer = new HighlightLayer(@)
     @piece_layer = new PieceLayer(@)
 
-    @info_layer = new Kinetic.Layer()
-    @stage.add(@info_layer)
-
   max_board_height: ->
-    @container.height() - @header_height - @footer_height - @padding
+    @container.height() - 2 * @padding
 
   max_board_width: ->
-    @container.width() - @padding
+    @container.width() - 2 * @padding
 
   board_offset_x: ->
-    @padding + @setup_width
+    @setup_width + @padding
 
   board_offset_y: ->
-    @padding + @header_height
+    @padding
 
   setup: ->
-    @stage.setHeight @header_height + @board_height + @footer_height + 2 * @padding
-    @stage.setWidth @setup_width + @board_width + 2 * @padding
+    @stage.setHeight @board_height + 2 * @padding
+    @stage.setWidth @board_width + @setup_width + 2 * @padding
 
   ########################################
   # Draw
@@ -83,7 +76,6 @@ class Board
     @draw_space_layer()
 
     if @game_controller
-      @draw_info_layer()
       @draw_territories() if @game_controller.in_setup()
       @add_setup() if @game_controller.user_in_setup()
 
@@ -170,64 +162,17 @@ class Board
   add_setup: ->
     index = 0
 
-    for piece_type_id in @piece_types
-      {x,y} = @setup_position(index)
-      @add_piece(x: x, y: y, piece_type_id: piece_type_id, color: @color)
-      index++
+    for {id, count} in @setup_data.piece_types
+      for [0...count]
+        {x,y} = @setup_position(index)
+        @add_piece(x: x, y: y, piece_type_id: id, color: @color)
+        index++
 
-    for terrain_type_id in @terrain_types
-      {x,y} = @setup_position(index)
-      @add_terrain(x: x, y: y, terrain_type_id: terrain_type_id)
-      index++
-
-  ########################################
-  # Info Layer
-  ########################################
-
-  draw_info_layer: ->
-    @add_header()
-    @add_footer()
-    @info_layer.draw()
-
-  add_header: ->
-    @header = new Kinetic.Text
-      x: @setup_width
-      y: 0
-      width: @board_width
-      height: @header_height - 5
-      text: @game_controller.top_player_name()
-      align: 'center'
-      fontSize: @header_height - 9
-      fontFamily: 'Calibri'
-      fontWeight: 'bold'
-      fill: 'black'
-
-    @info_layer.add(@header)
-
-  add_footer: ->
-    @footer = new Kinetic.Text
-      x: @setup_width
-      y: @board_height + @header_height + 5
-      width: @board_width
-      height: @footer_height
-      text: @game_controller.bottom_player_name()
-      align: 'center'
-      fontSize: @footer_height - 9
-      fontFamily: 'Calibri'
-      fontWeight: 'bold'
-      fill: 'black'
-
-    @info_layer.add(@footer)
-
-  update_header: ->
-    @header.attrs.x = 0
-    @header.attrs.width = @board_width
-
-  update_footer: ->
-    @footer.attrs.x = 0
-    @footer.attrs.y = @board_height + @header_height + 5
-    @footer.attrs.width = @board_width
-
+    for {id, count} in @setup_data.terrain_types
+      for [0...count]
+        {x,y} = @setup_position(index)
+        @add_terrain(x: x, y: y, terrain_type_id: id)
+        index++
 
   ########################################
   # Redraw
@@ -239,19 +184,11 @@ class Board
     unless @game_controller.in_setup()
       @remove_territories()
 
-    unless @game_controller.user_in_setup()
-      @piece_layer.setup_clear()
-      @terrain_layer.setup_clear()
-
     @space_layer.update()
     @territory_layer.update()
     @terrain_layer.update()
     @highlight_layer.update()
     @piece_layer.update()
-
-    @update_header()
-    @update_footer()
-    @info_layer.draw()
 
   ########################################
   # CLick Interaction
@@ -314,10 +251,7 @@ class Board
     from = object.coordinate
     type = object.type()
 
-    if !to? or !@home_space(to)
-      layer.remove(object)
-      @game_controller.setup_remove(type, from) if from
-    else if _.isEqual(from, to)
+    if !to? or !@home_space(to) or _.isEqual(from, to)
       layer.reset(object)
     else
       layer.move(object, to)
@@ -355,11 +289,16 @@ class Board
       return space if space.contains(x, y)
     null
 
+  setup_count: ->
+    sum = (s, data) -> s + data.count
+    @setup_data.piece_types.reduce(sum, 0) + @setup_data.terrain_types.reduce(sum, 0)
+
   setup_position: (index) ->
     row = Math.floor(index / @setup_columns) % @setup_rows
     column = index % @setup_columns
+
     x = column * @setup_size + @setup_size / 2
-    y = @board_height + @header_height - row * @setup_size - @setup_size / 2
+    y = @board_height - row * @setup_size - @setup_size / 2
 
     x: x + @padding
     y: y + @padding

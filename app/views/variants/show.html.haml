@@ -1,6 +1,8 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: 'Variants', href: :variants}
 
+= render partial: 'shared/preview_modal'
+
 %section.centered.variant
   .top-section
     .title= @variant
@@ -37,16 +39,6 @@
         = link_to 'New', [:new, @variant, :terrain_rule]
 
     = render partial: 'terrain_rules/index', locals: { variant: @variant }
-
-= content_for :modal do
-  .modal#preview
-    .modal-dialog
-      .modal-content
-        .modal-header
-          %button.close(type='button' data-dismiss='modal') ×
-          .title Preview
-        .modal-body
-          .board
 
 :javascript
   $(function() {

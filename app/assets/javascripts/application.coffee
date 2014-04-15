@@ -17,6 +17,7 @@
 #= require jquery.raty
 #= require underscore
 #= require bootstrap-modal
+#= require bootstrap-tabs
 #= require kinetic
 #= require ruby
 #= require socket.io.js
@@ -39,8 +40,8 @@
 #
 #= require board.module
 #= require_directory ./boards
-#=
-#= require_tree ./pages
+#
+#= require preview
 
 window.link_to_play = (host) ->
   session = $.cookie("_Cyvasse_session")

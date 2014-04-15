@@ -38,27 +38,25 @@ describe 'HexagonalBoard', ->
 
       context 'one column for setup', ->
         beforeEach ->
-          @hexagonal_board.piece_types = [1,2,3,4,5,6,7]
-          @hexagonal_board.terrain_types = [8]
+          @hexagonal_board.setup_count = -> 7
 
         it 'sets the radius properly', ->
           @hexagonal_board.setup()
           expect(@hexagonal_board.space_radius).to.be.within(35, 36)
           expect(@hexagonal_board.board_height).to.eql(600)
           expect(@hexagonal_board.board_width).to.be.within(672, 673)
-          expect(@hexagonal_board.setup_width).to.be.within(80, 81)
+          expect(@hexagonal_board.setup_width).to.be.within(81, 82)
 
       context 'two columns for setup', ->
         beforeEach ->
-          @hexagonal_board.piece_types = [1,2,3,4,5,6,7]
-          @hexagonal_board.terrain_types = [8,9]
+          @hexagonal_board.setup_count = -> 8
 
         it 'sets the radius properly', ->
           @hexagonal_board.setup()
-          expect(@hexagonal_board.space_radius).to.be.within(34, 35)
-          expect(@hexagonal_board.board_height).to.be.within(582, 583)
-          expect(@hexagonal_board.board_width).to.be.within(652, 653)
-          expect(@hexagonal_board.setup_width).to.be.within(147, 148)
+          expect(@hexagonal_board.space_radius).to.be.within(33, 34)
+          expect(@hexagonal_board.board_height).to.be.within(577, 578)
+          expect(@hexagonal_board.board_width).to.be.within(647, 648)
+          expect(@hexagonal_board.setup_width).to.be.within(152, 153)
 
   describe '#add_spaces', ->
     context "board_size 3", ->

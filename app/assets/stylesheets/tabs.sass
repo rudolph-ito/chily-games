@@ -1,0 +1,19 @@
+@import compass/css3/box-sizing
+@import compass/utilities/general/clearfix
+
+.nav-tabs
+  +clearfix
+  height: 44px
+
+.tab-content
+  +box-sizing(border-box)
+  border-color: #dddddd
+  border-width: 1px
+  border-style: none solid solid solid
+  height: calc(100% - 44px)
+  padding: 5px
+
+.tab-pane
+  height: 100%
+  overflow: scroll
+

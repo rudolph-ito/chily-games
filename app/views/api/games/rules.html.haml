@@ -1,0 +1,5 @@
+.title Piece Rules
+= render partial: 'piece_rules/index', locals: { variant: @game.variant, exclude_actions: true }
+
+.title Terrain Rules
+= render partial: 'terrain_rules/index', locals: { variant: @game.variant, exclude_actions: true }
