@@ -1,22 +1,29 @@
 require 'minimal_spec_helper'
-require ROOT_DIRECTORY + '/app/game_storage/ply.rb'
+require ROOT_DIRECTORY + '/app/game_storage/create_ply.rb'
 require ROOT_DIRECTORY + '/app/game_storage/piece.rb'
 
-describe Ply do
-  let(:ply) { Ply.new(game, piece, to, range_capture) }
-  let(:game) { double :game, action_to_id: action_to_id, current_setup: current_setup, complete?: true, next_action_to_id: next_action_to_id, update_attributes: nil }
+describe CreatePly do
+  let(:create_ply) { CreatePly.new(game, piece, to, range_capture) }
+  let(:game) { double :game, :action= => nil, :action_to_id= => nil, current_setup: current_setup, complete?: true, next_action_to_id: next_action_to_id, plies: plies, save: nil }
   let(:action_to_id) { 1000 }
   let(:next_action_to_id) { 1001 }
   let(:current_setup) { double :current_setup, get: nil, move: nil, remove: nil }
-  let(:piece) { double :piece }
+  let(:plies) { double :plies, :add => nil }
+  let(:piece) { double :piece, coordinate: from }
+  let(:from) { {'x'=>0, 'y'=>0} }
 
   shared_examples 'game action behavior' do
+    it 'appends to plies' do
+      create_ply.call
+      expect(game.plies).to have_received(:add).with({from: from, to: to, range_capture: range_capture})
+    end
+
     context 'king taken' do
       before { game.stub(:complete?).and_return(true) }
 
       it 'updates action to "complete"' do
-        ply.call
-        expect(game).to have_received(:update_attributes).with(action: 'complete')
+        create_ply.call
+        expect(game).to have_received(:action=).with('complete')
       end
     end
 
@@ -24,9 +31,14 @@ describe Ply do
       before { game.stub(:complete?).and_return(false) }
 
       it 'updates action_to_id to next_action_to_id' do
-        ply.call
-        expect(game).to have_received(:update_attributes).with(action_to_id: next_action_to_id)
+        create_ply.call
+        expect(game).to have_received(:action_to_id=).with(next_action_to_id)
       end
+    end
+
+    it 'saves the game' do
+      create_ply.call
+      expect(game).to have_received(:save)
     end
   end
 
@@ -37,7 +49,7 @@ describe Ply do
       include_examples 'game action behavior'
 
       it 'removes the piece at the range capture' do
-        ply.call
+        create_ply.call
         expect(current_setup).to have_received(:remove).with(opponent_piece)
       end
     end
@@ -46,7 +58,7 @@ describe Ply do
       before { current_setup.stub(:get).with(range_capture, Piece).and_return(nil) }
 
       it 'does not call remove' do
-        ply.call
+        create_ply.call
         expect(current_setup).to_not have_received(:remove)
       end
     end
@@ -58,7 +70,7 @@ describe Ply do
       let(:range_capture) { nil }
 
       it 'moves the piece' do
-        ply.call
+        create_ply.call
         expect(current_setup).to have_received(:move).with(piece, to)
       end
 
@@ -70,7 +82,7 @@ describe Ply do
       let(:range_capture) { {'x'=>0, 'y'=>1} }
 
       it 'does not move the piece' do
-        ply.call
+        create_ply.call
         expect(current_setup).to_not have_received(:move)
       end
 
@@ -82,7 +94,7 @@ describe Ply do
       let(:range_capture) { {'x'=>0, 'y'=>2} }
 
       it 'moves the piece' do
-        ply.call
+        create_ply.call
         expect(current_setup).to have_received(:move).with(piece, to)
       end
 

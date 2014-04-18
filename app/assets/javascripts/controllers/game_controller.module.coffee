@@ -17,7 +17,7 @@ class GameController extends Controller
     @socket.on 'chat', @server_chat
     @socket.on 'abort', @server_game_abort
     @socket.on 'setup_complete', @server_setup_complete
-    @socket.on 'ply', @server_ply
+    @socket.on 'create_ply', @server_create_ply
     @socket.on 'resign', @server_game_resign
 
     @container.on 'keyup', 'input[name=message]', @chat
@@ -273,9 +273,9 @@ class GameController extends Controller
       success: (valid) ->
         success_callback() if valid
 
-  ply: (from, to, range_capture) =>
-    @emit_request 'ply',
-      path: @url('ply')
+  create_ply: (from, to, range_capture) =>
+    @emit_request 'create_ply',
+      path: @url('create_ply')
       method: 'PUT'
       data:
         from: from
@@ -301,7 +301,7 @@ class GameController extends Controller
     @update_controls()
     @finish_setup()
 
-  server_ply: (data) =>
+  server_create_ply: (data) =>
     return unless data.backendResponse.status == 200
     data = $.parseJSON data.backendResponse.body
     if data.success

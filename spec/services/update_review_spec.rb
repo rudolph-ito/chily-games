@@ -3,20 +3,16 @@ require ROOT_DIRECTORY + '/app/services/update_review.rb'
 
 describe UpdateReview do
   let(:update_review) { UpdateReview.new(variant, user, rating, comment) }
-  let(:variant) { double :variant, id: 1, topics: variant_topics }
+  let(:variant) { double :variant, id: 1, review_topic: review_topic }
   let(:user) { double :user, id: 2, ratings: user_ratings }
   let(:rating) { '5' }
   let(:comment) { 'The dragon is overpowered' }
 
-  let(:variant_topics) { double :variant_topics, find_by: nil, create: nil }
-  let(:variant_topic) { double :variant_topic, comments: topic_comments }
+  let(:review_topic) { double :review_topic, comments: topic_comments }
   let(:topic_comments) { double :topic_comments, find_by: nil, create: nil }
   let(:user_comment) { double :user_comment, update_attributes: nil }
-
   let(:user_ratings) { double :user_ratings, find_by: nil, create: nil }
   let(:user_rating) { double :user_rating, update_attributes: nil }
-
-  before { variant_topics.stub(:find_by).with(title: 'Reviews').and_return(variant_topic) }
 
   describe '#call' do
     context 'rating exists' do

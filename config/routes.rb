@@ -15,6 +15,7 @@ Cyvasse::Application.routes.draw do
       end
 
       member do
+        get 'ply_valid'
         get 'rules'
         get 'valid_plies'
         get 'opponent_setup'
@@ -25,8 +26,7 @@ Cyvasse::Application.routes.draw do
         put 'setup_remove'
         put 'setup_complete'
 
-        get 'ply_valid'
-        put 'ply'
+        put 'create_ply'
         put 'resign'
       end
     end

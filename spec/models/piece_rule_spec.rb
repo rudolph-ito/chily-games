@@ -149,4 +149,18 @@ describe PieceRule do
       end
     end
   end
+
+  context '#range_capture_restriction' do
+    let(:piece_rule) { build(:piece_rule, move_and_range_capture: move_and_range_capture) }
+
+    context 'move_and_range_capture == true' do
+      let(:move_and_range_capture) { true }
+      specify { expect(piece_rule.range_capture_restriction).to eql 'can move and capture on the same turn' }
+    end
+
+    context 'move_and_range_capture == false' do
+      let(:move_and_range_capture) { false }
+      specify { expect(piece_rule.range_capture_restriction).to eql 'cannot move and capture on the same turn' }
+    end
+  end
 end

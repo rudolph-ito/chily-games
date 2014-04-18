@@ -3,7 +3,7 @@ require ROOT_DIRECTORY + '/app/game_storage/move_in_initial_setup.rb'
 
 describe MoveInInitialSetup do
   let(:move_in_initial_setup) { MoveInInitialSetup.new(game, user, from, to, type) }
-  let(:game) { double :game, initial_setup: initial_setup, board: board }
+  let(:game) { double :game, initial_setup: initial_setup, board: board, save: nil }
   let(:initial_setup) { double :initial_setup, move: nil }
   let(:board) { double :board }
   let(:user) { double :user }
@@ -66,6 +66,7 @@ describe MoveInInitialSetup do
           it 'moves it in the initial_setup' do
             move_in_initial_setup.call
             expect(initial_setup).to have_received(:move).with(object, to)
+            expect(game).to have_received(:save)
           end
         end
       end

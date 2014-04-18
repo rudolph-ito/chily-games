@@ -38,7 +38,7 @@ class Variant < ActiveRecord::Base
   # Callbacks
   ########################################
 
-  after_create :add_initial_king, :create_review_topic
+  after_create :add_initial_king
 
   ########################################
   # Instance Methods
@@ -53,7 +53,7 @@ class Variant < ActiveRecord::Base
   end
 
   def review_topic
-    topics.find_by(title: 'Reviews')
+    topics.find_or_create_by(title: 'Reviews')
   end
 
   self.board_types.each do |b|
@@ -102,10 +102,6 @@ class Variant < ActiveRecord::Base
       movement_type: 'orthogonal_line',
       piece_type: PieceType.find_by(name: 'King'),
     )
-  end
-
-  def create_review_topic
-    topics.create(title: 'Reviews')
   end
 
 end

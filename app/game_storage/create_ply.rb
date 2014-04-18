@@ -1,4 +1,4 @@
-class Ply
+class CreatePly
 
   attr_accessor :game, :piece, :to, :range_capture
 
@@ -10,12 +10,18 @@ class Ply
   end
 
   def call
+    add_ply
     move_piece
     range_capture_piece
-    update_game
+    update_action
+    game.save
   end
 
   private
+
+  def add_ply
+    game.plies.add(from: piece.coordinate, to: to, range_capture: range_capture)
+  end
 
   def move_piece
     return unless should_move_piece?
@@ -27,14 +33,12 @@ class Ply
     game.current_setup.remove(range_captured_piece)
   end
 
-  def update_game
-    attrs = if game.complete?
-      { action: 'complete' }
+  def update_action
+    if game.complete?
+      game.action = 'complete'
     else
-      { action_to_id: game.next_action_to_id }
+      game.action_to_id = game.next_action_to_id
     end
-
-    game.update_attributes(attrs)
   end
 
   def should_move_piece?

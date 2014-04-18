@@ -64,6 +64,96 @@ describe Variant do
     end
   end
 
+  context '#to_s' do
+    let(:variant) { create :variant, user: create(:user, username: 'John Doe') }
+    specify { expect(variant.to_s).to eql 'Cyvasse by John Doe'}
+  end
+
+  context '#average_rating' do
+    let(:variant) { create :variant }
+
+    context 'no ratings' do
+      specify { expect(variant.average_rating).to eql 0 }
+    end
+
+    context 'one rating' do
+      before { variant.ratings.create(value: 5, user: create(:user)) }
+      specify { expect(variant.average_rating).to eql 5 }
+    end
+
+    context 'two ratings' do
+      before do
+        variant.ratings.create(value: 0, user: create(:user))
+        variant.ratings.create(value: 5, user: create(:user))
+      end
+      specify { expect(variant.average_rating).to eql 2.5 }
+    end
+  end
+
+  context '#average_rating' do
+    let(:variant) { create :variant }
+
+    context 'no ratings' do
+      specify { expect(variant.average_rating).to eql 0 }
+    end
+
+    context 'one rating' do
+      before { variant.ratings.create(value: 5, user: create(:user)) }
+      specify { expect(variant.average_rating).to eql 5 }
+    end
+
+    context 'two ratings' do
+      before do
+        variant.ratings.create(value: 0, user: create(:user))
+        variant.ratings.create(value: 5, user: create(:user))
+      end
+      specify { expect(variant.average_rating).to eql 2.5 }
+    end
+  end
+
+  context '#review_topic' do
+    let(:variant) { create :variant }
+
+    context 'does not exists' do
+      it 'creates and returns a review topic' do
+        expect{
+          topic = variant.review_topic
+          expect(topic).to be_a Topic
+          expect(topic.title).to eql 'Reviews'
+        }.to change(Topic, :count).by(1)
+      end
+    end
+
+    context 'exists' do
+      before { variant.review_topic }
+
+      it 'returns the existing review topic' do
+        expect{
+          topic = variant.review_topic
+          expect(topic).to be_a Topic
+          expect(topic.title).to eql 'Reviews'
+        }.to change(Topic, :count).by(0)
+      end
+    end
+
+    context 'no ratings' do
+      specify { expect(variant.average_rating).to eql 0 }
+    end
+
+    context 'one rating' do
+      before { variant.ratings.create(value: 5, user: create(:user)) }
+      specify { expect(variant.average_rating).to eql 5 }
+    end
+
+    context 'two ratings' do
+      before do
+        variant.ratings.create(value: 0, user: create(:user))
+        variant.ratings.create(value: 5, user: create(:user))
+      end
+      specify { expect(variant.average_rating).to eql 2.5 }
+    end
+  end
+
   context '#square_board?' do
     context 'board_type == sqaure' do
       let(:variant) { build(:variant_with_square_board) }

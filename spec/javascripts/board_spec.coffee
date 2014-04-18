@@ -23,7 +23,7 @@ describe 'Board', ->
       in_setup: -> false
       user_in_setup: -> false
 
-      ply: sinon.spy()
+      create_ply: sinon.spy()
       ply_valid: sinon.stub()
       setup_add: sinon.spy()
       setup_move: sinon.spy()
@@ -303,13 +303,13 @@ describe 'Board', ->
 
       context 'coordinate is equal to the temporary move location', ->
         beforeEach -> @board.click({x:0,y:1})
-        it 'calls game_controller.ply properly', ->
-          expect(@game_controller.ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
+        it 'calls game_controller.create_ply properly', ->
+          expect(@game_controller.create_ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
 
       context 'coordinate is not equal to the temporary move location', ->
         beforeEach -> @board.click({x:0,y:0})
-        it 'calls game_controller.ply properly', ->
-          expect(@game_controller.ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
+        it 'calls game_controller.create_ply properly', ->
+          expect(@game_controller.create_ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
 
       it 'undoes the temporary move', ->
         sinon.stub @board.piece_layer, 'move_by_coordinate'
@@ -417,7 +417,7 @@ describe 'Board', ->
 
         it 'does nothing', ->
           @board.try_move(@layer, @object, @to)
-          expect(@game_controller.ply).not.to.have.been.called
+          expect(@game_controller.create_ply).not.to.have.been.called
           expect(@game_controller.ply_valid).not.to.have.been.called
 
       context 'to is the same as object.coordinate', ->
@@ -429,7 +429,7 @@ describe 'Board', ->
 
         it 'does nothing', ->
           @board.try_move(@layer, @object, @to)
-          expect(@game_controller.ply).not.to.have.been.called
+          expect(@game_controller.create_ply).not.to.have.been.called
           expect(@game_controller.ply_valid).not.to.have.been.called
 
       context 'to is not null and is not the same as object.coordinate', ->
@@ -459,12 +459,12 @@ describe 'Board', ->
         context 'highlighting range', ->
           beforeEach -> @board.highlighting = 'range'
 
-          it 'calls game_controller.ply', ->
+          it 'calls game_controller.create_ply', ->
             @board.try_move(@layer, @object, @to)
-            expect(@game_controller.ply).to.have.been.calledWith {x:0,y:0}, null, {x:1,y:1}
+            expect(@game_controller.create_ply).to.have.been.calledWith {x:0,y:0}, null, {x:1,y:1}
 
         context 'otherwise', ->
-          it 'calls game_controller.ply', ->
+          it 'calls game_controller.create_ply', ->
             @board.try_move(@layer, @object, @to)
-            expect(@game_controller.ply).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}, null
+            expect(@game_controller.create_ply).to.have.been.calledWith {x:0,y:0}, {x:1,y:1}, null
 

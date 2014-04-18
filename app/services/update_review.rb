@@ -36,7 +36,7 @@ class UpdateReview
   end
 
   def review_topic
-    @review_topic ||= variant.topics.find_by(title: 'Reviews')
+    @review_topic ||= variant.review_topic
   end
 
   def current_comment

@@ -2,7 +2,7 @@ class Api::GamesController < ApplicationController
   before_filter :authenticate_user!
   before_filter :get_game, except: [:current]
   before_filter :authorize, except: [:current]
-  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_plies, :ply_valid, :ply]
+  before_filter :scrub_coordinates, only: [:setup_add, :setup_move, :setup_remove, :valid_plies, :ply_valid, :create_ply]
   before_filter :ensure_valid_type, only: [:setup_add, :setup_move, :setup_remove]
 
   def current
@@ -92,10 +92,10 @@ class Api::GamesController < ApplicationController
     end
   end
 
-  def ply
+  def create_ply
     piece = @game.get_piece(current_user, params[:from])
     if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
-      Ply.new(@game, piece, params[:to], params[:range_capture]).call
+      CreatePly.new(@game, piece, params[:to], params[:range_capture]).call
       render json: { success: true, from: params[:from], to: params[:to], range_capture: params[:range_capture], action: @game.action, action_to_id: @game.action_to_id }
     else
       render json: { success: false }

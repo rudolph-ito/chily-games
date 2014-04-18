@@ -58,6 +58,10 @@ class Game < ActiveRecord::Base
     CoordinateMap.new(self, :current_setup_json)
   end
 
+  def plies
+    PlyList.new(self, :plies_json)
+  end
+
   def board
     @board ||= BoardFactory.instance(variant)
   end

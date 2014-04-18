@@ -8,7 +8,16 @@ class RemoveFromInitialSetup
   end
 
   def call
-    game.initial_setup.remove(object) if object
+    if should_remove_object?
+      game.initial_setup.remove(object)
+      game.save
+    end
+  end
+
+  private
+
+  def should_remove_object?
+    !object.nil?
   end
 
 end

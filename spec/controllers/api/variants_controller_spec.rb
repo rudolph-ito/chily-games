@@ -24,8 +24,7 @@ describe Api::VariantsController do
       end
 
       context 'comment exists' do
-        let(:topic) { variant.topics.find_by(title: 'Reviews') }
-        let!(:comment) { create(:comment, text: 'The dragon is too weak', topic: topic, user: current_user) }
+        let!(:comment) { create(:comment, text: 'The dragon is too weak', topic: variant.review_topic, user: current_user) }
 
         it 'return current rating and comment' do
           get :review, id: variant.id, format: :json
@@ -35,8 +34,7 @@ describe Api::VariantsController do
 
       context 'rating and comment exist' do
         let!(:rating) { create(:rating, value: 5, variant: variant, user: current_user) }
-        let(:topic) { variant.topics.find_by(title: 'Reviews') }
-        let!(:comment) { create(:comment, text: 'The dragon is too weak', topic: topic, user: current_user) }
+        let!(:comment) { create(:comment, text: 'The dragon is too weak', topic: variant.review_topic, user: current_user) }
 
         it 'return current rating and comment' do
           get :review, id: variant.id, format: :json

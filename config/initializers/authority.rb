@@ -37,8 +37,8 @@ Authority.configure do |config|
     decline: 'decline',
     # Game
     abort: 'abort',
-    opponent_setup: 'opponent_setup_read',
-    ply: 'ply_create',
+    create_ply: 'create_ply',
+    opponent_setup: 'read_opponent_setup',
     ply_valid: 'read',
     setup_add: 'setup',
     setup_move: 'setup',
@@ -69,10 +69,10 @@ Authority.configure do |config|
     # Challenge
     accept: 'acceptable',
     decline: 'declinable',
-    #Game
+    # Game
     abort: 'abortable',
-    opponent_setup_read: 'opponent_setup_readable',
-    ply_create: 'ply_creatable',
+    create_ply: 'ply_creatable',
+    read_opponent_setup: 'opponent_setup_readable',
     resign: 'resignable',
     setup: 'setupable'
   )

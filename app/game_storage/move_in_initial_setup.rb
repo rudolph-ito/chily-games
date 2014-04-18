@@ -9,13 +9,16 @@ class MoveInInitialSetup
   end
 
   def call
-    game.initial_setup.move(object, to) if object && should_move_object?
+    if should_move_object?
+      game.initial_setup.move(object, to)
+      game.save
+    end
   end
 
   private
 
   def should_move_object?
-    board.coordinate_valid?(to) && board.territory(to) == object.color
+    !object.nil? && board.coordinate_valid?(to) && board.territory(to) == object.color
   end
 
   def board

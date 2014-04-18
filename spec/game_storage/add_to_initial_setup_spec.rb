@@ -5,7 +5,7 @@ require ROOT_DIRECTORY + '/app/game_storage/add_to_initial_setup.rb'
 
 describe AddToInitialSetup do
   let(:add_to_initial_setup) { AddToInitialSetup.new(game, type, attrs) }
-  let(:game) { double :game, initial_setup: initial_setup, board: board }
+  let(:game) { double :game, initial_setup: initial_setup, board: board, save: nil }
   let(:initial_setup) { double :initial_setup, add: nil }
   let(:board) { double :board }
   let(:attrs) { double :attrs }
@@ -55,6 +55,7 @@ describe AddToInitialSetup do
             it 'adds it to the initial_setup' do
               add_to_initial_setup.call
               expect(initial_setup).to have_received(:add).with(object)
+              expect(game).to have_received(:save)
             end
           end
         end

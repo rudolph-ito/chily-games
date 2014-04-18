@@ -8,7 +8,10 @@ class AddToInitialSetup
   end
 
   def call
-    game.initial_setup.add(object) if should_add_object?
+    if should_add_object?
+      game.initial_setup.add(object)
+      game.save
+    end
   end
 
   private

@@ -4,11 +4,45 @@ require ROOT_DIRECTORY + '/app/game_storage/piece.rb'
 require ROOT_DIRECTORY + '/app/game_storage/terrain.rb'
 
 describe CoordinateMap do
-  let(:coordinate_map) { CoordinateMap.new(game, :initial_setup_json, data) }
-  let(:game) { double :game, "[]=" => nil, save: nil }
-  let(:data) { {} }
+  let(:coordinate_map) { CoordinateMap.new(game, field, data) }
+  let(:game) { double :game, :[]= => nil, save: nil }
+  let(:field) { :initial_setup_json }
+  let(:data) { nil }
+
+  let(:initial_setup_json) { nil }
   let(:klass) { Piece }
   let(:object) { klass.new(game, {coordinate: {'x'=>0, 'y'=>0}, type_id: 1, user_id: 1}) }
+  before { game.stub(:[]).with(field).and_return(initial_setup_json) }
+
+  context '#initialize' do
+    context 'data is nil' do
+      let(:data) { nil }
+
+      context 'game[field] is nil' do
+        let(:initial_setup_json) { nil }
+
+        it 'sets data to {}' do
+          expect(coordinate_map.data).to eql({})
+        end
+      end
+
+      context 'game[field] is not nil' do
+        let(:initial_setup_json) { { a: 1 } }
+
+        it 'sets data to game[field]' do
+          expect(coordinate_map.data).to eql({ a: 1 })
+        end
+      end
+    end
+
+    context 'data is not nil' do
+      let(:data) { { a: 2 } }
+
+      it 'sets data to data' do
+        expect(coordinate_map.data).to eql({ a: 2 })
+      end
+    end
+  end
 
   context '#get' do
     it 'returns nil if nothing there' do
@@ -24,9 +58,8 @@ describe CoordinateMap do
       expect(stored).to be_a(klass)
     end
 
-    it 'saves the updated data' do
-      expect(game).to receive(:[]=).with(:initial_setup_json, data).ordered
-      expect(game).to receive(:save).ordered
+    it 'updates the field' do
+      expect(game).to receive(:[]=).with(:initial_setup_json, anything)
       coordinate_map.add(object)
     end
   end
@@ -48,9 +81,8 @@ describe CoordinateMap do
       expect(stored).to be_a(klass)
     end
 
-    it 'saves the updated data' do
-      expect(game).to receive(:[]=).with(:initial_setup_json, data).ordered
-      expect(game).to receive(:save).ordered
+    it 'updates the field' do
+      expect(game).to receive(:[]=).with(:initial_setup_json, anything).twice
       coordinate_map.move(object, {'x'=>2, 'y'=>2})
     end
   end
@@ -66,9 +98,8 @@ describe CoordinateMap do
       expect(stored).to be_nil
     end
 
-    it 'saves the updated data' do
-      expect(game).to receive(:[]=).with(:initial_setup_json, data).ordered
-      expect(game).to receive(:save).ordered
+    it 'updates the field' do
+      expect(game).to receive(:[]=).with(:initial_setup_json, anything)
       coordinate_map.remove(object)
     end
   end

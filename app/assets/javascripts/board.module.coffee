@@ -203,7 +203,7 @@ class Board
         @deselect_piece()
     else if @temporary_move
       range_capture = if _.isEqual(coordinate, @temporary_move.to) then null else coordinate
-      @game_controller.ply(@temporary_move.from, @temporary_move.to, range_capture)
+      @game_controller.create_ply(@temporary_move.from, @temporary_move.to, range_capture)
       @clear_temporary_move()
     else
       piece = @piece_layer.coordinate_map.get(coordinate)
@@ -270,9 +270,9 @@ class Board
     if object.type_id() in @game_controller.move_and_range_capture_piece_type_ids
       @game_controller.ply_valid from, to, => @get_range_capture_input(from, to)
     else if @highlighting == 'range'
-      @game_controller.ply(from, null, to)
+      @game_controller.create_ply(from, null, to)
     else
-      @game_controller.ply(from, to, null)
+      @game_controller.create_ply(from, to, null)
 
   ########################################
   # Helpers

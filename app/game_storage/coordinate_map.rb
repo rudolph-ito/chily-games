@@ -18,7 +18,7 @@ class CoordinateMap
     key = encode_coordinate(object.coordinate)
     data[key] ||= {}
     data[key][object.class.to_s] = object.encode
-    save
+    set_field
   end
 
   def move(object, new_coordinate)
@@ -31,7 +31,7 @@ class CoordinateMap
     key = encode_coordinate(object.coordinate)
     data[key].delete(object.class.to_s)
     data.delete(key) if data[key].empty?
-    save
+    set_field
   end
 
   def for_user_id(user_id)
@@ -54,9 +54,8 @@ class CoordinateMap
 
   private
 
-  def save
+  def set_field
     game[field] = data
-    game.save
   end
 
   def decode_coordinate(string)
