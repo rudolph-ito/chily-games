@@ -311,6 +311,7 @@ class GameController extends Controller
 
       @board.piece_layer.move_by_coordinate(data.from, data.to) if data.to?
       @board.piece_layer.remove_by_coordinate(data.range_capture) if data.range_capture?
+      @board.update_last_ply(data.from, data.to, data.range_capture)
       @finish_game_if_complete()
 
   server_game_abort: (data) =>

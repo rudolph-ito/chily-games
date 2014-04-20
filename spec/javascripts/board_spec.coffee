@@ -123,6 +123,10 @@ describe 'Board', ->
       expect(@board.territory_layer).to.be.an.instanceOf TerritoryLayer
       expect(@board.stage.children).to.include(@board.territory_layer.element)
 
+    it 'creates the last ply layer', ->
+      expect(@board.last_ply_layer).to.be.an.instanceOf HighlightLayer
+      expect(@board.stage.children).to.include(@board.last_ply_layer.element)
+
     it 'creates the highlight layer', ->
       expect(@board.highlight_layer).to.be.an.instanceOf HighlightLayer
       expect(@board.stage.children).to.include(@board.highlight_layer.element)
@@ -209,6 +213,46 @@ describe 'Board', ->
       sinon.stub @board.territory_layer, 'clear'
       @board.remove_territories()
       expect(@board.territory_layer.clear).to.have.been.called
+
+  describe 'update_last_ply', ->
+    beforeEach ->
+      @from = {x: 0, y: 0}
+      @to = {x: 1, y: 0}
+      @range_capture = {x: 2, y: 0}
+
+      sinon.stub @board.last_ply_layer, 'clear'
+      sinon.stub @board.last_ply_layer, 'add'
+      sinon.stub @board.last_ply_layer, 'draw'
+
+    it 'calls clear on last_ply_layer', ->
+      @board.update_last_ply(@from, @to, @range_capture)
+      expect(@board.last_ply_layer.clear).to.have.been.called
+
+    context 'movement only', ->
+      it 'add two highlights', ->
+        @board.update_last_ply(@from, @to, null)
+        expect(@board.last_ply_layer.add).to.have.been.calledcalledTwice
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @to, '#FFFF33'
+
+    context 'range capture only', ->
+      it 'add two highlights', ->
+        @board.update_last_ply(@from, null, @range_capture)
+        expect(@board.last_ply_layer.add).to.have.been.calledTwice
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @range_capture, '#0066CC'
+
+    context 'movement and range capture', ->
+      it 'add three highlights', ->
+        @board.update_last_ply(@from, @to, @range_capture)
+        expect(@board.last_ply_layer.add).to.have.been.calledThrice
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
+        expect(@board.last_ply_layer.add).to.have.been.calledWith @range_capture, '#0066CC'
+
+    it 'calls draw on last_ply_layer', ->
+      @board.update_last_ply(@from, @to, @range_capture)
+      expect(@board.last_ply_layer.draw).to.have.been.called
 
   describe '#highlight_valid_plies', ->
     beforeEach ->

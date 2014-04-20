@@ -45,6 +45,7 @@ class Board
     @space_layer = new SpaceLayer(@)
     @territory_layer = new TerritoryLayer(@)
     @terrain_layer = new TerrainLayer(@)
+    @last_ply_layer = new HighlightLayer(@)
     @highlight_layer = new HighlightLayer(@)
     @piece_layer = new PieceLayer(@)
 
@@ -117,6 +118,17 @@ class Board
   # Returns whose territory a coordinate is in during setup
   # Returns alabaster, onyx, or neutral
   territory: (coordinate) ->
+
+  ########################################
+  # Last Ply Layer
+  ########################################
+
+  update_last_ply: (from, to, range_capture) ->
+    @last_ply_layer.clear(draw: false)
+    @last_ply_layer.add(from, '#FFFF33')
+    @last_ply_layer.add(to, '#FFFF33') if to
+    @last_ply_layer.add(range_capture, '#0066CC') if range_capture
+    @last_ply_layer.draw()
 
   ########################################
   # Highlight Layer

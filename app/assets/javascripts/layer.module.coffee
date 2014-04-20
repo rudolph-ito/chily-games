@@ -11,14 +11,14 @@ class Layer
   draw: ->
     @element.draw()
 
-  update: ->
+  update: ({draw} = {}) ->
     child.update() for child in @coordinate_map.values()
-    @element.draw()
+    @element.draw() if draw ? true
 
-  clear: ->
+  clear: ({draw} = {}) ->
     @coordinate_map.clear()
 
     @element.removeChildren()
-    @element.draw()
+    @element.draw() if draw ? true
 
 module.exports = Layer
