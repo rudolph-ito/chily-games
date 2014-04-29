@@ -1,0 +1,6 @@
+en:
+  formtastic:
+    actions:
+      create: "Create"
+      update: "Update"
+      cancel: "Cancel"

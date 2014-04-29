@@ -1,14 +1,17 @@
-= semantic_form_for @variant do |f|
-  = f.inputs "Board Options" do
-    = f.input :board_type, collection: Variant.board_types, input_html: {'data-dependent' => 'board_type'}
+%section.centered
+  .form-title= title
 
-    %div{'data-dependency' => 'board_type', 'data-value' => 'square'}
-      = f.input :board_rows, as: :number, required: true, min: 1, max: 20, step: 1
-      = f.input :board_columns, as: :number, required: true, min: 1, max: 20, step: 1
+  = semantic_form_for @variant, html: { class: 'inline' } do |f|
+    = f.inputs "Board Options" do
+      = f.input :board_type, collection: Variant.board_types, input_html: {'data-dependent' => 'board_type'}
 
-    %div{'data-dependency' => 'board_type', 'data-value' => 'hexagonal'}
-      = f.input :board_size, as: :number, required: true, min: 1, max: 20, step: 1
+      %div{'data-dependency' => 'board_type', 'data-value' => 'square'}
+        = f.input :board_rows, as: :number, required: true, min: 1, max: 20, step: 1
+        = f.input :board_columns, as: :number, required: true, min: 1, max: 20, step: 1
 
-  = f.actions do
-    = f.action :submit, name: "Save"
-    = f.action :cancel, url: @variant || :variants
+      %div{'data-dependency' => 'board_type', 'data-value' => 'hexagonal'}
+        = f.input :board_size, as: :number, required: true, min: 1, max: 20, step: 1
+
+    = f.actions do
+      = f.action :submit, name: "Save"
+      = f.action :cancel, url: @variant || :variants

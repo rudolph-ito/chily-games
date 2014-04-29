@@ -1,73 +1,20 @@
-= semantic_form_for [@variant, @terrain_rule], html: { class: 'question-style' } do |f|
-  = f.inputs do
-    - if f.object.persisted?
-      = f.input :terrain_type, input_html: { disabled: true }
-    - else
-      = f.input :terrain_type, collection: TerrainType.where.not(id: f.object.variant.terrain_rules.pluck(:terrain_type_id))
+%section.centered
+  .form-title= title
 
-    = f.input :count, as: :number, min: 1, step: 1
+  = semantic_form_for [@variant, @terrain_rule], html: { class: 'question-style' } do |f|
+    = f.inputs do
+      - if f.object.persisted?
+        = f.input :terrain_type, input_html: { disabled: true }, wrapper_html: { class: 'inline' }
+      - else
+        = f.input :terrain_type, collection: available_terrain_types(f.object.variant), wrapper_html: { class: 'inline' }
 
-  = f.inputs "Movement" do
-    = f.input :passable_movement_effect_type,
-      collection: effect_types,
-      include_blank: false,
-      input_html: {'data-dependent' => 'passable_movement_effect_type'},
-      hint: 'What pieces can move through/over this terrain?',
-      label: 'Passable By'
+      = f.input :count, as: :number, min: 1, step: 1, wrapper_html: { class: 'inline' }
 
-    %div{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
-      = f.input :passable_movement_effect_piece_type_ids,
-        as: :check_boxes,
-        collection: piece_types(f.object.variant),
-        label: 'Piece Types'
+    = render "terrain_rules/form/passable_movement", f: f
+    = render "terrain_rules/form/stops_movement", f: f
+    = render "terrain_rules/form/slows_movement", f: f
+    = render "terrain_rules/form/passable_range", f: f
 
-    %div.breaker{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
-      = f.input :stops_movement_effect_type,
-        collection: effect_types,
-        include_blank: false,
-        input_html: {'data-dependent' => 'stops_movement_effect_type'},
-        hint: 'What pieces are stopped when moving through/over this terrain?',
-        label: 'Stops'
-
-      %div{'data-dependency' => 'stops_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
-        = f.input :stops_movement_effect_piece_type_ids,
-          as: :check_boxes,
-          collection: piece_types(f.object.variant),
-          label: 'Piece Types'
-
-    %div.breaker{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
-      = f.input :slows_movement_effect_type,
-        collection: effect_types,
-        include_blank: false,
-        input_html: {'data-dependent' => 'slow_movement_effect_type'},
-        hint: 'What pieces are slowed down when moving through/over this terrain?',
-        label: 'Slows'
-
-      %div{'data-dependency' => 'slow_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
-        = f.input :slows_movement_effect_piece_type_ids,
-          as: :check_boxes,
-          collection: piece_types(f.object.variant),
-          label: 'Piece Types'
-
-      %div{'data-dependency' => 'slow_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
-        = f.input :slows_movement_by, label: 'By'
-
-
-  = f.inputs "Range Capture" do
-    = f.input :passable_range_effect_type,
-      collection: effect_types,
-      include_blank: false,
-      input_html: {'data-dependent' => 'passable_range_effect_type'},
-      hint: 'What pieces can range capture through/over this terrain?',
-      label: 'Passable By'
-
-    %div{'data-dependency' => 'passable_range_effect_type', 'data-value-in' => ['include', 'exclude']}
-      = f.input :passable_range_effect_piece_type_ids,
-        as: :check_boxes,
-        collection: piece_types_with_range_capture(f.object.variant),
-        label: 'Piece Types'
-
-
-  = f.actions do
-    = f.action :submit
-    = f.action :cancel, :url => @terrain_rule.variant
+    = f.actions do
+      = f.action :submit
+      = f.action :cancel, :url => @terrain_rule.variant

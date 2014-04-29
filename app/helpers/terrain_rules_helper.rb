@@ -2,10 +2,10 @@ module TerrainRulesHelper
 
   def effect_types
     {
-      'no pieces' => 'no',
-      'all pieces' => 'all',
-      'only the following pieces' => 'include',
-      'all except the following pieces' => 'exclude'
+      'none' => 'none',
+      'all' => 'all',
+      'only the following' => 'include',
+      'all except the following' => 'exclude'
     }
   end
 

@@ -81,7 +81,7 @@ class TerrainRule < ActiveRecord::Base
 
   def passable_movement_description
     who = Messages.effect_description(self, 'passable_movement')
-    "#{who} can pass through / over"
+    "#{who} can move through / over"
   end
 
   def passable_range_description
@@ -91,12 +91,12 @@ class TerrainRule < ActiveRecord::Base
 
   def slows_movement_description
     who = Messages.effect_description(self, 'slows_movement')
-    "#{who} movement is slowed by #{slows_movement_by} space(s) when passing through / over"
+    "slows movement for #{who} by #{slows_movement_by}"
   end
 
   def stops_movement_description
     who = Messages.effect_description(self, 'stops_movement')
-    "#{who} movement is stopped when passing through / over"
+    "stops movement for #{who}"
   end
 
   def block_range_description

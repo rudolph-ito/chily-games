@@ -3,10 +3,10 @@
 @import compass/utilities/general/clearfix
 @import mixins/colors
 
-$label-width: 200px
+$label-width: 120px
+$wide-label-width: 180px
 
 .form-title
-  padding-left: $label-width
   font-size: 30px
   margin-bottom: 30px
   border-bottom: $border
@@ -25,13 +25,13 @@ form
       li
         +clearfix
         margin-bottom: 5px
+        padding: 1px
 
   fieldset.actions
     margin-top: 30px
     border-top: $border
 
     ol
-      margin-left: $label-width
       padding: 10px 0
 
       li
@@ -45,21 +45,36 @@ form
 
     > legend
       padding: 0
-      margin: 0 0 20px $label-width
+      margin: 0 0 20px 0
       font-size: 20px
+
+  &.inline, .inline
+    label.label, legend.label
+      float: left
+      width: $label-width
+      margin-top: 2px
+      padding-right: 10px
+      +box-sizing(border-box)
 
     li.boolean
       margin-left: $label-width
 
+    p.inline-errors
+      margin-left: $wide-label-width
+
+    &.wide
+      label.label, legend.label
+        width: $wide-label-width
+
+      li.boolean
+        margin-left: $wide-label-width
+
+      p.inline-errors
+        margin-left: $wide-label-width
+
   label.label, legend.label
-    position: relative
+    color: #888
     display: block
-    float: left
-    width: $label-width
-    margin-top: 2px
-    text-align: right
-    padding-right: 10px
-    +box-sizing(border-box)
 
     &.error
       input
@@ -72,6 +87,7 @@ form
   input, select
     display: block
     float: left
+    margin: 0
 
   input
     &[type=text], &[type=number], &[type=email], &[type=password]
@@ -94,16 +110,9 @@ form
     height: 150px
     +box-sizing(border-box)
 
-  p
-    &.inline-hints
-      float: left
-      color: #888
-      margin: 2px 0 0 10px
-
-    &.inline-errors
-      color: red
-      margin: 2px 0 0 $label-width
-
+  p.inline-errors
+    color: red
+    margin: 2px 0 0 0
 
   ol.choices-group
     list-style-type: none

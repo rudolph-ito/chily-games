@@ -1,14 +1,15 @@
 = content_for :navigation do
   = render 'shared/navigation', back: {name: 'Home', href: '/'}
 
-.title
-  Account Details
-  = link_to 'Edit', [:edit, @user]
+%section.centered
+  .title
+    Account Details
+    = link_to 'Edit', [:edit, @user]
 
-%table
-  %tr
-    %th Username
-    %td= @user.username
-  %tr
-    %th Email
-    %td= @user.email
+  %table
+    %tr
+      %th Username
+      %td= @user.username
+    %tr
+      %th Email
+      %td= @user.email

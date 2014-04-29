@@ -1,0 +1,16 @@
+%div{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
+  = f.inputs do
+    = f.input :slows_movement_effect_type,
+      collection: effect_types,
+      include_blank: false,
+      input_html: {'data-dependent' => 'slow_movement_effect_type'},
+      label: 'What pieces are slowed down when moving through/over this terrain?'
+
+    %div{'data-dependency' => 'slow_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
+      = f.input :slows_movement_effect_piece_type_ids,
+        as: :check_boxes,
+        collection: piece_types(f.object.variant),
+        label: false
+
+    %div{'data-dependency' => 'slow_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
+      = f.input :slows_movement_by, label: 'How many spaces are pieces slowed down by when moving through/over this terrain?'

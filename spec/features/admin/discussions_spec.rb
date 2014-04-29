@@ -19,7 +19,7 @@ describe 'admin discussions' do
 
       fill_in 'Title', with: 'a'
       fill_in 'Description', with: 'b'
-      click_on 'Create Discussion'
+      click_on 'Create'
 
       expect(page).to have_content 'Discussion was successfully created.'
     end
@@ -33,7 +33,7 @@ describe 'admin discussions' do
       click_on 'Edit Discussion'
 
       fill_in 'Title', with: 'new'
-      click_on 'Update Discussion'
+      click_on 'Update'
 
       expect(page).to have_content 'new'
       expect(page).to_not have_content 'old'

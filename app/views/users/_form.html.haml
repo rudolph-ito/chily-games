@@ -1,10 +1,13 @@
-= semantic_form_for @user do |f|
-  = f.inputs do
-    = f.input :username
-    = f.input :email
-    = f.input :password, required: @user.new_record?
-    = f.input :password_confirmation, required: @user.new_record?
+%section.centered
+  .form-title= title
 
-  = f.actions do
-    = f.action :submit, name: "Save"
-    = f.action :cancel, name: "Cancel"
+  = semantic_form_for @user, html: { class: "inline" } do |f|
+    = f.inputs do
+      = f.input :username
+      = f.input :email
+      = f.input :password, required: @user.new_record?
+      = f.input :password_confirmation, required: @user.new_record?
+
+    = f.actions do
+      = f.action :submit, name: "Save"
+      = f.action :cancel, name: "Cancel"

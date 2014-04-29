@@ -24,7 +24,7 @@ describe 'admin quotes' do
       fill_in 'Description', with: 'Introduction'
       fill_in 'Number', with: '1'
       fill_in 'Text', with: '*Cyvasse*, the game was called.'
-      click_on 'Create Quote'
+      click_on 'Create'
 
       expect(page).to have_content 'Quote was successfully created.'
     end
@@ -38,7 +38,7 @@ describe 'admin quotes' do
       click_on 'Edit Quote'
 
       fill_in 'Book name', with: 'new'
-      click_on 'Update Quote'
+      click_on 'Update'
 
       expect(page).to have_content 'new'
       expect(page).to_not have_content 'old'

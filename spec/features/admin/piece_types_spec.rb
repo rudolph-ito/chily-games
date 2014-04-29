@@ -20,7 +20,7 @@ describe 'admin piece types' do
       fill_in 'Name', with: 'test'
       attach_file 'Alabaster image', Rails.root.join('spec/support/fake_image.svg')
       attach_file 'Onyx image', Rails.root.join('spec/support/fake_image.svg')
-      click_on 'Create Piece type'
+      click_on 'Create'
 
       expect(page).to have_content 'Piece type was successfully created.'
     end
@@ -34,7 +34,7 @@ describe 'admin piece types' do
       click_on 'Edit Piece Type'
 
       fill_in 'Name', with: 'new'
-      click_on 'Update Piece type'
+      click_on 'Update'
 
       expect(page).to have_content 'new'
       expect(page).to_not have_content 'old'

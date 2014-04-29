@@ -19,7 +19,7 @@ describe 'admin terrain types' do
 
       fill_in 'Name', with: 'test'
       attach_file 'Image', Rails.root.join('spec/support/fake_image.svg')
-      click_on 'Create Terrain type'
+      click_on 'Create'
 
       expect(page).to have_content 'Terrain type was successfully created.'
     end
@@ -33,7 +33,7 @@ describe 'admin terrain types' do
       click_on 'Edit Terrain Type'
 
       fill_in 'Name', with: 'new'
-      click_on 'Update Terrain type'
+      click_on 'Update'
 
       expect(page).to have_content 'new'
       expect(page).to_not have_content 'old'

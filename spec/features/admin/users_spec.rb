@@ -21,7 +21,7 @@ describe 'admin users' do
       fill_in 'Email', with: 'a@b.c'
       fill_in 'Password', with: '12345678', match: :prefer_exact
       fill_in 'Password confirmation', with: '12345678'
-      click_on 'Create User'
+      click_on 'Create'
 
       expect(page).to have_content 'User was successfully created.'
     end
@@ -35,7 +35,7 @@ describe 'admin users' do
       click_on 'Edit User'
 
       fill_in 'Username', with: 'new'
-      click_on 'Update User'
+      click_on 'Update'
 
       expect(page).to have_content 'new'
       expect(page).to_not have_content 'old'
