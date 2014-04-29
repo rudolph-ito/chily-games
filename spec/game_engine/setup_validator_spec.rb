@@ -7,7 +7,7 @@ describe SetupValidator do
   let(:variant) { create :variant, board_type: 'square', board_rows: 2, board_columns: 3 }
   let!(:piece_rule) { create(:piece_rule, piece_type: piece_type, variant: variant, count: 1) }
   let(:piece_type) { create :piece_type, name: 'King'}
-  let!(:terrain_rule) { create(:terrain_rule, terrain_type: terrain_type, variant: variant, count: 1, block_movement_type: 'all') }
+  let!(:terrain_rule) { create(:terrain_rule, terrain_type: terrain_type, variant: variant, count: 1, passable_movement_effect_type: 'none') }
   let(:terrain_type) { create :terrain_type, name: 'Mountain'}
 
   describe '#call' do

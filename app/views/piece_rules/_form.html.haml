@@ -1,6 +1,10 @@
 = semantic_form_for [@variant, @piece_rule] do |f|
   = f.inputs do
-    = f.input :piece_type
+    - if f.object.persisted?
+      = f.input :piece_type, input_html: { disabled: true }
+    - else
+      = f.input :piece_type, collection: PieceType.where.not(id: f.object.variant.piece_rules.pluck(:piece_type_id))
+
     = f.input :count, as: :number, min: 1, step: 1
 
   = f.inputs 'Movement' do

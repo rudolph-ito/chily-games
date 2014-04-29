@@ -23,6 +23,7 @@ form
       margin: 0
 
       li
+        +clearfix
         margin-bottom: 5px
 
   fieldset.actions
@@ -41,8 +42,6 @@ form
     margin-top: 15px
     padding-top: 5px
     +clearfix
-
-    &.actions
 
     > legend
       padding: 0
@@ -70,6 +69,10 @@ form
       color: red
       padding-left: 2px
 
+  input, select
+    display: block
+    float: left
+
   input
     &[type=text], &[type=number], &[type=email], &[type=password]
       width: 200px
@@ -81,7 +84,7 @@ form
       +box-sizing(border-box)
 
     &[type=checkbox]
-      margin: -2ex 5px 0 0
+      margin: 2px 5px 0 0
 
     &.long
       width: 600px
@@ -92,10 +95,14 @@ form
     +box-sizing(border-box)
 
   p
-    margin: 2px 0 0 $label-width
-    color: #888
+    &.inline-hints
+      float: left
+      color: #888
+      margin: 2px 0 0 10px
+
     &.inline-errors
       color: red
+      margin: 2px 0 0 $label-width
 
 
   ol.choices-group
@@ -111,4 +118,6 @@ form
   a
     margin-left: 20px
 
+.breaker
+  margin-top: 20px
 

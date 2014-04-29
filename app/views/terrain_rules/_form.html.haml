@@ -1,19 +1,72 @@
-= semantic_form_for [@variant, @terrain_rule] do |f|
+= semantic_form_for [@variant, @terrain_rule], html: { class: 'question-style' } do |f|
   = f.inputs do
-    = f.input :terrain_type
+    - if f.object.persisted?
+      = f.input :terrain_type, input_html: { disabled: true }
+    - else
+      = f.input :terrain_type, collection: TerrainType.where.not(id: f.object.variant.terrain_rules.pluck(:terrain_type_id))
+
     = f.input :count, as: :number, min: 1, step: 1
 
-  = f.inputs "Block Movement" do
-    = f.input :block_movement_type, collection: TerrainRule::BLOCK_TYPES, include_blank: false, input_html: {'data-dependent' => 'block_movement_type'}
+  = f.inputs "Movement" do
+    = f.input :passable_movement_effect_type,
+      collection: effect_types,
+      include_blank: false,
+      input_html: {'data-dependent' => 'passable_movement_effect_type'},
+      hint: 'What pieces can move through/over this terrain?',
+      label: 'Passable By'
 
-    %div{'data-dependency' => 'block_movement_type', 'data-value-in' => ['include', 'exclude']}
-      = f.input :block_movement_piece_type_ids, label: 'Piece Types', as: :check_boxes, collection: f.object.variant.piece_rules.map{ |pr| [pr.piece_type.name, pr.piece_type.id.to_s] }
+    %div{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
+      = f.input :passable_movement_effect_piece_type_ids,
+        as: :check_boxes,
+        collection: piece_types(f.object.variant),
+        label: 'Piece Types'
 
-  = f.inputs "Block Range" do
-    = f.input :block_range_type, collection: TerrainRule::BLOCK_TYPES, include_blank: false, input_html: {'data-dependent' => 'block_range_type'}
+    %div.breaker{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
+      = f.input :stops_movement_effect_type,
+        collection: effect_types,
+        include_blank: false,
+        input_html: {'data-dependent' => 'stops_movement_effect_type'},
+        hint: 'What pieces are stopped when moving through/over this terrain?',
+        label: 'Stops'
 
-    %div{'data-dependency' => 'block_range_type', 'data-value-in' => ['include', 'exclude']}
-      = f.input :block_range_piece_type_ids, label: 'Piece Types', as: :check_boxes, collection: f.object.variant.piece_rules.map{ |pr| [pr.piece_type.name, pr.piece_type.id.to_s] }
+      %div{'data-dependency' => 'stops_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
+        = f.input :stops_movement_effect_piece_type_ids,
+          as: :check_boxes,
+          collection: piece_types(f.object.variant),
+          label: 'Piece Types'
+
+    %div.breaker{'data-dependency' => 'passable_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
+      = f.input :slows_movement_effect_type,
+        collection: effect_types,
+        include_blank: false,
+        input_html: {'data-dependent' => 'slow_movement_effect_type'},
+        hint: 'What pieces are slowed down when moving through/over this terrain?',
+        label: 'Slows'
+
+      %div{'data-dependency' => 'slow_movement_effect_type', 'data-value-in' => ['include', 'exclude']}
+        = f.input :slows_movement_effect_piece_type_ids,
+          as: :check_boxes,
+          collection: piece_types(f.object.variant),
+          label: 'Piece Types'
+
+      %div{'data-dependency' => 'slow_movement_effect_type', 'data-value-in' => ['all', 'include', 'exclude']}
+        = f.input :slows_movement_by, label: 'By'
+
+
+  = f.inputs "Range Capture" do
+    = f.input :passable_range_effect_type,
+      collection: effect_types,
+      include_blank: false,
+      input_html: {'data-dependent' => 'passable_range_effect_type'},
+      hint: 'What pieces can range capture through/over this terrain?',
+      label: 'Passable By'
+
+    %div{'data-dependency' => 'passable_range_effect_type', 'data-value-in' => ['include', 'exclude']}
+      = f.input :passable_range_effect_piece_type_ids,
+        as: :check_boxes,
+        collection: piece_types_with_range_capture(f.object.variant),
+        label: 'Piece Types'
+
 
   = f.actions do
     = f.action :submit

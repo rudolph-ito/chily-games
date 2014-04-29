@@ -42,8 +42,14 @@ class TerrainRulesController < ApplicationController
     params.require(:terrain_rule).permit(
       :terrain_type_id,
       :count,
-      :block_movement_type, :block_range_type,
-      block_movement_piece_type_ids: [], :block_range_piece_type_ids => []
+      :passable_movement_effect_type,
+      :passable_range_effect_type,
+      :slows_movement_effect_type, :slows_movement_by,
+      :stops_movement_effect_type,
+      passable_movement_effect_piece_type_ids: [],
+      passable_range_effect_piece_type_ids: [],
+      slows_movement_effect_piece_type_ids: [],
+      stops_movement_effect_piece_type_ids: []
     )
   end
 

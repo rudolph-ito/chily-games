@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140330184344) do
+ActiveRecord::Schema.define(version: 20140425214057) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -90,10 +90,15 @@ ActiveRecord::Schema.define(version: 20140330184344) do
     t.integer "terrain_type_id"
     t.integer "variant_id"
     t.integer "count"
-    t.string  "block_movement_type"
-    t.text    "block_movement_piece_type_ids"
-    t.string  "block_range_type"
-    t.text    "block_range_piece_type_ids"
+    t.string  "passable_movement_effect_type"
+    t.text    "passable_movement_effect_piece_type_ids"
+    t.string  "passable_range_effect_type"
+    t.text    "passable_range_effect_piece_type_ids"
+    t.integer "slows_movement_by"
+    t.string  "slows_movement_effect_type"
+    t.text    "slows_movement_effect_piece_type_ids"
+    t.string  "stops_movement_effect_type"
+    t.text    "stops_movement_effect_piece_type_ids"
   end
 
   create_table "terrain_types", force: true do |t|

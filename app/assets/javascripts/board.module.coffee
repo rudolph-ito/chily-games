@@ -279,10 +279,10 @@ class Board
 
     return if !to? or _.isEqual(from, to)
 
-    if object.type_id() in @game_controller.move_and_range_capture_piece_type_ids
-      @game_controller.ply_valid from, to, => @get_range_capture_input(from, to)
-    else if @highlighting == 'range'
+    if @highlighting == 'range'
       @game_controller.create_ply(from, null, to)
+    else if object.type_id() in @game_controller.move_and_range_capture_piece_type_ids
+      @game_controller.ply_valid from, to, => @get_range_capture_input(from, to)
     else
       @game_controller.create_ply(from, to, null)
 

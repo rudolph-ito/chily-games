@@ -86,10 +86,10 @@ describe 'Space', ->
         @space.set_display()
         expect(@space.element.setFill).to.have.been.calledWith '#333'
 
-      it 'sets the opacity to 0.75', ->
+      it 'sets the opacity to 0.5', ->
         sinon.stub @space.element, 'setOpacity'
         @space.set_display()
-        expect(@space.element.setOpacity).to.have.been.calledWith 0.75
+        expect(@space.element.setOpacity).to.have.been.calledWith 0.5
 
     context 'display_type is territory', ->
       beforeEach ->

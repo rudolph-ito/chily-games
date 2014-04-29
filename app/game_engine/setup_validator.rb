@@ -32,7 +32,7 @@ class SetupValidator
   def placement_errors
     pieces.map do |piece|
       terrain = setup.get(piece.coordinate, Terrain)
-      if terrain && terrain.rule.block?('movement', piece.type_id)
+      if terrain && !terrain.rule.stoppable?('movement', piece.type_id)
         "A #{piece.piece_type.name.downcase} cannot be placed on a #{terrain.terrain_type.name.downcase}."
       end
     end.compact

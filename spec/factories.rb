@@ -59,11 +59,16 @@ FactoryGirl.define do
   end
 
   factory :terrain_rule do
-    block_movement_type 'none'
-    block_movement_piece_type_ids []
-    block_range_type 'none'
-    block_range_piece_type_ids []
     count 1
+    passable_movement_effect_type 'none'
+    passable_movement_effect_piece_type_ids []
+    passable_range_effect_type 'none'
+    passable_range_effect_piece_type_ids []
+    slows_movement_effect_type 'none'
+    slows_movement_effect_piece_type_ids []
+    slows_movement_by 0
+    stops_movement_effect_type 'none'
+    stops_movement_effect_piece_type_ids []
     terrain_type
     variant
   end

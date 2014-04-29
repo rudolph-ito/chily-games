@@ -22,17 +22,17 @@ class Messages
     "#{count} #{name}"
   end
 
-  def self.include_exclude(object, type)
-    ids = object.public_send("#{type}_piece_type_ids")
-    value = object.public_send("#{type}_type")
+  def self.effect_description(object, action)
+    ids = object.public_send("#{action}_effect_piece_type_ids")
+    value = object.public_send("#{action}_effect_type")
 
     if value == 'none'
-      nil
+      'no pieces'
     elsif value == 'all'
       'all pieces'
     else
       names = ids.map{ |pid| PieceType.find(pid).name }
-      prefix = if value == 'include' then '' else  'all pieces except ' end
+      prefix = if value == 'include' then 'only ' else  'all pieces except ' end
       prefix + names.to_sentence
     end
   end

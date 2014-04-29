@@ -57,8 +57,10 @@ namespace :seed do
 
       variant.terrain_rules.create!(
         terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3,
-        block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
-        block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id.to_s]
+        passable_movement_effect_type: 'exclude', passable_movement_effect_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
+        passable_range_effect_type: 'none',
+        slows_movement_effect_type: 'none',
+        stops_movement_effect_type: 'none'
       )
     end
 
@@ -94,8 +96,10 @@ namespace :seed do
 
       variant.terrain_rules.create!(
         terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3,
-        block_movement_type: 'exclude', block_movement_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
-        block_range_type: 'exclude', block_range_piece_type_ids: [PieceType.find_by(name: 'Trebuchet').id.to_s]
+        passable_movement_effect_type: 'exclude', passable_movement_effect_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
+        passable_range_effect_type: 'none',
+        slows_movement_effect_type: 'none',
+        stops_movement_effect_type: 'none'
       )
     end
   end

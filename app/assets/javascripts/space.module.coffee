@@ -54,7 +54,7 @@ class Space
 
   set_highlight_display: ->
     @element.setFill(@display_option)
-    @element.setOpacity(0.75)
+    @element.setOpacity(0.5)
 
   set_terrain_display: ->
     @element.setFillPatternRepeat('no-repeat')

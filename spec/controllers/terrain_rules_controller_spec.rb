@@ -32,7 +32,7 @@ describe TerrainRulesController do
 
   describe 'create' do
     let(:terrain_type) { create(:terrain_type) }
-    let(:valid_attributes) { { terrain_type_id: terrain_type.id, count: 1, block_movement_type: 'none', block_range_type: 'none' } }
+    let(:valid_attributes) { { terrain_type_id: terrain_type.id, count: 1, passable_movement_effect_type: 'none', passable_range_effect_type: 'none', slows_movement_effect_type: 'none', stops_movement_effect_type: 'none'} }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do
@@ -50,7 +50,7 @@ describe TerrainRulesController do
         context 'with invalid attributes' do
           it 'does not create and renders new' do
             expect {
-              post :create, variant_id: variant.id, terrain_rule: valid_attributes.merge(block_movement_type: nil)
+              post :create, variant_id: variant.id, terrain_rule: valid_attributes.merge(passable_movement_effect_type: nil)
               expect(response).to render_template 'new'
             }.to change(TerrainRule, :count).by(0)
           end
@@ -107,7 +107,7 @@ describe TerrainRulesController do
   end
 
   describe 'update' do
-    let(:terrain_rule) { create :terrain_rule, variant: variant, block_movement_type: 'none' }
+    let(:terrain_rule) { create :terrain_rule, variant: variant, count: 1 }
 
     context 'when signed in', :signed_in do
       context 'for own variant' do
@@ -115,16 +115,16 @@ describe TerrainRulesController do
 
         context 'with valid attributes' do
           it 'updates and redirects to variant' do
-            put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: 'all' }
-            expect(terrain_rule.reload.block_movement_type).to eql 'all'
+            put :update, id: terrain_rule.id, terrain_rule: { count: 2 }
+            expect(terrain_rule.reload.count).to eql 2
             expect(response).to redirect_to variant
           end
         end
 
         context 'with invalid attributes' do
           it 'renders edit' do
-            put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: nil }
-            expect(terrain_rule.reload.block_movement_type).to eql 'none'
+            put :update, id: terrain_rule.id, terrain_rule: { count: nil }
+            expect(terrain_rule.reload.count).to eql 1
             expect(response).to render_template 'edit'
           end
         end
@@ -132,8 +132,8 @@ describe TerrainRulesController do
 
       context 'for other variant' do
         it 'redirects to root' do
-          put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: 'all' }
-          expect(terrain_rule.reload.block_movement_type).to eql 'none'
+          put :update, id: terrain_rule.id, terrain_rule: { count: 2 }
+          expect(terrain_rule.reload.count).to eql 1
           expect(response).to redirect_to root_path
         end
       end
@@ -141,8 +141,8 @@ describe TerrainRulesController do
 
     context 'when not signed in' do
       it 'redirects to login' do
-        put :update, id: terrain_rule.id, terrain_rule: { block_movement_type: 'all' }
-        expect(terrain_rule.reload.block_movement_type).to eql 'none'
+        put :update, id: terrain_rule.id, terrain_rule: { count: 2 }
+        expect(terrain_rule.reload.count).to eql 1
         expect(response).to redirect_to new_user_session_path
       end
     end

@@ -1,7 +1,10 @@
 class TerrainRule < ActiveRecord::Base
   include Authority::Abilities
 
-  BLOCK_TYPES = %w(none all include exclude)
+  EFFECT_TYPES = %w(none all include exclude)
+  BOOLEAN_TYPES = [true, false]
+
+  default_scope { order('terrain_type_id asc') }
 
   ########################################
   # Relations
@@ -10,8 +13,10 @@ class TerrainRule < ActiveRecord::Base
   belongs_to :terrain_type
   belongs_to :variant
 
-  serialize :block_movement_piece_type_ids, JSON
-  serialize :block_range_piece_type_ids, JSON
+  serialize :passable_movement_effect_piece_type_ids, JSON
+  serialize :passable_range_effect_piece_type_ids, JSON
+  serialize :slows_movement_effect_piece_type_ids, JSON
+  serialize :stops_movement_effect_piece_type_ids, JSON
 
   ########################################
   # Validations
@@ -19,13 +24,20 @@ class TerrainRule < ActiveRecord::Base
 
   validates :terrain_type, presence: true
   validates :variant, presence: true
-
-  # Count
   validates :count, presence: true, numericality: { only_integer: true, greater_than: 0 }
 
-  # Block
-  validates :block_movement_type, inclusion: { in: BLOCK_TYPES }
-  validates :block_range_type, inclusion: { in: BLOCK_TYPES }
+  # Can pieces move through/over this terrain
+  validates :passable_movement_effect_type, inclusion: { in: EFFECT_TYPES }
+
+  # Does this terrain slow the movement speed of pieces moving through/over this terrain
+  validates :slows_movement_effect_type, inclusion: { in: EFFECT_TYPES }
+  validates :slows_movement_by, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, unless: lambda { |r| r.slows_movement_effect_type == 'none' }
+
+  # Does this terrain stop the movement speed of pieces moving through/over this terrain
+  validates :stops_movement_effect_type, inclusion: { in: EFFECT_TYPES }
+
+  # Can pieces range capture through/over this terrain
+  validates :passable_range_effect_type, inclusion: { in: EFFECT_TYPES }
 
   ########################################
   # Callbacks
@@ -34,11 +46,10 @@ class TerrainRule < ActiveRecord::Base
   before_save :clean_piece_type_ids
 
   def clean_piece_type_ids
-    self.block_movement_piece_type_ids ||= []
-    self.block_range_piece_type_ids ||= []
-
-    self.block_movement_piece_type_ids.reject!{ |x| x.blank? }
-    self.block_range_piece_type_ids.reject!{ |x| x.blank? }
+    [:passable_movement, :passable_range, :slows_movement, :stops_movement].each do |action|
+      self["#{action}_effect_piece_type_ids"] ||= []
+      self["#{action}_effect_piece_type_ids"].reject!{ |x| x.blank? }
+    end
   end
 
   ########################################
@@ -50,20 +61,53 @@ class TerrainRule < ActiveRecord::Base
   end
 
   def rule_descriptions
-    [block_movement_description, block_range_description].compact
+    (movement_descriptions + range_descriptions).compact
   end
 
-  def block_movement_description
-    block_message('movement')
+  def movement_descriptions
+    out = [passable_movement_description]
+
+    if passable_movement_effect_type != 'none'
+      out << stops_movement_description if stops_movement_effect_type != 'none'
+      out << slows_movement_description if slows_movement_effect_type != 'none'
+    end
+
+    out
+  end
+
+  def range_descriptions
+    [passable_range_description]
+  end
+
+  def passable_movement_description
+    who = Messages.effect_description(self, 'passable_movement')
+    "#{who} can pass through / over"
+  end
+
+  def passable_range_description
+    who = Messages.effect_description(self, 'passable_range')
+    "#{who} can range capture through / over"
+  end
+
+  def slows_movement_description
+    who = Messages.effect_description(self, 'slows_movement')
+    "#{who} movement is slowed by #{slows_movement_by} space(s) when passing through / over"
+  end
+
+  def stops_movement_description
+    who = Messages.effect_description(self, 'stops_movement')
+    "#{who} movement is stopped when passing through / over"
   end
 
   def block_range_description
-    block_message('range')
+    effect_description('range')
   end
 
-  def block?(type, piece_type_id)
-    ids = public_send("block_#{type}_piece_type_ids")
-    value = public_send("block_#{type}_type")
+  def effects?(type, piece_type_id)
+    return false unless respond_to? "#{type}_effect_type"
+
+    ids = public_send("#{type}_effect_piece_type_ids")
+    value = public_send("#{type}_effect_type")
     piece_type_id = piece_type_id.to_s
 
     case value
@@ -78,11 +122,32 @@ class TerrainRule < ActiveRecord::Base
     end
   end
 
-  private
+  def passable?(type, piece_type_id)
+    effects?("passable_#{type}", piece_type_id)
+  end
 
-  def block_message(type)
-    value = Messages.include_exclude(self, "block_#{type}")
-    "blocks #{type} for #{value}" if value
+  def slows?(type, piece_type_id)
+    effects?("slows_#{type}", piece_type_id)
+  end
+
+  def slows_by(type)
+    if type == 'movement'
+      slows_movement_by
+    else
+      0
+    end
+  end
+
+  def stoppable?(type, piece_type_id)
+    if type == 'movement'
+      passable?(type, piece_type_id)
+    else
+      true
+    end
+  end
+
+  def stops?(type, piece_type_id)
+    effects?("stops_#{type}", piece_type_id)
   end
 
 end

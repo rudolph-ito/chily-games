@@ -1,9 +1,7 @@
 require 'simplecov'
 SimpleCov.start 'rails'
 
-
 ROOT_DIRECTORY = File.expand_path("../..", __FILE__)
-Dir["light_support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
   config.mock_with :rspec
@@ -11,3 +9,6 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
 end
+
+require 'active_support'
+require 'active_support/dependencies'

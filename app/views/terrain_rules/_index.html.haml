@@ -3,20 +3,21 @@
 
 %ul.rule-list
   - variant.terrain_rules.each do |terrain_rule|
-    .type
-      .name-and-count
-        = terrain_rule.terrain_type.name
-        (#{terrain_rule.count})
-      .image
-        = image_tag terrain_rule.terrain_type.image, size: '50x50'
+    %li
+      .type
+        .name-and-count
+          = terrain_rule.terrain_type.name
+          (#{terrain_rule.count})
+        .image
+          = image_tag terrain_rule.terrain_type.image, size: '50x50'
 
-    .rules
-      %ul
-        - terrain_rule.rule_descriptions.each do |r|
-          %li.rule= r
+      .rules
+        %ul
+          - terrain_rule.rule_descriptions.each do |r|
+            %li.rule= r
 
-    - if include_actions
-      .actions
-        = link_to 'Edit', [:edit, terrain_rule]
-        %br
-        = link_to 'Delete', terrain_rule, method: :delete, data: { confirm: 'Are you sure?' }
+      - if include_actions
+        .actions
+          = link_to 'Edit', [:edit, terrain_rule]
+          %br
+          = link_to 'Delete', terrain_rule, method: :delete, data: { confirm: 'Are you sure?' }

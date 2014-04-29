@@ -52,6 +52,7 @@ class GameController extends Controller
       @board.draw()
       @board.add_terrains(data.terrains)
       @board.add_pieces(data.pieces)
+      @board.update_last_ply(data.last_ply.from, data.last_ply.to, data.last_ply.range_capture) if data.last_ply
 
     $.ajax
       url: @url('rules.html')

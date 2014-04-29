@@ -48,3 +48,7 @@ node(:move_and_range_capture_piece_type_ids) do |g|
     pr.range_capture? && pr.move_and_range_capture?
   end.map(&:piece_type_id)
 end
+
+node :last_ply do |g|
+  g.plies.to_a.last
+end

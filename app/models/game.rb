@@ -115,12 +115,12 @@ class Game < ActiveRecord::Base
     update_attributes(action: 'complete', action_to_id: opponent_id(user.id))
   end
 
-  def valid_plies(piece, from, type)
-    ply_calculator.valid_plies(piece, from, type)
+  def valid_plies(piece, from, type, opts = {})
+    ply_calculator.valid_plies(piece, from, type, opts)
   end
 
-  def valid_plies_for_user(user, piece, from, type)
-    ply_calculator(user).valid_plies(piece, from, type)
+  def valid_plies_for_user(user, piece, from, type, opts = {})
+    ply_calculator(user).valid_plies(piece, from, type, opts)
   end
 
   def ply_calculator(user = nil)
