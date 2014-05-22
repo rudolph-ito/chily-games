@@ -1,52 +1,67 @@
 class PlyValidator
-  attr_reader :game, :piece, :from, :range_capture, :to
 
-  def initialize(game, piece, to, range_capture)
-    @game = game
+  def initialize(game, user, piece, to, range_capture)
+    @user = user
     @piece = piece
     @from = piece.coordinate
     @to = to
     @range_capture = range_capture
+
+    @ply_calculator = PlyCalculator.new(game.board, game.current_setup)
   end
 
   def call
-    if range_capture?
-      if to.nil?
-        range_capture_valid?(from)
-      elsif range_capture.nil?
-        movement_valid?
-      elsif move_and_range_capture?
-        movement_valid? and range_capture_valid?(to)
-      else
-        false
-      end
+    return false unless @user.id == @piece.user_id
+
+    if can_range_capture?
+      range_capture_ply_valid?
     else
-      movement_valid?
+      movement_ply_valid?
     end
   end
 
   private
 
-  def range_capture?
-    piece.rule.range_capture?
+  def range_capture_ply_valid?
+    if no_movement?
+      range_capture_valid?(@from)
+    elsif no_range_capture?
+      movement_valid?
+    elsif can_move_and_range_capture?
+      movement_valid? and range_capture_valid?(@to)
+    else
+      false
+    end
   end
 
-  def move_and_range_capture?
-    piece.rule.move_and_range_capture?
+  def movement_ply_valid?
+    movement_valid?
+  end
+
+  def can_range_capture?
+    @piece.rule.range_capture?
+  end
+
+  def can_move_and_range_capture?
+    @piece.rule.move_and_range_capture?
+  end
+
+  def no_movement?
+    @to.nil?
+  end
+
+  def no_range_capture?
+    @range_capture.nil?
   end
 
   def movement_valid?
-    return false if to.nil?
-    ply_calculator.valid_plies(piece, from, 'movement').include?(to)
+    return false if no_movement?
+    @ply_calculator.valid_plies(@piece, @from, 'movement').include?(@to)
   end
 
   def range_capture_valid?(coordinate)
-    return false if range_capture.nil?
-    ply_calculator.valid_plies(piece, coordinate, 'range').include?(range_capture)
-  end
-
-  def ply_calculator
-    PlyCalculator.new(game.board, game.current_setup)
+    return false if no_range_capture?
+    @ply_calculator.valid_plies(@piece, coordinate, 'range').include?(@range_capture)
   end
 
 end

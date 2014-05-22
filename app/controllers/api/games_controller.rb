@@ -85,7 +85,7 @@ class Api::GamesController < ApplicationController
 
   def ply_valid
     piece = @game.get_piece(current_user, params[:from])
-    if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
+    if piece && PlyValidator.new(@game, current_user,  piece, params[:to], params[:range_capture]).call
       render json: true
     else
       render json: false
@@ -94,7 +94,7 @@ class Api::GamesController < ApplicationController
 
   def create_ply
     piece = @game.get_piece(current_user, params[:from])
-    if piece && PlyValidator.new(@game, piece, params[:to], params[:range_capture]).call
+    if piece && PlyValidator.new(@game, current_user, piece, params[:to], params[:range_capture]).call
       CreatePly.new(@game, piece, params[:to], params[:range_capture]).call
       render json: { success: true, from: params[:from], to: params[:to], range_capture: params[:range_capture], action: @game.action, action_to_id: @game.action_to_id }
     else
