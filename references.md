@@ -14,7 +14,7 @@ Chapter: 21, The Queenmaker
 Description: Drey talking to Myrcella
 Number: 1
 
-"I understand you've fought some mighty battles too, Your Grace," said Drey in his most cheerful voice. "It is said you show our brave Prince Trystane no mercy at the *cyvasse* table."
+"I understand you've fought some mighty battles too, Your Grace," said Drey in his most cheerful voice. "It is said you show our brave Prince Trystane no mercy at the cyvasse table."
 
 "He always sets his squares up the same way, with all the mountains in the front and his elephants in the passes," said Myrcella. "So I send my dragon through to eat his elephants."
 
@@ -29,11 +29,11 @@ Chapter: 50, The Princess in the Tower
 Description: Arianne Martell locked in her chamber
 Number: 1
 
-In one corner stood an ornate *cyvasse* table with pieces carved of ivory and onyx, though she had no one to play with even if she had been so inclined.
+In one corner stood an ornate cyvasse table with pieces carved of ivory and onyx, though she had no one to play with even if she had been so inclined.
 
 ...
 
-She sat beside the *cyvasse* table and idly moved an elephant.
+She sat beside the cyvasse table and idly moved an elephant.
 
 ---
 
@@ -42,11 +42,11 @@ Chapter: 50, The Princess in the Tower
 Description: Arianne Martell talking to Doran Martell
 Number: 2
 
-Instead he delivered her to the prince's solar, where they found Doran Martell seated behind a *cyvasse* table, his gouty legs supported by a cushioned footstool. He was toying with an onyx elephant, turning it in his reddened, swollen hands.
+Instead he delivered her to the prince's solar, where they found Doran Martell seated behind a cyvasse table, his gouty legs supported by a cushioned footstool. He was toying with an onyx elephant, turning it in his reddened, swollen hands.
 
 ...
 
-"I told them to place a *cyvasse* table in your chambers," her father said when the two of them were alone.
+"I told them to place a cyvasse table in your chambers," her father said when the two of them were alone.
 
 "Who was I suppose to play with?" *Why is he talking about a game? Has the gout robbed him of his wits?*
 
@@ -58,15 +58,15 @@ Instead he delivered her to the prince's solar, where they found Doran Martell s
 
 ...
 
-She touched one of the *cyvasse* pieces, the heavy horse.
+She touched one of the cyvasse pieces, the heavy horse.
 
 ...
 
-Still, this was no harmless game of *cyvasse*.
+Still, this was no harmless game of cyvasse.
 
 ...
 
-Her father plucked up a *cyvasse* piece. "I must know how you learned that Quentyn was abroad. Your brother went with Cletus Yronwood, Master Kedry, and three of Lord Yronwood's best young knights on a long and perilous voyage, with an uncertain welcome at its end. He has gone to bring us back out hearts desire."
+Her father plucked up a cyvasse piece. "I must know how you learned that Quentyn was abroad. Your brother went with Cletus Yronwood, Master Kedry, and three of Lord Yronwood's best young knights on a long and perilous voyage, with an uncertain welcome at its end. He has gone to bring us back out hearts desire."
 
 She narrowed her eyes. "What is our hearts desire?"
 
@@ -79,11 +79,11 @@ Chapter: 14, Tyrion IV
 Description: Haldon and Tyrion playing
 Number: 1
 
-"Fancy another game of *cyvasse*?" The Halfmaester always defeated him, but it was a way to pass the time
+"Fancy another game of cyvasse?" The Halfmaester always defeated him, but it was a way to pass the time
 
 ...
 
-"Try to give me a better battle this time, Yollo." You play *cyvasse* as badly as you tumble.
+"Try to give me a better battle this time, Yollo." You play cyvasse as badly as you tumble.
 
 "I am trying to lull you into a false sense of confidence," said Tyrion, as they arranged their tiles on either side of the a carved wooden screen.
 
@@ -105,7 +105,7 @@ The Halfmaester arched an eyebrow. "How much?"
 
 "Afraid, are you? I would be if I were you."
 
-"The day you defeat me at *cyvasse* will be the day turtles crawl out my arse." The Halfmaester moved his spears. "You have your wager, little man."
+"The day you defeat me at cyvasse will be the day turtles crawl out my arse." The Halfmaester moved his spears. "You have your wager, little man."
 
 Tyrion stretched a hand out for his dragon.
 
@@ -118,7 +118,7 @@ Chapter: 22, Tyrion VI
 Description: Aegon and Tyrion playing
 Number: 1
 
-"Prince Aegon," said Tyrion, "since we're both stuch aboard this boat, perhaps you will honor me with a a game of *cyvasse* to while away the hours?"
+"Prince Aegon," said Tyrion, "since we're both stuck aboard this boat, perhaps you will honor me with a a game of cyvasse to while away the hours?"
 
 The prince game him a wary look. "I am sick of *cyvasee*."
 
@@ -171,11 +171,11 @@ In the alcove two men sat over a carved stone cyvasse table, squinting at their 
 
 ...
 
-Neither looked up from their game until Haldon drew up a chair between them and said, "My dwarf plays better *cyvasse* than both of you combined."
+Neither looked up from their game until Haldon drew up a chair between them and said, "My dwarf plays better cyvasse than both of you combined."
 
 ...
 
-"Is he for sale?" he asked in the Common Tounge of Westeros. "The triarch's grotesquerie is in need to a *cyvasse*-playing dwarf."
+"Is he for sale?" he asked in the Common Tounge of Westeros. "The triarch's grotesquerie is in need to a cyvasse-playing dwarf."
 
 "Yollo is no slave"
 
@@ -189,11 +189,11 @@ The man behind the alabaster army pursed his lips in disapproval. He moved his h
 
 ...
 
-Haldon said, "The noble Qavo Nogarys is the customs officer here in Selhorys. I have never once defeated him at *cyvasse*."
+Haldon said, "The noble Qavo Nogarys is the customs officer here in Selhorys. I have never once defeated him at cyvasse."
 
 ...
 
-As each of them was setting up their pieces behind the *cyvasse* screen, Haldon said, "What news from downriver? Will it be war?"
+As each of them was setting up their pieces behind the cyvasse screen, Haldon said, "What news from downriver? Will it be war?"
 
 ...
 
@@ -224,7 +224,7 @@ Chapter: 47, Tyrion X
 Description: Tyrion being auctioned
 Number: 1
 
-I'm murder with a crossbow, and men three time my size quail and tremble when we meet across a *cyvasse* table.
+I'm murder with a crossbow, and men three time my size quail and tremble when we meet across a cyvasse table.
 
 ---
 
@@ -233,7 +233,7 @@ Chapter: 47, Tyrion X
 Description: Plumm and Tyrion playing
 Number: 2
 
-Then a lord in a blue *tokar* fringed with tiger's eyes recalled that Tyrion had boasted of his skill at *cyvasse* on the auction block. "Let us put him to the test," he said. A table and set of pieces were duly produced. A scant few moments later, the red-faced lord shoved the table over in fury, scattering pieces across the carpets to the sounds on Yunkish laughter.
+Then a lord in a blue *tokar* fringed with tiger's eyes recalled that Tyrion had boasted of his skill at cyvasse on the auction block. "Let us put him to the test," he said. A table and set of pieces were duly produced. A scant few moments later, the red-faced lord shoved the table over in fury, scattering pieces across the carpets to the sounds on Yunkish laughter.
 
 "You should have let him win,  Penny whispered.
 
@@ -251,4 +251,4 @@ The sellsword was nearly as bad a player as the Yunkish lord had been, but his p
 
 Near the end of the final contest, with his fortress is ruins, his dragon dead, elephants before him and heavy horse circling round his rear, Plumm looked up smiling and said, "Yollo wins again. Death in four"
 
-"Three." Tyrion tapped his dragon. "I was lucky. Perhaps you should give my head a good rub before our next game, Captain. Some of that luck might rub off on your fingers." *You will still lose, but you might give me a better game.* Grinning he pushed back from the *cyvasse* table, picked up his wine flagon, and returned to pouring with Yezzan zo Qaggaz considerably richer and Brown Ben Plumm considerably impoverished.
+"Three." Tyrion tapped his dragon. "I was lucky. Perhaps you should give my head a good rub before our next game, Captain. Some of that luck might rub off on your fingers." *You will still lose, but you might give me a better game.* Grinning he pushed back from the cyvasse table, picked up his wine flagon, and returned to pouring with Yezzan zo Qaggaz considerably richer and Brown Ben Plumm considerably impoverished.

@@ -5,7 +5,7 @@
 
 %section.centered.variant
   .top-section
-    .title= @variant
+    .title= italicize_cyvasse(@variant.to_s)
     .rating{ 'data-score' => @variant.average_rating }
     .link= link_to 'Reviews', @variant.review_topic
 

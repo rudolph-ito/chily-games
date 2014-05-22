@@ -8,4 +8,8 @@ module ApplicationHelper
     TerrainType.where.not(id: variant.terrain_rules.pluck(:terrain_type_id))
   end
 
+  def italicize_cyvasse(str)
+    str.gsub(/([Cc]yvasse)/) { |s| "<em>#{s}</em>" } .html_safe
+  end
+
 end

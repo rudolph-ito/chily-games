@@ -174,8 +174,8 @@ class GameController extends Controller
       targetType: 'score'
 
     $.getJSON "/api/variants/#{@variant_id}/review", (data) =>
-      $('.modal .review .rating').raty(raty_options).raty('score', data.rating)
-      $('.modal .review [name=comment]').val(data.comment)
+      $('.review .rating').raty(raty_options).raty('score', data.rating)
+      $('.review [name=comment]').val(data.comment)
 
     $('.modal.review').modal()
 

@@ -6,11 +6,9 @@
 
       .center
         .name
-          %em Cyvasse
-          Explorer
+          = italicize_cyvasse("Cyvasse Explorer")
         .mission
-          An online community forum dedicated to creating
-          %em cyvasse,
+          = italicize_cyvasse("An online community forum dedicated to creating cyvasse,")
           %br
           a game described in the series A Song of Ice and Fire by George R. R. Martin
 
@@ -23,20 +21,14 @@
         .title Ultimate Goal
         .message
           %ul.bullets
-            %li
-              As a community come to an agreement on rules for
-              = succeed '.' do
-                %em cyvasse
+            %li= italicize_cyvasse("As a community come to an agreement on rules for cyvasse.")
             %li Get the game manufactered.
 
       %li.half
         .title Plan
         .message
           %ul.bullets
-            %li
-              Users create variants of
-              %em cyvasse
-              that are played by the community.
+            %li= italicize_cyvasse("Users create variants of cyvasse that are played by the community.")
             %li The community rates and reviews these variants.
             %li Variants are updated by majority consensus.
             %li Repeat until we are all playing a game we enjoy.
@@ -46,20 +38,16 @@
         .message
           %ul.bullets
             %li
-              If you've never heard of
-              = succeed ',' do
-                %em cyvasse
-              or just want to refersh your memory, check out the
-              = succeed '.' do
-                = link_to "quotes", :quotes
+              = italicize_cyvasse("Brush up on your cyvasse knowledge by reading the")
+              = link_to "quotes", :quotes
+              from the books.
 
             %li
               Learn the
               = succeed ',' do
                 = link_to "invariants", :invariants
-              the basic rules every variant of
-              %em cyvasse
-              will share.
+              = italicize_cyvasse("the basic rules every variant of cyvasse will share.")
+
 
             %li
               Explore the
