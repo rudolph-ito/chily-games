@@ -1,0 +1,18 @@
+machine:
+  ruby:
+    version: 2.1.1
+
+test:
+  post:
+    - bundle exec teaspoon
+
+deployment:
+  staging:
+    branch: master
+    commands:
+      - heroku maintenance:on --app cyvasse-explorer
+      - heroku pgbackups:capture --expire --app cyvasse-explorer
+      - git push -f git@heroku.com:cyvasse-explorer.git $CIRCLE_SHA1:master
+      - heroku run rake db:migrate --app cyvasse-explorer
+      - heroku restart --app cyvasse-explorer
+      - heroku maintenance:off --app cyvasse-explorer
