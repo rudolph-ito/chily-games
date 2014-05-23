@@ -120,7 +120,7 @@ Number: 1
 
 "Prince Aegon," said Tyrion, "since we're both stuck aboard this boat, perhaps you will honor me with a a game of cyvasse to while away the hours?"
 
-The prince game him a wary look. "I am sick of *cyvasee*."
+The prince gave him a wary look. "I am sick of *cyvasee*."
 
 "Sick of losing to a dwarf, you mean?"
 
