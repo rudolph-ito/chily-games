@@ -17,7 +17,10 @@ class PlyCalculator::TurnPlyCalculator < SimpleDelegator
       to = board.reduce_coordinate(to)
 
       # Stop if distance did not grow
-      next if CoordinateDistance.calculate(from, coordinate) >= CoordinateDistance.calculate(from, to)
+      old_distance = CoordinateDistance.calculate(from, coordinate)
+      new_distance = CoordinateDistance.calculate(from, to)
+
+      next if old_distance >= new_distance || new_distance <= count
 
       valid, stop, new_movement_count = evaluator.call(to, count + 1)
       plies << to.clone if valid

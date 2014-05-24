@@ -15,7 +15,7 @@ describe CoordinateDistance do
 
       context 'small distance' do
         let(:coordinate2) { {'x'=>1, 'y'=>1} }
-        specify { expect(result).to eql Math.sqrt(2) }
+        specify { expect(result).to eql Math.sqrt(2).round(2) }
       end
 
       context 'large distance' do
@@ -32,14 +32,22 @@ describe CoordinateDistance do
         specify { expect(result).to eql 0.0 }
       end
 
-      context 'small distance' do
-        let(:coordinate2) { {'x'=>0, 'y'=>1, 'z'=>1} }
-        specify { expect(result).to eql Math.sqrt(2) }
+      context do
+        let(:result1) { CoordinateDistance.calculate({'x'=>0, 'y'=>0, 'z'=>0}, {'x'=>1, 'y'=>0, 'z'=>0}) }
+        let(:result2) { CoordinateDistance.calculate({'x'=>0, 'y'=>0, 'z'=>0}, {'x'=>0, 'y'=>1, 'z'=>0}) }
+        specify { expect(result1).to eql result2 }
       end
 
-      context 'large distance' do
-        let(:coordinate2) { {'x'=>0, 'y'=>3, 'z'=>3} }
-        specify { expect(result).to eql Math.sqrt(18) }
+      context do
+        let(:result1) { CoordinateDistance.calculate({'x'=>0, 'y'=>0, 'z'=>0}, {'x'=>1, 'y'=>2, 'z'=>0}) }
+        let(:result2) { CoordinateDistance.calculate({'x'=>0, 'y'=>0, 'z'=>0}, {'x'=>-1, 'y'=>0, 'z'=>2}) }
+        specify { expect(result1).to eql result2 }
+      end
+
+      context do
+        let(:result1) { CoordinateDistance.calculate({'x'=>0, 'y'=>1, 'z'=>0}, {'x'=>1, 'y'=>1, 'z'=>0}) }
+        let(:result2) { CoordinateDistance.calculate({'x'=>0, 'y'=>1, 'z'=>0}, {'x'=>1, 'y'=>0, 'z'=>0}) }
+        specify { expect(result1).to eql result2 }
       end
     end
   end
