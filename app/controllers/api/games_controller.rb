@@ -77,7 +77,7 @@ class Api::GamesController < ApplicationController
     if piece = @game.get_piece(current_user, params[:coordinate])
       from = params[:from] || piece.coordinate
       type = params[:type]
-      plies = @game.valid_plies_for_user(current_user, piece, from, type)
+      plies = @game.valid_plies_for_user(current_user, piece, from, type, ignore_capture_restriction: true)
     end
 
     render json: plies
@@ -85,7 +85,7 @@ class Api::GamesController < ApplicationController
 
   def ply_valid
     piece = @game.get_piece(current_user, params[:from])
-    if piece && PlyValidator.new(@game, current_user,  piece, params[:to], params[:range_capture]).call
+    if piece && PlyValidator.new(@game, current_user, piece, params[:to], params[:range_capture]).call
       render json: true
     else
       render json: false
