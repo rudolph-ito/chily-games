@@ -263,7 +263,7 @@ class Board
     from = object.coordinate
     type = object.type()
 
-    if !to? or !@home_space(to) or _.isEqual(from, to)
+    if !to? or !@home_space(to) or _.isEqual(from, to) or layer.coordinate_occupied(to)
       layer.reset(object)
     else
       layer.move(object, to)

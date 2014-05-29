@@ -407,7 +407,7 @@ describe 'Board', ->
         expect(@layer.move).to.have.been.calledWith @object, @to
 
     beforeEach ->
-      @layer = { move: sinon.spy(), remove: sinon.spy(), reset: sinon.spy() }
+      @layer = { move: sinon.spy(), remove: sinon.spy(), reset: sinon.spy(), coordinate_occupied: sinon.stub() }
       @object = { constructor: { name: 'Piece' }, coordinate: {x:0,y:0}, type: (-> 'Piece'), type_id: (-> 1) }
       @to = {x:1,y:1}
 
@@ -434,18 +434,44 @@ describe 'Board', ->
 
           context 'from != to', ->
             context 'from is null', ->
-              beforeEach -> @object.coordinate = null
-              itShouldBeMoved()
-              it 'calls game_controller.setup_add', ->
-                @board.try_move(@layer, @object, @to)
-                expect(@game_controller.setup_add).to.have.been.calledWith 'Piece', 1, @to
+              beforeEach ->
+                @object.coordinate = null
+
+              context 'to is occupied', ->
+                beforeEach ->
+                  @layer.coordinate_occupied.withArgs(@to).returns(true)
+
+                itShouldBeReset()
+
+              context 'to is open', ->
+                beforeEach ->
+                  @layer.coordinate_occupied.withArgs(@to).returns(false)
+
+                itShouldBeMoved()
+
+                it 'calls game_controller.setup_add', ->
+                  @board.try_move(@layer, @object, @to)
+                  expect(@game_controller.setup_add).to.have.been.calledWith 'Piece', 1, @to
 
             context 'from is not null', ->
-              beforeEach -> @object.coordinate = {x:0,y:0}
-              itShouldBeMoved()
-              it 'calls game_controller.setup_move', ->
-                @board.try_move(@layer, @object, @to)
-                expect(@game_controller.setup_move).to.have.been.calledWith 'Piece', {x:0,y:0}, {x:1,y:1}
+              beforeEach ->
+                @object.coordinate = {x:0,y:0}
+
+              context 'to is occupied', ->
+                beforeEach ->
+                  @layer.coordinate_occupied.withArgs(@to).returns(true)
+
+                itShouldBeReset()
+
+              context 'to is open', ->
+                beforeEach ->
+                  @layer.coordinate_occupied.withArgs(@to).returns(false)
+
+                itShouldBeMoved()
+
+                it 'calls game_controller.setup_move', ->
+                  @board.try_move(@layer, @object, @to)
+                  expect(@game_controller.setup_move).to.have.been.calledWith 'Piece', {x:0,y:0}, @to
 
     context 'during play', ->
       beforeEach ->
