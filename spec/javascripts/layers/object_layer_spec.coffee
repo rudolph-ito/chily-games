@@ -144,3 +144,18 @@ describe 'ObjectLayer', ->
     it 'calls try move with the layer, the object, and the objects nearest_coordinate', ->
       @object_layer.drag_end(@object)
       expect(@board.try_move).to.have.been.calledWith @object_layer, @object, {x:1,y:3}
+
+  describe '#coordinate_occupied', ->
+    context 'object at coordinate', ->
+      beforeEach ->
+        sinon.stub(@object_layer.coordinate_map, 'get').withArgs({x:0,y:0}).returns(@object)
+
+      it 'returns true', ->
+        expect(@object_layer.coordinate_occupied({x:0,y:0})).to.be.true
+
+    context 'object not at coordinate', ->
+      beforeEach ->
+        sinon.stub(@object_layer.coordinate_map, 'get').withArgs({x:0,y:0}).returns(null)
+
+      it 'returns false', ->
+        expect(@object_layer.coordinate_occupied({x:0,y:0})).to.be.false

@@ -38,6 +38,11 @@ class ObjectLayer extends Layer
     object.reset_position()
     @draw()
 
+  # Coordinate occupied
+
+  coordinate_occupied: (coordinate) ->
+    @coordinate_map.get(coordinate)?
+
   # Handlers
 
   drag_start: (object) ->
