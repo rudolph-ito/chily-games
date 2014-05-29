@@ -153,7 +153,7 @@ describe 'ObjectLayer', ->
       it 'returns true', ->
         expect(@object_layer.coordinate_occupied({x:0,y:0})).to.be.true
 
-    context 'object not at coordinate', ->
+    context 'no object at coordinate', ->
       beforeEach ->
         sinon.stub(@object_layer.coordinate_map, 'get').withArgs({x:0,y:0}).returns(null)
 
