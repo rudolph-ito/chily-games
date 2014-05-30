@@ -6,7 +6,7 @@ describe 'HexagonalBoard', ->
 
   describe '#setup', ->
     beforeEach ->
-      @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 6}, null)
+      @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 5}, null)
 
     describe 'user not in setup', ->
       context 'bounded by height', ->
@@ -61,21 +61,21 @@ describe 'HexagonalBoard', ->
   describe '#add_spaces', ->
     context "board_size 3", ->
       it 'draws all the spaces', ->
-        @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 3}, null)
+        @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 2}, null)
         @hexagonal_board.setup()
         @hexagonal_board.add_spaces()
         expect(@hexagonal_board.space_layer.element.children.length).to.eql(19)
 
     context "board_size 6", ->
       it 'draws all the spaces', ->
-        @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 6}, null)
+        @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 5}, null)
         @hexagonal_board.setup()
         @hexagonal_board.add_spaces()
         expect(@hexagonal_board.space_layer.element.children.length).to.eql(91)
 
   describe '#position', ->
     beforeEach ->
-      @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 6}, null)
+      @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 5}, null)
       @hexagonal_board.center = x: 300, y: 300
       @hexagonal_board.space_size = 35
       @hexagonal_board.delta_x = 35 * Math.cos(Math.PI/6)
@@ -85,26 +85,26 @@ describe 'HexagonalBoard', ->
 
     context "for alabaster", ->
       it 'returns the proper coordinates', ->
-        expect(@hexagonal_board.position(x:0, y:0, z:0)).to.eql({x:300, y:300})
-        expect(@hexagonal_board.position(x:0, y:2, z:2)).to.eql({x:300, y:510})
-        expect(@hexagonal_board.position(x:0, y:-2, z:-2)).to.eql({x:300, y:90})
+        expect(@hexagonal_board.position(x:5, y:5)).to.eql({x:300, y:300})
+        expect(@hexagonal_board.position(x:7, y:1)).to.eql({x:300, y:510})
+        expect(@hexagonal_board.position(x:3, y:9)).to.eql({x:300, y:90})
 
     context "for onyx", ->
       beforeEach ->
         @hexagonal_board.color = 'onyx'
 
       it 'returns the proper coordinates', ->
-        expect(@hexagonal_board.position(x:0, y:0, z:0)).to.eql({x:300, y:300})
-        expect(@hexagonal_board.position(x:0, y:2, z:2)).to.eql({x:300, y:90})
-        expect(@hexagonal_board.position(x:0, y:-2, z:-2)).to.eql({x:300, y:510})
+        expect(@hexagonal_board.position(x:5, y:5)).to.eql({x:300, y:300})
+        expect(@hexagonal_board.position(x:7, y:1)).to.eql({x:300, y:90})
+        expect(@hexagonal_board.position(x:3, y:9)).to.eql({x:300, y:510})
 
   describe '#territory', ->
     beforeEach ->
-      @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 6}, null)
+      @hexagonal_board = new HexagonalBoard(@container, 'alabaster', {board_size: 5}, null)
 
     it 'alabaster', ->
-      expect(@hexagonal_board.territory({x: 0, y: 1, z: 0})).to.eql 'alabaster'
+      expect(@hexagonal_board.territory({x: 6, y: 3})).to.eql 'alabaster'
     it 'neutral', ->
-      expect(@hexagonal_board.territory({x: 0, y: 0, z: 0})).to.eql 'neutral'
+      expect(@hexagonal_board.territory({x: 5, y: 5})).to.eql 'neutral'
     it 'onyx', ->
-      expect(@hexagonal_board.territory({x: 0, y: -1, z: 0})).to.eql 'onyx'
+      expect(@hexagonal_board.territory({x: 4, y: 7})).to.eql 'onyx'

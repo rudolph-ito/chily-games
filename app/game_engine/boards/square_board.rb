@@ -11,10 +11,6 @@ class SquareBoard
     0 <= coordinate['x'] && coordinate['x'] < columns && 0 <= coordinate['y'] && coordinate['y'] < rows
   end
 
-  def reduce_coordinate(coordinate)
-    coordinate
-  end
-
   def center_coordinate
     { 'x' => columns / 2, 'y' => rows / 2 }
   end
@@ -47,5 +43,12 @@ class SquareBoard
     else
       raise "#{self.class}#directional_functions does not support type: #{type}"
     end
+  end
+
+  def distance(coordinate1, coordinate2)
+    x_diff = coordinate1['x'] - coordinate2['x']
+    y_diff = coordinate1['y'] - coordinate2['y']
+
+    Math.sqrt(x_diff ** 2 + y_diff ** 2)
   end
 end

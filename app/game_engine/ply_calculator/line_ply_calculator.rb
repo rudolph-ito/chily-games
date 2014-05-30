@@ -9,7 +9,6 @@ class PlyCalculator::LinePlyCalculator < SimpleDelegator
 
       while !(maximum && count >= maximum)
         directional_function.call(to)
-        to = board.reduce_coordinate(to)
 
         valid, stop, count = evaluator.call(to, count + 1)
         plies << to.clone if valid

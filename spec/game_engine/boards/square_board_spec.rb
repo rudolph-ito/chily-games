@@ -33,13 +33,6 @@ describe SquareBoard do
     end
   end
 
-  context '#reduce_coordinate' do
-    it 'returns the coordinate' do
-      expect(board.reduce_coordinate('x'=>0, 'y'=>0)).to eql('x'=>0, 'y'=>0)
-      expect(board.reduce_coordinate('x'=>2, 'y'=>3)).to eql('x'=>2, 'y'=>3)
-    end
-  end
-
   context '#center_coordinate' do
     context '2x2' do
       let(:rows) { 2 }

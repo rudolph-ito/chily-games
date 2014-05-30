@@ -14,11 +14,10 @@ class PlyCalculator::TurnPlyCalculator < SimpleDelegator
     directional_functions.each do |directional_function|
       to = coordinate.clone
       directional_function.call(to)
-      to = board.reduce_coordinate(to)
 
       # Stop if distance did not grow
-      old_distance = CoordinateDistance.calculate(from, coordinate)
-      new_distance = CoordinateDistance.calculate(from, to)
+      old_distance = board.distance(from, coordinate)
+      new_distance = board.distance(from, to)
 
       next if old_distance >= new_distance || new_distance <= count
 
