@@ -7,22 +7,21 @@ class HexagonalBoard
   end
 
   def coordinate_valid?(coordinate)
-    coordinate['x'].abs + coordinate['y'].abs + coordinate['z'].abs <= size - 1
-  end
+    sum = coordinate['x'] + coordinate['y']
 
-  def reduce_coordinate(coordinate)
-    x,y,z = _reduce_coordinate(coordinate['x'], coordinate['y'], coordinate['z'])
-    { 'x' => x, 'y' => y, 'z' => z }
+    coordinate['x'].between?(0, 2 * size) &&
+    coordinate['y'].between?(0, 2 * size) &&
+    sum.between?(size, size + 2 * size)
   end
 
   def center_coordinate
-    { 'x' => 0, 'y' => 0, 'z' => 0 }
+    { 'x' => size, 'y' => size }
   end
 
   def territory(coordinate)
-    if coordinate['y'] == 0 && coordinate['z'] == 0
+    if coordinate['y'] == size
       'neutral'
-    elsif coordinate['y'] >= 0 && coordinate['z'] >= 0
+    elsif coordinate['y'] < size
       'alabaster'
     else
       'onyx'
@@ -36,36 +35,28 @@ class HexagonalBoard
         lambda{ |coordinate| coordinate['x'] -= 1},
         lambda{ |coordinate| coordinate['y'] += 1},
         lambda{ |coordinate| coordinate['y'] -= 1},
-        lambda{ |coordinate| coordinate['z'] += 1},
-        lambda{ |coordinate| coordinate['z'] -= 1}
+        lambda{ |coordinate| coordinate['x'] += 1; coordinate['y'] -= 1},
+        lambda{ |coordinate| coordinate['x'] -= 1; coordinate['y'] += 1}
       ]
     elsif type == 'diagonal'
       [
         lambda{ |coordinate| coordinate['x'] += 1; coordinate['y'] += 1},
         lambda{ |coordinate| coordinate['x'] -= 1; coordinate['y'] -= 1},
-        lambda{ |coordinate| coordinate['x'] += 1; coordinate['z'] -= 1},
-        lambda{ |coordinate| coordinate['x'] -= 1; coordinate['z'] += 1},
-        lambda{ |coordinate| coordinate['y'] += 1; coordinate['z'] += 1},
-        lambda{ |coordinate| coordinate['y'] -= 1; coordinate['z'] -= 1}
+        lambda{ |coordinate| coordinate['x'] += 1; coordinate['y'] -= 2},
+        lambda{ |coordinate| coordinate['x'] -= 1; coordinate['y'] += 2},
+        lambda{ |coordinate| coordinate['x'] += 2; coordinate['y'] -= 1},
+        lambda{ |coordinate| coordinate['x'] -= 2; coordinate['y'] += 1}
       ]
     else
       raise "#{self.class}#directional_functions does not support type: #{type}"
     end
   end
 
-  private
+  def distance(coordinate1, coordinate2)
+    x_diff = coordinate1['x'] - coordinate2['x']
+    y_diff = coordinate1['y'] - coordinate2['y']
+    d_diff = x_diff + y_diff
 
-  def _reduce_coordinate(x,y,z)
-    # (+x) + (-y) = (-z)    (+x) + (+z) = (+y)    (-y) + (+z) = (-x)
-    if (x > 0 && y < 0)  ||  (x > 0 && z > 0)  ||  (y < 0 && z > 0)
-      return _reduce_coordinate(x - 1, y + 1, z - 1)
-    end
-
-    # (-x) + (+y) = (+z)    (-x) + (-z) = (-y)    (+y) + (-z) = (+x)
-    if (x < 0 && y > 0)  ||  (x < 0 && z < 0)  ||  (y > 0 && z < 0)
-      return _reduce_coordinate(x + 1, y - 1, z + 1)
-    end
-
-    [x,y,z]
+    [x_diff, y_diff, d_diff].map(&:abs).max
   end
 end

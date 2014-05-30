@@ -14,8 +14,8 @@ class HexagonalBoard extends Board
   ########################################
 
   setup: ->
-    vertical_radii = 3 * @board_size - 1
-    horizontal_radii = 2 * (2 * @board_size - 1) * Math.cos(Math.PI/6)
+    vertical_radii = 3 * @board_size + 2
+    horizontal_radii = 2 * (2 * @board_size + 1) * Math.cos(Math.PI/6)
 
     if @game_controller?.user_in_setup()
       @setup_rows = Math.floor(vertical_radii / 2 / 1.1)
@@ -51,45 +51,24 @@ class HexagonalBoard extends Board
   ########################################
 
   add_spaces: ->
-    @add_space {x: 0, y: 0, z: 0}
-
-    for n in [1...@board_size]
-      @add_space {x: n, y: 0, z: 0}
-      @add_space {x: 0, y: n, z: 0}
-      @add_space {x: 0, y: 0, z: n}
-      @add_space {x: -n, y: 0, z: 0}
-      @add_space {x: 0, y: -n, z: 0}
-      @add_space {x: 0, y: 0, z: -n}
-
-    for i in [1...(@board_size/2)]
-      @add_space {x: i, y: i, z: 0}
-      @add_space {x: 0, y: i, z: i}
-      @add_space {x: -i, y: 0, z: i}
-      @add_space {x: -i, y: -i, z: 0}
-      @add_space {x: 0, y: -i, z: -i}
-      @add_space {x: i, y: 0, z: -i}
-
-      for j in [(i+1)...(@board_size-i)]
-        @add_space {x: j, y: i, z: 0}
-        @add_space {x: i, y: j, z: 0}
-        @add_space {x: 0, y: i, z: j}
-        @add_space {x: 0, y: j, z: i}
-        @add_space {x: -i, y: 0, z: j}
-        @add_space {x: -j, y: 0, z: i}
-        @add_space {x: -j, y: -i, z: 0}
-        @add_space {x: -i, y: -j, z: 0}
-        @add_space {x: 0, y: -i, z: -j}
-        @add_space {x: 0, y: -j, z: -i}
-        @add_space {x: i, y: 0, z: -j}
-        @add_space {x: j, y: 0, z: -i}
+    range = [0..2 * @board_size]
+    for x in range
+      for y in range
+        sum = x + y
+        continue if sum < @board_size
+        break if sum > @board_size + 2 * @board_size
+        @add_space({x: x, y: y})
 
   ########################################
   # Helpers
   ########################################
 
-  position: ({x, y, z}) ->
-    relative_x = x * 2 * @delta_x + y * @delta_x + z * -@delta_x
-    relative_y = y * -@delta_y + z * -@delta_y
+  position: ({x, y}) ->
+    x -= @board_size
+    y -= @board_size
+
+    relative_x = x * 2 * @delta_x + y * @delta_x
+    relative_y = y * @delta_y
 
     if @color is 'alabaster'
       relative_x *= -1
@@ -98,10 +77,10 @@ class HexagonalBoard extends Board
     x: @center.x + relative_x + @board_offset_x()
     y: @center.y + relative_y + @board_offset_y()
 
-  territory: ({x,y,z}) ->
-    if y is 0 and z is 0
+  territory: ({x,y}) ->
+    if y is @board_size
       'neutral'
-    else if y >= 0 && z >= 0
+    else if y < @board_size
       'alabaster'
     else
       'onyx'
