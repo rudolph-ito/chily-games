@@ -9,13 +9,33 @@ describe CreatePly do
   let(:next_action_to_id) { 1001 }
   let(:current_setup) { double :current_setup, get: nil, move: nil, remove: nil }
   let(:plies) { double :plies, :add => nil }
-  let(:piece) { double :piece, coordinate: from }
+  let(:piece) { double :piece, coordinate: from, type_id: piece_type_id, color: 'alabaster' }
+  let(:piece_type_id) { 2000 }
   let(:from) { {'x'=>0, 'y'=>0} }
+  let(:serialized_piece) { { type_id: piece_type_id, color: 'alabaster' } }
+  let(:serialized_captured_piece) { nil }
 
   shared_examples 'game action behavior' do
     it 'appends to plies' do
       create_ply.call
-      expect(game.plies).to have_received(:add).with({from: from, to: to, range_capture: range_capture})
+      expect(game.plies).to have_received(:add).with(
+        piece: serialized_piece,
+        captured_piece: serialized_captured_piece,
+        from: from,
+        to: to,
+        range_capture: range_capture,
+      )
+    end
+
+    it 'returns the created ply' do
+      ply = create_ply.call
+      expect(ply).to eql(
+        piece: serialized_piece,
+        captured_piece: serialized_captured_piece,
+        from: from,
+        to: to,
+        range_capture: range_capture,
+      )
     end
 
     context 'king taken' do
@@ -44,7 +64,9 @@ describe CreatePly do
 
   shared_examples 'range capture behavior' do
     context 'piece captured' do
-      let(:opponent_piece) { double :piece }
+      let(:captured_piece_type_id) { 2002 }
+      let(:opponent_piece) { double :piece, type_id: captured_piece_type_id, color: 'onyx' }
+      let(:serialized_captured_piece) { { type_id: captured_piece_type_id, color: 'onyx' } }
       before { current_setup.stub(:get).with(range_capture, Piece).and_return(opponent_piece) }
       include_examples 'game action behavior'
 
@@ -69,12 +91,28 @@ describe CreatePly do
       let(:to) { {'x'=>0, 'y'=>1} }
       let(:range_capture) { nil }
 
-      it 'moves the piece' do
-        create_ply.call
-        expect(current_setup).to have_received(:move).with(piece, to)
+      context 'piece captured' do
+        let(:captured_piece_type_id) { 2001 }
+        let(:opponent_piece) { double :piece, type_id: captured_piece_type_id, color: 'onyx' }
+        let(:serialized_captured_piece) { { type_id: captured_piece_type_id, color: 'onyx' } }
+        before { current_setup.stub(:get).with(to, Piece).and_return(opponent_piece) }
+        include_examples 'game action behavior'
+
+        it 'moves the piece' do
+          create_ply.call
+          expect(current_setup).to have_received(:move).with(piece, to)
+        end
       end
 
-      include_examples 'game action behavior'
+      context 'piece not captured' do
+        before { current_setup.stub(:get).with(to, Piece).and_return(nil) }
+        include_examples 'game action behavior'
+
+        it 'moves the piece' do
+          create_ply.call
+          expect(current_setup).to have_received(:move).with(piece, to)
+        end
+      end
     end
 
     context 'range_capture only' do

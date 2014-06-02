@@ -86,4 +86,27 @@ describe Game do
       specify { expect(game.next_action_to_id).to eql(alabaster_id) }
     end
   end
+
+  describe 'boneyard' do
+    let(:plies) {[
+      {"captured_piece" => nil},
+      {"captured_piece" => {type_id: 1, color: 'alabaster'}},
+      {"captured_piece" => {type_id: 2, color: 'onyx'}},
+      {"captured_piece" => nil},
+      {"captured_piece" => {type_id: 3, color: 'onyx'}},
+      {"captured_piece" => {type_id: 3, color: 'alabaster'}},
+      {"captured_piece" => nil}
+    ]}
+    let(:game) { build(:game) }
+    before { game.stub_chain(:plies, :to_a).and_return(plies) }
+
+    it 'returns an array of the captured pieces' do
+      expect(game.boneyard).to eql [
+        {type_id: 1, color: 'alabaster'},
+        {type_id: 2, color: 'onyx'},
+        {type_id: 3, color: 'onyx'},
+        {type_id: 3, color: 'alabaster'},
+      ]
+    end
+  end
 end

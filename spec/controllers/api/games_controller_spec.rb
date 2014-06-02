@@ -478,7 +478,15 @@ describe Api::GamesController do
             it 'succeeds' do
               put :create_ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'1'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, range_capture: nil, action: 'play', action_to_id: game.onyx_id})
+              expect(response.body).to be_json({
+                success: true,
+                action: 'play', action_to_id: game.onyx_id,
+                ply: {
+                  piece: {type_id: king_piece_type.id, color: 'alabaster'},
+                  captured_piece: nil,
+                  from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, range_capture: nil
+                }
+              })
             end
           end
 
@@ -488,7 +496,15 @@ describe Api::GamesController do
             it 'succeeds' do
               put :create_ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'0', 'y'=>'2'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>2}, range_capture: nil, action: 'play', action_to_id: game.onyx_id})
+              expect(response.body).to be_json({
+                success: true,
+                action: 'play', action_to_id: game.onyx_id,
+                ply: {
+                  piece: {type_id: king_piece_type.id, color: 'alabaster'},
+                  captured_piece: {type_id: rabble_piece_type.id, color: 'onyx'},
+                  from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>2}, range_capture: nil
+                }
+              })
             end
           end
 
@@ -498,7 +514,15 @@ describe Api::GamesController do
             it 'succeeds' do
               put :create_ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, range_capture: {'x'=>'0', 'y'=>'2'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: nil, range_capture: {'x'=>0, 'y'=>2}, action: 'play', action_to_id: game.onyx_id})
+              expect(response.body).to be_json({
+                success: true,
+                action: 'play', action_to_id: game.onyx_id,
+                ply: {
+                  piece: {type_id: king_piece_type.id, color: 'alabaster'},
+                  captured_piece: {type_id: rabble_piece_type.id, color: 'onyx'},
+                  from: {'x'=>0, 'y'=>0}, to: nil, range_capture: {'x'=>0, 'y'=>2}
+                }
+              })
             end
           end
 
@@ -508,7 +532,15 @@ describe Api::GamesController do
             it 'succeeds' do
               put :create_ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=> '0', 'y'=>'1'}, range_capture: {'x'=>'0', 'y'=>'2'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, range_capture: {'x'=>0, 'y'=>2}, action: 'play', action_to_id: game.onyx_id})
+              expect(response.body).to be_json({
+                success: true,
+                action: 'play', action_to_id: game.onyx_id,
+                ply: {
+                  piece: {type_id: king_piece_type.id, color: 'alabaster'},
+                  captured_piece: {type_id: rabble_piece_type.id, color: 'onyx'},
+                  from: {'x'=>0, 'y'=>0}, to: {'x'=>0, 'y'=>1}, range_capture: {'x'=>0, 'y'=>2}
+                }
+              })
             end
           end
 
@@ -518,7 +550,15 @@ describe Api::GamesController do
             it 'succeeds' do
               put :create_ply, id: game.id, from: {'x'=>'0', 'y'=>'0'}, to: {'x'=>'2', 'y'=>'2'}, format: :json
               expect(response.status).to eql 200
-              expect(response.body).to be_json({success: true, from: {'x'=>0, 'y'=>0}, to: {'x'=>2, 'y'=>2}, range_capture: nil, action: "complete", action_to_id: game.alabaster_id})
+              expect(response.body).to be_json({
+                success: true,
+                action: 'complete', action_to_id: game.alabaster_id,
+                ply: {
+                  piece: {type_id: king_piece_type.id, color: 'alabaster'},
+                  captured_piece: {type_id: king_piece_type.id, color: 'onyx'},
+                  from: {'x'=>0, 'y'=>0}, to: {'x'=>2, 'y'=>2}, range_capture: nil
+                }
+              })
             end
           end
         end

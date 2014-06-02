@@ -48,6 +48,9 @@ class GameController extends Controller
       @update_controls()
       @update_players()
 
+      $('body').trigger('init.Boneyard', data.piece_types)
+      $('body').trigger('update.Boneyard', data.boneyard)
+
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
       @board.add_terrains(data.terrains)
@@ -102,6 +105,11 @@ class GameController extends Controller
 
   update_controls: ->
     @update_status()
+    @update_actions()
+
+  update_actions: ->
+    $('[data-action=abort]').toggle @user_in_setup()
+    $('[data-action=resign]').toggle !@in_setup()
 
   update_status: ->
     [message, cssClass] = if @user_in_setup()
@@ -115,15 +123,6 @@ class GameController extends Controller
       ["#{@opponent_name()} to move", 'yellow']
 
     @container.find('.status').html(message).removeClass('green yellow').addClass(cssClass)
-
-  update_help: (message) ->
-    @help_container.html(message.replace(/\n/g, '<br/>'))
-
-    @container.find('a[href="#game"]').tab('show')
-
-    @help_container.addClass('highlight')
-    dehighlight = => @help_container.removeClass('highlight')
-    setTimeout dehighlight, 250
 
   update_players: ->
     @container.find('.top-player').text( @top_player_name() )
@@ -154,30 +153,33 @@ class GameController extends Controller
       @review("#{name} wins by death")
 
   abort: ->
-    $('.modal').off 'hide.bs.modal'
-    $('.modal').on 'hide.bs.modal', @load_challenges
     $('.modal .message').text('Game Aborted')
-    $('.modal .review').hide()
-    $('.modal').modal()
+    $('.modal .form').hide()
+
+    $('.modal.review')
+      .off('hide.bs.modal')
+      .on('hide.bs.modal', @load_challenges)
+      .modal()
 
   review: (message) ->
-    $('.modal').off 'click', '[data-action=submit]'
-    $('.modal').off 'hide.bs.modal'
-    $('.modal').on 'hide.bs.modal', @load_challenges
-    $('.modal').on 'click', '[data-action=submit]', @submit_review
     $('.modal .message').text("Game Over - #{message}")
     $('.modal .form').show()
 
-    raty_options =
-      target: '[name=rating]'
-      targetKeep: true
-      targetType: 'score'
+    $('.modal.review')
+      .off('hide.bs.modal')
+      .off('click', '[data-action=submit]')
+      .on('hide.bs.modal', @load_challenges)
+      .on('click', '[data-action=submit]', @submit_review)
+      .modal()
 
     $.getJSON "/api/variants/#{@variant_id}/review", (data) =>
+      raty_options =
+        target: '[name=rating]'
+        targetKeep: true
+        targetType: 'score'
+
       $('.review .rating').raty(raty_options).raty('score', data.rating)
       $('.review [name=comment]').val(data.comment)
-
-    $('.modal.review').modal()
 
   submit_review: (e) =>
     e.preventDefault()
@@ -248,7 +250,7 @@ class GameController extends Controller
 
           @emit_broadcast 'setup_complete', {action: @action, action_to_id: @action_to_id}, false
         else
-          @update_help(data.errors.join("\n"))
+          alert(data.errors.join("\n"))
 
   valid_plies: (coordinate, type, from) ->
     $.ajax
@@ -310,9 +312,10 @@ class GameController extends Controller
       @action_to_id = data.action_to_id
       @update_status()
 
-      @board.piece_layer.move_by_coordinate(data.from, data.to) if data.to?
-      @board.piece_layer.remove_by_coordinate(data.range_capture) if data.range_capture?
-      @board.update_last_ply(data.from, data.to, data.range_capture)
+      $('body').trigger('created.Ply', data.ply)
+      $('body').trigger('show.Boneyard', data.ply.captured_piece) if data.ply.captured_piece?
+
+      @board.update_last_ply(data.ply.from, data.ply.to, data.ply.range_capture)
       @finish_game_if_complete()
 
   server_game_abort: (data) =>

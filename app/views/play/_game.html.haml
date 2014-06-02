@@ -1,0 +1,43 @@
+.game
+  .board-wrapper
+    .status
+    .top-player
+    .board
+    .bottom-player
+
+  .aside
+    %ul.nav.nav-tabs
+      %li.active
+        %a(data-toggle="tab" href="#game") Game
+      %li
+        %a(data-toggle="tab" href="#rules") Rules
+
+    .tab-content
+
+      .tab-pane.active#game
+        .boneyard
+          .shadow The fallen
+          .alabaster
+          .onyx
+
+        .actionsp
+          = button_tag 'Abort', data: { action: 'abort' }
+          = button_tag 'Resign', data: { action: 'resign' }
+
+        .chat
+          .messages
+          = text_field_tag 'message', '', autocomplete: 'off'
+
+      .tab-pane#rules
+
+:javascript
+  $(function() {
+    PieceType = require('piece_type');
+    PieceType.set_data(#{ActiveSupport::JSON.encode(PieceType.urls)});
+
+    TerrainType = require('terrain_type');
+    TerrainType.set_data(#{ActiveSupport::JSON.encode(TerrainType.urls)});
+
+    Boneyard = require('game/boneyard');
+    new Boneyard({el: '.boneyard'});
+  });

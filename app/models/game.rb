@@ -127,4 +127,8 @@ class Game < ActiveRecord::Base
     PlyCalculator.new(board, setup_for_user(user))
   end
 
+  def boneyard
+    plies.to_a.map{ |p| p["captured_piece"] }.compact
+  end
+
 end

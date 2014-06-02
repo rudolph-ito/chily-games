@@ -1,5 +1,5 @@
 object @game
-attributes :action, :action_to_id, :alabaster_id, :onyx_id
+attributes :action, :action_to_id, :alabaster_id, :boneyard, :onyx_id
 node(:color) { |g| g.color(current_user.id) }
 node(:alabaster_name) { |g| g.alabaster.username }
 node(:onyx_name) { |g| g.onyx.username }
@@ -51,4 +51,16 @@ end
 
 node :last_ply do |g|
   g.plies.to_a.last
+end
+
+node :piece_types do |g|
+  g.variant.piece_rules.select([:piece_type_id, :count]).map do |pr|
+    { id: pr.piece_type_id, count: pr.count }
+  end
+end
+
+node :terrain_types do |g|
+  g.variant.terrain_rules.select([:terrain_type_id, :count]).map do |tr|
+    { id: tr.terrain_type_id, count: tr.count }
+  end
 end

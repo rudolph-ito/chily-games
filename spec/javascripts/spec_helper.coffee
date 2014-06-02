@@ -37,5 +37,18 @@
 #
 # You can require javascript files here. A good place to start is by requiring your application.js.
 #= require application
+#= require support/chai-jquery
 
 window.expect = chai.expect
+
+before ->
+  $('body').append('<div id="teaspoon"></div>')
+  @$ = (selector) -> $('#teaspoon').find(selector)
+
+after ->
+  $('#teaspoon').remove()
+
+global.withHtml = (html) ->
+  beforeEach ->
+    $('body').off()
+    $('#teaspoon').html(html)

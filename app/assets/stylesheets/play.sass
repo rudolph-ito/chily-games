@@ -1,6 +1,7 @@
 @import compass/css3/box-sizing
 @import compass/css3/transition
 @import compass/utilities/general/clearfix
+@import mixins/elements
 
 $status-height: 30px
 $status-margin: 10px
@@ -26,13 +27,18 @@ section.play
     display: none
 
   .board-wrapper
+    +box-sizing(border-box)
     float: left
     height: 100%
-    width: calc(75% - 10px)
+    width: 75%
+    position: relative
 
   .status
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
     height: $status-height
-    margin-bottom: $status-margin
     padding: 2px
     text-align: center
     font-size: 24px
@@ -42,6 +48,12 @@ section.play
     &.yellow
       background-color: #f7f1d3
 
+  .top-player
+    +overlay($top: $status-height + $status-margin, $bottom: auto)
+
+  .bottom-player
+    +overlay($top: auto, $bottom: 0)
+
   .top-player, .bottom-player
     height: $player-height
     text-align: center
@@ -49,38 +61,52 @@ section.play
     font-size: 20px
 
   .board
-    height: calc(100% - #{$status-height} - #{$status-margin} - #{$player-height} * 2)
-    width: 100%
+    +overlay($top: $status-height + $status-margin + $player-height, $bottom: $player-height)
     text-align: center
 
     .kineticjs-content
       text-align: left
 
   .aside
-    float: right
-    width: 25%
-    height: 100%
     +box-sizing(border-box)
+    float: right
+    width: 24%
+    height: 100%
+    position: relative
 
-    .help
-      height: $help-height
-      margin-bottom: $help-margin
-      background-color: #f5f1c5
-      +box-sizing(border-box)
-      padding: 5px 10px
-      +transition(all, 0.25s)
+    .boneyard
+      background-color: #f1f1f1
+      margin-bottom: 20px
+      padding: 2px 5px
 
-      &.highlight
-        background-color: darken(#f5f1c5, 25%)
+      .shadow
+        color: #ccc
+        font-size: 14px
+
+      .alabaster, .onyx
+        min-height: 34px
+        padding: 2px 0
+
+      .alabaster
+        border-bottom: 1px #888 dashed
+        padding-bottom: 2px
+
+      .onyx
+        padding-top: 2px
+
+      img
+        width: 30px
+        height: 30px
 
     .chat
-      height: calc(100% - #{$help-height} - #{$help-margin})
+      +overlay(50%, 5px, 5px, 5px)
+      +box-sizing(border-box)
       background-color: #eee
 
       $input-margin: 5px
 
       .messages
-        height: calc(100% - #{$input-height} - #{$input-margin} * 2)
+        +overlay($bottom: 35px)
         padding: 5px 10px
 
         +box-sizing(border-box)
@@ -107,10 +133,10 @@ section.play
           color: green
 
       input
-        width: calc(100% - #{$input-margin} * 2)
-        height: $input-height
+        +overlay(auto, 2%, 6px, 2%)
+        width: 96%
+        height: 24px
         padding: 2px 5px
-        margin: $input-margin
         +box-sizing(border-box)
         border-radius: 5px
         border: 1px solid #CCC
