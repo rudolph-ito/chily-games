@@ -15,12 +15,13 @@ class CreatePly
     range_capture_piece
     update_action
     game.save
+    ply
   end
 
   private
 
   def add_ply
-    game.plies.add(from: piece.coordinate, to: to, range_capture: range_capture)
+    game.plies.add(ply)
   end
 
   def move_piece
@@ -49,8 +50,30 @@ class CreatePly
     !range_capture.nil? && range_captured_piece
   end
 
-  def range_captured_piece
-    game.current_setup.get(range_capture, Piece)
+  def movement_captured_piece
+    @movement_captured_piece ||= game.current_setup.get(to, Piece)
   end
 
+  def range_captured_piece
+    @range_captured_piece ||= game.current_setup.get(range_capture, Piece)
+  end
+
+  def captured_piece
+    movement_captured_piece || range_captured_piece
+  end
+
+  def serialize(piece)
+    return nil unless piece
+    { type_id: piece.type_id, color: piece.color }
+  end
+
+  def ply
+    @ply ||= {
+      piece: serialize(piece),
+      captured_piece: serialize(captured_piece),
+      from: piece.coordinate,
+      to: to,
+      range_capture: range_capture
+    }
+  end
 end

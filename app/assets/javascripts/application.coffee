@@ -41,6 +41,8 @@
 #= require board.module
 #= require_directory ./boards
 #
+#= require_directory ./game
+#
 #= require preview
 
 window.link_to_play = (host) ->
