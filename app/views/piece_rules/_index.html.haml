@@ -8,6 +8,8 @@
         .name-and-count
           = piece_rule.piece_type.name
           (#{piece_rule.count})
+          - if variant.piece_ranks
+            .rank Rank: #{piece_rule.rank}
         .images
           = image_tag piece_rule.piece_type.alabaster_image, size: '50x50'
           = image_tag piece_rule.piece_type.onyx_image, size: '50x50'

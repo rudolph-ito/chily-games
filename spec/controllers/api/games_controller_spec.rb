@@ -456,7 +456,8 @@ describe Api::GamesController do
     let(:rabble_piece_type) { create :piece_type, name: 'Rabble' }
     let(:variant) { create :variant, board_type: 'square', board_rows: 3, board_columns: 3 }
     let(:piece_rule_parameters) { {} }
-    let!(:piece_rule) { create :piece_rule, {variant: variant, piece_type: king_piece_type, movement_type: 'orthogonal_or_diagonal_line', movement_minimum: 1, movement_maximum: 2}.merge(piece_rule_parameters) }
+    let!(:king_piece_rule) { create :piece_rule, {variant: variant, piece_type: king_piece_type, movement_type: 'orthogonal_or_diagonal_line', movement_minimum: 1, movement_maximum: 2}.merge(piece_rule_parameters) }
+    let!(:rabble_piece_rule) { create :piece_rule, variant: variant, piece_type: rabble_piece_type }
 
     let(:game_parameters) { {} }
     let(:game) { create :game, {action: 'play', variant: variant}.merge(game_parameters) }

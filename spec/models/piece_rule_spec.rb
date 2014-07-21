@@ -163,4 +163,86 @@ describe PieceRule do
       specify { expect(piece_rule.range_capture_restriction).to eql 'cannot move and capture on the same turn' }
     end
   end
+
+  context '#can_capture?' do
+    let(:piece_rule) { build(:piece_rule, capture_type: capture_type, rank: 2, variant: variant) }
+    let(:variant) { build(:variant, piece_ranks: piece_ranks) }
+    let(:piece_ranks) { false }
+
+    context 'capture_type == movement' do
+      let(:capture_type) { 'movement' }
+
+      context 'variant.piece_ranks == false' do
+        let(:piece_ranks) { false }
+
+        it 'returns true' do
+          expect(piece_rule.can_capture?('movement', nil)).to be_true
+        end
+      end
+
+      context 'piece ranks == true' do
+        let(:piece_ranks) { true }
+
+        context 'lower rank' do
+          it 'returns true' do
+            expect(piece_rule.can_capture?('movement', 1)).to be_true
+          end
+        end
+
+        context 'same rank' do
+          it 'returns true' do
+            expect(piece_rule.can_capture?('movement', 2)).to be_true
+          end
+        end
+
+        context 'higher rank' do
+          it 'returns false' do
+            expect(piece_rule.can_capture?('movement', 3)).to be_false
+          end
+        end
+      end
+    end
+
+    context 'capture_type == range' do
+      let(:capture_type) { 'range' }
+
+      context 'capturing via movement' do
+        it 'returns false' do
+          expect(piece_rule.can_capture?('movement', 1)).to be_false
+        end
+      end
+
+      context 'capturing via range' do
+        context 'variant.piece_ranks == false' do
+          let(:piece_ranks) { false }
+
+          it 'returns true' do
+            expect(piece_rule.can_capture?('range', nil)).to be_true
+          end
+        end
+
+        context 'variant.piece_ranks == true' do
+          let(:piece_ranks) { true }
+
+          context 'lower rank' do
+            it 'returns true' do
+              expect(piece_rule.can_capture?('range', 1)).to be_true
+            end
+          end
+
+          context 'same rank' do
+            it 'returns true' do
+              expect(piece_rule.can_capture?('range', 2)).to be_true
+            end
+          end
+
+          context 'higher rank' do
+            it 'returns false' do
+              expect(piece_rule.can_capture?('range', 3)).to be_false
+            end
+          end
+        end
+      end
+    end
+  end
 end

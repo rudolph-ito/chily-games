@@ -179,7 +179,7 @@ describe Variant do
   end
 
   context '#board_description' do
-    context 'board_type == sqaure' do
+    context 'board_type == square' do
       let(:variant) { build(:variant_with_square_board, board_rows: 2, board_columns: 3) }
       specify { expect(variant.board_description).to eql "Square Board (2x3)" }
     end
@@ -187,6 +187,18 @@ describe Variant do
     context 'board_type == hexagonal' do
       let(:variant) { build(:variant_with_hexagonal_board, board_size: 5) }
       specify { expect(variant.board_description).to eql "Hexagonal Board (size 5)" }
+    end
+  end
+
+  context '#piece_ranks_description' do
+    context 'piece_ranks == false' do
+      let(:variant) { build(:variant, piece_ranks: false) }
+      specify { expect(variant.piece_ranks_description).to eql 'Pieces can capture all other pieces' }
+    end
+
+    context 'piece_ranks == true' do
+      let(:variant) { build(:variant, piece_ranks: true) }
+      specify { expect(variant.piece_ranks_description).to eql 'Pieces can only capture units of the same rank or lower' }
     end
   end
 end

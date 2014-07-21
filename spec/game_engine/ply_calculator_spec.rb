@@ -148,40 +148,51 @@ describe PlyCalculator do
       let(:coordinate) { {'x'=>4, 'y'=>4}  }
       let(:piece_rule_parameters) { { movement_type: 'orthogonal_line', movement_minimum: 1, movement_maximum: 3 } }
 
-      context 'other pieces' do
+      context 'ally piece' do
         let(:ally_piece_coordinate) { {'x'=>4, 'y'=>2} }
         let(:ally_piece) { double :piece, coordinate: ally_piece_coordinate, user_id: user1_id }
-        let(:enemy_piece_coordinate) { {'x'=>4, 'y'=>5} }
-        let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id }
 
         before do
           coordinate_map.stub(:get).with(ally_piece_coordinate, Piece).and_return(ally_piece)
+        end
+
+        it 'stops movement' do
+          plies = ply_calculator.valid_plies(piece, coordinate, 'movement')
+          expect(plies.length).to eql 10
+          expect(plies).to_not include('x'=>4, 'y'=>2)
+        end
+      end
+
+      context 'enemy piece' do
+        let(:enemy_piece_coordinate) { {'x'=>4, 'y'=>2} }
+        let(:enemy_piece_rule) { double :piece_rule, rank: 1 }
+        let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id, rule: enemy_piece_rule }
+
+        before do
           coordinate_map.stub(:get).with(enemy_piece_coordinate, Piece).and_return(enemy_piece)
         end
 
-        context 'capture_type == movement' do
-          let(:capture_type) { 'movement' }
+        context 'can be captured' do
+          before do
+            piece_rule.stub(:can_capture?).with('movement', 1).and_return(true)
+          end
 
-          it 'returns the correct coordinates' do
-            expect( ply_calculator.valid_plies(piece, coordinate, 'movement') ).to match_array [
-              {'x'=>3, 'y'=>4}, {'x'=>2, 'y'=>4}, {'x'=>1, 'y'=>4}, # down
-              {'x'=>5, 'y'=>4}, {'x'=>6, 'y'=>4}, {'x'=>7, 'y'=>4}, # up
-              {'x'=>4, 'y'=>3}, # left
-              {'x'=>4, 'y'=>5} # right
-            ]
+          it 'stops further movement' do
+            plies = ply_calculator.valid_plies(piece, coordinate, 'movement')
+            expect(plies.length).to eql 11
+            expect(plies).to_not include('x'=>4, 'y'=>1)
           end
         end
 
-        context 'capture_type == range' do
-          let(:capture_type) { 'range' }
+        context 'cannot be captured' do
+          before do
+            piece_rule.stub(:can_capture?).with('movement', 1).and_return(false)
+          end
 
-          it 'returns the correct coordinates' do
-            expect( ply_calculator.valid_plies(piece, coordinate, 'movement') ).to match_array [
-              {'x'=>3, 'y'=>4}, {'x'=>2, 'y'=>4}, {'x'=>1, 'y'=>4}, # down
-              {'x'=>5, 'y'=>4}, {'x'=>6, 'y'=>4}, {'x'=>7, 'y'=>4}, # up
-              {'x'=>4, 'y'=>3}, # left
-              # right
-            ]
+          it 'stops movement' do
+            plies = ply_calculator.valid_plies(piece, coordinate, 'movement')
+            expect(plies.length).to eql 10
+            expect(plies).to_not include('x'=>4, 'y'=>2)
           end
         end
       end
@@ -408,29 +419,51 @@ describe PlyCalculator do
       let(:coordinate) { {'x'=>4, 'y'=>4}  }
       let(:piece_rule_parameters) { { range_type: 'orthogonal_line', range_minimum: 1, range_maximum: 3 } }
 
-      context 'other pieces' do
+      context 'ally piece' do
         let(:ally_piece_coordinate) { {'x'=>4, 'y'=>2} }
         let(:ally_piece) { double :piece, coordinate: ally_piece_coordinate, user_id: user1_id }
-        let(:enemy_piece_coordinate) { {'x'=>4, 'y'=>5} }
-        let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id }
 
         before do
           coordinate_map.stub(:get).with(ally_piece_coordinate, Piece).and_return(ally_piece)
+        end
+
+        it 'stops range' do
+          plies = ply_calculator.valid_plies(piece, coordinate, 'range', ignore_capture_restriction: true)
+          expect(plies.length).to eql 10
+          expect(plies).to_not include('x'=>4, 'y'=>2)
+        end
+      end
+
+      context 'enemy piece' do
+        let(:enemy_piece_coordinate) { {'x'=>4, 'y'=>2} }
+        let(:enemy_piece_rule) { double :piece_rule, rank: 1 }
+        let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id, rule: enemy_piece_rule }
+
+        before do
           coordinate_map.stub(:get).with(enemy_piece_coordinate, Piece).and_return(enemy_piece)
         end
 
-        it 'returns the correct coordinates' do
-            expect( ply_calculator.valid_plies(piece, coordinate, 'range', ignore_capture_restriction: true) ).to match_array [
-              {'x'=>3, 'y'=>4}, {'x'=>2, 'y'=>4}, {'x'=>1, 'y'=>4}, # down
-              {'x'=>5, 'y'=>4}, {'x'=>6, 'y'=>4}, {'x'=>7, 'y'=>4}, # up
-              {'x'=>4, 'y'=>3}, # left
-              {'x'=>4, 'y'=>5} # right
-            ]
+        context 'can be captured' do
+          before do
+            piece_rule.stub(:can_capture?).with('range', 1).and_return(true)
           end
 
-        context 'in a game' do
-          it 'returns the correct coordinates' do
-            expect( ply_calculator.valid_plies(piece, coordinate, 'range') ).to match_array [{'x'=>4, 'y'=>5}]
+          it 'stops further range' do
+            plies = ply_calculator.valid_plies(piece, coordinate, 'range', ignore_capture_restriction: true)
+            expect(plies.length).to eql 11
+            expect(plies).to_not include('x'=>4, 'y'=>1)
+          end
+        end
+
+        context 'cannot be captured' do
+          before do
+            piece_rule.stub(:can_capture?).with('range', 1).and_return(false)
+          end
+
+          it 'stops range' do
+            plies = ply_calculator.valid_plies(piece, coordinate, 'range', ignore_capture_restriction: true)
+            expect(plies.length).to eql 10
+            expect(plies).to_not include('x'=>4, 'y'=>2)
           end
         end
       end

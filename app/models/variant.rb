@@ -9,9 +9,6 @@ class Variant < ActiveRecord::Base
     %w( square hexagonal )
   end
 
-  def self.preview(opts = {})
-  end
-
   ########################################
   # Relations
   ########################################
@@ -31,6 +28,7 @@ class Variant < ActiveRecord::Base
   validates :board_rows, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :square_board?
   validates :board_size, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :hexagonal_board?
   validates :board_type, presence: true, inclusion: { in: self.board_types }
+  validates :piece_ranks, inclusion: { in: [true, false] }
   validates :user_id, presence: true, uniqueness: true
 
   ########################################
@@ -77,6 +75,14 @@ class Variant < ActiveRecord::Base
     out
   end
 
+  def piece_ranks_description
+    if piece_ranks?
+      'Pieces can only capture units of the same rank or lower'
+    else
+      'Pieces can capture all other pieces'
+    end
+  end
+
   def preview(opts)
     out = {options: board_info, color: 'onyx'}
 
@@ -96,6 +102,7 @@ class Variant < ActiveRecord::Base
     piece_rules.create!(
       capture_type: 'movement',
       count: 1,
+      rank: 1,
       movement_minimum: 1,
       movement_maximum: 1,
       movement_type: 'orthogonal_line',

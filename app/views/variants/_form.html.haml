@@ -12,6 +12,12 @@
       %div{'data-dependency' => 'board_type', 'data-value' => 'hexagonal'}
         = f.input :board_size, as: :number, required: true, min: 1, max: 20, step: 1
 
+    = f.inputs "Capturing Options" do
+      = f.input :piece_ranks, as: :radio, input_html: {'data-dependent' => 'piece_ranks'}
+
+      %div{'data-dependency' => 'piece_ranks', 'data-value' => 'true'}
+        Pieces can only capture units of the same rank or lower
+
     = f.actions do
       = f.action :submit, name: "Save"
       = f.action :cancel, url: @variant || :variants
