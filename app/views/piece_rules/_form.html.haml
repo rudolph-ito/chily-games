@@ -8,6 +8,9 @@
       - else
         = f.input :piece_type, collection: available_piece_types(f.object.variant)
 
+      - if @piece_rule.variant.piece_ranks
+        = f.input :rank, as: :number, min: 1, step: 1
+
       = f.input :count, as: :number, min: 1, step: 1
 
     = f.inputs 'Movement' do

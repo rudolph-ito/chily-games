@@ -8,7 +8,6 @@ require 'rspec/rails'
 require 'rspec/autorun'
 Capybara.default_driver = :selenium
 
-
 Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
 RSpec.configure do |config|

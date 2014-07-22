@@ -1,12 +1,10 @@
 require 'spec_helper'
 
 describe TerrainRule do
-  let(:terrain_rule) { TerrainRule.new(terrain_rule_params) }
+  let(:terrain_rule) { build :terrain_rule, terrain_rule_params }
   let(:terrain_rule_params) { {} }
 
   context 'validating' do
-    let(:terrain_rule) { build :terrain_rule, terrain_rule_params }
-
     context 'with the default factory' do
       specify { expect(terrain_rule).to be_valid }
     end
@@ -52,101 +50,54 @@ describe TerrainRule do
     end
   end
 
-  # describe '#rule_descriptions' do
-  #   let(:terrain_rule) { TerrainRule.new(block_movement_effect_type: 'none', block_range_effect_type: 'all' ) }
+  describe '#rule_descriptions' do
+    before do
+      Messages.stub(:effect_description).and_return('who')
+    end
 
-  #   it 'returns just the rules that are not none' do
-  #     expect(terrain_rule.rule_descriptions).to eql ['blocks range for all pieces']
-  #   end
-  # end
+    context 'no passable movement' do
+      let(:terrain_rule_params) { { passable_movement_effect_type: 'none' } }
 
-  # context 'block_movement_description' do
-  #   let(:terrain_rule) { TerrainRule.new }
+      it 'returns descriptions for passable movement and range' do
+        expect(terrain_rule.rule_descriptions).to eql [
+          'who can move through / over',
+          'who can range capture through / over'
+        ]
+      end
+    end
 
-  #   context 'block_movement_effect_type == none' do
-  #     before { terrain_rule.block_movement_effect_type = 'none' }
+    context 'with passable movement' do
+      let(:terrain_rule_params) { { passable_movement_effect_type: 'all' } }
 
-  #     it 'returns nil' do
-  #       expect(terrain_rule.block_movement_description).to be_nil
-  #     end
-  #   end
+      context 'with slows movement' do
+        before do
+          terrain_rule_params.merge!(slows_movement_effect_type: 'all', slows_movement_by: 1)
+        end
 
-  #   context 'block_movement_effect_type == all' do
-  #     before { terrain_rule.block_movement_effect_type = 'all' }
+        it 'add descriptions for slows movement' do
+          expect(terrain_rule.rule_descriptions).to eql [
+            'who can move through / over',
+            'slows movement for who by 1',
+            'who can range capture through / over'
+          ]
+        end
+      end
 
-  #     it 'returns descriptive string' do
-  #       expect(terrain_rule.block_movement_description).to eql 'blocks movement for all pieces'
-  #     end
-  #   end
+      context 'with stops movement' do
+        before do
+          terrain_rule_params.merge!(stops_movement_effect_type: 'all')
+        end
 
-  #   context 'block_movement_effect_type == include' do
-  #     before do
-  #       terrain_rule.block_movement_effect_type = 'include'
-  #       terrain_rule.block_movement_effect_piece_type_ids = ['1']
-  #       PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
-  #     end
-
-  #     it 'returns descriptive string' do
-  #       expect(terrain_rule.block_movement_description).to eql 'blocks movement for PieceType1'
-  #     end
-  #   end
-
-  #   context 'block_movement_effect_type == exclude' do
-  #     before do
-  #       terrain_rule.block_movement_effect_type = 'exclude'
-  #       terrain_rule.block_movement_effect_piece_type_ids = ['1']
-  #       PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
-  #     end
-
-  #     it 'returns descriptive string' do
-  #       expect(terrain_rule.block_movement_description).to eql 'blocks movement for all pieces except PieceType1'
-  #     end
-  #   end
-  # end
-
-  # context 'block_range_description' do
-  #   let(:terrain_rule) { TerrainRule.new }
-
-  #   context 'block_range_effect_type == none' do
-  #     before { terrain_rule.block_range_effect_type = 'none' }
-
-  #     it 'returns nil' do
-  #       expect(terrain_rule.block_range_description).to be_nil
-  #     end
-  #   end
-
-  #   context 'block_range_effect_type == all' do
-  #     before { terrain_rule.block_range_effect_type = 'all' }
-
-  #     it 'returns descriptive string' do
-  #       expect(terrain_rule.block_range_description).to eql 'blocks range for all pieces'
-  #     end
-  #   end
-
-  #   context 'block_range_effect_type == include' do
-  #     before do
-  #       terrain_rule.block_range_effect_type = 'include'
-  #       terrain_rule.block_range_effect_piece_type_ids = ['1']
-  #       PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
-  #     end
-
-  #     it 'returns descriptive string' do
-  #       expect(terrain_rule.block_range_description).to eql 'blocks range for PieceType1'
-  #     end
-  #   end
-
-  #   context 'block_range_effect_type == exclude' do
-  #     before do
-  #       terrain_rule.block_range_effect_type = 'exclude'
-  #       terrain_rule.block_range_effect_piece_type_ids = ['1']
-  #       PieceType.stub(:find).and_return{ double :piece_type, name: 'PieceType1' }
-  #     end
-
-  #     it 'returns descriptive string' do
-  #       expect(terrain_rule.block_range_description).to eql 'blocks range for all pieces except PieceType1'
-  #     end
-  #   end
-  # end
+        it 'add descriptions for stops movement' do
+          expect(terrain_rule.rule_descriptions).to eql [
+            'who can move through / over',
+            'stops movement for who',
+            'who can range capture through / over'
+          ]
+        end
+      end
+    end
+  end
 
   context '#passable?' do
     context 'movement' do

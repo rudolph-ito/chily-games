@@ -99,10 +99,6 @@ class TerrainRule < ActiveRecord::Base
     "stops movement for #{who}"
   end
 
-  def block_range_description
-    effect_description('range')
-  end
-
   def effects?(type, piece_type_id)
     return false unless respond_to? "#{type}_effect_type"
 

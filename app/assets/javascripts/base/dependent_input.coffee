@@ -4,20 +4,19 @@ $ ->
 
 setupDependentInputs = ->
   $("[data-dependent]").each () ->
-    input = $(this)
-    name = input.data("dependent")
-    dependencies = $("[data-dependency=#{name}]")
+    $input = $(this)
+    $dependencies = $("[data-dependency=#{$input.data("dependent")}]")
 
-    input.on 'change', () ->
-      value = input.val()
-      for d in dependencies
-        d = $(d)
-        data_value = d.data("value")?.toString()
-        data_value_in = d.data("value-in") ? []
+    $input.on 'change', () ->
+      value = $input.val()
+      for dependency in $dependencies
+        $dependency = $(dependency)
 
-        if value is data_value || value in data_value_in
-          d.show()
-        else
-          d.hide()
+        show = if $dependency.is('[data-value]')
+          value is $dependency.data('value').toString()
+        else if $dependency.is('[data-value-in]')
+          value in $dependency.data('value-in')
 
-    input.change()
+        $dependency.toggle show
+
+    $input.change() unless $input.is('[type=radio]') and !$input.is(':checked')

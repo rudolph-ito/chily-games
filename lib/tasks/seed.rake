@@ -57,7 +57,7 @@ namespace :seed do
 
       variant.terrain_rules.create!(
         terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3,
-        passable_movement_effect_type: 'exclude', passable_movement_effect_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
+        passable_movement_effect_type: 'include', passable_movement_effect_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
         passable_range_effect_type: 'none',
         slows_movement_effect_type: 'none',
         stops_movement_effect_type: 'none'
@@ -66,37 +66,37 @@ namespace :seed do
 
 
     unless Variant.find_by(user_id: user2.id)
-      variant = Variant.create!(user_id: user2.id, board_type: 'hexagonal', board_size: 4)
+      variant = Variant.create!(user_id: user2.id, board_type: 'hexagonal', board_size: 4, piece_ranks: true)
 
       variant.piece_rules.create!(
-        piece_type: PieceType.find_by(name: 'Dragon'), count: 1,
+        piece_type: PieceType.find_by(name: 'Dragon'), count: 1, rank: 3,
         movement_minimum: 1, movement_maximum: nil, movement_type: 'orthogonal_line',
         capture_type: 'movement',
       )
 
       variant.piece_rules.create!(
-        piece_type: PieceType.find_by(name: 'Trebuchet'), count: 1,
+        piece_type: PieceType.find_by(name: 'Trebuchet'), count: 1, rank: 2,
         movement_minimum: 1, movement_maximum: 1, movement_type: 'orthogonal_line',
         capture_type: 'range',
         range_minimum: 2, range_maximum: 4, range_type: 'orthogonal_line'
       )
 
       variant.piece_rules.create!(
-        piece_type: PieceType.find_by(name: 'Crossbow'), count: 1,
+        piece_type: PieceType.find_by(name: 'Crossbow'), count: 1, rank: 1,
         movement_minimum: 1, movement_maximum: 1, movement_type: 'orthogonal_line',
         capture_type: 'range',
         range_minimum: 1, range_maximum: 1, range_type: 'diagonal_line'
       )
 
       variant.piece_rules.create!(
-        piece_type: PieceType.find_by(name: 'Light Horse'), count: 1,
+        piece_type: PieceType.find_by(name: 'Light Horse'), count: 1, rank: 1,
         movement_minimum: 2, movement_maximum: 3, movement_type: 'orthogonal_with_turns',
         capture_type: 'movement'
       )
 
       variant.terrain_rules.create!(
         terrain_type: TerrainType.find_by(name: 'Mountain'), count: 3,
-        passable_movement_effect_type: 'exclude', passable_movement_effect_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
+        passable_movement_effect_type: 'include', passable_movement_effect_piece_type_ids: [PieceType.find_by(name: 'Dragon').id.to_s],
         passable_range_effect_type: 'none',
         slows_movement_effect_type: 'none',
         stops_movement_effect_type: 'none'

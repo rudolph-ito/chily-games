@@ -20,15 +20,18 @@
       - if signed_in? && current_user.can_manage?(@variant)
         = link_to 'Edit', [:edit, @variant]
 
-    = @variant.board_description
-    = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
+    %ul.options-list
+      %li
+        = @variant.board_description
+        = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
+      %li
+        = @variant.piece_ranks_description
 
   .sub-section
     .title
       Piece Rules
       - if signed_in? && current_user.can_manage?(@variant) && available_piece_types(@variant).present?
         = link_to 'New', [:new, @variant, :piece_rule]
-
 
     = render partial: 'piece_rules/index', locals: { variant: @variant }
 

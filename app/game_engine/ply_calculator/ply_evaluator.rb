@@ -59,7 +59,7 @@ class PlyCalculator::PlyEvaluator < SimpleDelegator
   end
 
   def blocking_piece?
-    friendly_piece? || (enemy_piece? && cannot_capture?)
+    friendly_piece? || (enemy_piece? && !can_capture?)
   end
 
   def friendly_piece?
@@ -70,8 +70,8 @@ class PlyCalculator::PlyEvaluator < SimpleDelegator
     occupying_piece && occupying_piece.user_id != user_id
   end
 
-  def cannot_capture?
-    rule.capture_type != type
+  def can_capture?
+    rule.can_capture?(type, occupying_piece.rule.rank)
   end
 
   def capture_restriction_met?
@@ -80,14 +80,6 @@ class PlyCalculator::PlyEvaluator < SimpleDelegator
 
   def count_valid?
     count >= minimum
-  end
-
-  def pass_capture_restriction?
-    !fail_capture_restriction?
-  end
-
-  def fail_capture_restriction?
-    capture_only && !ignore_capture_restriction && !occupying_piece
   end
 
   def blocking_terrain?
