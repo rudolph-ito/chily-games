@@ -1,9 +1,15 @@
 class PlyCalculator
 
-  attr_reader :board, :coordinate_map
-  attr_accessor :capture, :capture_only, :directional_functions, :from, :ignore_capture_restriction, :minimum, :maximum, :piece, :piece_type_id, :rule, :type, :user_id
+  FREE = 'free'
+  CAPTURABLE = 'capturable'
+  REACHABLE = 'reachable'
 
-  def initialize(board, coordinate_map)
+  attr_reader :variant, :board, :coordinate_map
+  attr_accessor :capture, :capture_only, :directional_functions, :from,
+    :minimum, :maximum, :piece, :piece_type_id, :rule, :support, :type, :user_id
+
+  def initialize(variant, board, coordinate_map)
+    @variant = variant
     @board = board
     @coordinate_map = coordinate_map
   end
@@ -15,15 +21,37 @@ class PlyCalculator
 
     setup(opts)
 
-    if line?
+    result = if line?
       PlyCalculator::LinePlyCalculator.new(self).call
     else
       PlyCalculator::TurnPlyCalculator.new(self).call
+    end
+
+    if opts[:all]
+      result
+    elsif opts[:capture_only]
+      result[PlyCalculator::CAPTURABLE]
+    elsif opts[:support]
+      result[PlyCalculator::CAPTURABLE] + result[PlyCalculator::REACHABLE]
+    else
+      result[PlyCalculator::FREE] + result[PlyCalculator::CAPTURABLE]
     end
   end
 
   def evaluator
     PlyCalculator::PlyEvaluator.new(self)
+  end
+
+  def empty_plies
+    {
+      FREE => [],
+      CAPTURABLE => [],
+      REACHABLE => []
+    }
+  end
+
+  def copy
+    PlyCalculator.new(variant, board, coordinate_map)
   end
 
   private
@@ -33,8 +61,6 @@ class PlyCalculator
   end
 
   def setup(opts)
-    @ignore_capture_restriction = opts[:ignore_capture_restriction] || false
-
     @piece_type_id = piece.type_id
     @user_id = piece.user_id
     @rule = piece.rule
@@ -48,6 +74,12 @@ class PlyCalculator
     @directional_functions = []
     @directional_functions += board.directional_functions('orthogonal') if @directional_type.include?('orthogonal')
     @directional_functions += board.directional_functions('diagonal') if @directional_type.include?('diagonal')
+
+    if variant.allows_support? && !opts[:support]
+      pieces = coordinate_map.for_user_id(user_id).for_class(Piece)
+      pieces.reject!{ |p| p.coordinate == piece.coordinate }
+      @support = Support.new(self.copy, pieces)
+    end
   end
 
 end

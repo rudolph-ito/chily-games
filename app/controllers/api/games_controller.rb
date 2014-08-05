@@ -72,12 +72,21 @@ class Api::GamesController < ApplicationController
   end
 
   def valid_plies
-    plies = []
+    plies = {'valid' => [], 'reachable' => []}
 
     if piece = @game.get_piece(current_user, params[:coordinate])
       from = params[:from] || piece.coordinate
       type = params[:type]
-      plies = @game.valid_plies_for_user(current_user, piece, from, type, ignore_capture_restriction: true)
+      result = @game.valid_plies_for_user(current_user, piece, from, type, all: true)
+
+      if type == 'range' && piece.rule.capture_type == 'range'
+        plies['reachable'] += result[PlyCalculator::FREE]
+      else
+        plies['valid'] += result[PlyCalculator::FREE]
+      end
+
+      plies['valid'] += result[PlyCalculator::CAPTURABLE]
+      plies['reachable'] += result[PlyCalculator::REACHABLE]
     end
 
     render json: plies

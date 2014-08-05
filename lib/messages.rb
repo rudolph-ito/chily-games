@@ -17,11 +17,6 @@ class Messages
     end
   end
 
-  def self.count_with_name(count, name)
-    name = name.pluralize if count.to_i != 1
-    "#{count} #{name}"
-  end
-
   def self.effect_description(object, action)
     ids = object.public_send("#{action}_effect_piece_type_ids")
     value = object.public_send("#{action}_effect_type")

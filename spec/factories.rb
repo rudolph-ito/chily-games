@@ -92,6 +92,8 @@ FactoryGirl.define do
     board_columns 8
     board_rows 8
     board_type 'square'
+    piece_ranks false
+    support_type 'none'
     user
 
     factory :variant_with_square_board do

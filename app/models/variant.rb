@@ -1,13 +1,8 @@
 class Variant < ActiveRecord::Base
   include Authority::Abilities
 
-  ########################################
-  # Class Methods
-  ########################################
-
-  def self.board_types
-    %w( square hexagonal )
-  end
+  BOARD_TYPES = %w( square hexagonal )
+  SUPPORT_TYPES = %w( none binary sum )
 
   ########################################
   # Relations
@@ -27,8 +22,9 @@ class Variant < ActiveRecord::Base
   validates :board_columns, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :square_board?
   validates :board_rows, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :square_board?
   validates :board_size, presence: true, numericality: { only_integer: true, greater_than: 1 }, :if => :hexagonal_board?
-  validates :board_type, presence: true, inclusion: { in: self.board_types }
+  validates :board_type, presence: true, inclusion: { in: BOARD_TYPES }
   validates :piece_ranks, inclusion: { in: [true, false] }
+  validates :support_type, presence: true, inclusion: { in: SUPPORT_TYPES }, :if => :piece_ranks?
   validates :user_id, presence: true, uniqueness: true
 
   ########################################
@@ -40,6 +36,10 @@ class Variant < ActiveRecord::Base
   ########################################
   # Instance Methods
   ########################################
+
+  BOARD_TYPES.each do |b|
+    define_method(:"#{b}_board?") { self.board_type == b }
+  end
 
   def to_s
     "Cyvasse by #{user.username}"
@@ -53,8 +53,8 @@ class Variant < ActiveRecord::Base
     topics.find_or_create_by(title: 'Reviews')
   end
 
-  self.board_types.each do |b|
-    define_method(:"#{b}_board?") { self.board_type == b }
+  def allows_support?
+    piece_ranks && support_type != 'none'
   end
 
   def board_description

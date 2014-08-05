@@ -143,14 +143,15 @@ class Board
   dehighlight: ->
     @highlight_layer.clear()
 
-  highlight_valid_plies: (type, piece_coordinate, space_coordinates) ->
-    [piece_highlight_color, space_highlight_color] = if type == 'movement'
-      ['#00CC00', '#006633']
+  highlight_valid_plies: (type, piece_coordinate, valid_coordinates, reachable_coordinates) ->
+    [piece_highlight, valid_highlight, reachable_highlight] = if type == 'movement'
+      ['#00CC00', '#006633', '#FFFF66']
     else
-      ['#CC0000', '#660033']
+      ['#CC0000', '#660033', '#FFFF66']
 
-    @add_highlight(piece_coordinate, piece_highlight_color)
-    @add_highlights(space_coordinates, space_highlight_color)
+    @add_highlight(piece_coordinate, piece_highlight)
+    @add_highlights(valid_coordinates, valid_highlight)
+    @add_highlights(reachable_coordinates, reachable_highlight)
     @highlight_layer.draw()
 
   ########################################

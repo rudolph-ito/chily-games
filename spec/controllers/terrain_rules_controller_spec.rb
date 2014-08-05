@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe TerrainRulesController do
+  render_views
+
   let!(:variant) { create :variant }
 
   describe 'new' do

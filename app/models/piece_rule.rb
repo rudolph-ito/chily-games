@@ -45,16 +45,8 @@ class PieceRule < ActiveRecord::Base
   # Instance Methods
   ########################################
 
-  def count_with_name
-    Messages.count_with_name(count, piece_type.name.downcase)
-  end
-
   def range_capture?
     capture_type == 'range'
-  end
-
-  def can_capture?(type, enemy_rank)
-    type == capture_type && (!variant.piece_ranks? || enemy_rank <= rank)
   end
 
   # Descriptions
