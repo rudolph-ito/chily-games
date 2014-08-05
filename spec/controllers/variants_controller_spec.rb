@@ -47,7 +47,7 @@ describe VariantsController do
   end
 
   describe 'create' do
-    let(:valid_attributes) { { board_type: 'hexagonal', board_size: 6 } }
+    let(:valid_attributes) { { board_type: 'hexagonal', board_size: 6, piece_ranks: false } }
 
     context 'when signed in', :signed_in do
       context 'as a creator' do

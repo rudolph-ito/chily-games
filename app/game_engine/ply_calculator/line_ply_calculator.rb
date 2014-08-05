@@ -1,7 +1,7 @@
 class PlyCalculator::LinePlyCalculator < SimpleDelegator
 
   def call
-    plies = []
+    plies = empty_plies
 
     directional_functions.each do |directional_function|
       to = from.clone
@@ -10,8 +10,8 @@ class PlyCalculator::LinePlyCalculator < SimpleDelegator
       while !(maximum && count >= maximum)
         directional_function.call(to)
 
-        valid, stop, count = evaluator.call(to, count + 1)
-        plies << to.clone if valid
+        valid, flag, stop, count = evaluator.call(to, count + 1)
+        plies[flag] << to.clone if valid
         break if stop
       end
     end

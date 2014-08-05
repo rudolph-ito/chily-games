@@ -263,7 +263,7 @@ class GameController extends Controller
         from: from
       success: (data) =>
         @board.dehighlight()
-        @board.highlight_valid_plies(type, from || coordinate, data)
+        @board.highlight_valid_plies(type, from || coordinate, data.valid, data.reachable)
 
   ply_valid: (from, to, success_callback) ->
     $.ajax

@@ -56,10 +56,6 @@ class TerrainRule < ActiveRecord::Base
   # Instance Methods
   ########################################
 
-  def count_with_name
-    Messages.count_with_name(count, terrain_type.name.downcase)
-  end
-
   def rule_descriptions
     (movement_descriptions + range_descriptions).compact
   end

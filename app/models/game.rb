@@ -124,7 +124,7 @@ class Game < ActiveRecord::Base
   end
 
   def ply_calculator(user = nil)
-    PlyCalculator.new(board, setup_for_user(user))
+    PlyCalculator.new(variant, board, setup_for_user(user))
   end
 
   def boneyard

@@ -7,7 +7,7 @@ class PlyValidator
     @to = to
     @range_capture = range_capture
 
-    @ply_calculator = PlyCalculator.new(game.board, game.current_setup)
+    @ply_calculator = PlyCalculator.new(game.variant, game.board, game.current_setup)
   end
 
   def call
@@ -61,7 +61,7 @@ class PlyValidator
 
   def range_capture_valid?(coordinate)
     return false if no_range_capture?
-    @ply_calculator.valid_plies(@piece, coordinate, 'range').include?(@range_capture)
+    @ply_calculator.valid_plies(@piece, coordinate, 'range', capture_only: true).include?(@range_capture)
   end
 
 end

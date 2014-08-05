@@ -4,19 +4,22 @@ require ROOT_DIRECTORY + '/app/game_engine/ply_validator.rb'
 
 describe PlyValidator do
   let(:ply_validator) { PlyValidator.new(game, user, piece, to, range_capture) }
-  let(:game) { double :game, board: board, current_setup: current_setup }
-  let(:user) { double :user, id: user_id }
+  let(:game) { double :game, board: board, current_setup: current_setup, variant: variant }
   let(:board) { double :board }
   let(:current_setup) { double :current_setup }
-  let(:piece) { double :piece, coordinate: from, rule: piece_rule, user_id: piece_user_id }
+  let(:variant) { double :variant}
 
-  let(:from) { {'x'=>1, 'y'=>0} }
-  let(:piece_rule) { double :piece_rule }
-  let(:to) { {'x'=>1, 'y'=>1} }
+  let(:user) { double :user, id: user_id }
   let(:user_id) { 1 }
 
+  let(:piece) { double :piece, coordinate: from, rule: piece_rule, user_id: piece_user_id }
+  let(:from) { {'x'=>1, 'y'=>0} }
+  let(:piece_rule) { double :piece_rule }
+
+  let(:to) { {'x'=>1, 'y'=>1} }
+
   let(:ply_calculator) { double :ply_calculator }
-  before { PlyCalculator.stub(:new).with(board, current_setup).and_return(ply_calculator) }
+  before { PlyCalculator.stub(:new).with(variant, board, current_setup).and_return(ply_calculator) }
 
   shared_examples 'invalid' do
     context 'for friendly piece' do
@@ -90,12 +93,12 @@ describe PlyValidator do
         end
 
         context 'range capture invalid' do
-          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([]) }
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range', capture_only: true).and_return([]) }
           include_examples 'invalid'
         end
 
         context 'range capture valid' do
-          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([range_capture]) }
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range', capture_only: true).and_return([range_capture]) }
           include_examples 'valid'
         end
       end
@@ -114,12 +117,12 @@ describe PlyValidator do
         end
 
         context 'range capture invalid' do
-          before { ply_calculator.stub(:valid_plies).with(piece, to, 'range').and_return([]) }
+          before { ply_calculator.stub(:valid_plies).with(piece, to, 'range', capture_only: true).and_return([]) }
           include_examples 'invalid'
         end
 
         context 'range capture valid' do
-          before { ply_calculator.stub(:valid_plies).with(piece, to, 'range').and_return([range_capture]) }
+          before { ply_calculator.stub(:valid_plies).with(piece, to, 'range', capture_only: true).and_return([range_capture]) }
           include_examples 'valid'
         end
       end
@@ -137,12 +140,12 @@ describe PlyValidator do
         end
 
         context 'range capture invalid' do
-          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([]) }
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range', capture_only: true).and_return([]) }
           include_examples 'invalid'
         end
 
         context 'range capture valid' do
-          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range').and_return([range_capture]) }
+          before { ply_calculator.stub(:valid_plies).with(piece, from, 'range', capture_only: true).and_return([range_capture]) }
           include_examples 'valid'
         end
       end

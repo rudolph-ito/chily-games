@@ -7,9 +7,9 @@ class PlyCalculator::TurnPlyCalculator < SimpleDelegator
   private
 
   def _call(coordinate, count)
-    return [] if maximum && count >= maximum
+    return {} if maximum && count >= maximum
 
-    plies = []
+    plies = empty_plies
 
     directional_functions.each do |directional_function|
       to = coordinate.clone
@@ -18,17 +18,18 @@ class PlyCalculator::TurnPlyCalculator < SimpleDelegator
       # Stop if distance did not grow
       old_distance = board.distance(from, coordinate)
       new_distance = board.distance(from, to)
-
       next if old_distance >= new_distance || new_distance <= count
 
-      valid, stop, new_movement_count = evaluator.call(to, count + 1)
-      plies << to.clone if valid
+      valid, flag, stop, new_count = evaluator.call(to, count + 1)
+      plies[flag] << to.clone if valid
       next if stop
 
-      plies += _call(to, new_movement_count)
+      child_plies = _call(to, new_count)
+      child_plies.each { |k, v| plies[k] += v }
     end
 
-    plies.uniq
+    plies.each { |k, v| plies[k] = v.uniq }
+    plies
   end
 
 end
