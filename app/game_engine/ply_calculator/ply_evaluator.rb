@@ -79,11 +79,8 @@ class PlyCalculator::PlyEvaluator < SimpleDelegator
   end
 
   def supporting_ranks
-    if support
-      support.get(coordinate)
-    else
-      []
-    end
+    return [] unless support
+    support.get(coordinate)
   end
 
   def count_valid?
