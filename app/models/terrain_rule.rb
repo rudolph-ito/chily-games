@@ -56,45 +56,6 @@ class TerrainRule < ActiveRecord::Base
   # Instance Methods
   ########################################
 
-  def rule_descriptions
-    (movement_descriptions + range_descriptions).compact
-  end
-
-  def movement_descriptions
-    out = [passable_movement_description]
-
-    if passable_movement_effect_type != 'none'
-      out << stops_movement_description if stops_movement_effect_type != 'none'
-      out << slows_movement_description if slows_movement_effect_type != 'none'
-    end
-
-    out
-  end
-
-  def range_descriptions
-    [passable_range_description]
-  end
-
-  def passable_movement_description
-    who = Messages.effect_description(self, 'passable_movement')
-    "#{who} can move through / over"
-  end
-
-  def passable_range_description
-    who = Messages.effect_description(self, 'passable_range')
-    "#{who} can range capture through / over"
-  end
-
-  def slows_movement_description
-    who = Messages.effect_description(self, 'slows_movement')
-    "slows movement for #{who} by #{slows_movement_by}"
-  end
-
-  def stops_movement_description
-    who = Messages.effect_description(self, 'stops_movement')
-    "stops movement for #{who}"
-  end
-
   def effects?(type, piece_type_id)
     return false unless respond_to? "#{type}_effect_type"
 

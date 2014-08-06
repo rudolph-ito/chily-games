@@ -50,55 +50,6 @@ describe TerrainRule do
     end
   end
 
-  describe '#rule_descriptions' do
-    before do
-      Messages.stub(:effect_description).and_return('who')
-    end
-
-    context 'no passable movement' do
-      let(:terrain_rule_params) { { passable_movement_effect_type: 'none' } }
-
-      it 'returns descriptions for passable movement and range' do
-        expect(terrain_rule.rule_descriptions).to eql [
-          'who can move through / over',
-          'who can range capture through / over'
-        ]
-      end
-    end
-
-    context 'with passable movement' do
-      let(:terrain_rule_params) { { passable_movement_effect_type: 'all' } }
-
-      context 'with slows movement' do
-        before do
-          terrain_rule_params.merge!(slows_movement_effect_type: 'all', slows_movement_by: 1)
-        end
-
-        it 'add descriptions for slows movement' do
-          expect(terrain_rule.rule_descriptions).to eql [
-            'who can move through / over',
-            'slows movement for who by 1',
-            'who can range capture through / over'
-          ]
-        end
-      end
-
-      context 'with stops movement' do
-        before do
-          terrain_rule_params.merge!(stops_movement_effect_type: 'all')
-        end
-
-        it 'add descriptions for stops movement' do
-          expect(terrain_rule.rule_descriptions).to eql [
-            'who can move through / over',
-            'stops movement for who',
-            'who can range capture through / over'
-          ]
-        end
-      end
-    end
-  end
-
   context '#passable?' do
     context 'movement' do
       context 'when effects returns true' do

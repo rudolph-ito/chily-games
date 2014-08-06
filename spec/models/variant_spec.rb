@@ -64,53 +64,6 @@ describe Variant do
     end
   end
 
-  context '#to_s' do
-    let(:variant) { create :variant, user: create(:user, username: 'John Doe') }
-    specify { expect(variant.to_s).to eql 'Cyvasse by John Doe'}
-  end
-
-  context '#average_rating' do
-    let(:variant) { create :variant }
-
-    context 'no ratings' do
-      specify { expect(variant.average_rating).to eql 0 }
-    end
-
-    context 'one rating' do
-      before { variant.ratings.create(value: 5, user: create(:user)) }
-      specify { expect(variant.average_rating).to eql 5 }
-    end
-
-    context 'two ratings' do
-      before do
-        variant.ratings.create(value: 0, user: create(:user))
-        variant.ratings.create(value: 5, user: create(:user))
-      end
-      specify { expect(variant.average_rating).to eql 2.5 }
-    end
-  end
-
-  context '#average_rating' do
-    let(:variant) { create :variant }
-
-    context 'no ratings' do
-      specify { expect(variant.average_rating).to eql 0 }
-    end
-
-    context 'one rating' do
-      before { variant.ratings.create(value: 5, user: create(:user)) }
-      specify { expect(variant.average_rating).to eql 5 }
-    end
-
-    context 'two ratings' do
-      before do
-        variant.ratings.create(value: 0, user: create(:user))
-        variant.ratings.create(value: 5, user: create(:user))
-      end
-      specify { expect(variant.average_rating).to eql 2.5 }
-    end
-  end
-
   context '#review_topic' do
     let(:variant) { create :variant }
 
@@ -135,23 +88,6 @@ describe Variant do
         }.to change(Topic, :count).by(0)
       end
     end
-
-    context 'no ratings' do
-      specify { expect(variant.average_rating).to eql 0 }
-    end
-
-    context 'one rating' do
-      before { variant.ratings.create(value: 5, user: create(:user)) }
-      specify { expect(variant.average_rating).to eql 5 }
-    end
-
-    context 'two ratings' do
-      before do
-        variant.ratings.create(value: 0, user: create(:user))
-        variant.ratings.create(value: 5, user: create(:user))
-      end
-      specify { expect(variant.average_rating).to eql 2.5 }
-    end
   end
 
   context '#square_board?' do
@@ -175,30 +111,6 @@ describe Variant do
     context 'board_type == hexagonal' do
       let(:variant) { build(:variant_with_hexagonal_board) }
       specify { expect(variant.hexagonal_board?).to be_true }
-    end
-  end
-
-  context '#board_description' do
-    context 'board_type == square' do
-      let(:variant) { build(:variant_with_square_board, board_rows: 2, board_columns: 3) }
-      specify { expect(variant.board_description).to eql "Square Board (2x3)" }
-    end
-
-    context 'board_type == hexagonal' do
-      let(:variant) { build(:variant_with_hexagonal_board, board_size: 5) }
-      specify { expect(variant.board_description).to eql "Hexagonal Board (size 5)" }
-    end
-  end
-
-  context '#piece_ranks_description' do
-    context 'piece_ranks == false' do
-      let(:variant) { build(:variant, piece_ranks: false) }
-      specify { expect(variant.piece_ranks_description).to eql 'Pieces can capture all other pieces' }
-    end
-
-    context 'piece_ranks == true' do
-      let(:variant) { build(:variant, piece_ranks: true) }
-      specify { expect(variant.piece_ranks_description).to eql 'Pieces can only capture units of the same rank or lower' }
     end
   end
 end

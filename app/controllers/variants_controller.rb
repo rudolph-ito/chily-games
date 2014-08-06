@@ -3,6 +3,7 @@ class VariantsController < ApplicationController
   before_filter :build_variant, only: [:new, :create]
   before_filter :get_variant, only: [:show, :edit, :update, :destroy]
   before_filter :authorize, except: [:index, :show]
+  decorates_assigned :variant
 
   def index
     @variants = Variant.all
