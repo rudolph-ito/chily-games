@@ -10,6 +10,7 @@ gem 'carrierwave' # File Upload
 gem 'coffee-rails', '~> 4.0.1'
 gem 'compass-rails'
 gem 'devise' # User Sessions
+gem 'draper' # Decorators
 gem 'foreman' # Process Manager
 gem 'formtastic', "~> 2.3.0.rc2" # Forms
 gem 'haml-rails' # HAML for views

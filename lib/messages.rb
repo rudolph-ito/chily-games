@@ -1,7 +1,9 @@
 class Messages
 
   def self.type_with_range(object, type)
-    "#{object["#{type}_type"].humanize.downcase} - #{Messages.range(object, type)} space(s)"
+    type_str = object.public_send("#{type}_type").humanize.downcase
+    range_str = Messages.range(object, type)
+    "#{type_str} - #{range_str} space(s)"
   end
 
   def self.range(object, type)

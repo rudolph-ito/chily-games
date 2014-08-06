@@ -41,10 +41,6 @@ class Variant < ActiveRecord::Base
     define_method(:"#{b}_board?") { self.board_type == b }
   end
 
-  def to_s
-    "Cyvasse by #{user.username}"
-  end
-
   def average_rating
     ratings.average('value') || 0
   end
@@ -57,14 +53,6 @@ class Variant < ActiveRecord::Base
     piece_ranks && support_type != 'none'
   end
 
-  def board_description
-    if square_board?
-      "Square Board (#{board_rows}x#{board_columns})"
-    elsif hexagonal_board?
-      "Hexagonal Board (size #{board_size})"
-    end
-  end
-
   def board_info
     out = {board_type: board_type}
     if square_board?
@@ -73,14 +61,6 @@ class Variant < ActiveRecord::Base
       out.merge!(board_size: board_size)
     end
     out
-  end
-
-  def piece_ranks_description
-    if piece_ranks?
-      'Pieces can only capture units of the same rank or lower'
-    else
-      'Pieces can capture all other pieces'
-    end
   end
 
   def preview(opts)

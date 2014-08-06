@@ -49,25 +49,6 @@ class PieceRule < ActiveRecord::Base
     capture_type == 'range'
   end
 
-  # Descriptions
-
-  def movement_description
-    'movement: ' + Messages.type_with_range(self, 'movement')
-  end
-
-  def capture_description
-    'capture ' + if range_capture?
-      'by range: ' + Messages.type_with_range(self, 'range')
-    else
-      'by movement'
-    end
-  end
-
-  def range_capture_restriction
-    prefix = if move_and_range_capture? then 'can' else 'cannot' end
-    prefix + ' move and capture on the same turn'
-  end
-
   private
 
   def validate_king_count
@@ -75,10 +56,4 @@ class PieceRule < ActiveRecord::Base
       errors.add(:count_minimum, 'There must be exactly one King.')
     end
   end
-
-  # Options
-  # movment_through - whether or not this piece can move through occupied squares
-  # range_through - whether or not this piece can range through occupied squares
-  # movment_capturable - pieces that can be move captured
-  # range_capturable - pieces that can be range captured
 end

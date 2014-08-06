@@ -5,9 +5,9 @@
 
 %section.centered.variant
   .top-section
-    .title= italicize_cyvasse(@variant.to_s)
-    .rating{ 'data-score' => @variant.average_rating }
-    .link= link_to 'Reviews', @variant.review_topic
+    .title= italicize_cyvasse(variant.to_s)
+    .rating{ 'data-score' => variant.average_rating }
+    .link= link_to 'Reviews', variant.review_topic
 
     .description
       Have an idea for a new rule you want supported? Think a rule needs to be changed? Please post
@@ -17,31 +17,31 @@
   .sub-section
     .title
       Options
-      - if signed_in? && current_user.can_manage?(@variant)
-        = link_to 'Edit', [:edit, @variant]
+      - if signed_in? && current_user.can_manage?(variant)
+        = link_to 'Edit', [:edit, variant]
 
     %ul.options-list
       %li
-        = @variant.board_description
-        = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => @variant.id }
+        = variant.board_description
+        = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id }
       %li
-        = @variant.piece_ranks_description
+        = variant.piece_ranks_description
 
   .sub-section
     .title
       Piece Rules
-      - if signed_in? && current_user.can_manage?(@variant) && available_piece_types(@variant).present?
-        = link_to 'New', [:new, @variant, :piece_rule]
+      - if signed_in? && current_user.can_manage?(@variant) && available_piece_types(variant).present?
+        = link_to 'New', [:new, variant, :piece_rule]
 
-    = render partial: 'piece_rules/index', locals: { variant: @variant }
+    = render partial: 'piece_rules/index', locals: { variant: variant }
 
   .sub-section
     .title
       Terrain Rules
-      - if signed_in? && current_user.can_manage?(@variant) && available_terrain_types(@variant).present?
-        = link_to 'New', [:new, @variant, :terrain_rule]
+      - if signed_in? && current_user.can_manage?(variant) && available_terrain_types(variant).present?
+        = link_to 'New', [:new, variant, :terrain_rule]
 
-    = render partial: 'terrain_rules/index', locals: { variant: @variant }
+    = render partial: 'terrain_rules/index', locals: { variant: variant }
 
 :javascript
   $(function() {
