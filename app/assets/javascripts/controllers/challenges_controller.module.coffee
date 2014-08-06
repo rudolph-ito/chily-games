@@ -7,6 +7,7 @@ class ChallengesController extends Controller
     @container = $('.challenges')
     @your = @container.find('table tbody.your')
     @open = @container.find('table tbody.open')
+    @$variant_select = @container.find('select[name="variant_id"]')
 
   activate: ->
     super
@@ -25,13 +26,9 @@ class ChallengesController extends Controller
     @container.on 'click', '[data-action=decline]', @decline_challenge
     @container.on 'click', '[data-action=cancel]', @cancel_challenge
 
-    $.getJSON "/api/games/current", (data) =>
-      @load_game(data.id) if data.id isnt null
-
-    for type in ['your', 'open']
-      do (type) =>
-        $.getJSON "/api/challenges?#{type}=1", (challenges) =>
-          @add_row(challenge, type) for challenge in challenges
+    @load_current_game()
+    @load_challenges(type) for type in ['your', 'open']
+    @load_variants()
 
   deactivate: ->
     @socket.removeAllListeners 'create'
@@ -42,10 +39,27 @@ class ChallengesController extends Controller
     super
 
 
+  load_challenges: (type) ->
+    $.getJSON "/api/challenges?#{type}=1", (challenges) =>
+      @add_row(challenge, type) for challenge in challenges
+
+
+  load_current_game: ->
+    $.getJSON "/api/games/current", (data) =>
+      @load_game(data.id) if data.id isnt null
+
+
   load_game: (id) ->
     @deactivate()
     GameController = require('controllers/game_controller')
     new GameController(id, @user_id, @user_name).activate()
+
+
+  load_variants: ->
+    $.getJSON "/api/variants", (variants) =>
+      options = ("<option value=#{id}>#{name}</option>" for {id, name} in variants).join('')
+      @$variant_select.html options
+
 
   ########################################
   # Update UI

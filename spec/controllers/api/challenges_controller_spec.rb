@@ -5,9 +5,22 @@ describe Api::ChallengesController do
 
   describe 'index' do
     context 'when signed in', :signed_in do
+      let(:user) { create :user, username: 'John' }
+      let(:variant) { create :variant, user: user }
+      let!(:challenge) { create :challenge, variant: variant }
+
       it 'succeeds' do
         get :index, format: :json
         expect(response.status).to eql 200
+        expect(response.body).to be_json([{
+          "challenger_id"=> challenge.challenger_id,
+          "challenged_id"=> challenge.challenged_id,
+          "id"=> challenge.id,
+          "play_as"=> challenge.play_as,
+          "variant_id"=> variant.id,
+          "challenger"=> challenge.challenger.username,
+          "variant"=> "Cyvasse by John"
+        }])
       end
 
       context 'your' do

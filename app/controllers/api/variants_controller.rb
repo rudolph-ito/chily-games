@@ -1,6 +1,11 @@
 class Api::VariantsController < ApplicationController
   before_filter :authenticate_user!, except: :preview
-  before_filter :get_variant
+  before_filter :get_variant, except: [:index]
+  decorates_assigned :variants
+
+  def index
+    @variants = Variant.all
+  end
 
   def preview
   end

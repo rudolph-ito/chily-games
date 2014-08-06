@@ -1,2 +1,2 @@
-collection @challenges
+collection challenges
 extends "api/challenges/show"

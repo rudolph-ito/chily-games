@@ -3,6 +3,7 @@ class Api::ChallengesController < ApplicationController
   before_filter :build_challenge, only: [:create]
   before_filter :get_challenge, only: [:destroy, :accept, :decline]
   before_filter :authorize, except: [:index]
+  decorates_assigned :challenge, :challenges
 
   def index
     @challenges = if params[:your]
