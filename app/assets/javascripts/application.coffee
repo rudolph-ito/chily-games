@@ -22,28 +22,7 @@
 #= require ruby
 #= require socket.io.js
 #
-#= require_directory ./base
-#= require_directory ./lib
-#
-#= require controller.module
-#= require_directory ./controllers
-#
-#= require terrain_type.module
-#= require space.module
-#= require_directory ./spaces
-#
-#= require piece_type.module
-#= require piece.module
-#
-#= require layer.module
-#= require_directory ./layers
-#
-#= require board.module
-#= require_directory ./boards
-#
-#= require_directory ./game
-#
-#= require preview
+#= require_tree .
 
 window.link_to_play = (host) ->
   session = $.cookie("_Cyvasse_session")
