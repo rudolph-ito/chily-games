@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe VariantsController do
+  render_views
+
   describe 'index' do
     it 'succeeds' do
       get :index
@@ -101,11 +103,24 @@ describe VariantsController do
   end
 
   describe 'show' do
-    let(:variant) { create :variant }
+    context 'as creator' do
+      context 'not as creator', :signed_in do
+        let(:variant) { create :variant, user: current_user }
 
-    it 'succeeds' do
-      get :show, id: variant.id
-      expect(response.status).to eql 200
+        it 'succeeds' do
+          get :show, id: variant.id
+          expect(response.status).to eql 200
+        end
+      end
+    end
+
+    context 'not as creator' do
+      let(:variant) { create :variant }
+
+      it 'succeeds' do
+        get :show, id: variant.id
+        expect(response.status).to eql 200
+      end
     end
   end
 

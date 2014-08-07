@@ -30,7 +30,7 @@
   .sub-section
     .title
       Piece Rules
-      - if signed_in? && current_user.can_manage?(@variant) && available_piece_types(variant).present?
+      - if signed_in? && current_user.can_manage?(variant) && variant.available_piece_types.present?
         = link_to 'New', [:new, variant, :piece_rule]
 
     = render partial: 'piece_rules/index', locals: { variant: variant }
@@ -38,7 +38,7 @@
   .sub-section
     .title
       Terrain Rules
-      - if signed_in? && current_user.can_manage?(variant) && available_terrain_types(variant).present?
+      - if signed_in? && current_user.can_manage?(variant) && variant.available_terrain_types.present?
         = link_to 'New', [:new, variant, :terrain_rule]
 
     = render partial: 'terrain_rules/index', locals: { variant: variant }

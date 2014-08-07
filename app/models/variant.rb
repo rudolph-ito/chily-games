@@ -41,6 +41,14 @@ class Variant < ActiveRecord::Base
     define_method(:"#{b}_board?") { self.board_type == b }
   end
 
+  def available_piece_types
+    PieceType.where.not(id: piece_rules.pluck(:piece_type_id))
+  end
+
+  def available_terrain_types
+    TerrainType.where.not(id: terrain_rules.pluck(:terrain_type_id))
+  end
+
   def average_rating
     ratings.average('value') || 0
   end
