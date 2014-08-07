@@ -8,10 +8,13 @@
       - else
         = f.input :piece_type, collection: f.object.variant.available_piece_types
 
-      - if @piece_rule.variant.piece_ranks
-        = f.input :rank, as: :number, min: 1, step: 1
-
       = f.input :count, as: :number, min: 1, step: 1
+
+      - if @piece_rule.variant.piece_ranks
+        = f.input :attack_rank, as: :number, min: 1, step: 1
+        = f.input :defense_rank, as: :number, min: 1, step: 1
+
+
 
     = f.inputs 'Movement' do
       = f.input :movement_type, collection: PieceRule::DIRECTIONS.map{|x| [x.humanize, x]}

@@ -11,9 +11,9 @@ describe Support do
     let(:piece2) { double :piece, coordinate: {'x'=>0, 'y'=>2}, rule: piece2_rule }
     let(:piece3) { double :piece, coordinate: {'x'=>0, 'y'=>3}, rule: piece3_rule }
 
-    let(:piece1_rule) { double :piece_rule, rank: 1, capture_type: 'movement' }
-    let(:piece2_rule) { double :piece_rule, rank: 2, capture_type: 'movement' }
-    let(:piece3_rule) { double :piece_rule, rank: 3, capture_type: 'range' }
+    let(:piece1_rule) { double :piece_rule, attack_rank: 1, capture_type: 'movement' }
+    let(:piece2_rule) { double :piece_rule, attack_rank: 2, capture_type: 'movement' }
+    let(:piece3_rule) { double :piece_rule, attack_rank: 3, capture_type: 'range' }
 
     let(:piece1_valid_plies) { [{'x'=>0, 'y'=>5}, {'x'=>0, 'y'=>7}] }
     let(:piece2_valid_plies) { [{'x'=>0, 'y'=>5}, {'x'=>0, 'y'=>6}, {'x'=>0, 'y'=>7}] }

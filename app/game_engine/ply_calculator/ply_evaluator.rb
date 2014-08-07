@@ -75,11 +75,11 @@ class PlyCalculator::PlyEvaluator < SimpleDelegator
 
   def can_capture?
     return true unless variant.piece_ranks
-    occupying_piece.rule.rank <= supported_rank
+    occupying_piece.rule.defense_rank <= supported_rank
   end
 
   def supported_rank
-    SupportedRank.new(rule.rank, variant.support_type, supporting_ranks).calculate
+    SupportedRank.new(rule.attack_rank, variant.support_type, supporting_ranks).calculate
   end
 
   def supporting_ranks

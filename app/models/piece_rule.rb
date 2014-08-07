@@ -34,7 +34,8 @@ class PieceRule < ActiveRecord::Base
   validates :capture_type, presence: true, inclusion: { in: CAPTURE_TYPES }
 
   # Rank
-  validates :rank, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, if: lambda { |r| r.variant.try(:piece_ranks?) }
+  validates :attack_rank, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, if: lambda { |r| r.variant.try(:piece_ranks?) }
+  validates :defense_rank, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, if: lambda { |r| r.variant.try(:piece_ranks?) }
 
   # Range
   validates :range_minimum, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, if: :range_capture?

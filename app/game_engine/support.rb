@@ -17,11 +17,11 @@ class Support
     @map = {}
 
     @pieces.each do |piece|
-      rank = piece.rule.rank
+      attack_rank = piece.rule.attack_rank
       result = @ply_calculator.valid_plies(piece, piece.coordinate, piece.rule.capture_type, support: true)
       result.each do |coordinate|
         @map[coordinate] ||= []
-        @map[coordinate] << rank
+        @map[coordinate] << attack_rank
       end
     end
   end
