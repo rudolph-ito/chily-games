@@ -6,7 +6,7 @@
       - if f.object.persisted?
         = f.input :terrain_type, input_html: { disabled: true }, wrapper_html: { class: 'inline' }
       - else
-        = f.input :terrain_type, collection: available_terrain_types(f.object.variant), wrapper_html: { class: 'inline' }
+        = f.input :terrain_type, collection: f.object.variant.available_terrain_types, wrapper_html: { class: 'inline' }
 
       = f.input :count, as: :number, min: 1, step: 1, wrapper_html: { class: 'inline' }
 
