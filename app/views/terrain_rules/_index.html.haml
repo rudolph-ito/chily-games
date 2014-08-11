@@ -3,6 +3,8 @@
 
 %ul.rule-list
   - variant.terrain_rules.each do |terrain_rule|
+    - terrain_rule = TerrainRuleDecorator.new(terrain_rule)
+
     %li
       .type
         .name-and-count

@@ -1,7 +1,5 @@
 class VariantDecorator < Draper::Decorator
   delegate_all
-  decorates_association :piece_rules
-  decorates_association :terrain_rules
 
   def board_description
     if square_board?
