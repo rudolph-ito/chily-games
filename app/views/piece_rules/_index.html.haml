@@ -3,6 +3,8 @@
 
 %ul.rule-list
   - variant.piece_rules.each do |piece_rule|
+    - piece_rule = PieceRuleDecorator.new(piece_rule)
+
     %li
       .type
         .name-and-count
