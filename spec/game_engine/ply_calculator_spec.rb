@@ -18,7 +18,7 @@ describe PlyCalculator do
   let(:piece) { double :piece, coordinate: coordinate, user_id: user1_id, type_id: 1, rule: piece_rule }
   let(:user1_id) { 1 }
   let(:user2_id) { 2 }
-  let(:piece_rule) { double :piece_rule, piece_rule_parameters.merge(capture_type: capture_type, rank: 1) }
+  let(:piece_rule) { double :piece_rule, piece_rule_parameters.merge(capture_type: capture_type, attack_rank: 1) }
   let(:capture_type) { 'movement' }
   let(:supported_rank) { double(:supported_rank) }
 
@@ -179,7 +179,7 @@ describe PlyCalculator do
 
       context 'enemy piece' do
         let(:enemy_piece_coordinate) { {'x'=>4, 'y'=>2} }
-        let(:enemy_piece_rule) { double :piece_rule, rank: 2 }
+        let(:enemy_piece_rule) { double :piece_rule, defense_rank: 2 }
         let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id, rule: enemy_piece_rule }
 
         before do
@@ -517,7 +517,7 @@ describe PlyCalculator do
 
       context 'enemy piece' do
         let(:enemy_piece_coordinate) { {'x'=>4, 'y'=>2} }
-        let(:enemy_piece_rule) { double :piece_rule, rank: 2 }
+        let(:enemy_piece_rule) { double :piece_rule, defense_rank: 2 }
         let(:enemy_piece) { double :piece, coordinate: enemy_piece_coordinate, user_id: user2_id, rule: enemy_piece_rule }
 
         before do

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140805162210) do
+ActiveRecord::Schema.define(version: 20140807150601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,7 +62,8 @@ ActiveRecord::Schema.define(version: 20140805162210) do
     t.integer "range_maximum"
     t.string  "range_type"
     t.boolean "move_and_range_capture"
-    t.integer "rank",                   default: 1
+    t.integer "attack_rank",            default: 1
+    t.integer "defense_rank",           default: 1
   end
 
   create_table "piece_types", force: true do |t|

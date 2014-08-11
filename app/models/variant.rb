@@ -90,7 +90,8 @@ class Variant < ActiveRecord::Base
     piece_rules.create!(
       capture_type: 'movement',
       count: 1,
-      rank: 1,
+      attack_rank: 1,
+      defense_rank: 1,
       movement_minimum: 1,
       movement_maximum: 1,
       movement_type: 'orthogonal_line',

@@ -153,8 +153,8 @@ describe Api::GamesController do
 
       let(:variant) { create :variant, board_type: 'square', board_rows: 5, board_columns: 5, piece_ranks: true, support_type: support_type }
 
-      let!(:piece_rule1) { create :piece_rule, variant: variant, piece_type: piece_type1, movement_type: 'diagonal_line', movement_minimum: 1, movement_maximum: nil, rank: piece_rank1 }
-      let!(:piece_rule2) { create :piece_rule, variant: variant, piece_type: piece_type2, movement_type: 'diagonal_line', movement_minimum: 1, movement_maximum: nil, rank: piece_rank2 }
+      let!(:piece_rule1) { create :piece_rule, variant: variant, piece_type: piece_type1, movement_type: 'diagonal_line', movement_minimum: 1, movement_maximum: nil, attack_rank: attack_rank }
+      let!(:piece_rule2) { create :piece_rule, variant: variant, piece_type: piece_type2, movement_type: 'diagonal_line', movement_minimum: 1, movement_maximum: nil, defense_rank: defense_rank }
 
       let(:game_parameters) { {} }
       let(:game) { create :game, variant: variant, alabaster: current_user }
@@ -171,8 +171,8 @@ describe Api::GamesController do
         let(:support_type) { 'none' }
 
         context 'enemy piece has lower rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 1 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 1 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -185,8 +185,8 @@ describe Api::GamesController do
         end
 
         context 'enemy piece has same rank' do
-          let(:piece_rank1) { 1 }
-          let(:piece_rank2) { 1 }
+          let(:attack_rank) { 1 }
+          let(:defense_rank) { 1 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -199,8 +199,8 @@ describe Api::GamesController do
         end
 
         context 'enemy piece has higher rank' do
-          let(:piece_rank1) { 1 }
-          let(:piece_rank2) { 2 }
+          let(:attack_rank) { 1 }
+          let(:defense_rank) { 2 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -217,8 +217,8 @@ describe Api::GamesController do
         let(:support_type) { 'binary' }
 
         context 'enemy piece rank lower than supported rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 2 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 2 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -231,8 +231,8 @@ describe Api::GamesController do
         end
 
         context 'enemy piece rank same as than supported rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 3 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 3 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -245,8 +245,8 @@ describe Api::GamesController do
         end
 
         context 'enemy piece rank higher than supported rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 4 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 4 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -263,8 +263,8 @@ describe Api::GamesController do
         let(:support_type) { 'sum' }
 
         context 'enemy piece rank lower than supported rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 3 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 3 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -277,8 +277,8 @@ describe Api::GamesController do
         end
 
         context 'enemy piece rank same as than supported rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 4 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 4 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
@@ -291,8 +291,8 @@ describe Api::GamesController do
         end
 
         context 'enemy piece rank higher than supported rank' do
-          let(:piece_rank1) { 2 }
-          let(:piece_rank2) { 5 }
+          let(:attack_rank) { 2 }
+          let(:defense_rank) { 5 }
 
           it 'succeeds' do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
