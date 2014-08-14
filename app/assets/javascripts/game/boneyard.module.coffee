@@ -3,62 +3,51 @@ PieceType = require('piece_type')
 class Boneyard
 
   constructor: ({el}) ->
-    @showing =
-      alabaster: {}
-      onyx: {}
-
     @$el = $(el)
     @$alabaster = @$el.find '.alabaster'
     @$onyx = @$el.find '.onyx'
 
-    $('body').on 'init.Boneyard', @onInit
-    $('body').on 'hide.Boneyard', @onHide
-    $('body').on 'show.Boneyard', @onShow
-    $('body').on 'update.Boneyard', @onUpdate
+    $('body')
+      .on('Boneyard.add', @onAdd)
+      .on('Boneyard.clear', @onClear)
+      .on('Boneyard.remove', @onRemove)
+      .on('Boneyard.update', @onUpdate)
+      .on('Ply.created', @onPlyCreated)
 
 
   # Handlers
 
 
-  onInit: (e, piece_types...) =>
-    @addImages(piece_types)
-    @hideImages()
+  onAdd: (e, {type_id, color}) =>
+    @addImage(type_id, color)
 
 
-  onHide: (e, {type_id, color}) =>
-    @hideImage(type_id, color)
+  onClear: =>
+    @clearImages()
 
 
-  onShow: (e, {type_id, color}) =>
-    @showImage(type_id, color)
+  onPlyCreated: (e, {captured_piece}) =>
+    @addImage(captured_piece.type_id, captured_piece.color) if captured_piece?
+
+
+  onRemove: (e, {type_id, color}) =>
+    @removeImage(type_id, color)
 
 
   onUpdate: (e, toShow...) =>
-    @hideImages()
-    @showImage(type_id, color) for {type_id, color} in toShow
+    @clearImages()
+    @addImage(type_id, color) for {type_id, color} in toShow
 
 
   # Helpers
 
 
-  addImages: (piece_types) ->
-    for {id, count} in piece_types
-      $alabasterImg = @createImage(id, 'alabaster')
-      $onyxImg = @createImage(id, 'onyx')
-
-      for i in [1..count]
-        @$alabaster.append $alabasterImg.clone()
-        @$onyx.append $onyxImg.clone()
+  addImage: (id, color) ->
+    @["$#{color}"].append @createImage(id, color)
 
 
-  indexToHide: (id, color) ->
-    @showing[color][id] -= 1
-
-
-  indexToShow: (id, color) ->
-    index = @showing[color][id] ?= 0
-    @showing[color][id] += 1
-    index
+  clearImages: ->
+    @$el.find('img').remove()
 
 
   createImage: (id, color) ->
@@ -67,21 +56,12 @@ class Boneyard
       .attr('src', PieceType.url_for(id, color))
 
 
-  getImage: (id, color, index) ->
-    pieces = @["$#{color}"].find("img[data-piece-type-id=#{id}]")
-    $(pieces[index])
+  getImage: (id, color) ->
+    @["$#{color}"].find("img[data-piece-type-id=#{id}]").last()
 
 
-  hideImage: (id, color) ->
-    @getImage(id, color, @indexToHide(id, color)).hide()
-
-
-  hideImages: ->
-    @$el.find('img').hide()
-
-
-  showImage: (id, color) ->
-    @getImage(id, color, @indexToShow(id, color)).show()
+  removeImage: (id, color) ->
+    @getImage(id, color).remove()
 
 
 module.exports = Boneyard

@@ -24,94 +24,87 @@ describe 'Boneyard', ->
   beforeEach ->
     new Boneyard(el: '.boneyard')
 
-  context 'on init.Boneyard', ->
+
+  context 'on Boneyard.add', ->
     beforeEach ->
-      $('body').trigger 'init.Boneyard', [{id: 1, count: 1}, {id: 2, count: 1}, {id: 3, count: 2}]
+      $('body').trigger 'Boneyard.add', {type_id: 1, color: 'alabaster'}
 
-    it 'adds alabaster pieces', ->
-      expect(@$('.boneyard .alabaster img').length).to.eql 4
-      expect(@$('.boneyard .alabaster img[data-piece-type-id=1]').length).to.eql 1
-      expect(@$('.boneyard .alabaster img[data-piece-type-id=2]').length).to.eql 1
-      expect(@$('.boneyard .alabaster img[data-piece-type-id=3]').length).to.eql 2
-
-    it 'adds onyx pieces', ->
-      expect(@$('.boneyard .onyx img').length).to.eql 4
-      expect(@$('.boneyard .onyx img[data-piece-type-id=1]').length).to.eql 1
-      expect(@$('.boneyard .onyx img[data-piece-type-id=2]').length).to.eql 1
-      expect(@$('.boneyard .onyx img[data-piece-type-id=3]').length).to.eql 2
-
-    it 'hides all images', ->
-      expect(@$('.boneyard img:hidden').length).to.eql 8
+    it 'adds the piece', ->
+      expect(@$('.boneyard .alabaster img[data-piece-type-id=1]')).to.exist
 
 
+  context 'with one existing piece', ->
+    beforeEach ->
+      $('body').trigger 'Boneyard.add', {type_id: 1, color: 'alabaster'}
 
-    context 'on show.Boneyard', ->
-      context 'with count == 1', ->
-        beforeEach ->
-          $('body').trigger 'show.Boneyard', {type_id: 1, color: 'alabaster'}
-
-        it 'shows the piece', ->
-          expect(@$('.boneyard .alabaster img[data-piece-type-id=1]')).to.be.visible
-
-      context 'with count > 1', ->
-        context 'on first show', ->
-          beforeEach ->
-            $('body').trigger 'show.Boneyard', {type_id: 3, color: 'alabaster'}
-
-          it 'shows only one piece', ->
-            expect(@$('.boneyard .alabaster img[data-piece-type-id=3]:visible').length).to.eql 1
-
-          context 'on second show', ->
-            beforeEach ->
-              $('body').trigger 'show.Boneyard', {type_id: 3, color: 'alabaster'}
-
-            it 'shows two pieces', ->
-              expect(@$('.boneyard .alabaster img[data-piece-type-id=3]:visible').length).to.eql 2
-
-
-
-    context 'on hide.Boneyard', ->
-      context 'with count == 1', ->
-        beforeEach ->
-          $('body').trigger 'show.Boneyard', {type_id: 1, color: 'alabaster'}
-          $('body').trigger 'hide.Boneyard', {type_id: 1, color: 'alabaster'}
-
-        it 'hides the piece', ->
-          expect(@$('.boneyard .alabaster [data-piece-type-id=1]')).to.be.hidden
-
-      context 'with count > 1', ->
-        beforeEach ->
-          $('body').trigger 'show.Boneyard', {type_id: 3, color: 'alabaster'}
-          $('body').trigger 'show.Boneyard', {type_id: 3, color: 'alabaster'}
-
-        context 'on first hide', ->
-          beforeEach ->
-            $('body').trigger 'hide.Boneyard', {type_id: 3, color: 'alabaster'}
-
-          it 'shows only one piece', ->
-            expect(@$('.boneyard .alabaster img[data-piece-type-id=3]:visible').length).to.eql 1
-
-          context 'on second hide', ->
-            beforeEach ->
-              $('body').trigger 'hide.Boneyard', {type_id: 3, color: 'alabaster'}
-
-            it 'shows two pieces', ->
-              expect(@$('.boneyard .alabaster img[data-piece-type-id=3]:visible').length).to.eql 0
-
-
-
-    context 'on update.Boneyard', ->
+    context 'on remove.Boneyard', ->
       beforeEach ->
-        $('body').trigger 'show.Boneyard', {type_id: 1, color: 'alabaster'}
-        $('body').trigger 'show.Boneyard', {type_id: 2, color: 'onyx'}
-        $('body').trigger 'update.Boneyard', [{type_id: 3, color: 'alabaster'}, {type_id: 3, color: 'alabaster'}, {type_id: 1, color: 'onyx'}]
+        $('body').trigger 'Boneyard.remove', {type_id: 1, color: 'alabaster'}
 
-      it 'hides images that were showing', ->
-        expect(@$('.boneyard .alabaster [data-piece-type-id=1]')).to.be.hidden
-        expect(@$('.boneyard .onyx [data-piece-type-id=2]')).to.be.hidden
+      it 'removes the piece', ->
+        expect(@$('.boneyard .alabaster [data-piece-type-id=1]')).not.to.exist
 
 
-      it 'shows the pieces passed in', ->
-        expect(@$('.boneyard img:visible').length).to.eql 3
-        expect(@$('.boneyard .alabaster img[data-piece-type-id=3]:visible').length).to.eql 2
-        expect(@$('.boneyard .onyx img[data-piece-type-id=1]')).to.be.visible
+  context 'with two existing pieces', ->
+    beforeEach ->
+      $('body').trigger 'Boneyard.add', {type_id: 1, color: 'alabaster'}
+      $('body').trigger 'Boneyard.add', {type_id: 1, color: 'alabaster'}
+
+
+    context 'on Boneyard.remove', ->
+      beforeEach ->
+        $('body').trigger 'Boneyard.remove', {type_id: 1, color: 'alabaster'}
+
+      it 'removes the last piece', ->
+        expect(@$('.boneyard .alabaster img[data-piece-type-id=1]')).to.have.lengthOf 1
+
+      context 'on Boneyard.remove', ->
+        beforeEach ->
+          $('body').trigger 'Boneyard.remove', {type_id: 1, color: 'alabaster'}
+
+        it 'removes the first piece', ->
+          expect(@$('.boneyard .alabaster img[data-piece-type-id=1]')).to.have.lengthOf 0
+
+
+    context 'on Boneyard.clear', ->
+      beforeEach ->
+        $('body').trigger 'Boneyard.clear'
+
+      it 'clears the pieces', ->
+        expect(@$('.boneyard img')).not.to.exist
+
+
+    context 'on Boneyard.update', ->
+      beforeEach ->
+        data = [
+          {type_id: 3, color: 'alabaster'},
+          {type_id: 3, color: 'alabaster'},
+          {type_id: 1, color: 'onyx'}
+        ]
+
+        $('body').trigger 'Boneyard.update', data
+
+
+      it 'clears the pieces', ->
+        expect(@$('.boneyard .alabaster [data-piece-type-id=1]')).not.to.exist
+
+      it 'adds the pieces passed in', ->
+        expect(@$('.boneyard img')).to.have.lengthOf 3
+        expect(@$('.boneyard .alabaster img[data-piece-type-id=3]')).to.have.lengthOf 2
+        expect(@$('.boneyard .onyx img[data-piece-type-id=1]')).to.have.lengthOf 1
+
+
+  context 'on Ply.created', ->
+    context 'with a capture', ->
+      beforeEach ->
+        $('body').trigger 'Ply.created', captured_piece: {type_id: 1, color: 'alabaster'}
+
+      it 'adds the piece', ->
+        expect(@$('.boneyard .alabaster img[data-piece-type-id=1]')).to.exist
+
+    context 'without a capture', ->
+      beforeEach ->
+        $('body').trigger 'Ply.created', captured_piece: null
+
+      it 'does nothing', ->
+        expect(@$('.boneyard img')).not.to.exist

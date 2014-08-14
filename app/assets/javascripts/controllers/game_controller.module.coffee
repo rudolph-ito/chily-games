@@ -48,8 +48,7 @@ class GameController extends Controller
       @update_controls()
       @update_players()
 
-      $('body').trigger('init.Boneyard', data.piece_types)
-      $('body').trigger('update.Boneyard', data.boneyard)
+      $('body').trigger('Boneyard.update', data.boneyard)
 
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
@@ -312,8 +311,7 @@ class GameController extends Controller
       @action_to_id = data.action_to_id
       @update_status()
 
-      $('body').trigger('created.Ply', data.ply)
-      $('body').trigger('show.Boneyard', data.ply.captured_piece) if data.ply.captured_piece?
+      $('body').trigger('Ply.created', data.ply)
 
       @board.update_last_ply(data.ply.from, data.ply.to, data.ply.range_capture)
       @finish_game_if_complete()
