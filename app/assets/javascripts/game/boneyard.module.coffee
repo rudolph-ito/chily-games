@@ -12,6 +12,7 @@ class Boneyard
       .on('Boneyard.clear', @onClear)
       .on('Boneyard.remove', @onRemove)
       .on('Boneyard.update', @onUpdate)
+      .on('Ply.created', @onPlyCreated)
 
 
   # Handlers
@@ -23,6 +24,10 @@ class Boneyard
 
   onClear: =>
     @clearImages()
+
+
+  onPlyCreated: (e, {captured_piece}) =>
+    @addImage(captured_piece.type_id, captured_piece.color) if captured_piece?
 
 
   onRemove: (e, {type_id, color}) =>

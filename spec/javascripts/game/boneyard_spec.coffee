@@ -92,3 +92,19 @@ describe 'Boneyard', ->
         expect(@$('.boneyard img')).to.have.lengthOf 3
         expect(@$('.boneyard .alabaster img[data-piece-type-id=3]')).to.have.lengthOf 2
         expect(@$('.boneyard .onyx img[data-piece-type-id=1]')).to.have.lengthOf 1
+
+
+  context 'on Ply.created', ->
+    context 'with a capture', ->
+      beforeEach ->
+        $('body').trigger 'Ply.created', captured_piece: {type_id: 1, color: 'alabaster'}
+
+      it 'adds the piece', ->
+        expect(@$('.boneyard .alabaster img[data-piece-type-id=1]')).to.exist
+
+    context 'without a capture', ->
+      beforeEach ->
+        $('body').trigger 'Ply.created', captured_piece: null
+
+      it 'does nothing', ->
+        expect(@$('.boneyard img')).not.to.exist

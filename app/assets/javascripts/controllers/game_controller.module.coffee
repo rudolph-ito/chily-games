@@ -312,7 +312,6 @@ class GameController extends Controller
       @update_status()
 
       $('body').trigger('Ply.created', data.ply)
-      $('body').trigger('Boneyard.add', data.ply.captured_piece) if data.ply.captured_piece?
 
       @board.update_last_ply(data.ply.from, data.ply.to, data.ply.range_capture)
       @finish_game_if_complete()
