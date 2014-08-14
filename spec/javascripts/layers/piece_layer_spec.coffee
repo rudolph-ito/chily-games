@@ -24,7 +24,7 @@ describe 'PieceLayer', ->
 
 
 
-  describe 'on created.Ply', ->
+  describe 'on Ply.created', ->
     beforeEach ->
       sinon.stub @piece_layer, 'move_by_coordinate'
       sinon.stub @piece_layer, 'remove_by_coordinate'
@@ -32,7 +32,7 @@ describe 'PieceLayer', ->
 
     context 'move only', ->
       beforeEach ->
-        $('body').trigger('created.Ply', {from: {x:0, y:0}, to: {x:0, y:1}})
+        $('body').trigger('Ply.created', {from: {x:0, y:0}, to: {x:0, y:1}})
 
       it 'calls move_by_coordinate', ->
         expect(@piece_layer.move_by_coordinate).to.have.been.calledOnce
@@ -44,7 +44,7 @@ describe 'PieceLayer', ->
 
     context 'range capture only', ->
       beforeEach ->
-        $('body').trigger('created.Ply', {from: {x:0, y:0}, range_capture: {x:0, y:2}})
+        $('body').trigger('Ply.created', {from: {x:0, y:0}, range_capture: {x:0, y:2}})
 
       it 'does not call move_by_coordinate', ->
         expect(@piece_layer.move_by_coordinate).not.to.have.been.called
@@ -56,7 +56,7 @@ describe 'PieceLayer', ->
 
     context 'move and range capture', ->
       beforeEach ->
-        $('body').trigger('created.Ply', {from: {x:0, y:0}, to: {x:0, y:1}, range_capture: {x:0, y:2}})
+        $('body').trigger('Ply.created', {from: {x:0, y:0}, to: {x:0, y:1}, range_capture: {x:0, y:2}})
 
       it 'calls move_by_coordinate', ->
         expect(@piece_layer.move_by_coordinate).to.have.been.calledOnce

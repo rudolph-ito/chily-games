@@ -311,7 +311,7 @@ class GameController extends Controller
       @action_to_id = data.action_to_id
       @update_status()
 
-      $('body').trigger('created.Ply', data.ply)
+      $('body').trigger('Ply.created', data.ply)
       $('body').trigger('Boneyard.add', data.ply.captured_piece) if data.ply.captured_piece?
 
       @board.update_last_ply(data.ply.from, data.ply.to, data.ply.range_capture)

@@ -7,7 +7,7 @@ class PieceLayer extends ObjectLayer
 
   constructor: ->
     super
-    $('body').on 'created.Ply', @onPlyCreated
+    $('body').on 'Ply.created', @onPlyCreated
 
 
   add_from_data: (data) ->
