@@ -48,13 +48,14 @@ class GameController extends Controller
       @update_controls()
       @update_players()
 
-      $('body').trigger('Boneyard.update', data.boneyard)
-
       @board = Board.create(@board_container, data.color, data.options, @)
       @board.draw()
       @board.add_terrains(data.terrains)
       @board.add_pieces(data.pieces)
-      @board.update_last_ply(data.last_ply.from, data.last_ply.to, data.last_ply.range_capture) if data.last_ply
+
+      $('body')
+        .trigger('Boneyard.update', data.boneyard)
+        .trigger('LastPly.update', data.last_ply)
 
     $.ajax
       url: @url('rules.html')
@@ -261,8 +262,7 @@ class GameController extends Controller
         type: type
         from: from
       success: (data) =>
-        @board.dehighlight()
-        @board.highlight_valid_plies(type, from || coordinate, data.valid, data.reachable)
+        $('body').trigger('ValidPlies.show', data)
 
   ply_valid: (from, to, success_callback) ->
     $.ajax
@@ -312,8 +312,6 @@ class GameController extends Controller
       @update_status()
 
       $('body').trigger('Ply.created', data.ply)
-
-      @board.update_last_ply(data.ply.from, data.ply.to, data.ply.range_capture)
       @finish_game_if_complete()
 
   server_game_abort: (data) =>

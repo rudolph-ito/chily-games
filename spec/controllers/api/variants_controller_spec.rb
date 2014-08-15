@@ -124,7 +124,12 @@ describe Api::VariantsController do
             board_rows: variant.board_rows,
           },
           pieces: [{"coordinate"=>{"x"=>1, "y"=>1}, "piece_type_id"=>piece_type.id, "color"=>"onyx"}],
-          valid_plies: {type: 'movement', coordinates: [{"x"=>2, "y"=>1}, {"x"=>0, "y"=>1}, {"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}]}
+          valid_plies: {
+            type: 'movement',
+            origin: {"x"=>1, "y"=>1},
+            valid: [{"x"=>2, "y"=>1}, {"x"=>0, "y"=>1}, {"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}],
+            reachable: []
+          }
         )
       end
     end

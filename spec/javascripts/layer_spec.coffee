@@ -7,7 +7,9 @@ describe 'Layer', ->
     @layer = new Layer @board
 
     sinon.spy @layer.element, 'draw'
+    sinon.spy @layer.element, 'hide'
     sinon.spy @layer.element, 'removeChildren'
+    sinon.spy @layer.element, 'show'
     sinon.spy @layer.coordinate_map, 'clear'
 
   describe '#constructor', ->
@@ -24,6 +26,20 @@ describe 'Layer', ->
     it 'calls draw on the element', ->
       @layer.draw()
       expect(@layer.element.draw).to.have.been.called
+
+  describe '#show', ->
+    beforeEach ->
+      @layer.show()
+
+    it 'calls show on the element', ->
+      expect(@layer.element.show).to.have.been.called
+
+  describe '#hide', ->
+    beforeEach ->
+      @layer.hide()
+
+    it 'calls hide on the element', ->
+      expect(@layer.element.hide).to.have.been.called
 
   describe '#update', ->
     beforeEach ->

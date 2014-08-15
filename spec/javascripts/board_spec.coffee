@@ -1,12 +1,14 @@
 Board = require("board")
 HexagonalBoard = require("boards/hexagonal_board")
 HighlightLayer = require('layers/highlight_layer')
+LastPlyLayer = require('layers/last_ply_layer')
 Piece = require('piece')
 PieceLayer = require('layers/piece_layer')
 SpaceLayer = require('layers/space_layer')
 SquareBoard = require("boards/square_board")
 TerrainLayer = require('layers/terrain_layer')
 TerritoryLayer = require('layers/territory_layer')
+ValidPliesLayer = require('layers/valid_plies_layer')
 
 describe 'Board', ->
   beforeEach ->
@@ -36,58 +38,61 @@ describe 'Board', ->
     sinon.stub @board, 'add_terrain'
     sinon.stub Piece::, 'load_image'
     sinon.stub Piece::, 'update'
+    sinon.stub HighlightLayer::, 'add'
 
   afterEach ->
     Piece::load_image.restore()
     Piece::update.restore()
+    HighlightLayer::add.restore()
 
   describe '.preview', ->
     beforeEach ->
-      @path = @done = null
-      sinon.stub $, 'getJSON', (path) =>
-        @path = path
-        {done: (callback) => @callback = callback}
+      sinon.stub $, 'getJSON'
 
     afterEach ->
       $.getJSON.restore()
 
-    it 'makes a request', ->
-      Board.preview(@container, 1)
-      expect(@path).to.eql("/api/variants/1/preview?")
+    context 'variant_id only', ->
+      beforeEach ->
+        Board.preview(@container, 1)
 
-    context 'with piece_type_id and type', ->
       it 'makes a request', ->
-        Board.preview(@container, 1, {piece_type_id: 2, type: 'movement'})
-        expect(@path).to.eql("/api/variants/1/preview?piece_type_id=2&type=movement")
+        expect($.getJSON).to.have.been.calledOnce
+        expect($.getJSON.lastCall.args[0]).to.eql "/api/variants/1/preview?"
 
-    context 'when the request returns', ->
+      context 'when the request returns', ->
+        beforeEach ->
+          sinon.stub Board::, 'draw'
+          $.getJSON.lastCall.callArgWith(1, color: 'alabaster', options: {board_type: 'square'})
+
+        afterEach ->
+          Board::draw.restore()
+
+        it 'creates a board and draws', ->
+          expect(Board::draw).to.have.been.called
+
+    context 'variant_id with piece_type_id and type', ->
       beforeEach ->
         Board.preview(@container, 1, {piece_type_id: 2, type: 'movement'})
-        sinon.stub Board::, 'draw'
 
-      afterEach ->
-        Board::draw.restore()
+      it 'makes a request', ->
+        expect($.getJSON).to.have.been.calledOnce
+        expect($.getJSON.lastCall.args[0]).to.eql "/api/variants/1/preview?piece_type_id=2&type=movement"
 
-      it 'creates a board and draws', ->
-        @callback(color: 'alabaster', options: {board_type: 'square'})
-        expect(Board::draw).to.have.been.called
-
-      context 'response includes pieces', ->
+      context 'when the request returns', ->
         beforeEach ->
+          $('body').on 'ValidPlies.show', @showValidPliesSpy = sinon.spy()
           sinon.stub Board::, 'add_pieces'
-          sinon.stub Board::, 'highlight_valid_plies'
+          $.getJSON.lastCall.callArgWith(1, color: 'alabaster', options: {board_type: 'square'}, pieces: [{coordinate: {x:0, y:0}}], valid_plies: {type: 'movement', valid: [], reachable: []})
 
         afterEach ->
           Board::add_pieces.restore()
-          Board::highlight_valid_plies.restore()
 
         it 'draws pieces', ->
-          @callback(color: 'alabaster', options: {board_type: 'square'}, pieces: [{}], valid_plies: {})
           expect(Board::add_pieces).to.have.been.called
 
         it 'highlight_valid_plies', ->
-          @callback(color: 'alabaster', options: {board_type: 'square'}, pieces: [{}], valid_plies: {})
-          expect(Board::highlight_valid_plies).to.have.been.called
+          expect(@showValidPliesSpy).to.have.been.called
 
   describe '.create', ->
     it 'creates a square board when board_type is square', ->
@@ -124,12 +129,12 @@ describe 'Board', ->
       expect(@board.stage.children).to.include(@board.territory_layer.element)
 
     it 'creates the last ply layer', ->
-      expect(@board.last_ply_layer).to.be.an.instanceOf HighlightLayer
+      expect(@board.last_ply_layer).to.be.an.instanceOf LastPlyLayer
       expect(@board.stage.children).to.include(@board.last_ply_layer.element)
 
-    it 'creates the highlight layer', ->
-      expect(@board.highlight_layer).to.be.an.instanceOf HighlightLayer
-      expect(@board.stage.children).to.include(@board.highlight_layer.element)
+    it 'creates the valid plies layer', ->
+      expect(@board.valid_plies_layer).to.be.an.instanceOf ValidPliesLayer
+      expect(@board.stage.children).to.include(@board.valid_plies_layer.element)
 
     it 'creates the piece layer to draw the pieces and a piece coordinate_map', ->
       expect(@board.piece_layer).to.be.an.instanceOf PieceLayer
@@ -214,81 +219,6 @@ describe 'Board', ->
       @board.remove_territories()
       expect(@board.territory_layer.clear).to.have.been.called
 
-  describe 'update_last_ply', ->
-    beforeEach ->
-      @from = {x: 0, y: 0}
-      @to = {x: 1, y: 0}
-      @range_capture = {x: 2, y: 0}
-
-      sinon.stub @board.last_ply_layer, 'clear'
-      sinon.stub @board.last_ply_layer, 'add'
-      sinon.stub @board.last_ply_layer, 'draw'
-
-    it 'calls clear on last_ply_layer', ->
-      @board.update_last_ply(@from, @to, @range_capture)
-      expect(@board.last_ply_layer.clear).to.have.been.called
-
-    context 'movement only', ->
-      it 'add two highlights', ->
-        @board.update_last_ply(@from, @to, null)
-        expect(@board.last_ply_layer.add).to.have.been.calledcalledTwice
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @to, '#FFFF33'
-
-    context 'range capture only', ->
-      it 'add two highlights', ->
-        @board.update_last_ply(@from, null, @range_capture)
-        expect(@board.last_ply_layer.add).to.have.been.calledTwice
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @range_capture, '#0066CC'
-
-    context 'movement and range capture', ->
-      it 'add three highlights', ->
-        @board.update_last_ply(@from, @to, @range_capture)
-        expect(@board.last_ply_layer.add).to.have.been.calledThrice
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @from, '#FFFF33'
-        expect(@board.last_ply_layer.add).to.have.been.calledWith @range_capture, '#0066CC'
-
-    it 'calls draw on last_ply_layer', ->
-      @board.update_last_ply(@from, @to, @range_capture)
-      expect(@board.last_ply_layer.draw).to.have.been.called
-
-  describe '#highlight_valid_plies', ->
-    beforeEach ->
-      sinon.stub @board.highlight_layer, 'add'
-      sinon.stub @board.highlight_layer, 'draw'
-
-    context 'type is movement', ->
-      beforeEach -> @board.highlight_valid_plies('movement', {x:0,y:0}, [{x:0,y:1}, {x:0,y:2}])
-      it 'add the proper number of highlights', ->
-        expect(@board.highlight_layer.add).to.have.been.calledThrice
-      it 'adds the piece highlight', ->
-        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:0}, '#00CC00'
-      it 'adds the space highlights', ->
-        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:1}, '#006633'
-        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:2}, '#006633'
-      it 'calls draw on highlight_layer', ->
-        expect(@board.highlight_layer.draw).to.have.been.called
-
-    context 'type is range', ->
-      beforeEach -> @board.highlight_valid_plies('range', {x:0,y:0}, [{x:0,y:1}, {x:0,y:2}])
-      it 'add the proper number of highlights', ->
-        expect(@board.highlight_layer.add).to.have.been.calledThrice
-      it 'adds the piece highlight', ->
-        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:0}, '#CC0000'
-      it 'adds the space highlights', ->
-        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:1}, '#660033'
-        expect(@board.highlight_layer.add).to.have.been.calledWith {x:0,y:2}, '#660033'
-      it 'calls draw on highlight_layer', ->
-        expect(@board.highlight_layer.draw).to.have.been.called
-
-  describe '#dehighlight', ->
-    it 'calls clear on highlight_layer', ->
-      sinon.stub @board.highlight_layer, 'clear'
-      @board.dehighlight()
-      expect(@board.highlight_layer.clear).to.have.been.called
-
   describe '#click', ->
     context 'a piece is selected', ->
       beforeEach ->
@@ -309,65 +239,77 @@ describe 'Board', ->
             expect(@game_controller.valid_plies).to.have.been.calledWith {x:0,y:0}, 'range'
 
         context 'otherwise', ->
-          it 'clears selected_piece', ->
+          beforeEach ->
+            $('body').on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
             @board.click({x:0,y:0})
+
+          it 'clears selected_piece', ->
             expect(@board.selected_piece).to.eql null
 
           it 'clears highlighting', ->
-            @board.click({x:0,y:0})
             expect(@board.highlighting).to.eql null
 
-          it 'dehighlight the board', ->
-            sinon.stub @board, 'dehighlight'
-            @board.click({x:0,y:0})
-            expect(@board.dehighlight).to.have.been.called
+          it 'hides valid plies', ->
+            expect(@hideValidPliesSpy).to.have.been.calledOnce
 
       context 'coordinate clicked is not the same as the piece coordinate', ->
-
-        it 'calls try move', ->
+        beforeEach ->
+          $('body').on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
           sinon.stub @board, 'try_move'
           @board.click({x:0,y:0})
-          expect(@board.try_move).to.have.been.calledWith @board.piece_layer, @piece, {x:0,y:0}
+
+        it 'calls try move', ->
+          expect(@board.try_move).to.have.been.calledOnce
+          expect(@board.try_move.lastCall.args[0]).to.eql @board.piece_layer
+          expect(@board.try_move.lastCall.args[1]).to.eql @piece, {x:0,y:0}
+          expect(@board.try_move.lastCall.args[2]).to.eql {x:0,y:0}
 
         it 'clears selected_piece', ->
-          @board.click({x:0,y:0})
           expect(@board.selected_piece).to.eql null
 
         it 'clears highlighting', ->
-          @board.click({x:0,y:0})
           expect(@board.highlighting).to.eql null
 
-        it 'dehighlight the board', ->
-          sinon.stub @board, 'dehighlight'
-          @board.click({x:0,y:0})
-          expect(@board.dehighlight).to.have.been.called
+        it 'hides valid plies', ->
+          expect(@hideValidPliesSpy).to.have.been.calledOnce
 
     context 'there is temporary move', ->
-      beforeEach -> @board.temporary_move = { from: {x:1,y:1}, to: {x:0,y:1} }
+      beforeEach ->
+        $('body').on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
+        sinon.stub @board.piece_layer, 'move_by_coordinate'
+        @board.temporary_move = { from: {x:1,y:1}, to: {x:0,y:1} }
 
       context 'coordinate is equal to the temporary move location', ->
-        beforeEach -> @board.click({x:0,y:1})
-        it 'calls game_controller.create_ply properly', ->
+        beforeEach ->
+          @board.click({x:0,y:1})
+
+        it 'calls game_controller.create_ply', ->
           expect(@game_controller.create_ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, null
 
+        it 'undoes the temporary move', ->
+          expect(@board.piece_layer.move_by_coordinate).to.have.been.calledWith {x:0,y:1}, {x:1,y:1}
+
+        it 'clears the temporary move', ->
+          expect(@board.temporary_move).to.eql null
+
+        it 'hides valid plies', ->
+          expect(@hideValidPliesSpy).to.have.been.calledOnce
+
       context 'coordinate is not equal to the temporary move location', ->
-        beforeEach -> @board.click({x:0,y:0})
+        beforeEach ->
+          @board.click({x:0,y:0})
+
         it 'calls game_controller.create_ply properly', ->
           expect(@game_controller.create_ply).to.have.been.calledWith {x:1,y:1}, {x:0,y:1}, {x:0,y:0}
 
-      it 'undoes the temporary move', ->
-        sinon.stub @board.piece_layer, 'move_by_coordinate'
-        @board.click({x:0,y:0})
-        expect(@board.piece_layer.move_by_coordinate).to.have.been.calledWith {x:0,y:1}, {x:1,y:1}
+        it 'undoes the temporary move', ->
+          expect(@board.piece_layer.move_by_coordinate).to.have.been.calledWith {x:0,y:1}, {x:1,y:1}
 
-      it 'clears the temporary move', ->
-        @board.click({x:0,y:0})
-        expect(@board.temporary_move).to.eql null
+        it 'clears the temporary move', ->
+          expect(@board.temporary_move).to.eql null
 
-      it 'dehighlights the board', ->
-        sinon.stub @board, 'dehighlight'
-        @board.click({x:0,y:0})
-        expect(@board.dehighlight).to.have.been.called
+        it 'hides valid plies', ->
+          expect(@hideValidPliesSpy).to.have.been.calledOnce
 
     context 'no piece selected, no temporary move', ->
       context 'there is a piece at that coordinate', ->

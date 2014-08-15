@@ -48,7 +48,9 @@ before ->
 after ->
   $('#teaspoon').remove()
 
+beforeEach ->
+  $('body').off()
+
 global.withHtml = (html) ->
   beforeEach ->
-    $('body').off()
     $('#teaspoon').html(html)

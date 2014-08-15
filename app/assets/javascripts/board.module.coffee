@@ -1,9 +1,10 @@
-HighlightLayer = require('layers/highlight_layer')
+LastPlyLayer = require('layers/last_ply_layer')
 Piece = require('piece')
 PieceLayer = require('layers/piece_layer')
 SpaceLayer = require('layers/space_layer')
 TerrainLayer = require('layers/terrain_layer')
 TerritoryLayer = require('layers/territory_layer')
+ValidPliesLayer = require('layers/valid_plies_layer')
 
 class Board
 
@@ -18,13 +19,13 @@ class Board
     query.push("type=#{options.type}") if options.type
     path += "?" + query.join('&')
 
-    $.getJSON(path).done (data) =>
+    $.getJSON path, (data) =>
       board = @create(container, data.color, data.options)
       board.draw()
 
       if data.pieces
         board.add_pieces(data.pieces)
-        board.highlight_valid_plies(data.valid_plies.type, data.pieces[0].coordinate, data.valid_plies.coordinates)
+        $('body').trigger('ValidPlies.show', data.valid_plies)
 
   @create: (container, color, options, game_controller = null) ->
     klass = require("boards/#{options.board_type}_board")
@@ -45,8 +46,8 @@ class Board
     @space_layer = new SpaceLayer(@)
     @territory_layer = new TerritoryLayer(@)
     @terrain_layer = new TerrainLayer(@)
-    @last_ply_layer = new HighlightLayer(@)
-    @highlight_layer = new HighlightLayer(@)
+    @last_ply_layer = new LastPlyLayer(@)
+    @valid_plies_layer = new ValidPliesLayer(@)
     @piece_layer = new PieceLayer(@)
 
   max_board_height: ->
@@ -118,41 +119,6 @@ class Board
   # Returns whose territory a coordinate is in during setup
   # Returns alabaster, onyx, or neutral
   territory: (coordinate) ->
-
-  ########################################
-  # Last Ply Layer
-  ########################################
-
-  update_last_ply: (from, to, range_capture) ->
-    @last_ply_layer.clear(draw: false)
-    @last_ply_layer.add(from, '#FFFF33')
-    @last_ply_layer.add(to, '#FFFF33') if to
-    @last_ply_layer.add(range_capture, '#0066CC') if range_capture
-    @last_ply_layer.draw()
-
-  ########################################
-  # Highlight Layer
-  ########################################
-
-  add_highlight: (coordinate, color) ->
-    @highlight_layer.add(coordinate, color)
-
-  add_highlights: (coordinates, color) ->
-    @add_highlight(coordinate, color) for coordinate in coordinates
-
-  dehighlight: ->
-    @highlight_layer.clear()
-
-  highlight_valid_plies: (type, piece_coordinate, valid_coordinates, reachable_coordinates = []) ->
-    [piece_highlight, valid_highlight, reachable_highlight] = if type == 'movement'
-      ['#00CC00', '#006633', '#FFFF66']
-    else
-      ['#CC0000', '#660033', '#FFFF66']
-
-    @add_highlight(piece_coordinate, piece_highlight)
-    @add_highlights(valid_coordinates, valid_highlight)
-    @add_highlights(reachable_coordinates, reachable_highlight)
-    @highlight_layer.draw()
 
   ########################################
   # Object Layers
@@ -236,7 +202,7 @@ class Board
   deselect_piece: ->
     @selected_piece = null
     @highlighting = null
-    @dehighlight()
+    $('body').trigger('ValidPlies.hide')
 
   update_selected_piece: ->
     if @selected_piece.type_id() in @game_controller.range_capture_piece_type_ids and @highlighting == 'movement'
@@ -252,7 +218,7 @@ class Board
   clear_temporary_move: ->
     @piece_layer.move_by_coordinate(@temporary_move.to, @temporary_move.from)
     @temporary_move = null
-    @dehighlight()
+    $('body').trigger('ValidPlies.hide')
 
   try_move: (layer, object, to) ->
     if @game_controller.user_in_setup()

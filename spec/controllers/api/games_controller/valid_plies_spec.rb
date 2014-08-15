@@ -25,6 +25,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>0, 'y'=>1}, type: 'movement', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'movement',
+                'origin' => {'x'=>0, 'y'=>1},
                 'valid' => [{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>0}],
                 'reachable' => []
               )
@@ -41,6 +43,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'movement',
+                'origin' => {'x'=>0, 'y'=>1},
                 'valid' => [{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>0}, {"x"=>0, "y"=>3}],
                 'reachable' => []
               )
@@ -56,6 +60,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'movement',
+                'origin' => {'x'=>0, 'y'=>3},
                 'valid' => [{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}, {"x"=>0, "y"=>0}],
                 'reachable' => []
               )
@@ -72,6 +78,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'movement', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'movement',
+                'origin' => {'x'=>0, 'y'=>3},
                 'valid' => [{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}],
                 'reachable' => []
               )
@@ -91,6 +99,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>0, 'y'=>1}, type: 'range', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'range',
+                'origin' => {'x'=>0, 'y'=>1},
                 'valid' => [],
                 'reachable' => [{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>0}]
               )
@@ -107,6 +117,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'range', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'range',
+                'origin' => {'x'=>0, 'y'=>1},
                 'valid' => [{"x"=>0, "y"=>3}],
                 'reachable' => [{"x"=>1, "y"=>1}, {"x"=>2, "y"=>1}, {"x"=>3, "y"=>1}, {"x"=>4, "y"=>1}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>0}]
               )
@@ -122,6 +134,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'range', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'range',
+                'origin' => {'x'=>0, 'y'=>3},
                 'valid' => [],
                 'reachable' => [{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}, {"x"=>0, "y"=>1}, {"x"=>0, "y"=>0}]
               )
@@ -138,6 +152,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'3'}, type: 'range', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'range',
+                'origin' => {'x'=>0, 'y'=>3},
                 'valid' => [{"x"=>0, "y"=>1}],
                 'reachable' => [{"x"=>1, "y"=>3}, {"x"=>2, "y"=>3}, {"x"=>3, "y"=>3}, {"x"=>4, "y"=>3}, {"x"=>0, "y"=>4}, {"x"=>0, "y"=>2}]
               )
@@ -178,6 +194,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
               'reachable' => []
             )
@@ -192,6 +210,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
               'reachable' => []
             )
@@ -206,6 +226,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}],
               'reachable' => [{"x"=>2, "y"=>3}]
             )
@@ -224,6 +246,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
               'reachable' => []
             )
@@ -238,6 +262,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
               'reachable' => []
             )
@@ -252,6 +278,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}],
               'reachable' => [{"x"=>2, "y"=>3}]
             )
@@ -270,6 +298,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
               'reachable' => []
             )
@@ -284,6 +314,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
               'reachable' => []
             )
@@ -298,6 +330,8 @@ describe Api::GamesController do
             get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
             expect(response.status).to eql 200
             expect(response.body).to be_json(
+              'type' => 'movement',
+              'origin' => {'x'=>0, 'y'=>1},
               'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}],
               'reachable' => [{"x"=>2, "y"=>3}]
             )
