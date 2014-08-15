@@ -76,8 +76,8 @@ class PlyCalculator
     @directional_functions += board.directional_functions('diagonal') if @directional_type.include?('diagonal')
 
     if variant.allows_support? && !opts[:support]
-      pieces = coordinate_map.for_user_id(user_id).for_class(Piece)
-      pieces.reject!{ |p| p.coordinate == piece.coordinate }
+      pieces = coordinate_map.for_class(Piece)
+      pieces.select!{ |p| p.user_id == user_id && p.coordinate != piece.coordinate }
       @support = Support.new(self.copy, pieces)
     end
   end
