@@ -262,8 +262,7 @@ class GameController extends Controller
         type: type
         from: from
       success: (data) =>
-        origin = from ? coordinate
-        $('body').trigger('ValidPlies.show', $.extend(type: type, origin: origin, data))
+        $('body').trigger('ValidPlies.show', data)
 
   ply_valid: (from, to, success_callback) ->
     $.ajax

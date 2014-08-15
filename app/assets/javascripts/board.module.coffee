@@ -25,7 +25,7 @@ class Board
 
       if data.pieces
         board.add_pieces(data.pieces)
-        $('body').trigger('ValidPlies.show', $.extend(origin: data.pieces[0].coordinate, data.valid_plies))
+        $('body').trigger('ValidPlies.show', data.valid_plies)
 
   @create: (container, color, options, game_controller = null) ->
     klass = require("boards/#{options.board_type}_board")

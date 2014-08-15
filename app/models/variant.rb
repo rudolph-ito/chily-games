@@ -78,7 +78,12 @@ class Variant < ActiveRecord::Base
       g = Game.new(variant: self)
       p = Piece.new(g, {coordinate: g.board.center_coordinate, type_id: opts[:piece_type_id]})
       out[:pieces] = [ { coordinate: p.coordinate, piece_type_id: p.type_id, color: 'onyx' } ]
-      out[:valid_plies] = { type: opts[:type], valid: g.valid_plies(p, p.coordinate, opts[:type]), reachable: [] }
+      out[:valid_plies] = {
+        type: opts[:type],
+        origin: p.coordinate,
+        valid: g.valid_plies(p, p.coordinate, opts[:type]),
+        reachable: []
+      }
     end
 
     out
