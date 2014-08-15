@@ -304,6 +304,22 @@ describe Api::GamesController do
               'reachable' => []
             )
           end
+
+          context 'ally in enemy territory' do
+            before do
+              piece = game.get_piece(game.alabaster, {'x'=>4, 'y'=>1})
+              CreatePly.new(game, piece, {'x'=>3, 'y'=>4}, nil).call
+            end
+
+            it 'succeeds' do
+              get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
+              expect(response.status).to eql 200
+              expect(response.body).to be_json(
+                'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
+                'reachable' => []
+              )
+            end
+          end
         end
 
         context 'enemy piece rank same as than supported rank' do
