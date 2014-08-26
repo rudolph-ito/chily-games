@@ -46,46 +46,52 @@ describe 'Layer', ->
       @children = [{update: sinon.spy()}, {update: sinon.spy()}]
       sinon.stub @layer.coordinate_map, 'values', => @children
 
-    it 'calls update on every item in coordinate_map.values()', ->
-      @layer.update()
-      expect(@children[0].update).to.have.been.called
-      expect(@children[1].update).to.have.been.called
+    itUpdatesChildren = ->
+      it 'calls update on every item in coordinate_map.values()', ->
+        expect(@children[0].update).to.have.been.called
+        expect(@children[1].update).to.have.been.called
 
     context 'with no options', ->
-      it 'calls draw on the element', ->
+      beforeEach ->
         @layer.update()
-        expect(@layer.element.draw).to.have.been.called
+
+      itUpdatesChildren()
+
+      it 'does not call draw on the element', ->
+        expect(@layer.element.draw).to.not.have.been.called
 
     context 'with options where draw is true', ->
-      it 'calls draw on the element', ->
+      beforeEach ->
         @layer.update(draw: true)
-        expect(@layer.element.draw).to.have.been.called
 
-    context 'with options where draw is false', ->
+      itUpdatesChildren()
+
       it 'calls draw on the element', ->
-        @layer.update(draw: false)
-        expect(@layer.element.draw).to.not.have.been.called
+        expect(@layer.element.draw).to.have.been.called
 
   describe '#clear', ->
-    it 'calls clear on coordinate_map', ->
-      @layer.clear()
-      expect(@layer.coordinate_map.clear).to.have.been.called
+    itClears = ->
+      it 'calls clear on coordinate_map', ->
+        expect(@layer.coordinate_map.clear).to.have.been.called
 
-    it 'calls removeChildren and draw on the element', ->
-      @layer.clear()
-      expect(@layer.element.removeChildren).to.have.been.called
+      it 'calls removeChildren and draw on the element', ->
+        expect(@layer.element.removeChildren).to.have.been.called
+
 
     context 'with no options', ->
-      it 'calls draw on the element', ->
+      beforeEach ->
         @layer.clear()
-        expect(@layer.element.draw).to.have.been.called
+
+      itClears()
+
+      it 'does not call draw on the element', ->
+        expect(@layer.element.draw).not.to.have.been.called
 
     context 'with options where draw is true', ->
-      it 'calls draw on the element', ->
+      beforeEach ->
         @layer.clear(draw: true)
-        expect(@layer.element.draw).to.have.been.called
 
-    context 'with options where draw is false', ->
+      itClears()
+
       it 'calls draw on the element', ->
-        @layer.clear(draw: false)
-        expect(@layer.element.draw).to.not.have.been.called
+        expect(@layer.element.draw).to.have.been.called

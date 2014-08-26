@@ -8,34 +8,14 @@ ValidPliesLayer = require('layers/valid_plies_layer')
 
 class Board
 
-  @preview: (container, variant_id, options = {}) ->
-    container = $(container)
-    container.html('')
-
-    path = "/api/variants/#{variant_id}/preview"
-
-    query = []
-    query.push("piece_type_id=#{options.piece_type_id}") if options.piece_type_id
-    query.push("type=#{options.type}") if options.type
-    path += "?" + query.join('&')
-
-    $.getJSON path, (data) =>
-      board = @create(container, data.color, data.options)
-      board.draw()
-
-      if data.pieces
-        board.add_pieces(data.pieces)
-        $('body').trigger('ValidPlies.show', data.valid_plies)
-
   @create: (container, color, options, game_controller = null) ->
     klass = require("boards/#{options.board_type}_board")
     new klass(container, color, options, game_controller)
 
-
-
   constructor: (container, @color, options, @game_controller) ->
     @container = $(container)
-    @container.html('')
+    @container.off().html('')
+    @container.on('Board.draw', @draw)
 
     @setup_data = options.setup_data
 
@@ -73,7 +53,7 @@ class Board
   add_layer: (layer) ->
     @stage.add(layer)
 
-  draw: ->
+  draw: =>
     @setup()
     @draw_space_layer()
 
@@ -163,11 +143,12 @@ class Board
     unless @game_controller.in_setup()
       @remove_territories()
 
-    @space_layer.update()
-    @territory_layer.update()
-    @terrain_layer.update()
-    @highlight_layer.update()
-    @piece_layer.update()
+    @space_layer.update(draw: true)
+    @territory_layer.update(draw: true)
+    @terrain_layer.update(draw: true)
+    @last_ply_layer.update(draw: true)
+    @valid_plies_layer.update(draw: true)
+    @piece_layer.update(draw: true)
 
   ########################################
   # CLick Interaction
@@ -202,7 +183,7 @@ class Board
   deselect_piece: ->
     @selected_piece = null
     @highlighting = null
-    $('body').trigger('ValidPlies.hide')
+    @container.trigger('ValidPlies.hide')
 
   update_selected_piece: ->
     if @selected_piece.type_id() in @game_controller.range_capture_piece_type_ids and @highlighting == 'movement'
@@ -218,7 +199,7 @@ class Board
   clear_temporary_move: ->
     @piece_layer.move_by_coordinate(@temporary_move.to, @temporary_move.from)
     @temporary_move = null
-    $('body').trigger('ValidPlies.hide')
+    @container.trigger('ValidPlies.hide')
 
   try_move: (layer, object, to) ->
     if @game_controller.user_in_setup()

@@ -23,11 +23,11 @@
         %ul
           %li.movement
             = piece_rule.movement_description
-            = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "movement" }
+            = link_to 'Preview', "#", { "data-action" => "preview", "data-variant-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "movement" }
           %li.capture
             = piece_rule.capture_description
             - if piece_rule.range_capture?
-              = link_to 'Preview', "#", { "data-action" => "preview", "data-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "range" }
+              = link_to 'Preview', "#", { "data-action" => "preview", "data-variant-id" => variant.id, "data-piece-type-id" => piece_rule.piece_type_id, "data-type" => "range" }
           - if piece_rule.range_capture?
             %li.restriction
               = piece_rule.range_capture_restriction

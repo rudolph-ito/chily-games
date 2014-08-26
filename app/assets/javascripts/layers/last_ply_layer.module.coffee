@@ -5,7 +5,7 @@ class LastPlyLayer extends HighlightLayer
   constructor: ->
     super
 
-    $('body')
+    @board.container
       .on('LastPly.update', @onUpdate)
       .on('Ply.created', @onPlyCreated)
       .on('ValidPlies.hide', @onValidPliesHide)
@@ -16,11 +16,11 @@ class LastPlyLayer extends HighlightLayer
 
 
   onPlyCreated: (e, data) =>
-    @update(data)
+    @updateDisplay(data)
 
 
   onUpdate: (e, data) =>
-    @update(data)
+    @updateDisplay(data)
 
 
   onValidPliesHide: =>
@@ -34,8 +34,8 @@ class LastPlyLayer extends HighlightLayer
   # Helpers
 
 
-  update: ({from, to, range_capture}) ->
-    @clear(draw: false)
+  updateDisplay: ({from, to, range_capture}) ->
+    @clear()
     @add(from, '#FFFF33')
     @add(to, '#FFFF33') if to?
     @add(range_capture, '#0066CC') if range_capture?
