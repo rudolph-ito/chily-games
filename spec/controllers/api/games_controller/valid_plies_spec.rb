@@ -315,6 +315,8 @@ describe Api::GamesController do
               get :valid_plies, id: game.id, coordinate: {'x'=>'0', 'y'=>'1'}, type: 'movement', format: :json
               expect(response.status).to eql 200
               expect(response.body).to be_json(
+                'type' => 'movement',
+                'origin' => {'x'=>0, 'y'=>1},
                 'valid' => [{"x"=>1, "y"=>2}, {"x"=>1, "y"=>0}, {"x"=>2, "y"=>3}],
                 'reachable' => []
               )
