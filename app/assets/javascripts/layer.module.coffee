@@ -14,7 +14,7 @@ class Layer
   clear: ({draw} = {}) ->
     @coordinate_map.clear()
     @element.removeChildren()
-    @draw() if draw ? true
+    @draw() if draw
 
 
   draw: ->
@@ -31,7 +31,7 @@ class Layer
 
   update: ({draw} = {}) ->
     child.update() for child in @coordinate_map.values()
-    @draw() if draw ? true
+    @draw() if draw
 
 
 module.exports = Layer

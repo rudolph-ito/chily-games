@@ -7,17 +7,19 @@ class PieceLayer extends ObjectLayer
 
   constructor: ->
     super
-    $('body').on 'Ply.created', @onPlyCreated
+    @board.container
+      .on('Pieces.add', @onAddPieces)
+      .on('Ply.created', @onPlyCreated)
 
 
   add_from_data: (data) ->
-    attrs = $.extend data,
-      board: @board
-      layer: @
-
+    attrs = $.extend {board: @board, layer: @}, data
     piece = new @piece_constructor(attrs)
-
     @add(piece)
+
+
+  onAddPieces: (e, data...) =>
+    @add_from_data(datum) for datum in data
 
 
   onPlyCreated: (e, {from, to, range_capture}) =>

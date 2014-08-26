@@ -5,7 +5,8 @@ class ValidPliesLayer extends HighlightLayer
   constructor: ->
     super
 
-    $('body')
+    @board.container
+      .on('Ply.created', @onPlyCreated)
       .on('ValidPlies.hide', @onHide)
       .on('ValidPlies.show', @onShow)
 
@@ -14,13 +15,17 @@ class ValidPliesLayer extends HighlightLayer
 
 
   onHide: =>
-    @clear()
+    @clear(draw: true)
+
+
+  onPlyCreated: =>
+    @clear(draw: true)
 
 
   onShow: (e, {type, origin, valid, reachable}) =>
     [origin_color, valid_color, reachable_color] = @colors(type)
 
-    @clear(draw: false)
+    @clear()
     @add(origin, origin_color)
     @add(coordinate, valid_color) for coordinate in valid
     @add(coordinate, reachable_color) for coordinate in reachable

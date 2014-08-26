@@ -41,9 +41,13 @@
 
 window.expect = chai.expect
 
+beforeEach ->
+  $.getJSON.reset()
+
 before ->
   $('body').append('<div id="teaspoon"></div>')
   @$ = (selector) -> $('#teaspoon').find(selector)
+  sinon.stub $, 'getJSON'
 
 after ->
   $('#teaspoon').remove()

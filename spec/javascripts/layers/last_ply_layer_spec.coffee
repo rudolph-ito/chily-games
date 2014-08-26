@@ -2,7 +2,8 @@ LastPlyLayer = require('layers/last_ply_layer')
 
 describe 'LastPlyLayer', ->
   beforeEach ->
-    @board = { add_layer: sinon.spy() }
+    @container = $('<div></div>')
+    @board = { add_layer: sinon.spy(), container: @container }
     @last_ply_layer = new LastPlyLayer @board
 
   itUpdatesLastPly = (event) ->
@@ -18,11 +19,10 @@ describe 'LastPlyLayer', ->
 
     context 'movement only', ->
       beforeEach ->
-        $('body').trigger(event, {@from, @to})
+        @container.trigger(event, {@from, @to})
 
       it 'clears', ->
         expect(@last_ply_layer.clear).to.have.been.called
-        expect(@last_ply_layer.clear.lastCall.args[0].draw).to.be.false
 
       it 'add two highlights', ->
         expect(@last_ply_layer.add).to.have.been.calledcalledTwice
@@ -35,11 +35,10 @@ describe 'LastPlyLayer', ->
 
     context 'range capture only', ->
       beforeEach ->
-        $('body').trigger(event, {@from, @range_capture})
+        @container.trigger(event, {@from, @range_capture})
 
       it 'clears', ->
         expect(@last_ply_layer.clear).to.have.been.called
-        expect(@last_ply_layer.clear.lastCall.args[0].draw).to.be.false
 
       it 'add two highlights', ->
         expect(@last_ply_layer.add).to.have.been.calledTwice
@@ -52,11 +51,10 @@ describe 'LastPlyLayer', ->
 
     context 'movement and range capture', ->
       beforeEach ->
-        $('body').trigger(event, {@from, @to, @range_capture})
+        @container.trigger(event, {@from, @to, @range_capture})
 
       it 'clears', ->
         expect(@last_ply_layer.clear).to.have.been.called
-        expect(@last_ply_layer.clear.lastCall.args[0].draw).to.be.false
 
       it 'add three highlights', ->
         expect(@last_ply_layer.add).to.have.been.calledThrice
@@ -77,7 +75,7 @@ describe 'LastPlyLayer', ->
   describe 'on ValidPlies.show', ->
     beforeEach ->
       sinon.stub @last_ply_layer, 'hide'
-      $('body').trigger('ValidPlies.show')
+      @container.trigger('ValidPlies.show')
 
     it 'hides', ->
       expect(@last_ply_layer.hide).to.have.been.called
@@ -85,7 +83,7 @@ describe 'LastPlyLayer', ->
     describe 'on ValidPlies.hide', ->
       beforeEach ->
         sinon.stub @last_ply_layer, 'show'
-        $('body').trigger('ValidPlies.hide')
+        @container.trigger('ValidPlies.hide')
 
       it 'shows', ->
         expect(@last_ply_layer.show).to.have.been.called

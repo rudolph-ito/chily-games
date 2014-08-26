@@ -45,55 +45,6 @@ describe 'Board', ->
     Piece::update.restore()
     HighlightLayer::add.restore()
 
-  describe '.preview', ->
-    beforeEach ->
-      sinon.stub $, 'getJSON'
-
-    afterEach ->
-      $.getJSON.restore()
-
-    context 'variant_id only', ->
-      beforeEach ->
-        Board.preview(@container, 1)
-
-      it 'makes a request', ->
-        expect($.getJSON).to.have.been.calledOnce
-        expect($.getJSON.lastCall.args[0]).to.eql "/api/variants/1/preview?"
-
-      context 'when the request returns', ->
-        beforeEach ->
-          sinon.stub Board::, 'draw'
-          $.getJSON.lastCall.callArgWith(1, color: 'alabaster', options: {board_type: 'square'})
-
-        afterEach ->
-          Board::draw.restore()
-
-        it 'creates a board and draws', ->
-          expect(Board::draw).to.have.been.called
-
-    context 'variant_id with piece_type_id and type', ->
-      beforeEach ->
-        Board.preview(@container, 1, {piece_type_id: 2, type: 'movement'})
-
-      it 'makes a request', ->
-        expect($.getJSON).to.have.been.calledOnce
-        expect($.getJSON.lastCall.args[0]).to.eql "/api/variants/1/preview?piece_type_id=2&type=movement"
-
-      context 'when the request returns', ->
-        beforeEach ->
-          $('body').on 'ValidPlies.show', @showValidPliesSpy = sinon.spy()
-          sinon.stub Board::, 'add_pieces'
-          $.getJSON.lastCall.callArgWith(1, color: 'alabaster', options: {board_type: 'square'}, pieces: [{coordinate: {x:0, y:0}}], valid_plies: {type: 'movement', valid: [], reachable: []})
-
-        afterEach ->
-          Board::add_pieces.restore()
-
-        it 'draws pieces', ->
-          expect(Board::add_pieces).to.have.been.called
-
-        it 'highlight_valid_plies', ->
-          expect(@showValidPliesSpy).to.have.been.called
-
   describe '.create', ->
     it 'creates a square board when board_type is square', ->
       @board = Board.create(@container, 'alabaster', {board_type: 'square'}, null)
@@ -240,7 +191,7 @@ describe 'Board', ->
 
         context 'otherwise', ->
           beforeEach ->
-            $('body').on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
+            @container.on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
             @board.click({x:0,y:0})
 
           it 'clears selected_piece', ->
@@ -254,7 +205,7 @@ describe 'Board', ->
 
       context 'coordinate clicked is not the same as the piece coordinate', ->
         beforeEach ->
-          $('body').on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
+          @container.on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
           sinon.stub @board, 'try_move'
           @board.click({x:0,y:0})
 
@@ -275,7 +226,7 @@ describe 'Board', ->
 
     context 'there is temporary move', ->
       beforeEach ->
-        $('body').on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
+        @container.on 'ValidPlies.hide', @hideValidPliesSpy = sinon.spy()
         sinon.stub @board.piece_layer, 'move_by_coordinate'
         @board.temporary_move = { from: {x:1,y:1}, to: {x:0,y:1} }
 
