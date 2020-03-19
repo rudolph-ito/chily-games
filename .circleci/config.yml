@@ -5,4 +5,11 @@ jobs:
       - image: circleci/node:12
     steps:
       - checkout
+      - restore_cache:
+          key: dependencies-{{ checksum "yarn.lock" }}
+      - run: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependencies-{{ checksum "yarn.lock" }}
       - run: yarn lint
