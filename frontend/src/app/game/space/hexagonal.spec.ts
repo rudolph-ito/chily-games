@@ -58,25 +58,31 @@ describe("HexagonalSpace", function() {
     const center: Vector2d = { x: 10, y: 10 };
     const size: number = 10;
 
-    it("returns true if in the space", function() {
-      expect(
-        hexagonalSpace.elementContains(center, size, { x: 10, y: 10 })
-      ).toEqual(true);
-      expect(
-        hexagonalSpace.elementContains(center, size, { x: 13, y: 12 })
-      ).toEqual(true);
-      expect(
-        hexagonalSpace.elementContains(center, size, { x: 8, y: 7 })
-      ).toEqual(true);
+    const trueExamples: Vector2d[] = [
+      { x: 10, y: 10 },
+      { x: 13, y: 12 },
+      { x: 8, y: 7 }
+    ];
+    trueExamples.forEach(example => {
+      it(`returns true if in the space (${JSON.stringify(
+        example
+      )})`, function() {
+        expect(hexagonalSpace.elementContains(center, size, example)).toEqual(
+          true
+        );
+      });
     });
 
-    it("returns false otherwise", function() {
-      expect(
-        hexagonalSpace.elementContains(center, size, { x: 15, y: 12 })
-      ).toEqual(true);
-      expect(
-        hexagonalSpace.elementContains(center, size, { x: 5, y: 4 })
-      ).toEqual(true);
+    const falseExamples: Vector2d[] = [
+      { x: 15, y: 12 },
+      { x: 5, y: 4 }
+    ];
+    falseExamples.forEach(example => {
+      it(`returns false otherwise (${JSON.stringify(example)})`, function() {
+        expect(hexagonalSpace.elementContains(center, size, example)).toEqual(
+          false
+        );
+      });
     });
   });
 });

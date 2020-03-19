@@ -20,3 +20,4 @@
 /coverage/*
 /coverage_js/*
 /node_modules/*
+yarn-error.log

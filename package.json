@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "lint": "eslint 'frontend/**/*.{js,ts}'"
+    "lint": "eslint '{api,frontend}/**/*.{js,ts}'"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "2",
