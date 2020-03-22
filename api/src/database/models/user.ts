@@ -1,8 +1,9 @@
-import { STRING, Model } from "sequelize";
-import { sequelize } from "./";
+import { Model, DataTypes } from "sequelize";
+import { sequelize } from "./connection";
 import { randomBytes, pbkdf2Sync } from "crypto";
 
-class User extends Model {
+export class User extends Model {
+  public userId!: number;
   public email!: string;
   private passwordSalt!: string;
   private passwordHash!: string;
@@ -27,9 +28,29 @@ class User extends Model {
 }
 User.init(
   {
-    email: STRING,
-    passwordHash: STRING,
-    passwordSalt: STRING
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    passwordHash: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    passwordSalt: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   },
-  { sequelize, modelName: "user" }
+  { sequelize }
 );
+
+// Other fields
+// Roles - admin / creator
+// Requested creator (boolean)
