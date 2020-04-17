@@ -44,3 +44,7 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# shared items
+src/app/shared
+tsconfig.shared.json 

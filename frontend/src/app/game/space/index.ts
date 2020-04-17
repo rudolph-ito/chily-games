@@ -2,7 +2,7 @@ import Konva from "konva";
 import terrainType from "../terrain_type";
 import { Vector2d } from "konva/types/types";
 import { IBoard, ISpace, ILayer } from "../intefaces";
-import { doesHaveValue } from "../../utils/value_checker";
+import { doesHaveValue } from "../../shared/utilities/value_checker";
 
 interface ISpaceOptions {
   board?: IBoard;

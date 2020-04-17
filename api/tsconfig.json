@@ -1,14 +1,15 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.shared.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "module": "CommonJS"
   },
   "include": [
     "src/**/*.ts",
   ], 
   "exclude": [
-    "**/*_spec.ts"
+    "**/*.spec.ts"
   ],
   "typeRoots": [
     "./node_modules/@types",

@@ -1,3 +1,8 @@
+certs
 dist
 node_modules
 yarn-error.log
+
+# shared items
+tsconfig.shared.json
+src/shared

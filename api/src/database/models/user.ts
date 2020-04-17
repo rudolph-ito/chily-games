@@ -1,10 +1,14 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
 import { randomBytes, pbkdf2Sync } from "crypto";
+import { IUser } from "../../shared/dtos/authentication";
+
+export const PASSWORD_SALT_SIZE = 128;
+export const PASSWORD_HASH_SIZE = 256;
 
 export class User extends Model {
   public userId!: number;
-  public email!: string;
+  public username!: string;
   private passwordSalt!: string;
   private passwordHash!: string;
 
@@ -18,12 +22,22 @@ export class User extends Model {
     return passwordHash === this.passwordHash;
   }
 
+  serialize(): IUser {
+    return { userId: this.userId, username: this.username };
+  }
+
   static generatePasswordSalt(): string {
-    return randomBytes(128).toString("hex");
+    return randomBytes(PASSWORD_SALT_SIZE).toString("hex");
   }
 
   static generatePasswordHash(password: string, salt: string): string {
-    return pbkdf2Sync(password, salt, 1000, 128, "sha512").toString("hex");
+    return pbkdf2Sync(
+      password,
+      salt,
+      1000,
+      PASSWORD_HASH_SIZE,
+      "sha512"
+    ).toString("hex");
   }
 }
 User.init(
@@ -34,17 +48,17 @@ User.init(
       primaryKey: true,
       autoIncrement: true
     },
-    email: {
+    username: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
     },
     passwordHash: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(PASSWORD_HASH_SIZE * 2),
       allowNull: false
     },
     passwordSalt: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(PASSWORD_SALT_SIZE * 2),
       allowNull: false
     }
   },

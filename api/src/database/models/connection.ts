@@ -1,10 +1,22 @@
 import { Sequelize } from "sequelize";
+import configMap from "../config";
+import { valueOrDefault } from "../../shared/utilities/value_checker";
+import { shouldSequelizeLog } from "../../shared/utilities/env";
 
-const username = process.env.POSTGRES_USERNAME;
-const password = process.env.POSTGRES_PASSWORD;
-const database = process.env.POSTGRES_DATABASE;
-const host = process.env.POSTGRES_HOST;
+const env = valueOrDefault(process.env.NODE_ENV, "development");
+if (!Object.keys(configMap).includes(env)) {
+  throw new Error(`No database config for environment: ${env}`);
+}
 
-const uri = `postgres://${username}:${password}@${host}:5432/${database}`;
+const config = configMap[env];
 
-export const sequelize = new Sequelize(uri);
+export const sequelize = new Sequelize(
+  config.database,
+  config.username,
+  config.password,
+  {
+    dialect: config.dialect,
+    host: config.host,
+    logging: shouldSequelizeLog()
+  }
+);

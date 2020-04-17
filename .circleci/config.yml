@@ -3,6 +3,10 @@ jobs:
   build:
     docker: 
       - image: circleci/node:12-browsers
+      - image: circleci/postgres:12.2-ram
+        environment:
+          - POSTGRES_USER=cyvasse-user
+          - POSTGRES_PASSWORD=test
     steps:
       - checkout
       - restore_cache:
@@ -26,6 +30,8 @@ jobs:
           paths:
             - frontend/node_modules
           key: dependencies-frontend-{{ checksum "frontend/yarn.lock" }}
+      - run: make setup
       - run: yarn lint
       - run: cd api && yarn build
+      - run: cd api && yarn create-databases && yarn test
       - run: cd frontend && yarn test

@@ -1,0 +1,24 @@
+<div mat-dialog-title>
+  Register
+</div>
+<mat-dialog-content>
+  <mat-form-field>
+    <mat-label>Username</mat-label>
+    <input matInput type="text" [formControl]="controls.username">
+    <mat-error>{{ controls.username.getError('invalid') }}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" [formControl]="controls.password">
+    <mat-error>{{ controls.password.getError('invalid') }}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Password Confirmation</mat-label>
+    <input matInput type="password" [formControl]="controls.passwordConfirmation">
+    <mat-error>{{ controls.passwordConfirmation.getError('invalid') }}</mat-error>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button mat-flat-button color="primary" (click)="submit()" cdkFocusInitial>Register</button>
+</mat-dialog-actions>
