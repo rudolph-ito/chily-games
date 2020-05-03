@@ -15,11 +15,6 @@ export interface IRegisterErrors {
   passwordConfirmation?: string;
 }
 
-export interface IRegisterResponse {
-  errors?: IRegisterErrors;
-  user?: IUser;
-}
-
 export interface IUser {
   userId: number;
   username: string;

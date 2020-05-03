@@ -4,6 +4,7 @@ import expressCookieParser from "cookie-parser";
 import expressBodyParser from "body-parser";
 import expressCors from "cors";
 import { initAuthController } from "./auth";
+import { getVariantRouter } from "./variant";
 import { createServer, Server } from "https";
 import { join as pathJoin } from "path";
 import { readFileSync } from "fs";
@@ -52,7 +53,8 @@ export function createExpressApp(
   app.get("/api/health", function(req, res) {
     res.status(200).end();
   });
-  initAuthController(app, "/api/auth");
+  const authenticationRequired = initAuthController(app, "/api/auth");
+  app.use("/api/variants", getVariantRouter(authenticationRequired));
   app.use(errorHandler());
   return app;
 }

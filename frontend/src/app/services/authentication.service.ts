@@ -3,35 +3,47 @@ import { HttpClient } from "@angular/common/http";
 import {
   ILoginRequest,
   IRegisterRequest,
-  IRegisterResponse,
   IUser
 } from "../shared/dtos/authentication";
-import { Observable } from "rxjs";
+import { Observable, Subject, ReplaySubject } from "rxjs";
+import { tap } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root"
 })
 export class AuthenticationService {
-  routePrefix = "/api/auth";
+  private readonly routePrefix = "/api/auth";
+  private readonly userSubscription: ReplaySubject<IUser>;
 
-  constructor(private readonly http: HttpClient) {}
-
-  getUser(): Observable<IUser> {
-    return this.http.get<IUser>(`${this.routePrefix}/user`);
+  constructor(private readonly http: HttpClient) {
+    this.userSubscription = new ReplaySubject<IUser>(1);
   }
 
-  login(request: ILoginRequest): Observable<string> {
-    return this.http.post<string>(`${this.routePrefix}/login`, request);
+  getUserSubject(): Subject<IUser> {
+    return this.userSubscription;
+  }
+
+  login(request: ILoginRequest): Observable<IUser> {
+    return this.http
+      .post<IUser>(`${this.routePrefix}/login`, request)
+      .pipe(tap(user => this.userSubscription.next(user)));
   }
 
   logout(): Observable<Object> {
+    this.userSubscription.next(null);
     return this.http.delete(`${this.routePrefix}/logout`);
   }
 
-  register(request: IRegisterRequest): Observable<IRegisterResponse> {
-    return this.http.post<IRegisterResponse>(
-      `${this.routePrefix}/register`,
-      request
+  register(request: IRegisterRequest): Observable<IUser> {
+    return this.http
+      .post<IUser>(`${this.routePrefix}/register`, request)
+      .pipe(tap(user => this.userSubscription.next(user)));
+  }
+
+  initUser(): void {
+    this.http.get<IUser>(`${this.routePrefix}/user`).subscribe(
+      user => this.userSubscription.next(user),
+      _ => this.userSubscription.next(null)
     );
   }
 }

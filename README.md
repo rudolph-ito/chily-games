@@ -7,12 +7,23 @@ A web application that allows people to create and play their own variants of Cy
 
 ## One time setup
 
-* Run `yarn install` at the root level and in `api` and `frontend` folders
-* Run `make setup`
-* Run `make create-databases`
-  * This needs to rerun anytime after pruning docker volumes
-* Run `sequelize db:migrate` from the `api` folder
+* Run `make install` to install dependencies
+* Run `make generate-local-api-certificate` to generate HTTPS certificate for local development
+* Run `make copy-shared` to copy shared code to `api` / `frontend`
+  * Rerun after any changes to shared code
+* Run `make create-databases` to create development and test databases and migrate the development database
+  * Rerun after pruning docker volumes
+
+## Run app locally
+
+* Run `nf start`
+
+## Lint / Test
+
+* Run `yarn lint --fix`
+* Run `make test-api`
+* Run `make test-frontend`
 
 ## Debugging
 
-* Connect to the database with `docker-compose run database psql -h database -p 5432 -U cyvasse-user` and enter password `test`
+* Connect to the database with `docker-compose run --rm database psql -h database -p 5432 -U cyvasse-user` and enter password `test`

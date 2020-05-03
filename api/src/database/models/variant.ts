@@ -1,5 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
+import { IVariant } from "../../shared/dtos/variant";
+import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 
 export enum BOARD_TYPE {
   SQUARE = "square",
@@ -20,15 +22,29 @@ export class Variant extends Model {
   public boardSize!: number;
   public pieceRanks!: boolean;
   public supportType!: SUPPORT_TYPE;
+  public userId!: number;
 
   requiredForBoards(
     boardType: BOARD_TYPE,
     fieldName: string,
     value: number
   ): void {
-    if (value == null && this.boardType === boardType) {
+    if (doesNotHaveValue(value) && this.boardType === boardType) {
       throw new Error(`${fieldName} is required`);
     }
+  }
+
+  serialize(): IVariant {
+    return {
+      variantId: this.variantId,
+      boardType: this.boardType,
+      boardRows: this.boardRows,
+      boardColumns: this.boardColumns,
+      boardSize: this.boardSize,
+      pieceRanks: this.pieceRanks,
+      supportType: this.supportType,
+      userId: this.userId
+    };
   }
 }
 Variant.init(
@@ -46,24 +62,24 @@ Variant.init(
     boardRows: {
       type: DataTypes.INTEGER,
       validate: {
-        custom(this: Variant, v: number) {
-          this.requiredForBoards(BOARD_TYPE.SQUARE, "board_rows", v);
+        custom(this: Variant, value: number) {
+          this.requiredForBoards(BOARD_TYPE.SQUARE, "board_rows", value);
         }
       }
     },
     boardColumns: {
       type: DataTypes.INTEGER,
       validate: {
-        custom(this: Variant, v: number) {
-          this.requiredForBoards(BOARD_TYPE.SQUARE, "board_columns", v);
+        custom(this: Variant, value: number) {
+          this.requiredForBoards(BOARD_TYPE.SQUARE, "board_columns", value);
         }
       }
     },
     boardSize: {
       type: DataTypes.INTEGER,
       validate: {
-        custom(this: Variant, v: number) {
-          this.requiredForBoards(BOARD_TYPE.HEXAGONAL, "board_size", v);
+        custom(this: Variant, value: number) {
+          this.requiredForBoards(BOARD_TYPE.HEXAGONAL, "board_size", value);
         }
       }
     },
@@ -74,7 +90,13 @@ Variant.init(
         SUPPORT_TYPE.BINARY,
         SUPPORT_TYPE.SUM
       ),
-      allowNull: false
+      validate: {
+        custom(this: Variant, value: SUPPORT_TYPE) {
+          if (doesNotHaveValue(value) && this.pieceRanks) {
+            throw new Error(`supportType is required`);
+          }
+        }
+      }
     }
   },
   { sequelize }

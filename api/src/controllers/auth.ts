@@ -6,19 +6,19 @@ import {
   doesNotHaveValue,
   doesHaveValue
 } from "../shared/utilities/value_checker";
-import { register } from "../services/registration_service";
-import { getUser } from "../services/user_service";
 import { IUser } from "../shared/dtos/authentication";
+import { UserDataService } from "../database/services/user_data_service";
+import { RegistrationService } from "../services/registration_service";
 
 async function verifyLogin(
   username: string,
   password: string
-): Promise<boolean | User> {
+): Promise<boolean | IUser> {
   const user: User = await User.findOne({ where: { username } });
   if (doesNotHaveValue(user)) {
     return false;
   }
-  return user.isPasswordValid(password) ? user : false;
+  return user.isPasswordValid(password) ? user.serialize() : false;
 }
 
 function getJsonStrategy(): passport.Strategy {
@@ -35,18 +35,21 @@ function configurePassport(): void {
     done(null, user.userId);
   });
   passport.deserializeUser(function(id: number, done) {
-    getUser(id)
+    new UserDataService()
+      .getUser(id)
       .then((user: IUser) => done(null, user))
       .catch((err: Error) => done(err));
   });
 }
 
 function getAuthRouter(
-  authenticationRequired: express.Handler
+  authenticationRequired: express.Handler,
+  registrationService: RegistrationService = new RegistrationService()
 ): express.Router {
   const router = express.Router();
   router.post("/register", function(req, res, next) {
-    register(req.body)
+    registrationService
+      .register(req.body)
       .then(({ errors, user }) => {
         if (doesHaveValue(errors)) {
           res.status(424).json(errors);
@@ -55,7 +58,7 @@ function getAuthRouter(
             if (doesHaveValue(err)) {
               next(err);
             } else {
-              res.status(200).end();
+              res.status(200).json(user);
             }
           });
         }
@@ -63,7 +66,7 @@ function getAuthRouter(
       .catch(next);
   });
   router.post("/login", passport.authenticate("json"), function(req, res) {
-    res.status(200).end();
+    res.status(200).json(req.user);
   });
   router.delete("/logout", authenticationRequired, function(req, res) {
     req.logout();

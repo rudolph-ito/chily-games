@@ -1,7 +1,8 @@
 import { describe, it } from "mocha";
-import { register } from "./registration_service";
+import { RegistrationService } from "./registration_service";
 import { expect } from "chai";
 import { resetDatabaseBeforeEach } from "../../test/test_helper";
+import { createTestUser } from "../../test/database_factory";
 
 const weakPassword = "weak";
 const strongPassword = "strong enough";
@@ -9,12 +10,17 @@ const strongPassword = "strong enough";
 describe("RegistrationService", () => {
   resetDatabaseBeforeEach();
 
+  let service: RegistrationService;
+  beforeEach(() => {
+    service = new RegistrationService();
+  });
+
   describe("register", () => {
     it("returns error if missing username", async () => {
       // Arrange
 
       // Act
-      const result = await register({
+      const result = await service.register({
         username: "",
         password: strongPassword,
         passwordConfirmation: strongPassword
@@ -30,7 +36,7 @@ describe("RegistrationService", () => {
       // Arrange
 
       // Act
-      const result = await register({
+      const result = await service.register({
         username: "me",
         password: "",
         passwordConfirmation: ""
@@ -46,7 +52,7 @@ describe("RegistrationService", () => {
       // Arrange
 
       // Act
-      const result = await register({
+      const result = await service.register({
         username: "me",
         password: weakPassword,
         passwordConfirmation: weakPassword
@@ -63,7 +69,7 @@ describe("RegistrationService", () => {
       // Arrange
 
       // Act
-      const result = await register({
+      const result = await service.register({
         username: "me",
         password: strongPassword,
         passwordConfirmation: weakPassword
@@ -76,14 +82,27 @@ describe("RegistrationService", () => {
     });
 
     it("returns error if username already taken", async () => {
-      // TODO
+      // Arrange
+      await createTestUser({ username: "me" });
+
+      // Act
+      const result = await service.register({
+        username: "me",
+        password: strongPassword,
+        passwordConfirmation: strongPassword
+      });
+
+      // Assert
+      expect(result.errors).to.eql({
+        username: "Username 'me' is already taken"
+      });
     });
 
     it("returns user if given valid credentials", async () => {
       // Arrange
 
       // Act
-      const result = await register({
+      const result = await service.register({
         username: "user1",
         password: strongPassword,
         passwordConfirmation: strongPassword

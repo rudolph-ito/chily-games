@@ -1,0 +1,24 @@
+<h1>
+  Variant ID: {{ getVariantId() }}
+</h1>
+
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+<div class="field-container mat-elevation-z8">
+  <table mat-table [dataSource]="fieldsDataSource">
+
+    <ng-container matColumnDef="label">
+      <td mat-cell *matCellDef="let element"> {{element.label}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+      <td mat-cell *matCellDef="let element"> {{element.value}} </td>
+    </ng-container>
+
+    <tr mat-row *matRowDef="let row; columns: ['label', 'value'];"></tr>
+  </table>
+</div>
+
+<div *ngIf="isLoggedInUserCreatorObservable | async " class="actions-container">
+  <button mat-button mat-flat-button color="primary" routerLink="/variants/{{ variant.variantId }}/edit">Edit</button>
+</div>

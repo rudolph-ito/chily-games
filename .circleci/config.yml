@@ -30,7 +30,7 @@ jobs:
           paths:
             - frontend/node_modules
           key: dependencies-frontend-{{ checksum "frontend/yarn.lock" }}
-      - run: make setup
+      - run: make copy-shared
       - run: yarn lint
       - run: cd api && yarn build
       - run: cd api && yarn create-databases && yarn test

@@ -6,7 +6,7 @@
     "start-dev": "node -r ts-node/register src/main.ts",
     "start-dev:watch": "nodemon",
     "start-prod": "node dist/main.js",
-    "test": "NODE_ENV=test POSTGRES_HOST=localhost mocha 'src/**/*.spec.ts'"
+    "test": "NODE_ENV=test mocha 'src/**/*.spec.ts'"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

@@ -27,8 +27,25 @@ module.exports = {
         allowNull: false
       },
       supportType: {
-        type: Sequelize.ENUM("none", "binary", "sum"),
-        allowNull: false
+        type: Sequelize.ENUM("none", "binary", "sum")
+      },
+      userId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: "Users"
+          },
+          key: "userId"
+        }
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
       }
     });
   },

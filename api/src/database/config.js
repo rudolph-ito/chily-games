@@ -3,14 +3,14 @@ module.exports = {
     username: "cyvasse-user",
     password: "test",
     database: "cyvasse_development",
-    host: process.env.POSTGRES_HOST,
+    host: "localhost",
     dialect: "postgres"
   },
   test: {
     username: "cyvasse-user",
     password: "test",
     database: "cyvasse_test",
-    host: process.env.POSTGRES_HOST,
+    host: "localhost",
     dialect: "postgres"
   },
   production: {
