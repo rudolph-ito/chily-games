@@ -14,12 +14,12 @@ interface IUserLoginControls {
 @Component({
   selector: "app-user-login-form-dialog",
   templateUrl: "./user-login-form-dialog.component.html",
-  styleUrls: ["./user-login-form-dialog.component.styl"]
+  styleUrls: ["./user-login-form-dialog.component.styl"],
 })
 export class UserLoginFormDialogComponent implements OnInit {
   controls: IUserLoginControls = {
     username: new FormControl(),
-    password: new FormControl()
+    password: new FormControl(),
   };
 
   constructor(
@@ -32,7 +32,7 @@ export class UserLoginFormDialogComponent implements OnInit {
   submit(): void {
     const request: ILoginRequest = {
       username: this.controls.username.value,
-      password: this.controls.password.value
+      password: this.controls.password.value,
     };
     this.authenticationService.login(request).subscribe(
       () => {

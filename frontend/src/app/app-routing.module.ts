@@ -9,35 +9,35 @@ import { VariantShowComponent } from "./components/variant-show/variant-show.com
 const routes: Routes = [
   {
     path: "home",
-    component: HomeComponent
+    component: HomeComponent,
   },
   {
     path: "variants",
-    component: VariantsIndexComponent
+    component: VariantsIndexComponent,
   },
   {
     path: "variants/new",
     component: VariantFormComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: "variants/:id",
-    component: VariantShowComponent
+    component: VariantShowComponent,
   },
   {
     path: "variants/:id/edit",
     component: VariantFormComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
   {
     path: "",
     redirectTo: "/home",
-    pathMatch: "full"
-  }
+    pathMatch: "full",
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

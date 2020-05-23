@@ -5,7 +5,7 @@ import { AppModule } from "./app.module";
 import { AuthenticationService } from "./services/authentication.service";
 import {
   getMockAuthenticationService,
-  IMockedAuthenticationService
+  IMockedAuthenticationService,
 } from "./test/mock-services";
 
 describe("AppComponent", () => {
@@ -20,9 +20,9 @@ describe("AppComponent", () => {
       providers: [
         {
           provide: AuthenticationService,
-          useValue: mockedAuthenticationService.service
-        }
-      ]
+          useValue: mockedAuthenticationService.service,
+        },
+      ],
     }).compileComponents();
   });
 

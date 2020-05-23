@@ -12,11 +12,11 @@ describe("VariantsIndexComponent", () => {
 
   beforeEach(async () => {
     mockVariantService = {
-      search: () => of({ data: [], total: 0 })
+      search: () => of({ data: [], total: 0 }),
     };
     await TestBed.configureTestingModule({
       imports: [AppModule],
-      providers: [{ provide: VariantService, useValue: mockVariantService }]
+      providers: [{ provide: VariantService, useValue: mockVariantService }],
     }).compileComponents();
   });
 

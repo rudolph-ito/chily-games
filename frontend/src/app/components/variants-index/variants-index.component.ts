@@ -11,7 +11,7 @@ import { map } from "rxjs/operators";
 @Component({
   selector: "app-variants-index",
   templateUrl: "./variants-index.component.html",
-  styleUrls: ["./variants-index.component.styl"]
+  styleUrls: ["./variants-index.component.styl"],
 })
 export class VariantsIndexComponent implements OnInit {
   loading: boolean;
@@ -32,13 +32,13 @@ export class VariantsIndexComponent implements OnInit {
     this.loading = true;
     this.variantService
       .search({ pagination: { pageIndex: 0, pageSize: 100 } })
-      .subscribe(result => {
+      .subscribe((result) => {
         this.loading = false;
         this.variantsDataSource.data = result.data;
         this.total = result.total;
       });
     this.userLoggedInObservable = this.authenticationService
       .getUserSubject()
-      .pipe(map(x => doesHaveValue(x)));
+      .pipe(map((x) => doesHaveValue(x)));
   }
 }

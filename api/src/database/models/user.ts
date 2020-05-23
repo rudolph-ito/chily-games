@@ -46,21 +46,21 @@ User.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     passwordHash: {
       type: DataTypes.STRING(PASSWORD_HASH_SIZE * 2),
-      allowNull: false
+      allowNull: false,
     },
     passwordSalt: {
       type: DataTypes.STRING(PASSWORD_SALT_SIZE * 2),
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   { sequelize }
 );

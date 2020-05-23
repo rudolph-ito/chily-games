@@ -11,5 +11,5 @@ startServer({
   port,
   sessionCookieSecure,
   sessionSecret,
-  shouldLog: true
+  shouldLog: true,
 });

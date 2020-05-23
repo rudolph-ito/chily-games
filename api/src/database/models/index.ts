@@ -1,15 +1,17 @@
 import { User } from "./user";
 import { Variant } from "./variant";
 import { sequelize } from "./connection";
+import { PieceRule } from "./piece_rule";
+
+// PieceRule
+PieceRule.belongsTo(Variant, { foreignKey: "variantId" });
 
 // User
 User.hasMany(Variant, { foreignKey: "userId" });
 
 // Variant
 Variant.belongsTo(User, { foreignKey: "userId" });
-// has_many :games, dependent: :destroy
-// has_many :piece_rules, dependent: :destroy
-// has_many :terrain_rules, dependent: :destroy
+Variant.hasMany(PieceRule, { foreignKey: "variantId" });
 
 // Classes should be imported from so associations are setup properly
-export { sequelize, User, Variant };
+export { sequelize, PieceRule, User, Variant };

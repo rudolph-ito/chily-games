@@ -36,7 +36,7 @@ import { VariantShowComponent } from "./components/variant-show/variant-show.com
     UserLoginFormDialogComponent,
     VariantsIndexComponent,
     VariantFormComponent,
-    VariantShowComponent
+    VariantShowComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -55,9 +55,9 @@ import { VariantShowComponent } from "./components/variant-show/variant-show.com
     MatSelectModule,
     MatTableModule,
     MatToolbarModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

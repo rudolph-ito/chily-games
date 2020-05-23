@@ -4,12 +4,12 @@ import { Observable } from "rxjs";
 import {
   IVariant,
   ISearchVariantsRequest,
-  IVariantOptions
+  IVariantOptions,
 } from "../shared/dtos/variant";
 import { IPaginatedResponse } from "../shared/dtos/search";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class VariantService {
   routePrefix = "/api/variants";

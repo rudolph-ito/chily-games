@@ -7,50 +7,50 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
       },
       boardType: {
         type: Sequelize.ENUM("square", "hexagonal"),
-        allowNull: false
+        allowNull: false,
       },
       boardRows: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       boardColumns: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       boardSize: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       pieceRanks: {
         type: Sequelize.BOOLEAN,
-        allowNull: false
+        allowNull: false,
       },
       supportType: {
-        type: Sequelize.ENUM("none", "binary", "sum")
+        type: Sequelize.ENUM("none", "binary", "sum"),
       },
       userId: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: {
-            tableName: "Users"
+            tableName: "Users",
           },
-          key: "userId"
-        }
+          key: "userId",
+        },
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable("Variants");
-  }
+  },
 };

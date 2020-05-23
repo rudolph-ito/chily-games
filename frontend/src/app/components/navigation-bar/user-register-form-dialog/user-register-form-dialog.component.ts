@@ -3,7 +3,7 @@ import { FormControl } from "@angular/forms";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import {
   IRegisterRequest,
-  IRegisterErrors
+  IRegisterErrors,
 } from "src/app/shared/dtos/authentication";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatDialogRef } from "@angular/material/dialog";
@@ -18,13 +18,13 @@ interface IUserRegisterControls {
 @Component({
   selector: "app-user-register-form-dialog",
   templateUrl: "./user-register-form-dialog.component.html",
-  styleUrls: ["./user-register-form-dialog.component.styl"]
+  styleUrls: ["./user-register-form-dialog.component.styl"],
 })
 export class UserRegisterFormDialogComponent implements OnInit {
   controls: IUserRegisterControls = {
     username: new FormControl(),
     password: new FormControl(),
-    passwordConfirmation: new FormControl()
+    passwordConfirmation: new FormControl(),
   };
 
   constructor(
@@ -38,14 +38,14 @@ export class UserRegisterFormDialogComponent implements OnInit {
     const request: IRegisterRequest = {
       username: this.controls.username.value,
       password: this.controls.password.value,
-      passwordConfirmation: this.controls.passwordConfirmation.value
+      passwordConfirmation: this.controls.passwordConfirmation.value,
     };
     this.authenticationService.register(request).subscribe(
       () => {
         this.matDialogRef.close(true);
       },
       (errorResponse: HttpErrorResponse) => {
-        if (errorResponse.status === 424) {
+        if (errorResponse.status === 422) {
           const errors: IRegisterErrors = errorResponse.error;
           setError(this.controls.username, errors.username);
           setError(this.controls.password, errors.password);

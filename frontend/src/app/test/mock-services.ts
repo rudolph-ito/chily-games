@@ -14,7 +14,7 @@ export function getMockAuthenticationService(): IMockedAuthenticationService {
     userSubject,
     service: {
       getUserSubject: () => userSubject,
-      initUser: () => {}
-    }
+      initUser: () => {},
+    },
   };
 }

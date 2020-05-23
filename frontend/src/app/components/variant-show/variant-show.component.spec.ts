@@ -5,7 +5,7 @@ import { VariantService } from "src/app/services/variant.service";
 import { RouterTestingModule } from "@angular/router/testing";
 import { AppModule } from "src/app/app.module";
 import { of } from "rxjs";
-import { BOARD_TYPE } from "src/app/shared/dtos/variant";
+import { BoardType } from "src/app/shared/dtos/variant";
 
 describe("VariantShowComponent", () => {
   let component: VariantShowComponent;
@@ -18,14 +18,14 @@ describe("VariantShowComponent", () => {
         of({
           variantId: 1,
           userId: 1,
-          boardType: BOARD_TYPE.HEXAGONAL,
+          boardType: BoardType.HEXAGONAL,
           boardSize: 5,
-          pieceRanks: false
-        })
+          pieceRanks: false,
+        }),
     };
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule, AppModule],
-      providers: [{ provide: VariantService, useValue: mockVariantService }]
+      providers: [{ provide: VariantService, useValue: mockVariantService }],
     }).compileComponents();
   });
 

@@ -10,7 +10,7 @@ describe("AuthRoutes", () => {
   const app = createExpressApp({
     corsOrigins: [],
     sessionCookieSecure: false,
-    sessionSecret: "test"
+    sessionSecret: "test",
   });
 
   describe("accessing protected routes while not logged in", () => {
@@ -18,9 +18,7 @@ describe("AuthRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
-        .get("/api/auth/user")
-        .expect(401);
+      await supertest(app).get("/api/auth/user").expect(401);
 
       // Assert
     });
@@ -29,9 +27,7 @@ describe("AuthRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
-        .delete("/api/auth/logout")
-        .expect(401);
+      await supertest(app).delete("/api/auth/logout").expect(401);
 
       // Assert
     });
@@ -94,7 +90,7 @@ describe("AuthRoutes", () => {
         // Assert
         expect(response.body).to.eql({
           userId: 1,
-          username
+          username,
         });
       });
 
@@ -130,13 +126,13 @@ describe("AuthRoutes", () => {
       // Assert
       expect(response.body).to.eql({
         userId: 1,
-        username
+        username,
       });
     });
   });
 
   describe("register flow", () => {
-    it("on validation error, it returns 424", async () => {
+    it("on validation error, it returns 422", async () => {
       // Arrange
 
       // Act
@@ -145,12 +141,12 @@ describe("AuthRoutes", () => {
         .send({ username: "", password: "", passwordConfirmation: "" })
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
-        .expect(424);
+        .expect(422);
 
       // Assert
       expect(response.body).to.eql({
         password: "Password is required",
-        username: "Username is required"
+        username: "Username is required",
       });
     });
 

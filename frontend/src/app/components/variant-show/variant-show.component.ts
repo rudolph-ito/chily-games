@@ -17,7 +17,7 @@ export interface IField {
 @Component({
   selector: "app-variant-show",
   templateUrl: "./variant-show.component.html",
-  styleUrls: ["./variant-show.component.styl"]
+  styleUrls: ["./variant-show.component.styl"],
 })
 export class VariantShowComponent implements OnInit {
   loading = false;
@@ -33,13 +33,13 @@ export class VariantShowComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.variantService.get(this.getVariantId()).subscribe(variant => {
+    this.variantService.get(this.getVariantId()).subscribe((variant) => {
       this.loading = false;
       this.variant = variant;
       this.updateFields();
       this.isLoggedInUserCreatorObservable = this.authenticationService
         .getUserSubject()
-        .pipe(map(x => doesHaveValue(x) && x.userId === this.variant.userId));
+        .pipe(map((x) => doesHaveValue(x) && x.userId === this.variant.userId));
     });
   }
 
@@ -51,12 +51,12 @@ export class VariantShowComponent implements OnInit {
     this.fieldsDataSource.data = [
       {
         label: "Variant ID",
-        value: this.variant.variantId.toString()
+        value: this.variant.variantId.toString(),
       },
       {
         label: "Board Description",
-        value: getBoardDescription(this.variant)
-      }
+        value: getBoardDescription(this.variant),
+      },
     ];
   }
 }

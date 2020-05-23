@@ -4,10 +4,10 @@ import { Strategy as JsonStrategy } from "passport-json";
 import { User } from "../database/models";
 import {
   doesNotHaveValue,
-  doesHaveValue
+  doesHaveValue,
 } from "../shared/utilities/value_checker";
 import { IUser } from "../shared/dtos/authentication";
-import { UserDataService } from "../database/services/user_data_service";
+import { UserDataService } from "../services/data/user_data_service";
 import { RegistrationService } from "../services/registration_service";
 
 async function verifyLogin(
@@ -22,19 +22,19 @@ async function verifyLogin(
 }
 
 function getJsonStrategy(): passport.Strategy {
-  return new JsonStrategy(function(username, password, done) {
+  return new JsonStrategy(function (username, password, done) {
     verifyLogin(username, password)
-      .then(result => done(null, result))
-      .catch(err => done(err));
+      .then((result) => done(null, result))
+      .catch((err) => done(err));
   });
 }
 
 function configurePassport(): void {
   passport.use(getJsonStrategy());
-  passport.serializeUser(function(user: User, done) {
+  passport.serializeUser(function (user: User, done) {
     done(null, user.userId);
   });
-  passport.deserializeUser(function(id: number, done) {
+  passport.deserializeUser(function (id: number, done) {
     new UserDataService()
       .getUser(id)
       .then((user: IUser) => done(null, user))
@@ -47,14 +47,14 @@ function getAuthRouter(
   registrationService: RegistrationService = new RegistrationService()
 ): express.Router {
   const router = express.Router();
-  router.post("/register", function(req, res, next) {
+  router.post("/register", function (req, res, next) {
     registrationService
       .register(req.body)
       .then(({ errors, user }) => {
         if (doesHaveValue(errors)) {
-          res.status(424).json(errors);
+          res.status(422).json(errors);
         } else {
-          req.login(user, err => {
+          req.login(user, (err) => {
             if (doesHaveValue(err)) {
               next(err);
             } else {
@@ -65,14 +65,14 @@ function getAuthRouter(
       })
       .catch(next);
   });
-  router.post("/login", passport.authenticate("json"), function(req, res) {
+  router.post("/login", passport.authenticate("json"), function (req, res) {
     res.status(200).json(req.user);
   });
-  router.delete("/logout", authenticationRequired, function(req, res) {
+  router.delete("/logout", authenticationRequired, function (req, res) {
     req.logout();
     res.status(200).end();
   });
-  router.get("/user", authenticationRequired, function(req, res) {
+  router.get("/user", authenticationRequired, function (req, res) {
     res.json(req.user);
   });
   return router;
@@ -82,7 +82,7 @@ export function initAuthController(
   app: express.Express,
   routePrefix: string
 ): express.Handler {
-  const authenticationRequired: express.Handler = function(req, res, next) {
+  const authenticationRequired: express.Handler = function (req, res, next) {
     if (doesHaveValue(req.user)) {
       next();
     } else {

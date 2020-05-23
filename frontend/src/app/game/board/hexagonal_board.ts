@@ -37,15 +37,15 @@ export class HexagonalBoard extends BaseBoard {
     this.spaceRadius = Math.min(maxVerticalRadius, maxHorizontalRadius);
     this.spaceDelta = {
       x: this.spaceRadius * Math.cos(Math.PI / 6),
-      y: (this.spaceRadius * 3) / 2
+      y: (this.spaceRadius * 3) / 2,
     };
     this.size = {
       x: this.spaceRadius * horizontalRadii,
-      y: this.spaceRadius * verticalRadii
+      y: this.spaceRadius * verticalRadii,
     };
     this.center = {
       x: this.size.x / 2,
-      y: this.size.y / 2
+      y: this.size.y / 2,
     };
   }
 
@@ -71,7 +71,7 @@ export class HexagonalBoard extends BaseBoard {
       radius: 1,
       sides: 6,
       stroke: "#000",
-      strokeWidth: 1
+      strokeWidth: 1,
     });
     this.spaceLayer.add(polygon);
     this.setSpaceSize(polygon);
@@ -86,7 +86,7 @@ export class HexagonalBoard extends BaseBoard {
   coordinateToPosition(coordiante: Vector2d): Vector2d {
     const relative = {
       x: (coordiante.x * 2 + coordiante.y) * this.spaceDelta.x,
-      y: coordiante.y * this.spaceDelta.y
+      y: coordiante.y * this.spaceDelta.y,
     };
 
     if (this.color === PlayerColor.ONYX) {
@@ -96,7 +96,7 @@ export class HexagonalBoard extends BaseBoard {
 
     return {
       x: this.center.x + relative.x + this.getOffset().x,
-      y: this.center.y + relative.y + this.getOffset().y
+      y: this.center.y + relative.y + this.getOffset().y,
     };
   }
 }

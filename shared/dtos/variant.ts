@@ -1,23 +1,23 @@
 import { IPaginationRequest } from "./search";
 
-export enum BOARD_TYPE {
+export enum BoardType {
   SQUARE = "square",
-  HEXAGONAL = "hexagonal"
+  HEXAGONAL = "hexagonal",
 }
 
-export enum SUPPORT_TYPE {
+export enum SupportType {
   NONE = "none",
   BINARY = "binary",
-  SUM = "sum"
+  SUM = "sum",
 }
 
 export interface IVariantOptions {
-  boardType: BOARD_TYPE;
+  boardType: BoardType;
   boardRows?: number;
   boardColumns?: number;
   boardSize?: number;
   pieceRanks: boolean;
-  supportType?: SUPPORT_TYPE;
+  supportType?: SupportType;
 }
 
 export interface IVariant extends IVariantOptions {

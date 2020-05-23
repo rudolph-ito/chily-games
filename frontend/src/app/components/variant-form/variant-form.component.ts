@@ -3,14 +3,14 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
-  AfterViewInit
+  AfterViewInit,
 } from "@angular/core";
 import {
-  BOARD_TYPE,
-  SUPPORT_TYPE,
   IVariantOptions,
   IVariantValidationErrors,
-  IVariant
+  IVariant,
+  BoardType,
+  SupportType,
 } from "../../shared/dtos/variant";
 import { FormControl } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
@@ -24,23 +24,23 @@ import { HexagonalBoard } from "src/app/game/board/hexagonal_board";
 
 interface IBoardTypeOption {
   name: string;
-  value: BOARD_TYPE;
+  value: BoardType;
 }
 
 const BOARD_TYPE_OPTIONS: IBoardTypeOption[] = [
-  { name: "Hexagonal", value: BOARD_TYPE.HEXAGONAL },
-  { name: "Square", value: BOARD_TYPE.SQUARE }
+  { name: "Hexagonal", value: BoardType.HEXAGONAL },
+  { name: "Square", value: BoardType.SQUARE },
 ];
 
 interface ISupportTypeOption {
   name: string;
-  value: SUPPORT_TYPE;
+  value: SupportType;
 }
 
 const SUPPORT_TYPE_OPTIONS: ISupportTypeOption[] = [
-  { name: "None", value: SUPPORT_TYPE.NONE },
-  { name: "Binary", value: SUPPORT_TYPE.BINARY },
-  { name: "Sum", value: SUPPORT_TYPE.SUM }
+  { name: "None", value: SupportType.NONE },
+  { name: "Binary", value: SupportType.BINARY },
+  { name: "Sum", value: SupportType.SUM },
 ];
 
 interface IVariantFormControls {
@@ -55,7 +55,7 @@ interface IVariantFormControls {
 @Component({
   selector: "app-variant-form",
   templateUrl: "./variant-form.component.html",
-  styleUrls: ["./variant-form.component.styl"]
+  styleUrls: ["./variant-form.component.styl"],
 })
 export class VariantFormComponent implements OnInit, AfterViewInit {
   loading = false;
@@ -68,7 +68,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     boardColumns: new FormControl(8),
     boardRows: new FormControl(8),
     pieceRanks: new FormControl(false),
-    supportType: new FormControl()
+    supportType: new FormControl(),
   };
 
   board: BaseBoard;
@@ -86,7 +86,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
       this.loading = true;
       this.variantService
         .get(this.route.snapshot.params.id)
-        .subscribe(variant => {
+        .subscribe((variant) => {
           this.loading = false;
           this.controls.boardType.setValue(variant.boardType);
           this.controls.boardSize.setValue(variant.boardSize);
@@ -117,18 +117,18 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
       this.board = new SquareBoard(this.boardContainer.nativeElement, {
         layout: {
           boardColumns: this.controls.boardColumns.value,
-          boardRows: this.controls.boardRows.value
+          boardRows: this.controls.boardRows.value,
         },
-        color: PlayerColor.ONYX
+        color: PlayerColor.ONYX,
       });
       this.board.draw();
     }
     if (this.isBoardTypeHexagonal()) {
       this.board = new HexagonalBoard(this.boardContainer.nativeElement, {
         layout: {
-          boardSize: this.controls.boardSize.value
+          boardSize: this.controls.boardSize.value,
         },
-        color: PlayerColor.ONYX
+        color: PlayerColor.ONYX,
       });
       this.board.draw();
     }
@@ -143,11 +143,11 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
   }
 
   isBoardTypeHexagonal(): boolean {
-    return this.controls.boardType.value === BOARD_TYPE.HEXAGONAL;
+    return this.controls.boardType.value === BoardType.HEXAGONAL;
   }
 
   isBoardTypeSquare(): boolean {
-    return this.controls.boardType.value === BOARD_TYPE.SQUARE;
+    return this.controls.boardType.value === BoardType.SQUARE;
   }
 
   hasPieceRanks(): boolean {
@@ -172,15 +172,15 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
       boardColumns: this.controls.boardColumns.value,
       boardRows: this.controls.boardRows.value,
       pieceRanks: this.controls.pieceRanks.value,
-      supportType: this.controls.supportType.value
+      supportType: this.controls.supportType.value,
     };
     this.loading = true;
     this.save(request).subscribe(
       () => {
         this.goToVariants();
       },
-      errorResponse => {
-        if (errorResponse.status === 424) {
+      (errorResponse) => {
+        if (errorResponse.status === 422) {
           const errors: IVariantValidationErrors = errorResponse.error;
           setError(this.controls.boardType, errors.boardType);
           setError(this.controls.boardSize, errors.boardSize);

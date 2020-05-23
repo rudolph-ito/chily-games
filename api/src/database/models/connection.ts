@@ -17,6 +17,6 @@ export const sequelize = new Sequelize(
   {
     dialect: config.dialect,
     host: config.host,
-    logging: shouldSequelizeLog()
+    logging: shouldSequelizeLog(),
   }
 );

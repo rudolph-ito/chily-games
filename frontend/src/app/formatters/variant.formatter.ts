@@ -1,9 +1,9 @@
-import { IVariant, BOARD_TYPE } from "../shared/dtos/variant";
+import { IVariant, BoardType } from "../shared/dtos/variant";
 
 export function getBoardDescription(variant: IVariant): string {
-  if (variant.boardType === BOARD_TYPE.HEXAGONAL) {
+  if (variant.boardType === BoardType.HEXAGONAL) {
     return `Hexagonal (size: ${variant.boardSize})`;
-  } else if (variant.boardType === BOARD_TYPE.SQUARE) {
+  } else if (variant.boardType === BoardType.SQUARE) {
     return `Square (${variant.boardRows}x${variant.boardColumns})`;
   }
   return "Unknown";

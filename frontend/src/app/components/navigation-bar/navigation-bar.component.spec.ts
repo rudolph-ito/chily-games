@@ -9,7 +9,7 @@ describe("NavigationBarComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppModule]
+      imports: [AppModule],
     }).compileComponents();
   });
 

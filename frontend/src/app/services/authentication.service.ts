@@ -3,13 +3,13 @@ import { HttpClient } from "@angular/common/http";
 import {
   ILoginRequest,
   IRegisterRequest,
-  IUser
+  IUser,
 } from "../shared/dtos/authentication";
 import { Observable, Subject, ReplaySubject } from "rxjs";
 import { tap } from "rxjs/operators";
 
 @Injectable({
-  providedIn: "root"
+  providedIn: "root",
 })
 export class AuthenticationService {
   private readonly routePrefix = "/api/auth";
@@ -26,7 +26,7 @@ export class AuthenticationService {
   login(request: ILoginRequest): Observable<IUser> {
     return this.http
       .post<IUser>(`${this.routePrefix}/login`, request)
-      .pipe(tap(user => this.userSubscription.next(user)));
+      .pipe(tap((user) => this.userSubscription.next(user)));
   }
 
   logout(): Observable<Object> {
@@ -37,13 +37,13 @@ export class AuthenticationService {
   register(request: IRegisterRequest): Observable<IUser> {
     return this.http
       .post<IUser>(`${this.routePrefix}/register`, request)
-      .pipe(tap(user => this.userSubscription.next(user)));
+      .pipe(tap((user) => this.userSubscription.next(user)));
   }
 
   initUser(): void {
     this.http.get<IUser>(`${this.routePrefix}/user`).subscribe(
-      user => this.userSubscription.next(user),
-      _ => this.userSubscription.next(null)
+      (user) => this.userSubscription.next(user),
+      (_) => this.userSubscription.next(null)
     );
   }
 }

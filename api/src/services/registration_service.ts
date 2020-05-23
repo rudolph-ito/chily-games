@@ -1,17 +1,14 @@
 import {
   doesNotHaveValue,
-  doesHaveValue
+  doesHaveValue,
 } from "../shared/utilities/value_checker";
 import zxcvbn from "zxcvbn";
 import {
   IRegisterRequest,
   IRegisterErrors,
-  IUser
+  IUser,
 } from "../shared/dtos/authentication";
-import {
-  IUserDataService,
-  UserDataService
-} from "../database/services/user_data_service";
+import { IUserDataService, UserDataService } from "./data/user_data_service";
 
 export interface IRegisterResponse {
   errors?: IRegisterErrors;

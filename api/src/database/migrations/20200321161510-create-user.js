@@ -6,32 +6,32 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       username: {
         allowNull: false,
         type: Sequelize.STRING,
-        unique: true
+        unique: true,
       },
       passwordSalt: {
         allowNull: false,
-        type: Sequelize.STRING(256)
+        type: Sequelize.STRING(256),
       },
       passwordHash: {
         allowNull: false,
-        type: Sequelize.STRING(512)
+        type: Sequelize.STRING(512),
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable("Users");
-  }
+  },
 };

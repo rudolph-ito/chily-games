@@ -3,7 +3,7 @@ import { Vector2d } from "konva/types/types";
 
 export enum PlayerColor {
   ALABASTER = "alabaster",
-  ONYX = "onyx"
+  ONYX = "onyx",
 }
 
 export abstract class BaseBoard {
@@ -21,7 +21,7 @@ export abstract class BaseBoard {
     this.stage = new Konva.Stage({
       container: this.container,
       height: this.container.offsetHeight,
-      width: this.container.offsetWidth
+      width: this.container.offsetWidth,
     });
     this.spaceLayer = new Konva.Layer();
     this.stage.add(this.spaceLayer);
@@ -30,14 +30,14 @@ export abstract class BaseBoard {
   protected getMaxSize(): Vector2d {
     return {
       x: this.container.offsetWidth - 2 * this.padding,
-      y: this.container.offsetHeight - 2 * this.padding
+      y: this.container.offsetHeight - 2 * this.padding,
     };
   }
 
   protected getOffset(): Vector2d {
     return {
       x: (this.container.offsetWidth - this.size.x) / 2,
-      y: (this.container.offsetHeight - this.size.y) / 2
+      y: (this.container.offsetHeight - this.size.y) / 2,
     };
   }
 
@@ -51,7 +51,7 @@ export abstract class BaseBoard {
     var text = new Konva.Text({
       x: shape.attrs.x,
       y: shape.attrs.y,
-      text: `${coordinate.x},${coordinate.y}`
+      text: `${coordinate.x},${coordinate.y}`,
     });
     this.spaceLayer.add(text);
   }

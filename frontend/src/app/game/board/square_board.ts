@@ -32,7 +32,7 @@ export class SquareBoard extends BaseBoard {
     this.spaceSize = Math.min(maxSpaceWidth, maxSpaceHeight);
     this.size = {
       x: this.spaceSize * this.layout.boardColumns,
-      y: this.spaceSize * this.layout.boardRows
+      y: this.spaceSize * this.layout.boardRows,
     };
   }
 
@@ -47,7 +47,7 @@ export class SquareBoard extends BaseBoard {
   public addSpace(coordinate: Vector2d): void {
     const rect = new Konva.Rect({
       stroke: "#000",
-      strokeWidth: 1
+      strokeWidth: 1,
     });
     this.spaceLayer.add(rect);
     this.setSpaceSize(rect);
@@ -58,7 +58,7 @@ export class SquareBoard extends BaseBoard {
   public setSpaceSize(space: Konva.Rect): void {
     space.offset({
       x: this.spaceSize / 2,
-      y: this.spaceSize / 2
+      y: this.spaceSize / 2,
     });
     space.width(this.spaceSize);
     space.height(this.spaceSize);
@@ -67,7 +67,7 @@ export class SquareBoard extends BaseBoard {
   public coordinateToPosition(coordinate: Vector2d): Vector2d {
     const position = {
       x: coordinate.x * this.spaceSize + this.spaceSize / 2,
-      y: coordinate.y * this.spaceSize + this.spaceSize / 2
+      y: coordinate.y * this.spaceSize + this.spaceSize / 2,
     };
     if (this.color === PlayerColor.ALABASTER) {
       position.x = this.size.x - position.x;
@@ -75,7 +75,7 @@ export class SquareBoard extends BaseBoard {
     }
     return {
       x: position.x + this.getOffset().x,
-      y: position.y + this.getOffset().y
+      y: position.y + this.getOffset().y,
     };
   }
 }

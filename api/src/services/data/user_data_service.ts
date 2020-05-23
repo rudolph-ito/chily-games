@@ -1,4 +1,4 @@
-import { User } from "../models";
+import { User } from "../../database/models";
 import { IUser } from "../../shared/dtos/authentication";
 
 export interface ICreateUserOptions {
@@ -7,9 +7,9 @@ export interface ICreateUserOptions {
 }
 
 export interface IUserDataService {
-  createUser(options: ICreateUserOptions): Promise<IUser>;
-  hasUserWithUsername(username: string): Promise<boolean>;
-  getUser(userId: number): Promise<IUser>;
+  createUser: (options: ICreateUserOptions) => Promise<IUser>;
+  hasUserWithUsername: (username: string) => Promise<boolean>;
+  getUser: (userId: number) => Promise<IUser>;
 }
 
 export class UserDataService implements IUserDataService {

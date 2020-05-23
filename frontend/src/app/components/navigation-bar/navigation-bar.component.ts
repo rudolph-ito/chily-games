@@ -8,7 +8,7 @@ import { IUser } from "../../shared/dtos/authentication";
 @Component({
   selector: "app-navigation-bar",
   templateUrl: "./navigation-bar.component.html",
-  styleUrls: ["./navigation-bar.component.styl"]
+  styleUrls: ["./navigation-bar.component.styl"],
 })
 export class NavigationBarComponent implements OnInit {
   loading: boolean = false;
@@ -20,7 +20,9 @@ export class NavigationBarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authenticationService.getUserSubject().subscribe(x => (this.user = x));
+    this.authenticationService
+      .getUserSubject()
+      .subscribe((x) => (this.user = x));
   }
 
   doneLoading = (): void => {

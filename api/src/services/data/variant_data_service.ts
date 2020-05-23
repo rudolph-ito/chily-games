@@ -1,22 +1,28 @@
 import {
   ISearchVariantsRequest,
   IVariant,
-  IVariantOptions
+  IVariantOptions,
 } from "../../shared/dtos/variant";
-import { Variant } from "../models";
+import { Variant } from "../../database/models";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 import { UserDataService } from "./user_data_service";
 
 export interface IVariantDataService {
-  createVariant(options: IVariantOptions, userId: number): Promise<IVariant>;
-  deleteVariant(variantId: number): Promise<void>;
-  getVariant(variantId: number): Promise<IVariant>;
-  searchVariants(
+  createVariant: (
+    options: IVariantOptions,
+    userId: number
+  ) => Promise<IVariant>;
+  deleteVariant: (variantId: number) => Promise<void>;
+  getVariant: (variantId: number) => Promise<IVariant>;
+  searchVariants: (
     request: ISearchVariantsRequest
-  ): Promise<IPaginatedResponse<IVariant>>;
-  hasVariant(variantId: number): Promise<boolean>;
-  updateVariant(variantId: number, options: IVariantOptions): Promise<IVariant>;
+  ) => Promise<IPaginatedResponse<IVariant>>;
+  hasVariant: (variantId: number) => Promise<boolean>;
+  updateVariant: (
+    variantId: number,
+    options: IVariantOptions
+  ) => Promise<IVariant>;
 }
 
 export class VariantDataService implements IVariantDataService {
@@ -35,7 +41,7 @@ export class VariantDataService implements IVariantDataService {
       boardSize: options.boardSize,
       pieceRanks: options.pieceRanks,
       supportType: options.supportType,
-      userId
+      userId,
     });
     await variant.save();
     return variant.serialize();
@@ -53,11 +59,11 @@ export class VariantDataService implements IVariantDataService {
     }
     const result = await Variant.findAndCountAll({
       offset: request.pagination.pageIndex * request.pagination.pageSize,
-      limit: request.pagination.pageSize
+      limit: request.pagination.pageSize,
     });
     return {
       data: result.rows,
-      total: result.count
+      total: result.count,
     };
   }
 

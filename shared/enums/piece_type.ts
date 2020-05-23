@@ -8,5 +8,5 @@ export enum PieceType {
   LIGHT_HORSE = "light_horse",
   RABBLE = "rabble",
   SPEAR = "spear",
-  TREBUCHET = "trebuchet"
+  TREBUCHET = "trebuchet",
 }

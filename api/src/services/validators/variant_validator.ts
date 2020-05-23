@@ -1,7 +1,7 @@
 import {
   IVariantOptions,
   IVariantValidationErrors,
-  BOARD_TYPE
+  BoardType,
 } from "../../shared/dtos/variant";
 import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 
@@ -9,11 +9,11 @@ export function validateVariantOptions(
   options: IVariantOptions
 ): IVariantValidationErrors {
   const errors: IVariantValidationErrors = {};
-  if (options.boardType === BOARD_TYPE.HEXAGONAL) {
+  if (options.boardType === BoardType.HEXAGONAL) {
     if (doesNotHaveValue(options.boardSize)) {
       errors.boardSize = "Board size is required";
     }
-  } else if (options.boardType === BOARD_TYPE.SQUARE) {
+  } else if (options.boardType === BoardType.SQUARE) {
     if (doesNotHaveValue(options.boardColumns)) {
       errors.boardColumns = "Board columns is required";
     }

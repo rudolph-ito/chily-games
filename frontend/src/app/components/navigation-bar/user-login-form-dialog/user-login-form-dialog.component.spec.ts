@@ -11,11 +11,11 @@ describe("UserLoginFormDialogComponent", () => {
 
   beforeEach(async () => {
     matDialogRef = {
-      close: jasmine.createSpy()
+      close: jasmine.createSpy(),
     };
     await TestBed.configureTestingModule({
       imports: [AppModule],
-      providers: [{ provide: MatDialogRef, useValue: matDialogRef }]
+      providers: [{ provide: MatDialogRef, useValue: matDialogRef }],
     }).compileComponents();
   });
 

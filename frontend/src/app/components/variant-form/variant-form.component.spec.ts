@@ -14,7 +14,7 @@ describe("VariantFormComponent", () => {
     mockVariantService = {};
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule, AppModule],
-      providers: [{ provide: VariantService, useValue: mockVariantService }]
+      providers: [{ provide: VariantService, useValue: mockVariantService }],
     }).compileComponents();
   });
 

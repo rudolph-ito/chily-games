@@ -23,12 +23,12 @@ describe("RegistrationService", () => {
       const result = await service.register({
         username: "",
         password: strongPassword,
-        passwordConfirmation: strongPassword
+        passwordConfirmation: strongPassword,
       });
 
       // Assert
       expect(result.errors).to.eql({
-        username: "Username is required"
+        username: "Username is required",
       });
     });
 
@@ -39,12 +39,12 @@ describe("RegistrationService", () => {
       const result = await service.register({
         username: "me",
         password: "",
-        passwordConfirmation: ""
+        passwordConfirmation: "",
       });
 
       // Assert
       expect(result.errors).to.eql({
-        password: "Password is required"
+        password: "Password is required",
       });
     });
 
@@ -55,13 +55,13 @@ describe("RegistrationService", () => {
       const result = await service.register({
         username: "me",
         password: weakPassword,
-        passwordConfirmation: weakPassword
+        passwordConfirmation: weakPassword,
       });
 
       // Assert
       expect(result.errors).to.eql({
         password:
-          "Password is not strong enough: Add another word or two. Uncommon words are better."
+          "Password is not strong enough: Add another word or two. Uncommon words are better.",
       });
     });
 
@@ -72,12 +72,12 @@ describe("RegistrationService", () => {
       const result = await service.register({
         username: "me",
         password: strongPassword,
-        passwordConfirmation: weakPassword
+        passwordConfirmation: weakPassword,
       });
 
       // Assert
       expect(result.errors).to.eql({
-        passwordConfirmation: "Password confirmation does not match password"
+        passwordConfirmation: "Password confirmation does not match password",
       });
     });
 
@@ -89,12 +89,12 @@ describe("RegistrationService", () => {
       const result = await service.register({
         username: "me",
         password: strongPassword,
-        passwordConfirmation: strongPassword
+        passwordConfirmation: strongPassword,
       });
 
       // Assert
       expect(result.errors).to.eql({
-        username: "Username 'me' is already taken"
+        username: "Username 'me' is already taken",
       });
     });
 
@@ -105,7 +105,7 @@ describe("RegistrationService", () => {
       const result = await service.register({
         username: "user1",
         password: strongPassword,
-        passwordConfirmation: strongPassword
+        passwordConfirmation: strongPassword,
       });
 
       // Assert

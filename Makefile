@@ -27,7 +27,7 @@ create-databases: # Create development / test databases and migrate the developm
 test-api: # Run api tests
 	docker-compose up -d database
 	cd api && yarn build
-	cd api && yarn test
+	cd api && yarn test --reporter spec
 
 .PHONY: test-frontend
 test-frontend: # Run frontend tests
