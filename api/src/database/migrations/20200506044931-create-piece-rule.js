@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: async (queryInterface, Sequelize) => {
     // Matches shared/dtos/piece_rule:PieceType
     const pieceTypeEnum = Sequelize.ENUM(
       "catapult",
@@ -16,7 +16,7 @@ module.exports = {
       "trebuchet"
     );
 
-    return queryInterface.createTable("PieceRules", {
+    await queryInterface.createTable("PieceRules", {
       pieceRuleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -96,6 +96,7 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
+    await queryInterface.addIndex("PieceRules", ["variantId", "pieceTypeId"], { unique: true })
   },
 
   down: (queryInterface, Sequelize) => {
