@@ -96,7 +96,9 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
-    await queryInterface.addIndex("PieceRules", ["variantId", "pieceTypeId"], { unique: true })
+    await queryInterface.addIndex("PieceRules", ["variantId", "pieceTypeId"], {
+      unique: true,
+    });
   },
 
   down: (queryInterface, Sequelize) => {

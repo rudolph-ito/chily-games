@@ -109,6 +109,10 @@ describe("PieceRuleRoutes", () => {
       expect(response.body).to.eql({
         pieceTypeId: "Piece type is required",
         count: "Count is required",
+        movement: {
+          type: "Movement type is required",
+          minimum: "Movement minimum is required",
+        },
       });
     });
 
@@ -293,6 +297,10 @@ describe("PieceRuleRoutes", () => {
       expect(response.body).to.eql({
         pieceTypeId: "Piece type is required",
         count: "Count is required",
+        movement: {
+          type: "Movement type is required",
+          minimum: "Movement minimum is required",
+        },
       });
     });
 

@@ -95,7 +95,11 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
-    await queryInterface.addIndex("TerrainRules", ["variantId", "terrainTypeId"], { unique: true })
+    await queryInterface.addIndex(
+      "TerrainRules",
+      ["variantId", "terrainTypeId"],
+      { unique: true }
+    );
   },
 
   down: (queryInterface, Sequelize) => {

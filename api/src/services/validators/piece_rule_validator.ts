@@ -17,11 +17,18 @@ export function validatePieceRuleOptions(
   } else if (options.count < 1) {
     errors.count = "Count must be greater than or equal to 1";
   }
+
   const movementErrors: IPathConfigurationValidationErrors = {};
-  if (doesNotHaveValue(options.movement.type)) {
+  if (
+    doesNotHaveValue(options.movement) ||
+    doesNotHaveValue(options.movement.type)
+  ) {
     movementErrors.type = "Movement type is required";
   }
-  if (doesNotHaveValue(options.movement.minimum)) {
+  if (
+    doesNotHaveValue(options.movement) ||
+    doesNotHaveValue(options.movement.minimum)
+  ) {
     movementErrors.minimum = "Movement minimum is required";
   } else if (options.count < 1) {
     movementErrors.minimum =
@@ -30,6 +37,7 @@ export function validatePieceRuleOptions(
   if (Object.keys(movementErrors).length > 0) {
     errors.movement = movementErrors;
   }
+
   if (Object.keys(errors).length > 0) {
     return errors;
   }
