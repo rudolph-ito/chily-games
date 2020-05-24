@@ -66,8 +66,12 @@ module.exports = {
         type: Sequelize.ARRAY(pieceTypeEnum),
         allowNull: false,
       },
+      slowsMovementBy: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       slowsMovementFor: {
-        allow: pieceTypesEffectedEnum,
+        type: pieceTypesEffectedEnum,
         allowNull: false,
       },
       slowsMovementPieceTypeIds: {
@@ -75,7 +79,7 @@ module.exports = {
         allowNull: false,
       },
       stopsMovementFor: {
-        allow: pieceTypesEffectedEnum,
+        type: pieceTypesEffectedEnum,
         allowNull: false,
       },
       stopsMovementPieceTypeIds: {

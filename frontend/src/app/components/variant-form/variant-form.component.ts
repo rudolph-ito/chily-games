@@ -21,26 +21,17 @@ import { Observable } from "rxjs";
 import { BaseBoard, PlayerColor } from "src/app/game/board/base_board";
 import { SquareBoard } from "src/app/game/board/square_board";
 import { HexagonalBoard } from "src/app/game/board/hexagonal_board";
+import { ISelectOption } from "src/app/models/form";
 
-interface IBoardTypeOption {
-  name: string;
-  value: BoardType;
-}
-
-const BOARD_TYPE_OPTIONS: IBoardTypeOption[] = [
-  { name: "Hexagonal", value: BoardType.HEXAGONAL },
-  { name: "Square", value: BoardType.SQUARE },
+const BOARD_TYPE_OPTIONS: ISelectOption[] = [
+  { label: "Hexagonal", value: BoardType.HEXAGONAL },
+  { label: "Square", value: BoardType.SQUARE },
 ];
 
-interface ISupportTypeOption {
-  name: string;
-  value: SupportType;
-}
-
-const SUPPORT_TYPE_OPTIONS: ISupportTypeOption[] = [
-  { name: "None", value: SupportType.NONE },
-  { name: "Binary", value: SupportType.BINARY },
-  { name: "Sum", value: SupportType.SUM },
+const SUPPORT_TYPE_OPTIONS: ISelectOption[] = [
+  { label: "None", value: SupportType.NONE },
+  { label: "Binary", value: SupportType.BINARY },
+  { label: "Sum", value: SupportType.SUM },
 ];
 
 interface IVariantFormControls {
@@ -84,17 +75,15 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     if (this.isUpdatingExistingVariant()) {
       this.loading = true;
-      this.variantService
-        .get(this.route.snapshot.params.id)
-        .subscribe((variant) => {
-          this.loading = false;
-          this.controls.boardType.setValue(variant.boardType);
-          this.controls.boardSize.setValue(variant.boardSize);
-          this.controls.boardRows.setValue(variant.boardRows);
-          this.controls.boardColumns.setValue(variant.boardColumns);
-          this.controls.pieceRanks.setValue(variant.pieceRanks);
-          this.controls.supportType.setValue(variant.supportType);
-        });
+      this.variantService.get(this.getVariantId()).subscribe((variant) => {
+        this.loading = false;
+        this.controls.boardType.setValue(variant.boardType);
+        this.controls.boardSize.setValue(variant.boardSize);
+        this.controls.boardRows.setValue(variant.boardRows);
+        this.controls.boardColumns.setValue(variant.boardColumns);
+        this.controls.pieceRanks.setValue(variant.pieceRanks);
+        this.controls.supportType.setValue(variant.supportType);
+      });
     }
   }
 
@@ -139,7 +128,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
   }
 
   getVariantId(): number {
-    return this.route.snapshot.params.id;
+    return this.route.snapshot.params.variantId;
   }
 
   isBoardTypeHexagonal(): boolean {
@@ -154,8 +143,12 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     return this.controls.pieceRanks.value === true;
   }
 
-  goToVariants(): void {
-    this.router.navigate(["variants"]); // eslint-disable-line @typescript-eslint/no-floating-promises
+  goBack(): void {
+    if (this.isUpdatingExistingVariant()) {
+      this.router.navigate([`variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+    } else {
+      this.router.navigate(["variants"]); // eslint-disable-line @typescript-eslint/no-floating-promises
+    }
   }
 
   save(request: IVariantOptions): Observable<IVariant> {
@@ -177,7 +170,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.save(request).subscribe(
       () => {
-        this.goToVariants();
+        this.goBack();
       },
       (errorResponse) => {
         if (errorResponse.status === 422) {

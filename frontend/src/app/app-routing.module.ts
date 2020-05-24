@@ -5,6 +5,7 @@ import { VariantsIndexComponent } from "./components/variants-index/variants-ind
 import { VariantFormComponent } from "./components/variant-form/variant-form.component";
 import { AuthGuard } from "./guards/auth.guard";
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
+import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
 
 const routes: Routes = [
   {
@@ -21,13 +22,21 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: "variants/:id",
+    path: "variants/:variantId",
     component: VariantShowComponent,
   },
   {
-    path: "variants/:id/edit",
+    path: "variants/:variantId/edit",
     component: VariantFormComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: "variants/:variantId/pieceRules/new",
+    component: PieceRuleFormComponent,
+  },
+  {
+    path: "variants/:variantId/pieceRules/:pieceRuleId/edit",
+    component: PieceRuleFormComponent,
   },
   {
     path: "",

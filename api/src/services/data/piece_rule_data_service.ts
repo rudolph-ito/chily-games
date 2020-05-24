@@ -11,6 +11,7 @@ export interface IPieceRuleDataService {
     variantId: number
   ) => Promise<IPieceRule>;
   deletePieceRule: (pieceRuleId: number) => Promise<void>;
+  getPieceRule: (pieceRuleId: number) => Promise<IPieceRule>;
   getPieceRules: (variantId: number) => Promise<IPieceRule[]>;
   hasPieceRule: (variantId: number, pieceRuleId: number) => Promise<boolean>;
   updatePieceRule: (
@@ -36,8 +37,14 @@ export class PieceRuleDataService implements IPieceRuleDataService {
     await PieceRule.destroy({ where: { pieceRuleId } });
   }
 
+  async getPieceRule(pieceRuleId: number): Promise<IPieceRule> {
+    const pieceRule = await PieceRule.findByPk(pieceRuleId);
+    return pieceRule.serialize();
+  }
+
   async getPieceRules(variantId: number): Promise<IPieceRule[]> {
-    return PieceRule.findAll({ where: { variantId } });
+    const pieceRules: PieceRule[] = PieceRule.findAll({ where: { variantId } });
+    return pieceRules.map((pieceRule) => pieceRule.serialize());
   }
 
   async hasPieceRule(pieceRuleId: number, variantId: number): Promise<boolean> {

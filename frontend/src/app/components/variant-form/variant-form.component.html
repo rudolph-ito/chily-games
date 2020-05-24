@@ -9,7 +9,7 @@
       <mat-label>Board Type</mat-label>
       <mat-select [formControl]="controls.boardType">
         <mat-option *ngFor="let option of boardTypeOptions" [value]="option.value">
-          {{option.name}}
+          {{option.label}}
         </mat-option>
       </mat-select>
       <mat-error>{{ controls.boardType.getError('invalid') }}</mat-error>
@@ -34,7 +34,7 @@
       <mat-label>Support Type</mat-label>
       <mat-select [formControl]="controls.supportType">
         <mat-option *ngFor="let option of supportTypeOptions" [value]="option.value">
-          {{option.name}}
+          {{option.label}}
         </mat-option>
       </mat-select>
       <mat-error>{{ controls.supportType.getError('invalid') }}</mat-error>
@@ -48,5 +48,5 @@
 
 <div class="button-container">
   <button mat-button mat-flat-button color="primary" (click)="submit()">Submit</button>
-  <button mat-button mat-dialog-close (click)="goToVariants()">Cancel</button>
+  <button mat-button mat-dialog-close (click)="goBack()">Cancel</button>
 </div>

@@ -27,6 +27,7 @@ export interface IPieceRuleService {
     variantId: number,
     pieceRuleId: number
   ) => Promise<void>;
+  getPieceRule: (variantId: number, pieceRuleId: number) => Promise<IPieceRule>;
   getPieceRules: (variantId: number) => Promise<IPieceRule[]>;
   updatePieceRule: (
     userId: number,
@@ -77,6 +78,18 @@ export class PieceRuleService implements IPieceRuleService {
       throwVariantAuthorizationError("delete piece rules");
     }
     return await this.pieceRuleDataService.deletePieceRule(pieceRuleId);
+  }
+
+  async getPieceRule(
+    variantId: number,
+    pieceRuleId: number
+  ): Promise<IPieceRule> {
+    if (
+      !(await this.pieceRuleDataService.hasPieceRule(pieceRuleId, variantId))
+    ) {
+      this.throwPieceRuleNotFoundError(pieceRuleId, variantId);
+    }
+    return await this.pieceRuleDataService.getPieceRule(pieceRuleId);
   }
 
   async getPieceRules(variantId: number): Promise<IPieceRule[]> {
