@@ -29,6 +29,15 @@ export class SquareBoard implements IBoard {
     return { x: Math.floor(this.columns / 2), y: Math.floor(this.rows / 2) };
   }
 
+  getCoordinateDistance(
+    coordinate1: ICoordinate,
+    coordinate2: ICoordinate
+  ): number {
+    const xDiff = coordinate1.x - coordinate2.x;
+    const yDiff = coordinate1.y - coordinate2.y;
+    return Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
+  }
+
   getDirectionalFunctions(type: BoardDirection): ICoordinateUpdater[] {
     if (type === BoardDirection.orthogonal) {
       return [

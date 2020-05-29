@@ -6,7 +6,11 @@ import {
 } from "../../../shared/dtos/piece_rule";
 import { ICoordinateUpdater, BoardDirection } from "../board";
 import { doesHaveValue } from "../../../shared/utilities/value_checker";
-import { IPlyEvaluationFlag, IPlyEvaluateOptions } from "./types";
+import {
+  PlyEvaluationFlag,
+  IPlyEvaluateOptions,
+  PLY_EVALUATION_FLAGS,
+} from "./types";
 import { PlyEvaluator } from "./ply_evaluator";
 
 interface IGetValidPliesInput {
@@ -20,7 +24,7 @@ interface IGetValidPliesData {
   pathConfiguration: IPathConfiguration;
 }
 
-type IGetValidPliesOutput = Record<IPlyEvaluationFlag, ICoordinate[]>;
+type IGetValidPliesOutput = Record<PlyEvaluationFlag, ICoordinate[]>;
 
 export class PlyCalculator {
   plyEvaluator: PlyEvaluator;
@@ -43,16 +47,12 @@ export class PlyCalculator {
       ),
       pathConfiguration,
     };
-    switch (pathConfiguration.type) {
-      case PathType.DIAGONAL_LINE:
-      case PathType.ORTHOGONAL_LINE:
-      case PathType.ORTHOGONAL_OR_DIAGONAL_LINE:
-        return this.getValidPliesForLine(input, data);
-      case PathType.ORTHOGONAL_WITH_TURNS:
-      case PathType.DIAGONAL_WITH_TURNS:
-        return this.getValidPliesForTurns(input, data);
-      default:
-        throw Error("Unexpected path configuration type");
+    if (pathConfiguration.type.includes("line")) {
+      return this.getValidPliesForLine(input, data);
+    } else if (pathConfiguration.type.includes("turns")) {
+      return this.getValidPliesForTurns(input, data);
+    } else {
+      throw Error("Unexpected path configuration type");
     }
   }
 
@@ -64,9 +64,7 @@ export class PlyCalculator {
     data.directionalFunctions.forEach((directionalFunction) => {
       let to = input.coordinate;
       let count = 1;
-      const stopCondition = doesHaveValue(data.pathConfiguration.maximum)
-        ? (x: number) => x > data.pathConfiguration.maximum
-        : (x: number) => x === Infinity;
+      const stopCondition = this.getStopCondition(data.pathConfiguration);
       while (!stopCondition(count)) {
         to = directionalFunction(to);
         const plyEvaluation = this.plyEvaluator.evaluate({
@@ -88,12 +86,16 @@ export class PlyCalculator {
     input: IGetValidPliesInput,
     data: IGetValidPliesData
   ): IGetValidPliesOutput {
-    return this.recursiveGetValidPliesForTurns(
+    const result = this.recursiveGetValidPliesForTurns(
       input,
       data,
       input.coordinate,
       0
     );
+    PLY_EVALUATION_FLAGS.forEach((flag) => [
+      ...new Set<ICoordinate>(result[flag]),
+    ]);
+    return result;
   }
 
   private recursiveGetValidPliesForTurns(
@@ -103,32 +105,49 @@ export class PlyCalculator {
     count: number
   ): IGetValidPliesOutput {
     const result = this.getEmptyResult();
+    if (this.getStopCondition(data.pathConfiguration)(count)) {
+      return result;
+    }
 
-    // def _call(coordinate, count)
-    // return {} if maximum && count >= maximum
+    data.directionalFunctions.forEach((directionalFunction) => {
+      const to = directionalFunction(coordinate);
 
-    // plies = empty_plies
+      // Stop if distance did not grow
+      const oldDistance = this.options.gameRules.board.getCoordinateDistance(
+        input.coordinate,
+        coordinate
+      );
+      const newDistance = this.options.gameRules.board.getCoordinateDistance(
+        input.coordinate,
+        to
+      );
+      if (oldDistance >= newDistance || newDistance < count) {
+        return;
+      }
 
-    // directional_functions.each do |directional_function|
-    //   to = coordinate.clone
-    //   directional_function.call(to)
+      // Evaluate ply
+      const plyEvaluation = this.plyEvaluator.evaluate({
+        coordinate: to,
+        count,
+        evaluationType: input.evaluationType,
+        piece: input.piece,
+      });
+      if (plyEvaluation.valid) {
+        result[plyEvaluation.flag].push(to);
+      }
 
-    //   # Stop if distance did not grow
-    //   old_distance = board.distance(from, coordinate)
-    //   new_distance = board.distance(from, to)
-    //   next if old_distance >= new_distance || new_distance <= count
+      // Recursive call
+      const childPlies = this.recursiveGetValidPliesForTurns(
+        input,
+        data,
+        to,
+        count + plyEvaluation.countModifier
+      );
+      PLY_EVALUATION_FLAGS.forEach((flag) =>
+        result[flag].push(...childPlies[flag])
+      );
+    });
 
-    //   valid, flag, stop, new_count = evaluator.call(to, count + 1)
-    //   plies[flag] << to.clone if valid
-    //   next if stop
-
-    //   child_plies = _call(to, new_count)
-    //   child_plies.each { |k, v| plies[k] += v }
-    // end
-
-    // plies.each { |k, v| plies[k] = v.uniq }
-    // plies
-    // end
     return result;
   }
 
@@ -140,28 +159,24 @@ export class PlyCalculator {
     };
   }
 
+  private getStopCondition(
+    pathConfiguration: IPathConfiguration
+  ): (count: number) => boolean {
+    return doesHaveValue(pathConfiguration.maximum)
+      ? (count: number) => count > pathConfiguration.maximum
+      : (count: number) => count === Infinity;
+  }
+
   private getDirectionalFunctions(pathType: PathType): ICoordinateUpdater[] {
     let result: ICoordinateUpdater[] = [];
-    if (
-      [
-        PathType.ORTHOGONAL_LINE,
-        PathType.ORTHOGONAL_OR_DIAGONAL_LINE,
-        PathType.ORTHOGONAL_WITH_TURNS,
-      ].includes(pathType)
-    ) {
+    if (pathType.includes("orthogonal")) {
       result = result.concat(
         this.options.gameRules.board.getDirectionalFunctions(
           BoardDirection.orthogonal
         )
       );
     }
-    if (
-      [
-        PathType.DIAGONAL_LINE,
-        PathType.DIAGONAL_WITH_TURNS,
-        PathType.ORTHOGONAL_OR_DIAGONAL_LINE,
-      ].includes(pathType)
-    ) {
+    if (pathType.includes("diagonal")) {
       result = result.concat(
         this.options.gameRules.board.getDirectionalFunctions(
           BoardDirection.diagonal

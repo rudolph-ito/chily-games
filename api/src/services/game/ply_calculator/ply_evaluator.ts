@@ -13,11 +13,11 @@ import {
   doesHaveValue,
   doesNotHaveValue,
 } from "../../../shared/utilities/value_checker";
-import { IPlyEvaluateOptions, IPlyEvaluationFlag } from "./types";
+import { IPlyEvaluateOptions, PlyEvaluationFlag } from "./types";
 
 interface IPlyEvaluation {
   countModifier: number; // base case is 1, more if terrain slows or stops
-  flag?: IPlyEvaluationFlag;
+  flag?: PlyEvaluationFlag;
   valid: boolean;
 }
 
@@ -119,18 +119,18 @@ export class PlyEvaluator {
   private getFlag(
     input: IPlyEvaluateInput,
     data: IPlyEvaluateData
-  ): IPlyEvaluationFlag {
+  ): PlyEvaluationFlag {
     if (doesNotHaveValue(data.occupyingPiece)) {
-      return IPlyEvaluationFlag.FREE;
+      return PlyEvaluationFlag.FREE;
     }
     const isEnemyPiece = data.occupyingPiece.userId !== input.piece.userId;
     if (isEnemyPiece) {
       const canCapture = !this.options.gameRules.pieceRanks || false; // TODO caluculate supported rank
       if (canCapture) {
-        return IPlyEvaluationFlag.CAPTURABLE;
+        return PlyEvaluationFlag.CAPTURABLE;
       }
     }
-    return IPlyEvaluationFlag.REACHABLE;
+    return PlyEvaluationFlag.REACHABLE;
   }
 
   // If no terrain or piece not stopped / slowed, return 1

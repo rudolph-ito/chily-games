@@ -16,6 +16,10 @@ export enum SetupTerritoryOwner {
 export interface IBoard {
   getAllCoordinates: () => ICoordinate[];
   getCenter: () => ICoordinate;
+  getCoordinateDistance: (
+    coordinate1: ICoordinate,
+    coordinate2: ICoordinate
+  ) => number;
   getDirectionalFunctions: (direction: BoardDirection) => ICoordinateUpdater[];
   getSetupTerritoryOwner: (coordinate: ICoordinate) => SetupTerritoryOwner;
   isCoordinateValid: (coordinate: ICoordinate) => boolean;

@@ -1,14 +1,20 @@
 import { IBoard } from "../board";
-import { PieceType, IPieceRule } from "src/shared/dtos/piece_rule";
-import { TerrainType, ITerrainRule } from "src/shared/dtos/terrain_rule";
-import { SupportType } from "src/shared/dtos/variant";
+import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
+import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
+import { SupportType } from "../../../shared/dtos/variant";
 import { ICoordinateMap } from "../storage/coordinate_map";
 
-export enum IPlyEvaluationFlag {
+export enum PlyEvaluationFlag {
   FREE = "free",
   CAPTURABLE = "capturable",
   REACHABLE = "reachable",
 }
+
+export const PLY_EVALUATION_FLAGS = [
+  PlyEvaluationFlag.FREE,
+  PlyEvaluationFlag.CAPTURABLE,
+  PlyEvaluationFlag.REACHABLE,
+];
 
 export interface IGameRules {
   board: IBoard;

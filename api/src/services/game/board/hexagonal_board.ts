@@ -36,6 +36,16 @@ export class HexagonalBoard implements IBoard {
     return { x: 0, y: 0 };
   }
 
+  getCoordinateDistance(
+    coordinate1: ICoordinate,
+    coordinate2: ICoordinate
+  ): number {
+    const xDiff = coordinate1.x - coordinate2.x;
+    const yDiff = coordinate1.y - coordinate2.y;
+    const diagonalDiff = xDiff + yDiff;
+    return Math.max(...[xDiff, yDiff, diagonalDiff].map((x) => Math.abs(x)));
+  }
+
   getDirectionalFunctions(type: BoardDirection): ICoordinateUpdater[] {
     if (type === BoardDirection.orthogonal) {
       return [
