@@ -12,6 +12,7 @@ import {
   PLY_EVALUATION_FLAGS,
 } from "./types";
 import { PlyEvaluator } from "./ply_evaluator";
+import uniqBy from "lodash.uniqby";
 
 interface IGetValidPliesInput {
   coordinate: ICoordinate;
@@ -90,11 +91,11 @@ export class PlyCalculator {
       input,
       data,
       input.coordinate,
-      0
+      1
     );
-    PLY_EVALUATION_FLAGS.forEach((flag) => [
-      ...new Set<ICoordinate>(result[flag]),
-    ]);
+    PLY_EVALUATION_FLAGS.forEach((flag) => {
+      result[flag] = uniqBy(result[flag], (c) => `${c.x},${c.y}`);
+    });
     return result;
   }
 

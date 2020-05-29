@@ -92,7 +92,7 @@ export class PlyEvaluator {
       return true;
     }
     if (doesHaveValue(data.occupyingPiece)) {
-      if (data.occupyingPiece.userId === input.piece.userId) {
+      if (data.occupyingPiece.playerColor === input.piece.playerColor) {
         return true;
       }
       if (input.evaluationType !== data.pieceRule.captureType) {
@@ -123,7 +123,8 @@ export class PlyEvaluator {
     if (doesNotHaveValue(data.occupyingPiece)) {
       return PlyEvaluationFlag.FREE;
     }
-    const isEnemyPiece = data.occupyingPiece.userId !== input.piece.userId;
+    const isEnemyPiece =
+      data.occupyingPiece.playerColor !== input.piece.playerColor;
     if (isEnemyPiece) {
       const canCapture = !this.options.gameRules.pieceRanks || false; // TODO caluculate supported rank
       if (canCapture) {

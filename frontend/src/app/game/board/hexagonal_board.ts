@@ -77,6 +77,7 @@ export class HexagonalBoard extends BaseBoard {
     this.setSpaceSize(polygon);
     this.setSpacePosition(polygon, coordinate);
     this.spaceCoordinateMap.set(coordinate, polygon);
+    this.addCoordinateText(polygon, coordinate);
   }
 
   public setSpaceSize(polygon: Konva.RegularPolygon): void {

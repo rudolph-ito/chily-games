@@ -8,12 +8,12 @@ export interface ICoordinate {
 
 export interface IPiece {
   pieceTypeId: PieceType;
-  userId: number;
+  playerColor: PlayerColor;
 }
 
 export interface ITerrain {
   terrainTypeId: TerrainType;
-  userId: number;
+  playerColor: PlayerColor;
 }
 
 export enum PlayerColor {

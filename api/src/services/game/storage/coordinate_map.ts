@@ -17,46 +17,56 @@ export interface ICoordinateMap {
 }
 
 export class CoordinateMap implements ICoordinateMap {
-  private readonly data: Map<ICoordinate, ICoordinateData>;
+  private readonly data: Map<string, ICoordinateData>;
 
   constructor(coordinates: ICoordinate[]) {
-    this.data = new Map<ICoordinate, ICoordinateData>();
-    coordinates.forEach((c) => this.data.set(c, {}));
+    this.data = new Map<string, ICoordinateData>();
+    coordinates.forEach((coordinate) =>
+      this.data.set(this.coordinateToKey(coordinate), {})
+    );
   }
 
   addPiece(coordinate: ICoordinate, piece: IPiece): void {
-    this.data.get(coordinate).piece = piece;
+    this.getCoorinateData(coordinate).piece = piece;
   }
 
   deletePiece(coordinate: ICoordinate): void {
-    this.data.get(coordinate).piece = null;
+    this.getCoorinateData(coordinate).piece = null;
   }
 
   getPiece(coordinate: ICoordinate): IPiece {
-    return this.data.get(coordinate).piece;
+    return this.getCoorinateData(coordinate).piece;
   }
 
   movePiece(from: ICoordinate, to: ICoordinate): void {
-    const piece = this.data.get(from).piece;
+    const piece = this.getCoorinateData(from).piece;
     this.deletePiece(from);
     this.addPiece(to, piece);
   }
 
   addTerrain(coordinate: ICoordinate, terrain: ITerrain): void {
-    this.data.get(coordinate).terrain = terrain;
+    this.getCoorinateData(coordinate).terrain = terrain;
   }
 
   deleteTerrain(coordinate: ICoordinate): void {
-    this.data.get(coordinate).terrain = null;
+    this.getCoorinateData(coordinate).terrain = null;
   }
 
   getTerrain(coordinate: ICoordinate): ITerrain {
-    return this.data.get(coordinate).terrain;
+    return this.getCoorinateData(coordinate).terrain;
   }
 
   moveTerrain(from: ICoordinate, to: ICoordinate): void {
-    const terrain = this.data.get(from).terrain;
+    const terrain = this.getCoorinateData(from).terrain;
     this.deleteTerrain(from);
     this.addTerrain(to, terrain);
+  }
+
+  private getCoorinateData(coordinate: ICoordinate): ICoordinateData {
+    return this.data.get(this.coordinateToKey(coordinate));
+  }
+
+  private coordinateToKey(coordinate: ICoordinate): string {
+    return `${coordinate.x},${coordinate.y}`;
   }
 }
