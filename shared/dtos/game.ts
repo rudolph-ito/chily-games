@@ -17,6 +17,6 @@ export interface ITerrain {
 }
 
 export enum PlayerColor {
-  alabaster = "alabaster",
-  onyx = "onyx",
+  ALABASTER = "alabaster",
+  ONYX = "onyx",
 }

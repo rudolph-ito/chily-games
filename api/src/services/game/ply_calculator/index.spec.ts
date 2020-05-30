@@ -22,7 +22,7 @@ function testDirectionalMovement(
 ): IGetValidPliesOutput {
   const coordinateMap = new CoordinateMap(board.getAllCoordinates());
   const pieceTypeId = PieceType.CATAPULT;
-  const piece: IPiece = { pieceTypeId, playerColor: PlayerColor.alabaster };
+  const piece: IPiece = { pieceTypeId, playerColor: PlayerColor.ALABASTER };
   const pieceRule: IPieceRule = {
     pieceRuleId: 1,
     pieceTypeId,

@@ -18,10 +18,11 @@ import { VariantService } from "src/app/services/variant.service";
 import { setError } from "src/app/utils/form-control-helpers";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { Observable } from "rxjs";
-import { BaseBoard, PlayerColor } from "src/app/game/board/base_board";
+import { BaseBoard } from "src/app/game/board/base_board";
 import { SquareBoard } from "src/app/game/board/square_board";
 import { HexagonalBoard } from "src/app/game/board/hexagonal_board";
 import { ISelectOption } from "src/app/models/form";
+import { PlayerColor } from "../../shared/dtos/game";
 
 const BOARD_TYPE_OPTIONS: ISelectOption[] = [
   { label: "Hexagonal", value: BoardType.HEXAGONAL },

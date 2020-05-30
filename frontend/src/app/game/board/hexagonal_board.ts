@@ -1,5 +1,5 @@
-import { BaseBoard, PlayerColor } from "./base_board";
-import { Vector2d } from "konva/types/types";
+import { BaseBoard } from "./base_board";
+import { ICoordinate, PlayerColor } from "../../shared/dtos/game";
 import Konva from "konva";
 
 export interface IHexagonalBoardLayoutOptions {
@@ -12,16 +12,16 @@ export interface IHexagonalBoardOptions {
 }
 
 export class HexagonalBoard extends BaseBoard {
-  private readonly spaceCoordinateMap: Map<Vector2d, Konva.RegularPolygon>;
+  private readonly spaceCoordinateMap: Map<ICoordinate, Konva.RegularPolygon>;
   private readonly layout: IHexagonalBoardLayoutOptions;
   private spaceRadius: number;
-  private spaceDelta: Vector2d;
-  private center: Vector2d;
+  private spaceDelta: ICoordinate;
+  private center: ICoordinate;
 
   constructor(element: HTMLDivElement, options: IHexagonalBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.spaceCoordinateMap = new Map<Vector2d, Konva.RegularPolygon>();
+    this.spaceCoordinateMap = new Map<ICoordinate, Konva.RegularPolygon>();
     this.setup();
   }
 
@@ -66,7 +66,7 @@ export class HexagonalBoard extends BaseBoard {
     }
   }
 
-  addSpace(coordinate: Vector2d, showCoordinates: boolean): void {
+  addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
     const polygon = new Konva.RegularPolygon({
       radius: 1,
       sides: 6,
@@ -90,7 +90,7 @@ export class HexagonalBoard extends BaseBoard {
   //   (0,0) in center left
   //   x increases going right
   //   y increases going up
-  coordinateToPosition(coordiante: Vector2d): Vector2d {
+  coordinateToPosition(coordiante: ICoordinate): ICoordinate {
     const relative = {
       x: (coordiante.x * 2 + coordiante.y) * this.spaceDelta.x,
       y: -1 * coordiante.y * this.spaceDelta.y,

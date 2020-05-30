@@ -1,5 +1,5 @@
-import { BaseBoard, PlayerColor } from "./base_board";
-import { Vector2d } from "konva/types/types";
+import { BaseBoard } from "./base_board";
+import { ICoordinate, PlayerColor } from "../../shared/dtos/game";
 import Konva from "konva";
 
 export interface ISquareBoardLayoutOptions {
@@ -13,14 +13,14 @@ export interface ISquareBoardOptions {
 }
 
 export class SquareBoard extends BaseBoard {
-  private readonly spaceCoordinateMap: Map<Vector2d, Konva.Rect>;
+  private readonly spaceCoordinateMap: Map<ICoordinate, Konva.Rect>;
   private readonly layout: ISquareBoardLayoutOptions;
   private spaceSize: number;
 
   constructor(element: HTMLDivElement, options: ISquareBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.spaceCoordinateMap = new Map<Vector2d, Konva.Rect>();
+    this.spaceCoordinateMap = new Map<ICoordinate, Konva.Rect>();
     this.setup();
   }
 
@@ -44,7 +44,7 @@ export class SquareBoard extends BaseBoard {
     }
   }
 
-  public addSpace(coordinate: Vector2d, showCoordinates: boolean): void {
+  public addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
     const rect = new Konva.Rect({
       stroke: "#000",
       strokeWidth: 1,
@@ -71,7 +71,7 @@ export class SquareBoard extends BaseBoard {
   //   (0,0) in bottom left
   //   x increases going right
   //   y increases going up
-  public coordinateToPosition(coordinate: Vector2d): Vector2d {
+  public coordinateToPosition(coordinate: ICoordinate): ICoordinate {
     const position = {
       x: coordinate.x * this.spaceSize + this.spaceSize / 2,
       y: this.size.y - (coordinate.y * this.spaceSize + this.spaceSize / 2),
