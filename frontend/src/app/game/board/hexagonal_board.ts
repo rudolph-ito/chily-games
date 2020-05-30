@@ -49,7 +49,7 @@ export class HexagonalBoard extends BaseBoard {
     };
   }
 
-  addSpaces(): void {
+  addSpaces(showCoordinates: boolean): void {
     const min = -1 * this.layout.boardSize;
     const max = this.layout.boardSize;
     for (let x = min; x <= max; x++) {
@@ -61,12 +61,12 @@ export class HexagonalBoard extends BaseBoard {
         if (sum > max) {
           break;
         }
-        this.addSpace({ x, y });
+        this.addSpace({ x, y }, showCoordinates);
       }
     }
   }
 
-  addSpace(coordinate: Vector2d): void {
+  addSpace(coordinate: Vector2d, showCoordinates: boolean): void {
     const polygon = new Konva.RegularPolygon({
       radius: 1,
       sides: 6,
@@ -77,17 +77,23 @@ export class HexagonalBoard extends BaseBoard {
     this.setSpaceSize(polygon);
     this.setSpacePosition(polygon, coordinate);
     this.spaceCoordinateMap.set(coordinate, polygon);
-    this.addCoordinateText(polygon, coordinate);
+    if (showCoordinates) {
+      this.addCoordinateText(polygon, coordinate);
+    }
   }
 
   public setSpaceSize(polygon: Konva.RegularPolygon): void {
     polygon.radius(this.spaceRadius);
   }
 
+  // From alabaster point of view:
+  //   (0,0) in center left
+  //   x increases going right
+  //   y increases going up
   coordinateToPosition(coordiante: Vector2d): Vector2d {
     const relative = {
       x: (coordiante.x * 2 + coordiante.y) * this.spaceDelta.x,
-      y: coordiante.y * this.spaceDelta.y,
+      y: -1 * coordiante.y * this.spaceDelta.y,
     };
 
     if (this.color === PlayerColor.ONYX) {

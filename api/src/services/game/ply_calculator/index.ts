@@ -25,7 +25,7 @@ interface IGetValidPliesData {
   pathConfiguration: IPathConfiguration;
 }
 
-type IGetValidPliesOutput = Record<PlyEvaluationFlag, ICoordinate[]>;
+export type IGetValidPliesOutput = Record<PlyEvaluationFlag, ICoordinate[]>;
 
 export class PlyCalculator {
   plyEvaluator: PlyEvaluator;
@@ -57,6 +57,7 @@ export class PlyCalculator {
     }
   }
 
+  // For each direction, go in that direction until should stop
   private getValidPliesForLine(
     input: IGetValidPliesInput,
     data: IGetValidPliesData

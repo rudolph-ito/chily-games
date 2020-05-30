@@ -43,6 +43,13 @@
   <div class="board-preview-wrapper">
     <div class="title">Board Preview</div>
     <div class="container" #boardContainer></div>
+    <div class="board-preview-inputs">
+      <mat-checkbox [formControl]="boardPreviewControls.showCoordinates">Show Coordinates</mat-checkbox>
+      <mat-radio-group *ngIf="isBoardPreviewShowingCoordinates()" [formControl]="boardPreviewControls.viewpoint">
+        <mat-radio-button value="alabaster">Alabaster</mat-radio-button>
+        <mat-radio-button value="onyx">Onyx</mat-radio-button>
+      </mat-radio-group>
+    </div>
   </div>
 </div>
 

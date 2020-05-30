@@ -36,15 +36,15 @@ export class SquareBoard extends BaseBoard {
     };
   }
 
-  public addSpaces(): void {
+  public addSpaces(showCoordinates: boolean): void {
     for (let x = 0; x < this.layout.boardColumns; x++) {
       for (let y = 0; y < this.layout.boardRows; y++) {
-        this.addSpace({ x, y });
+        this.addSpace({ x, y }, showCoordinates);
       }
     }
   }
 
-  public addSpace(coordinate: Vector2d): void {
+  public addSpace(coordinate: Vector2d, showCoordinates: boolean): void {
     const rect = new Konva.Rect({
       stroke: "#000",
       strokeWidth: 1,
@@ -53,6 +53,9 @@ export class SquareBoard extends BaseBoard {
     this.setSpaceSize(rect);
     this.setSpacePosition(rect, coordinate);
     this.spaceCoordinateMap.set(coordinate, rect);
+    if (showCoordinates) {
+      this.addCoordinateText(rect, coordinate);
+    }
   }
 
   public setSpaceSize(space: Konva.Rect): void {
@@ -64,12 +67,16 @@ export class SquareBoard extends BaseBoard {
     space.height(this.spaceSize);
   }
 
+  // From alabaster point of view:
+  //   (0,0) in bottom left
+  //   x increases going right
+  //   y increases going up
   public coordinateToPosition(coordinate: Vector2d): Vector2d {
     const position = {
       x: coordinate.x * this.spaceSize + this.spaceSize / 2,
-      y: coordinate.y * this.spaceSize + this.spaceSize / 2,
+      y: this.size.y - (coordinate.y * this.spaceSize + this.spaceSize / 2),
     };
-    if (this.color === PlayerColor.ALABASTER) {
+    if (this.color === PlayerColor.ONYX) {
       position.x = this.size.x - position.x;
       position.y = this.size.y - position.y;
     }

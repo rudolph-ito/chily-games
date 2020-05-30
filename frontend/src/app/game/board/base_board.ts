@@ -53,15 +53,17 @@ export abstract class BaseBoard {
       y: shape.attrs.y,
       text: `${coordinate.x},${coordinate.y}`,
     });
+    text.offsetX(text.getWidth() / 2)
+    text.offsetY(text.getHeight() / 2)
     this.spaceLayer.add(text);
   }
 
-  abstract addSpaces(): void;
+  abstract addSpaces(showCoordinates: boolean): void;
 
   abstract coordinateToPosition(coordinate: Vector2d): Vector2d;
 
-  public draw(): void {
-    this.addSpaces();
+  public draw(showCoordinates: boolean): void {
+    this.addSpaces(showCoordinates);
     this.spaceLayer.draw();
   }
 

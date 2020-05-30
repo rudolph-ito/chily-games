@@ -43,6 +43,11 @@ interface IVariantFormControls {
   supportType: FormControl;
 }
 
+interface IVariantBoardPreviewControls {
+  showCoordinates: FormControl;
+  viewpoint: FormControl;
+}
+
 @Component({
   selector: "app-variant-form",
   templateUrl: "./variant-form.component.html",
@@ -60,6 +65,11 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     boardRows: new FormControl(8),
     pieceRanks: new FormControl(false),
     supportType: new FormControl(),
+  };
+
+  boardPreviewControls: IVariantBoardPreviewControls = {
+    showCoordinates: new FormControl(false),
+    viewpoint: new FormControl(PlayerColor.ALABASTER),
   };
 
   board: BaseBoard;
@@ -94,6 +104,12 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     );
     this.controls.boardRows.valueChanges.subscribe(this.drawPreview.bind(this));
     this.controls.boardSize.valueChanges.subscribe(this.drawPreview.bind(this));
+    this.boardPreviewControls.showCoordinates.valueChanges.subscribe(
+      this.drawPreview.bind(this)
+    );
+    this.boardPreviewControls.viewpoint.valueChanges.subscribe(
+      this.drawPreview.bind(this)
+    );
     this.drawPreview();
   }
 
@@ -102,24 +118,26 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
       this.board.clear();
       this.board = null;
     }
+    const color = this.boardPreviewControls.viewpoint.value;
     if (this.isBoardTypeSquare()) {
       this.board = new SquareBoard(this.boardContainer.nativeElement, {
         layout: {
           boardColumns: this.controls.boardColumns.value,
           boardRows: this.controls.boardRows.value,
         },
-        color: PlayerColor.ONYX,
+        color,
       });
-      this.board.draw();
     }
     if (this.isBoardTypeHexagonal()) {
       this.board = new HexagonalBoard(this.boardContainer.nativeElement, {
         layout: {
           boardSize: this.controls.boardSize.value,
         },
-        color: PlayerColor.ONYX,
+        color,
       });
-      this.board.draw();
+    }
+    if (doesHaveValue(this.board)) {
+      this.board.draw(this.boardPreviewControls.showCoordinates.value);
     }
   }
 
@@ -141,6 +159,10 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
 
   hasPieceRanks(): boolean {
     return this.controls.pieceRanks.value === true;
+  }
+
+  isBoardPreviewShowingCoordinates(): boolean {
+    return this.boardPreviewControls.showCoordinates.value === true;
   }
 
   goBack(): void {
