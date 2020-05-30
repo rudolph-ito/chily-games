@@ -87,9 +87,9 @@ export class HexagonalBoard extends BaseBoard {
   }
 
   // From alabaster point of view:
-  //   (0,0) in center left
-  //   x increases going right
-  //   y increases going up
+  //   (0,0) in center
+  //   x increases going right, decreases going left
+  //   y increases going up, decreases going down
   coordinateToPosition(coordiante: ICoordinate): ICoordinate {
     const relative = {
       x: (coordiante.x * 2 + coordiante.y) * this.spaceDelta.x,
