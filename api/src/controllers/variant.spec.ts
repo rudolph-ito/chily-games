@@ -12,7 +12,18 @@ import {
 } from "../../test/test_helper";
 import supertest from "supertest";
 import { IVariantOptions, BoardType } from "../shared/dtos/variant";
-import { PathType, CaptureType, PieceType } from "../shared/dtos/piece_rule";
+import {
+  PathType,
+  CaptureType,
+  PieceType,
+  IPieceRuleOptions,
+} from "../shared/dtos/piece_rule";
+import {
+  IPreviewBoardRequest,
+  IPreviewPieceRuleRequest,
+  IPreviewBoardResponse,
+  IPreviewPieceRuleResponse,
+} from "../shared/dtos/game";
 
 describe("VariantRoutes", () => {
   resetDatabaseBeforeEach();
@@ -178,7 +189,7 @@ describe("VariantRoutes", () => {
         boardType: BoardType.HEXAGONAL,
         boardSize: 3,
       });
-      const pieceRuleOptions = {
+      const pieceRuleOptions: IPieceRuleOptions = {
         pieceTypeId: PieceType.CATAPULT,
         count: 1,
         movement: {
@@ -188,7 +199,7 @@ describe("VariantRoutes", () => {
         },
         captureType: CaptureType.MOVEMENT,
       };
-      const request = {
+      const request: IPreviewPieceRuleRequest = {
         evaluationType: CaptureType.MOVEMENT,
         pieceRule: pieceRuleOptions,
       };
@@ -201,8 +212,9 @@ describe("VariantRoutes", () => {
 
       // Assert
       expect(response.body).to.exist();
-      expect(response.body.serializedCoordinateMap).to.have.lengthOf(49);
-      expect(response.body.serializedCoordinateMap).to.deep.contain({
+      const result: IPreviewPieceRuleResponse = response.body;
+      expect(result.serializedCoordinateMap).to.have.lengthOf(49);
+      expect(result.serializedCoordinateMap).to.deep.contain({
         key: { x: 0, y: 0 },
         value: {
           piece: {
@@ -211,8 +223,8 @@ describe("VariantRoutes", () => {
           },
         },
       });
-      expect(response.body.validPlies.capturable).to.eql([]);
-      expect(response.body.validPlies.free).to.have.deep.members([
+      expect(result.validPlies.capturable).to.eql([]);
+      expect(result.validPlies.free).to.have.deep.members([
         { x: 1, y: 0 },
         { x: -1, y: 0 },
         { x: 0, y: 1 },
@@ -220,7 +232,34 @@ describe("VariantRoutes", () => {
         { x: 1, y: -1 },
         { x: -1, y: 1 },
       ]);
-      expect(response.body.validPlies.reachable).to.eql([]);
+      expect(result.validPlies.reachable).to.eql([]);
+    });
+  });
+
+  describe("preview board (POST /api/variants/preview/board)", () => {
+    it("returns the coordinate map", async () => {
+      // Arrange
+      const variantOptions: IVariantOptions = {
+        boardType: BoardType.HEXAGONAL,
+        boardSize: 3,
+        pieceRanks: false,
+      };
+      const request: IPreviewBoardRequest = { variant: variantOptions };
+
+      // Act
+      const response = await supertest(app)
+        .post(`/api/variants/preview/board`)
+        .send(request)
+        .expect(200);
+
+      // Assert
+      expect(response.body).to.exist();
+      const result: IPreviewBoardResponse = response.body;
+      expect(result.serializedCoordinateMap).to.have.lengthOf(49);
+      expect(result.serializedCoordinateMap).to.deep.contain({
+        key: { x: 0, y: 0 },
+        value: {},
+      });
     });
   });
 });

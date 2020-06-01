@@ -1,5 +1,6 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
+import { IVariantOptions } from "./variant";
 
 export interface ICoordinate {
   x: number;
@@ -44,6 +45,14 @@ export const PLY_EVALUATION_FLAGS = [
 ];
 
 export type ValidPlies = Record<PlyEvaluationFlag, ICoordinate[]>;
+
+export interface IPreviewBoardRequest {
+  variant: IVariantOptions;
+}
+
+export interface IPreviewBoardResponse {
+  serializedCoordinateMap: ISerializedCoordinateMap;
+}
 
 export interface IPreviewPieceRuleRequest {
   evaluationType: CaptureType;
