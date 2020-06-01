@@ -49,13 +49,13 @@ export class PlyEvaluator {
   }
 
   evaluate(input: IPlyEvaluateInput): IPlyEvaluation {
-    const data = this.getPlyEvaluateData(input);
-    if (this.isInvalidAndShouldStop(input, data)) {
+    if (!this.options.gameRules.board.isCoordinateValid(input.coordinate)) {
       return {
         valid: false,
         countModifier: Infinity,
       };
     }
+    const data = this.getPlyEvaluateData(input);
     return {
       valid: this.isValid(input, data),
       flag: this.getFlag(input, data),
@@ -85,39 +85,28 @@ export class PlyEvaluator {
     return result;
   }
 
-  // Ply invalid and should stop if:
-  //  space off board OR
-  //  space occupied by ally piece OR
-  //  space occupied by enemy piece and cannot be captured
-  private isInvalidAndShouldStop(
-    input: IPlyEvaluateInput,
-    data: IPlyEvaluateData
-  ): boolean {
-    if (!this.options.gameRules.board.isCoordinateValid(input.coordinate)) {
-      return true;
-    }
-    if (doesHaveValue(data.occupyingPiece)) {
-      if (data.occupyingPiece.playerColor === input.piece.playerColor) {
-        return true;
-      }
-      if (input.evaluationType !== data.pieceRule.captureType) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   // Ply valid if:
   //   count is greater than minimun AND
+  //   no occupying piece OR can capture occupying piece
   //   no terrain OR terrain is passable
   private isValid(input: IPlyEvaluateInput, data: IPlyEvaluateData): boolean {
     if (input.count < data.pieceRule.movement.minimum) {
       return false;
     }
-    return (
-      doesNotHaveValue(data.occupyingTerrain) ||
-      this.canTerrainBeEntered(data.occupyingTerrainRule, input)
-    );
+    if (doesHaveValue(data.occupyingPiece)) {
+      if (data.occupyingPiece.playerColor === input.piece.playerColor) {
+        return false;
+      }
+      if (input.evaluationType !== data.pieceRule.captureType) {
+        return false;
+      }
+    }
+    if (doesHaveValue(data.occupyingTerrain)) {
+      if (!this.canTerrainBeEntered(data.occupyingTerrainRule, input)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // For a valid ply, determine a classification for the ply
@@ -139,13 +128,17 @@ export class PlyEvaluator {
     return PlyEvaluationFlag.REACHABLE;
   }
 
-  // If no terrain or piece not stopped / slowed, return 1
+  // If occupying piece, return Infinity
   // If terrain stops piece, return Infinity
   // If terrain slows piece, return 1 + slows by
+  // Otherwise, return 1
   private getCountModifier(
     input: IPlyEvaluateInput,
     data: IPlyEvaluateData
   ): number {
+    if (doesHaveValue(data.occupyingPiece)) {
+      return Infinity;
+    }
     if (doesHaveValue(data.occupyingTerrain)) {
       if (
         this.doesEffectApplyToPieceType(

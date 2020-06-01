@@ -1,6 +1,7 @@
 import { BaseBoard } from "./base_board";
 import { ICoordinate, PlayerColor } from "../../shared/dtos/game";
 import Konva from "konva";
+import { CoordinateMap } from "./coordinate_map";
 
 export interface IHexagonalBoardLayoutOptions {
   boardSize: number;
@@ -12,7 +13,10 @@ export interface IHexagonalBoardOptions {
 }
 
 export class HexagonalBoard extends BaseBoard {
-  private readonly spaceCoordinateMap: Map<ICoordinate, Konva.RegularPolygon>;
+  private readonly spaceCoordinateMap = new CoordinateMap<
+    Konva.RegularPolygon
+  >();
+
   private readonly layout: IHexagonalBoardLayoutOptions;
   private spaceRadius: number;
   private spaceDelta: ICoordinate;
@@ -21,7 +25,6 @@ export class HexagonalBoard extends BaseBoard {
   constructor(element: HTMLDivElement, options: IHexagonalBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.spaceCoordinateMap = new Map<ICoordinate, Konva.RegularPolygon>();
     this.setup();
   }
 
@@ -80,6 +83,10 @@ export class HexagonalBoard extends BaseBoard {
     if (showCoordinates) {
       this.addCoordinateText(polygon, coordinate);
     }
+  }
+
+  getSpace(coordinate: ICoordinate): Konva.Shape {
+    return this.spaceCoordinateMap.get(coordinate);
   }
 
   public setSpaceSize(polygon: Konva.RegularPolygon): void {

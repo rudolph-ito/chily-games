@@ -1,6 +1,5 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
-import { IVariantOptions } from "./variant";
 
 export interface ICoordinate {
   x: number;

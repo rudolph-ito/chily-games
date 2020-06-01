@@ -1,6 +1,7 @@
 import { BaseBoard } from "./base_board";
 import { ICoordinate, PlayerColor } from "../../shared/dtos/game";
 import Konva from "konva";
+import { CoordinateMap } from "./coordinate_map";
 
 export interface ISquareBoardLayoutOptions {
   boardColumns: number;
@@ -13,14 +14,13 @@ export interface ISquareBoardOptions {
 }
 
 export class SquareBoard extends BaseBoard {
-  private readonly spaceCoordinateMap: Map<ICoordinate, Konva.Rect>;
+  private readonly spaceCoordinateMap = new CoordinateMap<Konva.Rect>();
   private readonly layout: ISquareBoardLayoutOptions;
   private spaceSize: number;
 
   constructor(element: HTMLDivElement, options: ISquareBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.spaceCoordinateMap = new Map<ICoordinate, Konva.Rect>();
     this.setup();
   }
 
@@ -65,6 +65,10 @@ export class SquareBoard extends BaseBoard {
     });
     space.width(this.spaceSize);
     space.height(this.spaceSize);
+  }
+
+  getSpace(coordinate: ICoordinate): Konva.Shape {
+    return this.spaceCoordinateMap.get(coordinate);
   }
 
   // From alabaster point of view:

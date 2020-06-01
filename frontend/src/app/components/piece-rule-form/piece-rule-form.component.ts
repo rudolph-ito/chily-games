@@ -1,21 +1,30 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import {
   IPieceRuleOptions,
   IPieceRule,
   IPieceRuleValidationErrors,
+  CaptureType,
 } from "src/app/shared/dtos/piece_rule";
 import { ISelectOption } from "src/app/models/form";
 import { FormControl } from "@angular/forms";
 import { Observable } from "rxjs";
 import { PieceRuleService } from "src/app/services/piece-rule.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
+import {
+  doesHaveValue,
+  doesNotHaveValue,
+} from "../../shared/utilities/value_checker";
 import { setError } from "src/app/utils/form-control-helpers";
 import {
   PIECE_TYPE_OPTIONS,
   PATH_TYPE_OPTIONS,
   CAPTURE_TYPE_OPTIONS,
 } from "src/app/models/piece-rule";
+import { VariantService } from "src/app/services/variant.service";
+import { IVariant } from "src/app/shared/dtos/variant";
+import { BaseBoard } from "src/app/game/board/base_board";
+import { PlayerColor } from "src/app/shared/dtos/game";
+import { buildBoard } from "src/app/game/board/board_builder";
 
 interface IPieceRuleFormControls {
   pieceTypeId: FormControl;
@@ -45,15 +54,23 @@ export class PieceRuleFormComponent implements OnInit {
     captureType: new FormControl(),
   };
 
+  variant: IVariant;
   generalError: string;
+  board: BaseBoard;
+
+  @ViewChild("boardContainer") boardContainer: ElementRef;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly pieceRuleService: PieceRuleService
+    private readonly pieceRuleService: PieceRuleService,
+    private readonly variantService: VariantService
   ) {}
 
   ngOnInit(): void {
+    this.variantService.get(this.getVariantId()).subscribe((variant) => {
+      this.variant = variant;
+    });
     if (this.isUpdatingExistingPieceRule()) {
       this.loading = true;
       this.pieceRuleService
@@ -68,6 +85,44 @@ export class PieceRuleFormComponent implements OnInit {
           this.controls.captureType.setValue(pieceRule.captureType);
         });
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.controls.movementType.valueChanges.subscribe(
+      this.drawPreview.bind(this)
+    );
+    this.controls.movementMinimum.valueChanges.subscribe(
+      this.drawPreview.bind(this)
+    );
+    this.controls.movementMaximum.valueChanges.subscribe(
+      this.drawPreview.bind(this)
+    );
+    this.drawPreview();
+  }
+
+  drawPreview(): void {
+    if (doesHaveValue(this.board)) {
+      this.board.clear();
+      this.board = null;
+    }
+    const request = this.buildRequest();
+    if (
+      doesNotHaveValue(request.movement.type) ||
+      doesNotHaveValue(request.movement.minimum)
+    ) {
+      return;
+    }
+    this.variantService
+      .previewPieceRule(this.getVariantId(), CaptureType.MOVEMENT, request)
+      .subscribe((result) => {
+        this.board = buildBoard(
+          this.boardContainer.nativeElement,
+          PlayerColor.ONYX,
+          this.variant
+        );
+        this.board.draw(false);
+        this.board.highlightValidPlies(result.validPlies);
+      });
   }
 
   isUpdatingExistingPieceRule(): boolean {
@@ -93,8 +148,8 @@ export class PieceRuleFormComponent implements OnInit {
     return this.pieceRuleService.create(this.getVariantId(), request);
   }
 
-  submit(): void {
-    const request: IPieceRuleOptions = {
+  buildRequest(): IPieceRuleOptions {
+    return {
       pieceTypeId: this.controls.pieceTypeId.value,
       count: this.controls.count.value,
       movement: {
@@ -104,8 +159,11 @@ export class PieceRuleFormComponent implements OnInit {
       },
       captureType: this.controls.captureType.value,
     };
+  }
+
+  submit(): void {
     this.loading = true;
-    this.save(request).subscribe(
+    this.save(this.buildRequest()).subscribe(
       () => {
         this.goToVariant();
       },

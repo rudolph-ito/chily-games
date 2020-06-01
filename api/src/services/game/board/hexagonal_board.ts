@@ -83,7 +83,15 @@ export class HexagonalBoard implements IBoard {
   isCoordinateValid(coordinate: ICoordinate): boolean {
     const range = this.getCoordinateRange();
     const sum = coordinate.x + coordinate.y;
-    return sum >= range.min || sum <= range.max;
+    return (
+      this.isBetween(coordinate.x, range.min, range.max) &&
+      this.isBetween(coordinate.y, range.min, range.max) &&
+      this.isBetween(sum, range.min, range.max)
+    );
+  }
+
+  private isBetween(value: number, min: number, max: number): boolean {
+    return value >= min && value <= max;
   }
 
   private getCoordinateRange(): IRange {

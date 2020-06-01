@@ -19,8 +19,7 @@ import { setError } from "src/app/utils/form-control-helpers";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { Observable } from "rxjs";
 import { BaseBoard } from "src/app/game/board/base_board";
-import { SquareBoard } from "src/app/game/board/square_board";
-import { HexagonalBoard } from "src/app/game/board/hexagonal_board";
+import { buildBoard } from "src/app/game/board/board_builder";
 import { ISelectOption } from "src/app/models/form";
 import { PlayerColor } from "../../shared/dtos/game";
 
@@ -120,23 +119,13 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
       this.board = null;
     }
     const color = this.boardPreviewControls.viewpoint.value;
-    if (this.isBoardTypeSquare()) {
-      this.board = new SquareBoard(this.boardContainer.nativeElement, {
-        layout: {
-          boardColumns: this.controls.boardColumns.value,
-          boardRows: this.controls.boardRows.value,
-        },
-        color,
-      });
-    }
-    if (this.isBoardTypeHexagonal()) {
-      this.board = new HexagonalBoard(this.boardContainer.nativeElement, {
-        layout: {
-          boardSize: this.controls.boardSize.value,
-        },
-        color,
-      });
-    }
+    this.board = buildBoard(this.boardContainer.nativeElement, color, {
+      boardType: this.controls.boardType.value,
+      boardSize: this.controls.boardSize.value,
+      boardColumns: this.controls.boardColumns.value,
+      boardRows: this.controls.boardRows.value,
+      pieceRanks: this.controls.pieceRanks.value,
+    });
     if (doesHaveValue(this.board)) {
       this.board.draw(this.boardPreviewControls.showCoordinates.value);
     }
