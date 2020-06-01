@@ -46,14 +46,6 @@ export const PLY_EVALUATION_FLAGS = [
 
 export type ValidPlies = Record<PlyEvaluationFlag, ICoordinate[]>;
 
-export interface IPreviewBoardRequest {
-  variant: IVariantOptions;
-}
-
-export interface IPreviewBoardResponse {
-  serializedCoordinateMap: ISerializedCoordinateMap;
-}
-
 export interface IPreviewPieceRuleRequest {
   evaluationType: CaptureType;
   pieceRule: IPieceRuleOptions;

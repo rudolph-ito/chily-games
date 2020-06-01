@@ -19,8 +19,6 @@ import {
   PlayerColor,
   IPreviewPieceRuleRequest,
   IPreviewPieceRuleResponse,
-  IPreviewBoardRequest,
-  IPreviewBoardResponse,
 } from "../shared/dtos/game";
 import { getBoardForVariant } from "./game/board/builder";
 import { CoordinateMap } from "./game/storage/coordinate_map";
@@ -33,7 +31,6 @@ export interface IVariantService {
   ) => Promise<IVariant>;
   getVariant: (variantId: number) => Promise<IVariant>;
   deleteVariant: (userId: number, variantId: number) => Promise<void>;
-  previewBoard: (request: IPreviewBoardRequest) => IPreviewBoardResponse;
   previewPieceRule: (
     variantId: number,
     request: IPreviewPieceRuleRequest
@@ -87,14 +84,6 @@ export class VariantService implements IVariantService {
       throwVariantAuthorizationError("delete the variant");
     }
     await this.dataService.deleteVariant(variantId);
-  }
-
-  previewBoard(request: IPreviewBoardRequest): IPreviewBoardResponse {
-    const board = getBoardForVariant(request.variant);
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
-    return {
-      serializedCoordinateMap: coordinateMap.serialize(),
-    };
   }
 
   async previewPieceRule(

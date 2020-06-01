@@ -19,9 +19,7 @@ import {
   IPieceRuleOptions,
 } from "../shared/dtos/piece_rule";
 import {
-  IPreviewBoardRequest,
   IPreviewPieceRuleRequest,
-  IPreviewBoardResponse,
   IPreviewPieceRuleResponse,
 } from "../shared/dtos/game";
 
@@ -233,33 +231,6 @@ describe("VariantRoutes", () => {
         { x: -1, y: 1 },
       ]);
       expect(result.validPlies.reachable).to.eql([]);
-    });
-  });
-
-  describe("preview board (POST /api/variants/preview/board)", () => {
-    it("returns the coordinate map", async () => {
-      // Arrange
-      const variantOptions: IVariantOptions = {
-        boardType: BoardType.HEXAGONAL,
-        boardSize: 3,
-        pieceRanks: false,
-      };
-      const request: IPreviewBoardRequest = { variant: variantOptions };
-
-      // Act
-      const response = await supertest(app)
-        .post(`/api/variants/preview/board`)
-        .send(request)
-        .expect(200);
-
-      // Assert
-      expect(response.body).to.exist();
-      const result: IPreviewBoardResponse = response.body;
-      expect(result.serializedCoordinateMap).to.have.lengthOf(49);
-      expect(result.serializedCoordinateMap).to.deep.contain({
-        key: { x: 0, y: 0 },
-        value: {},
-      });
     });
   });
 });

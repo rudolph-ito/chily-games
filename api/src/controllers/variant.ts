@@ -15,10 +15,6 @@ export function getVariantRouter(
       })
       .catch(next);
   });
-  router.post("/preview/board", function (req, res, next) {
-    const result = variantService.previewBoard(req.body);
-    res.status(200).send(result);
-  });
   router.post("/:variantId/preview/pieceRule", function (req, res, next) {
     variantService
       .previewPieceRule(parseInt(req.params.variantId), req.body)
