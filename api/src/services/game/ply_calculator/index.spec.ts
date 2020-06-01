@@ -1,60 +1,52 @@
-import { PlyCalculator, IGetValidPliesOutput } from "./";
-import { CoordinateMap } from "../storage/coordinate_map";
-import { HexagonalBoard } from "../board/hexagonal_board";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 import {
-  IPieceRule,
   PieceType,
   CaptureType,
   PathType,
   IPathConfiguration,
+  IPieceRuleOptions,
 } from "../../../shared/dtos/piece_rule";
-import { SupportType } from "../../../shared/dtos/variant";
-import { PlayerColor, IPiece } from "../../../shared/dtos/game";
+import { IVariant, BoardType } from "../../../shared/dtos/variant";
+import { ValidPlies, PlyEvaluationFlag } from "../../../shared/dtos/game";
 import { expect } from "chai";
-import { PlyEvaluationFlag } from "./types";
 import { describe, it } from "mocha";
-import { IBoard } from "../board";
+import { previewPieceRule } from "./preview";
+
+function getMockVariant(data: Partial<IVariant>): IVariant {
+  return {
+    boardSize: 5,
+    boardType: BoardType.HEXAGONAL,
+    pieceRanks: false,
+    userId: 1,
+    variantId: 1,
+  };
+}
 
 function testDirectionalMovement(
-  board: IBoard,
+  variant: IVariant,
   movement: IPathConfiguration
-): IGetValidPliesOutput {
-  const coordinateMap = new CoordinateMap(board.getAllCoordinates());
-  const pieceTypeId = PieceType.CATAPULT;
-  const piece: IPiece = { pieceTypeId, playerColor: PlayerColor.ALABASTER };
-  const pieceRule: IPieceRule = {
-    pieceRuleId: 1,
-    pieceTypeId,
-    variantId: 1,
+): ValidPlies {
+  const pieceRule: IPieceRuleOptions = {
+    pieceTypeId: PieceType.CATAPULT,
     count: 1,
     movement,
     captureType: CaptureType.MOVEMENT,
   };
-  const coordinate = board.getCenter();
-  coordinateMap.addPiece(coordinate, piece);
-  const plyCalculator = new PlyCalculator({
-    coordinateMap: new CoordinateMap(board.getAllCoordinates()),
-    gameRules: {
-      board,
-      pieceRanks: false,
-      pieceRuleMap: new Map<PieceType, IPieceRule>([[pieceTypeId, pieceRule]]),
-      supportType: SupportType.NONE,
-      terrainRuleMap: new Map<TerrainType, ITerrainRule>(),
-    },
-  });
-  return plyCalculator.getValidPlies({
-    piece,
-    coordinate,
+  const result = previewPieceRule({
     evaluationType: CaptureType.MOVEMENT,
+    pieceRule,
+    variant,
   });
+  return result.validPlies;
 }
 
 describe("PlyCalculator", () => {
   describe("hexagonal board, piece alone in the center", () => {
     it("board size 3, orthogonal line (1-2)", () => {
       // Arrange
-      const board = new HexagonalBoard(3);
+      const variant = getMockVariant({
+        boardType: BoardType.HEXAGONAL,
+        boardSize: 3,
+      });
       const movement: IPathConfiguration = {
         type: PathType.ORTHOGONAL_LINE,
         minimum: 1,
@@ -62,7 +54,7 @@ describe("PlyCalculator", () => {
       };
 
       // Act
-      const validPlies = testDirectionalMovement(board, movement);
+      const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
       expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
@@ -85,7 +77,10 @@ describe("PlyCalculator", () => {
 
     it("board size 3, orthogonal with turns (1-2)", () => {
       // Arrange
-      const board = new HexagonalBoard(3);
+      const variant = getMockVariant({
+        boardType: BoardType.HEXAGONAL,
+        boardSize: 3,
+      });
       const movement: IPathConfiguration = {
         type: PathType.ORTHOGONAL_WITH_TURNS,
         minimum: 1,
@@ -93,7 +88,7 @@ describe("PlyCalculator", () => {
       };
 
       // Act
-      const validPlies = testDirectionalMovement(board, movement);
+      const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
       expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
@@ -122,7 +117,10 @@ describe("PlyCalculator", () => {
 
     it("board size 4, diagonal line (1-2)", () => {
       // Arrange
-      const board = new HexagonalBoard(4);
+      const variant = getMockVariant({
+        boardType: BoardType.HEXAGONAL,
+        boardSize: 4,
+      });
       const movement: IPathConfiguration = {
         type: PathType.DIAGONAL_LINE,
         minimum: 1,
@@ -130,7 +128,7 @@ describe("PlyCalculator", () => {
       };
 
       // Act
-      const validPlies = testDirectionalMovement(board, movement);
+      const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
       expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
@@ -153,7 +151,10 @@ describe("PlyCalculator", () => {
 
     it("board size 4, diagonal with turns (1-2)", () => {
       // Arrange
-      const board = new HexagonalBoard(4);
+      const variant = getMockVariant({
+        boardType: BoardType.HEXAGONAL,
+        boardSize: 4,
+      });
       const movement: IPathConfiguration = {
         type: PathType.DIAGONAL_WITH_TURNS,
         minimum: 1,
@@ -161,7 +162,7 @@ describe("PlyCalculator", () => {
       };
 
       // Act
-      const validPlies = testDirectionalMovement(board, movement);
+      const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
       expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([

@@ -5,7 +5,7 @@ import { sequelize } from "../src/database/models";
 import { shouldSequelizeLog } from "../src/shared/utilities/env";
 import supertest from "supertest";
 import { UserDataService } from "../src/services/data/user_data_service";
-import { BoardType } from "../src/shared/dtos/variant";
+import { BoardType, IVariantOptions } from "../src/shared/dtos/variant";
 import { VariantDataService } from "../src/services/data/variant_data_service";
 
 chai.use(dirtyChai);
@@ -42,12 +42,16 @@ export async function createTestUser(
   return user.userId;
 }
 
-export async function createTestVariant(creatorId: number): Promise<number> {
+export async function createTestVariant(
+  creatorId: number,
+  options: Partial<IVariantOptions> = {}
+): Promise<number> {
   const variant = await new VariantDataService().createVariant(
     {
       boardType: BoardType.HEXAGONAL,
       boardSize: 6,
       pieceRanks: false,
+      ...options,
     },
     creatorId
   );

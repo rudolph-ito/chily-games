@@ -4,18 +4,6 @@ import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 import { SupportType } from "../../../shared/dtos/variant";
 import { ICoordinateMap } from "../storage/coordinate_map";
 
-export enum PlyEvaluationFlag {
-  FREE = "free",
-  CAPTURABLE = "capturable",
-  REACHABLE = "reachable",
-}
-
-export const PLY_EVALUATION_FLAGS = [
-  PlyEvaluationFlag.FREE,
-  PlyEvaluationFlag.CAPTURABLE,
-  PlyEvaluationFlag.REACHABLE,
-];
-
 export interface IGameRules {
   board: IBoard;
   pieceRanks: boolean;

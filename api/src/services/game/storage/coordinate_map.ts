@@ -5,6 +5,11 @@ export interface ICoordinateData {
   terrain?: ITerrain;
 }
 
+export type ISerializedCoordinateMap = Array<{
+  key: ICoordinate;
+  value: ICoordinateData;
+}>;
+
 export interface ICoordinateMap {
   addPiece: (coordinate: ICoordinate, piece: IPiece) => void;
   addTerrain: (coordinate: ICoordinate, terrain: ITerrain) => void;
@@ -14,10 +19,22 @@ export interface ICoordinateMap {
   getTerrain: (coordinate: ICoordinate) => ITerrain;
   movePiece: (from: ICoordinate, to: ICoordinate) => void;
   moveTerrain: (from: ICoordinate, to: ICoordinate) => void;
+  serialize: () => ISerializedCoordinateMap;
 }
 
 export class CoordinateMap implements ICoordinateMap {
   private readonly data: Map<string, ICoordinateData>;
+
+  static deserialize(data: ISerializedCoordinateMap): CoordinateMap {
+    const coordinateMap = new CoordinateMap([]);
+    data.forEach((datum) =>
+      coordinateMap.addPiece(datum.key, datum.value.piece)
+    );
+    data.forEach((datum) =>
+      coordinateMap.addTerrain(datum.key, datum.value.terrain)
+    );
+    return coordinateMap;
+  }
 
   constructor(coordinates: ICoordinate[]) {
     this.data = new Map<string, ICoordinateData>();
@@ -62,11 +79,26 @@ export class CoordinateMap implements ICoordinateMap {
     this.addTerrain(to, terrain);
   }
 
+  serialize(): ISerializedCoordinateMap {
+    return Array.from(this.data.entries()).map((x) => ({
+      key: this.keyToCoordinate(x[0]),
+      value: x[1],
+    }));
+  }
+
   private getCoorinateData(coordinate: ICoordinate): ICoordinateData {
     return this.data.get(this.coordinateToKey(coordinate));
   }
 
   private coordinateToKey(coordinate: ICoordinate): string {
     return `${coordinate.x},${coordinate.y}`;
+  }
+
+  private keyToCoordinate(key: string): ICoordinate {
+    const parts = key.split(",");
+    return {
+      x: parseInt(parts[0], 10),
+      y: parseInt(parts[1], 10),
+    };
   }
 }

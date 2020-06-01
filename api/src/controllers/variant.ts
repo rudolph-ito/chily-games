@@ -1,10 +1,10 @@
 import express from "express";
-import { VariantService } from "../services/variant_service";
+import { VariantService, IVariantService } from "../services/variant_service";
 import { IUser } from "../shared/dtos/authentication";
 
 export function getVariantRouter(
   authenticationRequired: express.Handler,
-  variantService: VariantService = new VariantService()
+  variantService: IVariantService = new VariantService()
 ): express.Router {
   const router = express.Router();
   router.post("/search", function (req, res, next) {
@@ -12,6 +12,14 @@ export function getVariantRouter(
       .searchVariants(req.body)
       .then((paginatedVariants) => {
         res.status(200).send(paginatedVariants);
+      })
+      .catch(next);
+  });
+  router.post("/:variantId/preview/pieceRule", function (req, res, next) {
+    variantService
+      .previewPieceRule(parseInt(req.params.variantId), req.body)
+      .then((result) => {
+        res.status(200).send(result);
       })
       .catch(next);
   });

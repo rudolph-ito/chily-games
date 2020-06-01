@@ -1,42 +1,71 @@
-import { IPiece, ICoordinate } from "../../../shared/dtos/game";
+import {
+  IPiece,
+  ICoordinate,
+  PLY_EVALUATION_FLAGS,
+  ValidPlies,
+} from "../../../shared/dtos/game";
 import {
   CaptureType,
   PathType,
   IPathConfiguration,
+  IPieceRule,
+  PieceType,
 } from "../../../shared/dtos/piece_rule";
 import { ICoordinateUpdater, BoardDirection } from "../board";
 import { doesHaveValue } from "../../../shared/utilities/value_checker";
-import {
-  PlyEvaluationFlag,
-  IPlyEvaluateOptions,
-  PLY_EVALUATION_FLAGS,
-} from "./types";
+import { IPlyEvaluateOptions } from "./types";
 import { PlyEvaluator } from "./ply_evaluator";
 import uniqBy from "lodash.uniqby";
 
-interface IGetValidPliesInput {
+import { ICoordinateMap } from "../storage/coordinate_map";
+import { ITerrainRule, TerrainType } from "src/shared/dtos/terrain_rule";
+import { IVariant } from "src/shared/dtos/variant";
+import { getBoardForVariant } from "../board/builder";
+
+export interface INewPlyCalculatorOptions {
+  coordinateMap: ICoordinateMap;
+  pieceRules: IPieceRule[];
+  terrainRules: ITerrainRule[];
+  variant: IVariant;
+}
+
+export interface IGetValidPliesInput {
   coordinate: ICoordinate;
   evaluationType: CaptureType;
-  piece: IPiece;
 }
 
 interface IGetValidPliesData {
+  piece: IPiece;
   directionalFunctions: ICoordinateUpdater[];
   pathConfiguration: IPathConfiguration;
 }
 
-export type IGetValidPliesOutput = Record<PlyEvaluationFlag, ICoordinate[]>;
-
 export class PlyCalculator {
+  options: IPlyEvaluateOptions;
   plyEvaluator: PlyEvaluator;
 
-  constructor(private readonly options: IPlyEvaluateOptions) {
-    this.plyEvaluator = new PlyEvaluator(options);
+  constructor(options: INewPlyCalculatorOptions) {
+    this.options = {
+      coordinateMap: options.coordinateMap,
+      gameRules: {
+        board: getBoardForVariant(options.variant),
+        pieceRanks: options.variant.pieceRanks,
+        pieceRuleMap: new Map<PieceType, IPieceRule>(
+          options.pieceRules.map((r) => [r.pieceTypeId, r])
+        ),
+        supportType: options.variant.supportType,
+        terrainRuleMap: new Map<TerrainType, ITerrainRule>(
+          options.terrainRules.map((r) => [r.terrainTypeId, r])
+        ),
+      },
+    };
+    this.plyEvaluator = new PlyEvaluator(this.options);
   }
 
-  getValidPlies(input: IGetValidPliesInput): IGetValidPliesOutput {
+  getValidPlies(input: IGetValidPliesInput): ValidPlies {
+    const piece = this.options.coordinateMap.getPiece(input.coordinate);
     const pieceRule = this.options.gameRules.pieceRuleMap.get(
-      input.piece.pieceTypeId
+      piece.pieceTypeId
     );
     const pathConfiguration =
       input.evaluationType === CaptureType.MOVEMENT
@@ -47,6 +76,7 @@ export class PlyCalculator {
         pathConfiguration.type
       ),
       pathConfiguration,
+      piece,
     };
     if (pathConfiguration.type.includes("line")) {
       return this.getValidPliesForLine(input, data);
@@ -61,7 +91,7 @@ export class PlyCalculator {
   private getValidPliesForLine(
     input: IGetValidPliesInput,
     data: IGetValidPliesData
-  ): IGetValidPliesOutput {
+  ): ValidPlies {
     const result = this.getEmptyResult();
     data.directionalFunctions.forEach((directionalFunction) => {
       let to = input.coordinate;
@@ -73,7 +103,7 @@ export class PlyCalculator {
           coordinate: to,
           count,
           evaluationType: input.evaluationType,
-          piece: input.piece,
+          piece: data.piece,
         });
         if (plyEvaluation.valid) {
           result[plyEvaluation.flag].push(to);
@@ -87,7 +117,7 @@ export class PlyCalculator {
   private getValidPliesForTurns(
     input: IGetValidPliesInput,
     data: IGetValidPliesData
-  ): IGetValidPliesOutput {
+  ): ValidPlies {
     const result = this.recursiveGetValidPliesForTurns(
       input,
       data,
@@ -105,7 +135,7 @@ export class PlyCalculator {
     data: IGetValidPliesData,
     coordinate: ICoordinate,
     count: number
-  ): IGetValidPliesOutput {
+  ): ValidPlies {
     const result = this.getEmptyResult();
     if (this.getStopCondition(data.pathConfiguration)(count)) {
       return result;
@@ -132,7 +162,7 @@ export class PlyCalculator {
         coordinate: to,
         count,
         evaluationType: input.evaluationType,
-        piece: input.piece,
+        piece: data.piece,
       });
       if (plyEvaluation.valid) {
         result[plyEvaluation.flag].push(to);
@@ -153,7 +183,7 @@ export class PlyCalculator {
     return result;
   }
 
-  private getEmptyResult(): IGetValidPliesOutput {
+  private getEmptyResult(): ValidPlies {
     return {
       free: [],
       capturable: [],

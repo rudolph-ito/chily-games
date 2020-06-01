@@ -1,4 +1,9 @@
-import { ICoordinate, IPiece, ITerrain } from "../../../shared/dtos/game";
+import {
+  ICoordinate,
+  IPiece,
+  ITerrain,
+  PlyEvaluationFlag,
+} from "../../../shared/dtos/game";
 import {
   PieceType,
   IPieceRule,
@@ -13,7 +18,7 @@ import {
   doesHaveValue,
   doesNotHaveValue,
 } from "../../../shared/utilities/value_checker";
-import { IPlyEvaluateOptions, PlyEvaluationFlag } from "./types";
+import { IPlyEvaluateOptions } from "./types";
 
 interface IPlyEvaluation {
   countModifier: number; // base case is 1, more if terrain slows or stops
