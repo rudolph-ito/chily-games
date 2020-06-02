@@ -18,7 +18,7 @@ function getMockVariant(data: Partial<IVariant>): IVariant {
     pieceRanks: false,
     userId: 1,
     variantId: 1,
-    ...data
+    ...data,
   };
 }
 
@@ -197,7 +197,7 @@ describe("PlyCalculator", () => {
       const variant = getMockVariant({
         boardType: BoardType.SQUARE,
         boardColumns: 5,
-        boardRows: 5
+        boardRows: 5,
       });
       const movement: IPathConfiguration = {
         type: PathType.ORTHOGONAL_LINE,
@@ -210,14 +210,14 @@ describe("PlyCalculator", () => {
 
       // Assert
       expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
-        {x: 3, y: 2},
-        {x: 4, y: 2},
-        {x: 1, y: 2},
-        {x: 0, y: 2},
-        {x: 2, y: 3},
-        {x: 2, y: 4},
-        {x: 2, y: 1},
-        {x: 2, y: 0}
+        { x: 3, y: 2 },
+        { x: 4, y: 2 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 },
+        { x: 2, y: 3 },
+        { x: 2, y: 4 },
+        { x: 2, y: 1 },
+        { x: 2, y: 0 },
       ]);
       expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
       expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
@@ -228,7 +228,7 @@ describe("PlyCalculator", () => {
       const variant = getMockVariant({
         boardType: BoardType.SQUARE,
         boardColumns: 5,
-        boardRows: 5
+        boardRows: 5,
       });
       const movement: IPathConfiguration = {
         type: PathType.ORTHOGONAL_WITH_TURNS,
@@ -241,18 +241,18 @@ describe("PlyCalculator", () => {
 
       // Assert
       expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
-        {x: 3, y: 2},
-        {x: 4, y: 2},
-        {x: 3, y: 3},
-        {x: 3, y: 1},
-        {x: 1, y: 2},
-        {x: 0, y: 2},
-        {x: 1, y: 3},
-        {x: 1, y: 1},
-        {x: 2, y: 3},
-        {x: 2, y: 4},
-        {x: 2, y: 1},
-        {x: 2, y: 0}
+        { x: 3, y: 2 },
+        { x: 4, y: 2 },
+        { x: 3, y: 3 },
+        { x: 3, y: 1 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 },
+        { x: 1, y: 3 },
+        { x: 1, y: 1 },
+        { x: 2, y: 3 },
+        { x: 2, y: 4 },
+        { x: 2, y: 1 },
+        { x: 2, y: 0 },
       ]);
       expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
       expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
