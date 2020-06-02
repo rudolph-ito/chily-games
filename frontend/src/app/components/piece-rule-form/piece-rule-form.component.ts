@@ -21,7 +21,6 @@ import {
   CAPTURE_TYPE_OPTIONS,
 } from "src/app/models/piece-rule";
 import { VariantService } from "src/app/services/variant.service";
-import { IVariant } from "src/app/shared/dtos/variant";
 import { BaseBoard } from "src/app/game/board/base_board";
 import { PlayerColor } from "src/app/shared/dtos/game";
 import { buildBoard } from "src/app/game/board/board_builder";
@@ -54,7 +53,6 @@ export class PieceRuleFormComponent implements OnInit {
     captureType: new FormControl(),
   };
 
-  variant: IVariant;
   generalError: string;
   board: BaseBoard;
 
@@ -68,9 +66,6 @@ export class PieceRuleFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.variantService.get(this.getVariantId()).subscribe((variant) => {
-      this.variant = variant;
-    });
     if (this.isUpdatingExistingPieceRule()) {
       this.loading = true;
       this.pieceRuleService
@@ -97,14 +92,22 @@ export class PieceRuleFormComponent implements OnInit {
     this.controls.movementMaximum.valueChanges.subscribe(
       this.drawPreview.bind(this)
     );
-    this.drawPreview();
+    this.variantService.get(this.getVariantId()).subscribe((variant) => {
+      this.board = buildBoard(
+        this.boardContainer.nativeElement,
+        PlayerColor.ONYX,
+        variant
+      );
+      this.board.draw(false);
+      this.drawPreview();
+    });
   }
 
   drawPreview(): void {
-    if (doesHaveValue(this.board)) {
-      this.board.clear();
-      this.board = null;
+    if (doesNotHaveValue(this.board)) {
+      return;
     }
+    this.board.clearHighlight();
     const request = this.buildRequest();
     if (
       doesNotHaveValue(request.movement.type) ||
@@ -115,12 +118,6 @@ export class PieceRuleFormComponent implements OnInit {
     this.variantService
       .previewPieceRule(this.getVariantId(), CaptureType.MOVEMENT, request)
       .subscribe((result) => {
-        this.board = buildBoard(
-          this.boardContainer.nativeElement,
-          PlayerColor.ONYX,
-          this.variant
-        );
-        this.board.draw(false);
         this.board.highlightValidPlies(result.validPlies);
       });
   }

@@ -52,7 +52,8 @@ export class HexagonalBoard extends BaseBoard {
     };
   }
 
-  addSpaces(showCoordinates: boolean): void {
+  getAllCoordinates(): ICoordinate[] {
+    const result: ICoordinate[] = [];
     const min = -1 * this.layout.boardSize;
     const max = this.layout.boardSize;
     for (let x = min; x <= max; x++) {
@@ -64,9 +65,10 @@ export class HexagonalBoard extends BaseBoard {
         if (sum > max) {
           break;
         }
-        this.addSpace({ x, y }, showCoordinates);
+        result.push({ x, y });
       }
     }
+    return result;
   }
 
   addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {

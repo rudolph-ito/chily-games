@@ -36,12 +36,14 @@ export class SquareBoard extends BaseBoard {
     };
   }
 
-  public addSpaces(showCoordinates: boolean): void {
+  public getAllCoordinates(): ICoordinate[] {
+    const result: ICoordinate[] = [];
     for (let x = 0; x < this.layout.boardColumns; x++) {
       for (let y = 0; y < this.layout.boardRows; y++) {
-        this.addSpace({ x, y }, showCoordinates);
+        result.push({ x, y });
       }
     }
+    return result;
   }
 
   public addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {

@@ -68,15 +68,27 @@ export abstract class BaseBoard {
     this.spaceLayer.add(text);
   }
 
-  protected abstract addSpaces(showCoordinates: boolean): void;
+  protected abstract getAllCoordinates(): ICoordinate[];
+
+  protected abstract addSpace(
+    coordinate: ICoordinate,
+    showCoordinates: boolean
+  ): void;
 
   protected abstract getSpace(coordinate: ICoordinate): Konva.Shape;
 
   protected abstract coordinateToPosition(coordinate: ICoordinate): ICoordinate;
 
   public draw(showCoordinates: boolean): void {
-    this.addSpaces(showCoordinates);
+    this.getAllCoordinates().forEach((c) => this.addSpace(c, showCoordinates));
     this.spaceLayer.draw();
+  }
+
+  public clearHighlight(): void {
+    this.getAllCoordinates().forEach((c) => {
+      const shape = this.getSpace(c);
+      this.toggleSpaceHighlight(shape, SpaceHighlight.NONE);
+    });
   }
 
   public highlightValidPlies(validPlies: ValidPlies): void {
