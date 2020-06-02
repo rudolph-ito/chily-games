@@ -24,29 +24,9 @@ export class SquareBoard extends BaseBoard {
     this.setup();
   }
 
-  public setup(): void {
-    const maxSize = this.getMaxSize();
-    const maxSpaceWidth = maxSize.x / this.layout.boardColumns;
-    const maxSpaceHeight = maxSize.y / this.layout.boardRows;
+  // Protected overrides
 
-    this.spaceSize = Math.min(maxSpaceWidth, maxSpaceHeight);
-    this.size = {
-      x: this.spaceSize * this.layout.boardColumns,
-      y: this.spaceSize * this.layout.boardRows,
-    };
-  }
-
-  public getAllCoordinates(): ICoordinate[] {
-    const result: ICoordinate[] = [];
-    for (let x = 0; x < this.layout.boardColumns; x++) {
-      for (let y = 0; y < this.layout.boardRows; y++) {
-        result.push({ x, y });
-      }
-    }
-    return result;
-  }
-
-  public addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
+  protected addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
     const rect = new Konva.Rect({
       stroke: "#000",
       strokeWidth: 1,
@@ -60,24 +40,11 @@ export class SquareBoard extends BaseBoard {
     }
   }
 
-  public setSpaceSize(space: Konva.Rect): void {
-    space.offset({
-      x: this.spaceSize / 2,
-      y: this.spaceSize / 2,
-    });
-    space.width(this.spaceSize);
-    space.height(this.spaceSize);
-  }
-
-  getSpace(coordinate: ICoordinate): Konva.Shape {
-    return this.spaceCoordinateMap.get(coordinate);
-  }
-
   // From alabaster point of view:
   //   (0,0) in bottom left
   //   x increases going right
   //   y increases going up
-  public coordinateToPosition(coordinate: ICoordinate): ICoordinate {
+  protected coordinateToPosition(coordinate: ICoordinate): ICoordinate {
     const position = {
       x: coordinate.x * this.spaceSize + this.spaceSize / 2,
       y: this.size.y - (coordinate.y * this.spaceSize + this.spaceSize / 2),
@@ -90,5 +57,46 @@ export class SquareBoard extends BaseBoard {
       x: position.x + this.getOffset().x,
       y: position.y + this.getOffset().y,
     };
+  }
+
+  protected getAllCoordinates(): ICoordinate[] {
+    const result: ICoordinate[] = [];
+    for (let x = 0; x < this.layout.boardColumns; x++) {
+      for (let y = 0; y < this.layout.boardRows; y++) {
+        result.push({ x, y });
+      }
+    }
+    return result;
+  }
+
+  protected getPieceSize(): number {
+    return this.spaceSize * 0.9;
+  }
+
+  protected getSpace(coordinate: ICoordinate): Konva.Shape {
+    return this.spaceCoordinateMap.get(coordinate);
+  }
+
+  // Private
+
+  public setup(): void {
+    const maxSize = this.getMaxSize();
+    const maxSpaceWidth = maxSize.x / this.layout.boardColumns;
+    const maxSpaceHeight = maxSize.y / this.layout.boardRows;
+
+    this.spaceSize = Math.min(maxSpaceWidth, maxSpaceHeight);
+    this.size = {
+      x: this.spaceSize * this.layout.boardColumns,
+      y: this.spaceSize * this.layout.boardRows,
+    };
+  }
+
+  private setSpaceSize(space: Konva.Rect): void {
+    space.offset({
+      x: this.spaceSize / 2,
+      y: this.spaceSize / 2,
+    });
+    space.width(this.spaceSize);
+    space.height(this.spaceSize);
   }
 }

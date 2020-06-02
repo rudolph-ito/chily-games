@@ -211,16 +211,7 @@ describe("VariantRoutes", () => {
       // Assert
       expect(response.body).to.exist();
       const result: IPreviewPieceRuleResponse = response.body;
-      expect(result.serializedCoordinateMap).to.have.lengthOf(49);
-      expect(result.serializedCoordinateMap).to.deep.contain({
-        key: { x: 0, y: 0 },
-        value: {
-          piece: {
-            pieceTypeId: "catapult",
-            playerColor: "alabaster",
-          },
-        },
-      });
+      expect(result.origin).to.eql({ x: 0, y: 0 });
       expect(result.validPlies.capturable).to.eql([]);
       expect(result.validPlies.free).to.have.deep.members([
         { x: 1, y: 0 },

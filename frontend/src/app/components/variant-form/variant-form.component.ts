@@ -115,7 +115,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
 
   drawPreview(): void {
     if (doesHaveValue(this.board)) {
-      this.board.clear();
+      this.board.destroy();
       this.board = null;
     }
     const color = this.boardPreviewControls.viewpoint.value;

@@ -83,6 +83,9 @@ export class PieceRuleFormComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
+    this.controls.pieceTypeId.valueChanges.subscribe(
+      this.drawPreview.bind(this)
+    );
     this.controls.movementType.valueChanges.subscribe(
       this.drawPreview.bind(this)
     );
@@ -107,9 +110,11 @@ export class PieceRuleFormComponent implements OnInit {
     if (doesNotHaveValue(this.board)) {
       return;
     }
+    this.board.clearPieces();
     this.board.clearHighlight();
     const request = this.buildRequest();
     if (
+      doesNotHaveValue(request.pieceTypeId) ||
       doesNotHaveValue(request.movement.type) ||
       doesNotHaveValue(request.movement.minimum)
     ) {
@@ -118,6 +123,10 @@ export class PieceRuleFormComponent implements OnInit {
     this.variantService
       .previewPieceRule(this.getVariantId(), CaptureType.MOVEMENT, request)
       .subscribe((result) => {
+        this.board.addPiece(result.origin, {
+          pieceTypeId: request.pieceTypeId,
+          playerColor: PlayerColor.ALABASTER,
+        });
         this.board.highlightValidPlies(result.validPlies);
       });
   }

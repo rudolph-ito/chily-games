@@ -51,6 +51,6 @@ export interface IPreviewPieceRuleRequest {
 }
 
 export interface IPreviewPieceRuleResponse {
-  serializedCoordinateMap: ISerializedCoordinateMap;
+  origin: ICoordinate;
   validPlies: ValidPlies;
 }

@@ -34,7 +34,7 @@ export function previewPieceRule(
     variant: request.variant,
   });
   return {
-    serializedCoordinateMap: coordinateMap.serialize(),
+    origin: coordinate,
     validPlies: plyCalculator.getValidPlies({
       coordinate,
       evaluationType: request.evaluationType,

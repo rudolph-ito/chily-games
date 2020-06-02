@@ -153,7 +153,7 @@ export class PlyCalculator {
         input.coordinate,
         to
       );
-      if (oldDistance >= newDistance || newDistance < count) {
+      if (oldDistance >= newDistance || newDistance <= count - 1) {
         return;
       }
 
