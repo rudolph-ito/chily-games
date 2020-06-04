@@ -7,6 +7,8 @@ import {
   IPieceRuleValidationErrors,
   IPathConfigurationValidationErrors,
   PieceType,
+  IPathConfiguration,
+  CaptureType,
 } from "../../shared/dtos/piece_rule";
 
 export function validatePieceRuleOptions(
@@ -44,26 +46,53 @@ export function validatePieceRuleOptions(
       "Count is locked to 1. Every variant must have exactly one king.";
   }
 
-  const movementErrors: IPathConfigurationValidationErrors = {};
-  if (
-    doesNotHaveValue(options.movement) ||
-    doesNotHaveValue(options.movement.type)
-  ) {
-    movementErrors.type = "Movement type is required";
-  }
-  if (
-    doesNotHaveValue(options.movement) ||
-    doesNotHaveValue(options.movement.minimum)
-  ) {
-    movementErrors.minimum = "Movement minimum is required";
-  } else if (options.count < 1) {
-    movementErrors.minimum =
-      "Movement minimun must be greater than or equal to 1";
-  }
-  if (Object.keys(movementErrors).length > 0) {
+  // movement
+  const movementErrors = validatePathConfigurationOptions(options.movement, "Movement");
+  if (doesHaveValue(movementErrors)) {
     errors.movement = movementErrors;
   }
 
+  // capture type + range
+  if (options.captureType === CaptureType.RANGE) {
+    const rangeErrors = validatePathConfigurationOptions(options.range, "Range");
+    if (doesHaveValue(rangeErrors)) {
+      errors.range = rangeErrors;
+    }
+  } else if (options.captureType !== CaptureType.MOVEMENT) {
+    errors.captureType = "Capture type must be movement or range.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return errors;
+  }
+  return null;
+}
+
+export function validatePathConfigurationOptions(
+  config: IPathConfiguration,
+  prefix: string,
+): IPathConfigurationValidationErrors {
+  const errors: IPathConfigurationValidationErrors = {};
+  if (
+    doesNotHaveValue(config) ||
+    doesNotHaveValue(config.type)
+  ) {
+    errors.type = `${prefix} type is required`;
+  }
+  if (
+    doesNotHaveValue(config) ||
+    doesNotHaveValue(config.minimum)
+  ) {
+    errors.minimum = `${prefix} minimum is required`;
+  } else if (config.minimum < 1) {
+    errors.minimum =
+      `${prefix} minimum must be greater than or equal to 1`;
+  } else {
+    if (doesHaveValue(config.maximum) && config.maximum < config.minimum) {
+      errors.maximum =
+      `${prefix} maximum must be greater than or equal to minimum`;
+    }
+  }
   if (Object.keys(errors).length > 0) {
     return errors;
   }

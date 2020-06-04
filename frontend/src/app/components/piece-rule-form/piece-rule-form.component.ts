@@ -208,6 +208,11 @@ export class PieceRuleFormComponent implements OnInit {
             setError(this.controls.movementMaximum, errors.movement.maximum);
           }
           setError(this.controls.captureType, errors.captureType);
+          if (doesHaveValue(errors.range)) {
+            setError(this.controls.rangeType, errors.range.type);
+            setError(this.controls.rangeMinimum, errors.range.minimum);
+            setError(this.controls.rangeMaximum, errors.range.maximum);
+          }
           this.generalError = errors.general;
         } else {
           // TODO better handling
