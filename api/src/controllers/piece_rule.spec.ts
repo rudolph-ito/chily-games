@@ -94,6 +94,7 @@ describe("PieceRuleRoutes", () => {
           type: "Movement type is required",
           minimum: "Movement minimum is required",
         },
+        captureType: "Capture type must be movement or range."
       });
     });
 
@@ -284,6 +285,7 @@ describe("PieceRuleRoutes", () => {
           type: "Movement type is required",
           minimum: "Movement minimum is required",
         },
+        captureType: "Capture type must be movement or range."
       });
     });
 
