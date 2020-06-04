@@ -8,7 +8,7 @@ import { Observable, of, forkJoin } from "rxjs";
 import { AuthenticationService } from "../../services/authentication.service";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { map } from "rxjs/operators";
-import { IPieceRule } from "src/app/shared/dtos/piece_rule";
+import { IPieceRule, CaptureType } from "src/app/shared/dtos/piece_rule";
 import { PieceRuleService } from "../../services/piece-rule.service";
 import {
   getPathConfigurationDescription,
@@ -41,6 +41,8 @@ export class VariantShowComponent implements OnInit {
     "count",
     "movementDescription",
     "captureDescription",
+    "rangeDescription",
+    "moveAndRangeCapture",
     "actions",
   ];
 
@@ -72,6 +74,10 @@ export class VariantShowComponent implements OnInit {
 
   getVariantId(): number {
     return this.route.snapshot.params.variantId;
+  }
+
+  isPieceRuleCaptureTypeRange(pieceRule: IPieceRule): boolean {
+    return pieceRule.captureType === CaptureType.RANGE;
   }
 
   updateFields(): void {

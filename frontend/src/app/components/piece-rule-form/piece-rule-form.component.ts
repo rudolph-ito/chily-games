@@ -32,6 +32,10 @@ interface IPieceRuleFormControls {
   movementMinimum: FormControl;
   movementMaximum: FormControl;
   captureType: FormControl;
+  rangeType: FormControl;
+  rangeMinimum: FormControl;
+  rangeMaximum: FormControl;
+  moveAndRangeCapture: FormControl;
 }
 
 @Component({
@@ -42,7 +46,7 @@ interface IPieceRuleFormControls {
 export class PieceRuleFormComponent implements OnInit {
   loading = false;
   pieceTypeOptions: ISelectOption[] = PIECE_TYPE_OPTIONS;
-  movementTypeOptions: ISelectOption[] = PATH_TYPE_OPTIONS;
+  pathTypeOptions: ISelectOption[] = PATH_TYPE_OPTIONS;
   captureTypeOptions: ISelectOption[] = CAPTURE_TYPE_OPTIONS;
   controls: IPieceRuleFormControls = {
     pieceTypeId: new FormControl(),
@@ -51,6 +55,10 @@ export class PieceRuleFormComponent implements OnInit {
     movementMinimum: new FormControl(),
     movementMaximum: new FormControl(),
     captureType: new FormControl(),
+    rangeType: new FormControl(),
+    rangeMinimum: new FormControl(),
+    rangeMaximum: new FormControl(),
+    moveAndRangeCapture: new FormControl(),
   };
 
   generalError: string;
@@ -78,6 +86,12 @@ export class PieceRuleFormComponent implements OnInit {
           this.controls.movementMinimum.setValue(pieceRule.movement.minimum);
           this.controls.movementMaximum.setValue(pieceRule.movement.maximum);
           this.controls.captureType.setValue(pieceRule.captureType);
+          this.controls.rangeType.setValue(pieceRule.range.type);
+          this.controls.rangeMinimum.setValue(pieceRule.range.minimum);
+          this.controls.rangeMaximum.setValue(pieceRule.range.maximum);
+          this.controls.moveAndRangeCapture.setValue(
+            pieceRule.moveAndRangeCapture
+          );
         });
     }
   }
@@ -135,6 +149,10 @@ export class PieceRuleFormComponent implements OnInit {
     return doesHaveValue(this.getPieceRuleId());
   }
 
+  isCaptureTypeRange(): boolean {
+    return this.controls.captureType.value === CaptureType.RANGE;
+  }
+
   getVariantId(): number {
     return this.route.snapshot.params.variantId;
   }
@@ -164,6 +182,12 @@ export class PieceRuleFormComponent implements OnInit {
         maximum: this.controls.movementMaximum.value,
       },
       captureType: this.controls.captureType.value,
+      range: {
+        type: this.controls.rangeType.value,
+        minimum: this.controls.rangeMinimum.value,
+        maximum: this.controls.rangeMaximum.value,
+      },
+      moveAndRangeCapture: this.controls.moveAndRangeCapture.value,
     };
   }
 

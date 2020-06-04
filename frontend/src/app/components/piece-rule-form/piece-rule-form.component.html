@@ -22,7 +22,7 @@
     <mat-form-field> 
       <mat-label>Movement Type</mat-label>
       <mat-select [formControl]="controls.movementType">
-        <mat-option *ngFor="let option of movementTypeOptions" [value]="option.value">
+        <mat-option *ngFor="let option of pathTypeOptions" [value]="option.value">
           {{option.label}}
         </mat-option>
       </mat-select>
@@ -47,6 +47,26 @@
       </mat-select>
       <mat-error>{{ controls.captureType.getError('invalid') }}</mat-error>
     </mat-form-field>
+    <mat-form-field *ngIf="isCaptureTypeRange()"> 
+      <mat-label>Range Type</mat-label>
+      <mat-select [formControl]="controls.rangeType">
+        <mat-option *ngFor="let option of pathTypeOptions" [value]="option.value">
+          {{option.label}}
+        </mat-option>
+      </mat-select>
+      <mat-error>{{ controls.rangeType.getError('invalid') }}</mat-error>
+    </mat-form-field>
+    <mat-form-field *ngIf="isCaptureTypeRange()"> 
+      <mat-label>Range Minimum</mat-label>
+      <input matInput type="number" [formControl]="controls.rangeMinimum">
+      <mat-error>{{ controls.rangeMinimum.getError('invalid') }}</mat-error>
+    </mat-form-field>
+    <mat-form-field *ngIf="isCaptureTypeRange()"> 
+      <mat-label>Range Maximum</mat-label>
+      <input matInput type="number" [formControl]="controls.rangeMaximum">
+      <mat-error>{{ controls.rangeMaximum.getError('invalid') }}</mat-error>
+    </mat-form-field>
+    <mat-checkbox *ngIf="isCaptureTypeRange()" [formControl]="controls.moveAndRangeCapture">Move and range capture</mat-checkbox>
   </div>
   <div class="board-preview-wrapper">
     <div class="title">Movement Preview</div>
