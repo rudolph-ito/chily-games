@@ -47,14 +47,20 @@ export function validatePieceRuleOptions(
   }
 
   // movement
-  const movementErrors = validatePathConfigurationOptions(options.movement, "Movement");
+  const movementErrors = validatePathConfigurationOptions(
+    options.movement,
+    "Movement"
+  );
   if (doesHaveValue(movementErrors)) {
     errors.movement = movementErrors;
   }
 
   // capture type + range
   if (options.captureType === CaptureType.RANGE) {
-    const rangeErrors = validatePathConfigurationOptions(options.range, "Range");
+    const rangeErrors = validatePathConfigurationOptions(
+      options.range,
+      "Range"
+    );
     if (doesHaveValue(rangeErrors)) {
       errors.range = rangeErrors;
     }
@@ -70,27 +76,19 @@ export function validatePieceRuleOptions(
 
 export function validatePathConfigurationOptions(
   config: IPathConfiguration,
-  prefix: string,
+  prefix: string
 ): IPathConfigurationValidationErrors {
   const errors: IPathConfigurationValidationErrors = {};
-  if (
-    doesNotHaveValue(config) ||
-    doesNotHaveValue(config.type)
-  ) {
+  if (doesNotHaveValue(config) || doesNotHaveValue(config.type)) {
     errors.type = `${prefix} type is required`;
   }
-  if (
-    doesNotHaveValue(config) ||
-    doesNotHaveValue(config.minimum)
-  ) {
+  if (doesNotHaveValue(config) || doesNotHaveValue(config.minimum)) {
     errors.minimum = `${prefix} minimum is required`;
   } else if (config.minimum < 1) {
-    errors.minimum =
-      `${prefix} minimum must be greater than or equal to 1`;
+    errors.minimum = `${prefix} minimum must be greater than or equal to 1`;
   } else {
     if (doesHaveValue(config.maximum) && config.maximum < config.minimum) {
-      errors.maximum =
-      `${prefix} maximum must be greater than or equal to minimum`;
+      errors.maximum = `${prefix} maximum must be greater than or equal to minimum`;
     }
   }
   if (Object.keys(errors).length > 0) {
