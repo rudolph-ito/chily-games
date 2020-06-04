@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: async (queryInterface, Sequelize) => {
     // Matches shared/dtos/terrain_rule.ts:PathRuleEffectType
     const pieceTypesEffectedEnum = Sequelize.ENUM(
       "all",
@@ -25,7 +25,7 @@ module.exports = {
       "trebuchet"
     );
 
-    return queryInterface.createTable("TerrainRules", {
+    await queryInterface.createTable("TerrainRules", {
       terrainRuleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -66,8 +66,12 @@ module.exports = {
         type: Sequelize.ARRAY(pieceTypeEnum),
         allowNull: false,
       },
+      slowsMovementBy: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       slowsMovementFor: {
-        allow: pieceTypesEffectedEnum,
+        type: pieceTypesEffectedEnum,
         allowNull: false,
       },
       slowsMovementPieceTypeIds: {
@@ -75,7 +79,7 @@ module.exports = {
         allowNull: false,
       },
       stopsMovementFor: {
-        allow: pieceTypesEffectedEnum,
+        type: pieceTypesEffectedEnum,
         allowNull: false,
       },
       stopsMovementPieceTypeIds: {
@@ -91,6 +95,11 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
+    await queryInterface.addIndex(
+      "TerrainRules",
+      ["variantId", "terrainTypeId"],
+      { unique: true }
+    );
   },
 
   down: (queryInterface, Sequelize) => {

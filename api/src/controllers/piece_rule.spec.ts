@@ -9,6 +9,7 @@ import {
   createAndLoginTestUser,
   createTestVariant,
   createTestCredentials,
+  createTestPieceRule,
 } from "../../test/test_helper";
 import supertest from "supertest";
 import {
@@ -20,26 +21,6 @@ import {
 } from "../shared/dtos/piece_rule";
 import { PieceRuleDataService } from "../services/data/piece_rule_data_service";
 import { PieceRule } from "../database/models";
-
-async function createTestPieceRule(
-  pieceTypeId: PieceType,
-  variantId: number
-): Promise<number> {
-  const pieceRule = await new PieceRuleDataService().createPieceRule(
-    {
-      pieceTypeId,
-      count: 1,
-      movement: {
-        type: PathType.ORTHOGONAL_WITH_TURNS,
-        minimum: 1,
-        maximum: 1,
-      },
-      captureType: CaptureType.MOVEMENT,
-    },
-    variantId
-  );
-  return pieceRule.pieceRuleId;
-}
 
 describe("PieceRuleRoutes", () => {
   resetDatabaseBeforeEach();
@@ -109,6 +90,11 @@ describe("PieceRuleRoutes", () => {
       expect(response.body).to.eql({
         pieceTypeId: "Piece type is required",
         count: "Count is required",
+        movement: {
+          type: "Movement type is required",
+          minimum: "Movement minimum is required",
+        },
+        captureType: "Capture type must be movement or range.",
       });
     });
 
@@ -183,12 +169,12 @@ describe("PieceRuleRoutes", () => {
       const pieceRules = await new PieceRuleDataService().getPieceRules(
         variantId
       );
-      expect(pieceRules).to.eql([]);
+      expect(pieceRules.map((pr) => pr.pieceTypeId)).to.eql([PieceType.KING]);
     });
   });
 
   describe("get piece rules (GET /api/variants/:variantId/pieceRules)", () => {
-    it("with no piece rules, returns empty array", async () => {
+    it("with default piece rules, returns the king piece rule", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -199,7 +185,8 @@ describe("PieceRuleRoutes", () => {
 
       // Assert
       expect(response.body).to.exist();
-      expect(response.body).to.eql([]);
+      const pieceRules: IPieceRule[] = response.body;
+      expect(pieceRules.map((pr) => pr.pieceTypeId)).to.eql([PieceType.KING]);
     });
 
     it("with piece rules, returns the list", async () => {
@@ -216,8 +203,9 @@ describe("PieceRuleRoutes", () => {
       // Assert
       expect(response.body).to.exist();
       const pieceRules: PieceRule[] = response.body;
-      expect(pieceRules.length).to.eql(2);
+      expect(pieceRules.length).to.eql(3);
       expect(pieceRules.map((x) => x.pieceTypeId)).to.have.members([
+        PieceType.KING,
         PieceType.RABBLE,
         PieceType.SPEAR,
       ]);
@@ -293,6 +281,11 @@ describe("PieceRuleRoutes", () => {
       expect(response.body).to.eql({
         pieceTypeId: "Piece type is required",
         count: "Count is required",
+        movement: {
+          type: "Movement type is required",
+          minimum: "Movement minimum is required",
+        },
+        captureType: "Capture type must be movement or range.",
       });
     });
 

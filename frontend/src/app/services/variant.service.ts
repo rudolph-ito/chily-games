@@ -7,6 +7,11 @@ import {
   IVariantOptions,
 } from "../shared/dtos/variant";
 import { IPaginatedResponse } from "../shared/dtos/search";
+import { IPieceRuleOptions, CaptureType } from "../shared/dtos/piece_rule";
+import {
+  IPreviewPieceRuleResponse,
+  IPreviewPieceRuleRequest,
+} from "../shared/dtos/game";
 
 @Injectable({
   providedIn: "root",
@@ -22,6 +27,21 @@ export class VariantService {
 
   get(variantId: number): Observable<IVariant> {
     return this.http.get<IVariant>(`${this.routePrefix}/${variantId}`);
+  }
+
+  previewPieceRule(
+    variantId: number,
+    evaluationType: CaptureType,
+    pieceRuleOptions: IPieceRuleOptions
+  ): Observable<IPreviewPieceRuleResponse> {
+    const request: IPreviewPieceRuleRequest = {
+      evaluationType,
+      pieceRule: pieceRuleOptions,
+    };
+    return this.http.post<IPreviewPieceRuleResponse>(
+      `${this.routePrefix}/${variantId}/preview/pieceRule`,
+      request
+    );
   }
 
   update(variantId: number, request: IVariantOptions): Observable<IVariant> {

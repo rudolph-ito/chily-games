@@ -1,3 +1,5 @@
+import { PieceType } from "./piece_rule";
+
 export enum TerrainType {
   FOREST = "forest",
   MOUNTAIN = "mountain",
@@ -13,7 +15,7 @@ export enum PiecesEffectedType {
 
 export interface IPiecesEffected {
   for: PiecesEffectedType;
-  pieceTypeIds: number[];
+  pieceTypeIds: PieceType[];
 }
 
 export interface ISlowsMovement extends IPiecesEffected {

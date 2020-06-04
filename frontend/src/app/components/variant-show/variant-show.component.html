@@ -4,6 +4,14 @@
 
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
+<div class="table-header">
+  <div>Fields</div>
+  <div *ngIf="isLoggedInUserCreatorObservable | async" class="actions-container">
+    <button mat-mini-fab color="primary" routerLink="/variants/{{ variant.variantId }}/edit">
+      <mat-icon matTooltip="Edit">edit</mat-icon>
+    </button>
+  </div>
+</div>
 <div class="field-container mat-elevation-z8">
   <table mat-table [dataSource]="fieldsDataSource">
 
@@ -19,6 +27,65 @@
   </table>
 </div>
 
-<div *ngIf="isLoggedInUserCreatorObservable | async " class="actions-container">
-  <button mat-button mat-flat-button color="primary" routerLink="/variants/{{ variant.variantId }}/edit">Edit</button>
+<div class="table-header">
+  <div>Piece Rules</div>
+  <div *ngIf="isLoggedInUserCreatorObservable | async " class="actions-container">
+    <button mat-mini-fab color="primary" routerLink="/variants/{{ variant.variantId }}/pieceRules/new">
+      <mat-icon matTooltip="Add">add</mat-icon>
+    </button>
+  </div>
+</div>
+<div class="piece-rules-container mat-elevation-z8">
+  <table mat-table [dataSource]="pieceRulesDataSource">
+
+    <ng-container matColumnDef="pieceType">
+      <th mat-header-cell *matHeaderCellDef> Piece Type </th>
+      <td mat-cell *matCellDef="let element"> {{getPieceTypeDescription(element.pieceTypeId)}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="count">
+      <th mat-header-cell *matHeaderCellDef> Count </th>
+      <td mat-cell *matCellDef="let element"> {{element.count}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="movementDescription">
+      <th mat-header-cell *matHeaderCellDef> Movement </th>
+      <td mat-cell *matCellDef="let element"> {{getPathConfigurationDescription(element.movement)}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="captureDescription">
+      <th mat-header-cell *matHeaderCellDef> Capture Type </th>
+      <td mat-cell *matCellDef="let element"> {{getCaptureTypeDescription(element.captureType)}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="rangeDescription">
+      <th mat-header-cell *matHeaderCellDef> Range </th>
+      <td mat-cell *matCellDef="let element">
+        <div *ngIf="isPieceRuleCaptureTypeRange(element)">
+          {{getPathConfigurationDescription(element.range)}}
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="moveAndRangeCapture">
+      <th mat-header-cell *matHeaderCellDef> Move and Range Capture </th>
+      <td mat-cell *matCellDef="let element">
+        <div *ngIf="isPieceRuleCaptureTypeRange(element)">
+          <mat-icon> {{ element.moveAndRangeCapture ? 'check' : 'not_interested' }} </mat-icon>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button *ngIf="isLoggedInUserCreatorObservable | async" routerLink="/variants/{{ variant.variantId }}/pieceRules/{{ element.pieceRuleId }}/edit">
+          <mat-icon matTooltip="Edit">edit</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="pieceRulesDisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: pieceRulesDisplayedColumns;"></tr>
+  </table>
 </div>

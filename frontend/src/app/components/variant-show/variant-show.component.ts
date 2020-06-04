@@ -4,10 +4,17 @@ import { VariantService } from "../../services/variant.service";
 import { IVariant } from "../../shared/dtos/variant";
 import { getBoardDescription } from "../../formatters/variant.formatter";
 import { MatTableDataSource } from "@angular/material/table";
-import { Observable, of } from "rxjs";
+import { Observable, of, forkJoin } from "rxjs";
 import { AuthenticationService } from "../../services/authentication.service";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { map } from "rxjs/operators";
+import { IPieceRule, CaptureType } from "src/app/shared/dtos/piece_rule";
+import { PieceRuleService } from "../../services/piece-rule.service";
+import {
+  getPathConfigurationDescription,
+  getPieceTypeDescription,
+  getCaptureTypeDescription,
+} from "src/app/formatters/piece-rule.formatter";
 
 export interface IField {
   label: string;
@@ -20,22 +27,44 @@ export interface IField {
   styleUrls: ["./variant-show.component.styl"],
 })
 export class VariantShowComponent implements OnInit {
+  // formatters
+  getPathConfigurationDescription = getPathConfigurationDescription;
+  getPieceTypeDescription = getPieceTypeDescription;
+  getCaptureTypeDescription = getCaptureTypeDescription;
+
+  // state
   loading = false;
   variant: IVariant;
   fieldsDataSource = new MatTableDataSource<IField>([]);
+  pieceRulesDisplayedColumns: string[] = [
+    "pieceType",
+    "count",
+    "movementDescription",
+    "captureDescription",
+    "rangeDescription",
+    "moveAndRangeCapture",
+    "actions",
+  ];
+
+  pieceRulesDataSource = new MatTableDataSource<IPieceRule>([]);
   isLoggedInUserCreatorObservable: Observable<boolean> = of(false);
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly variantService: VariantService,
-    private readonly authenticationService: AuthenticationService
+    private readonly authenticationService: AuthenticationService,
+    private readonly pieceRuleService: PieceRuleService
   ) {}
 
   ngOnInit(): void {
     this.loading = true;
-    this.variantService.get(this.getVariantId()).subscribe((variant) => {
+    forkJoin({
+      variant: this.variantService.get(this.getVariantId()),
+      pieceRules: this.pieceRuleService.getAllForVariant(this.getVariantId()),
+    }).subscribe(({ pieceRules, variant }) => {
       this.loading = false;
       this.variant = variant;
+      this.pieceRulesDataSource.data = pieceRules;
       this.updateFields();
       this.isLoggedInUserCreatorObservable = this.authenticationService
         .getUserSubject()
@@ -44,7 +73,11 @@ export class VariantShowComponent implements OnInit {
   }
 
   getVariantId(): number {
-    return this.route.snapshot.params.id;
+    return this.route.snapshot.params.variantId;
+  }
+
+  isPieceRuleCaptureTypeRange(pieceRule: IPieceRule): boolean {
+    return pieceRule.captureType === CaptureType.RANGE;
   }
 
   updateFields(): void {

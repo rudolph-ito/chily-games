@@ -6,11 +6,18 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { AppModule } from "src/app/app.module";
 import { of } from "rxjs";
 import { BoardType } from "src/app/shared/dtos/variant";
+import { PieceRuleService } from "src/app/services/piece-rule.service";
+import {
+  PieceType,
+  PathType,
+  CaptureType,
+} from "src/app/shared/dtos/piece_rule";
 
 describe("VariantShowComponent", () => {
   let component: VariantShowComponent;
   let fixture: ComponentFixture<VariantShowComponent>;
   let mockVariantService: Partial<VariantService>;
+  let mockPieceRuleService: Partial<PieceRuleService>;
 
   beforeEach(async () => {
     mockVariantService = {
@@ -23,9 +30,29 @@ describe("VariantShowComponent", () => {
           pieceRanks: false,
         }),
     };
+    mockPieceRuleService = {
+      getAllForVariant: () =>
+        of([
+          {
+            pieceRuleId: 1,
+            variantId: 1,
+            pieceTypeId: PieceType.CATAPULT,
+            count: 1,
+            movement: {
+              type: PathType.ORTHOGONAL_WITH_TURNS,
+              minimum: 1,
+              maximum: null,
+            },
+            captureType: CaptureType.MOVEMENT,
+          },
+        ]),
+    };
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule, AppModule],
-      providers: [{ provide: VariantService, useValue: mockVariantService }],
+      providers: [
+        { provide: VariantService, useValue: mockVariantService },
+        { provide: PieceRuleService, useValue: mockPieceRuleService },
+      ],
     }).compileComponents();
   });
 

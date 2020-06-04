@@ -6,9 +6,16 @@ import {
   IPieceRuleDataService,
   PieceRuleDataService,
 } from "./data/piece_rule_data_service";
-import { IPieceRuleOptions, IPieceRule } from "../shared/dtos/piece_rule";
+import {
+  IPieceRuleOptions,
+  IPieceRule,
+  PieceType,
+} from "../shared/dtos/piece_rule";
 import { validatePieceRuleOptions } from "./validators/piece_rule_validator";
-import { doesHaveValue } from "../shared/utilities/value_checker";
+import {
+  doesHaveValue,
+  doesNotHaveValue,
+} from "../shared/utilities/value_checker";
 import {
   ValidationError,
   throwVariantAuthorizationError,
@@ -27,6 +34,7 @@ export interface IPieceRuleService {
     variantId: number,
     pieceRuleId: number
   ) => Promise<void>;
+  getPieceRule: (variantId: number, pieceRuleId: number) => Promise<IPieceRule>;
   getPieceRules: (variantId: number) => Promise<IPieceRule[]>;
   updatePieceRule: (
     userId: number,
@@ -47,16 +55,17 @@ export class PieceRuleService implements IPieceRuleService {
     variantId: number,
     options: IPieceRuleOptions
   ): Promise<IPieceRule> {
-    const errors = validatePieceRuleOptions(options);
-    if (doesHaveValue(errors)) {
-      throw new ValidationError(errors);
-    }
     if (!(await this.variantDataService.hasVariant(variantId))) {
       throwVariantNotFoundError(variantId);
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throwVariantAuthorizationError("create piece rules");
+    }
+    const existingPieceTypeMap = await this.getPieceTypeMap(variantId);
+    const errors = validatePieceRuleOptions(options, existingPieceTypeMap);
+    if (doesHaveValue(errors)) {
+      throw new ValidationError(errors);
     }
     // validate piece type does not already exist
     return await this.pieceRuleDataService.createPieceRule(options, variantId);
@@ -67,16 +76,32 @@ export class PieceRuleService implements IPieceRuleService {
     variantId: number,
     pieceRuleId: number
   ): Promise<void> {
-    if (
-      !(await this.pieceRuleDataService.hasPieceRule(pieceRuleId, variantId))
-    ) {
+    const pieceRule = await this.getPieceRule(variantId, pieceRuleId);
+    if (doesNotHaveValue(pieceRule)) {
       this.throwPieceRuleNotFoundError(pieceRuleId, variantId);
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throwVariantAuthorizationError("delete piece rules");
+    } else if (pieceRule.pieceTypeId === PieceType.KING) {
+      throw new ValidationError({
+        general:
+          "Cannot delete the king as every variant must have exactly one.",
+      });
     }
     return await this.pieceRuleDataService.deletePieceRule(pieceRuleId);
+  }
+
+  async getPieceRule(
+    variantId: number,
+    pieceRuleId: number
+  ): Promise<IPieceRule> {
+    if (
+      !(await this.pieceRuleDataService.hasPieceRule(pieceRuleId, variantId))
+    ) {
+      this.throwPieceRuleNotFoundError(pieceRuleId, variantId);
+    }
+    return await this.pieceRuleDataService.getPieceRule(pieceRuleId);
   }
 
   async getPieceRules(variantId: number): Promise<IPieceRule[]> {
@@ -89,24 +114,36 @@ export class PieceRuleService implements IPieceRuleService {
     pieceRuleId: number,
     options: IPieceRuleOptions
   ): Promise<IPieceRule> {
-    const errors = validatePieceRuleOptions(options);
-    if (doesHaveValue(errors)) {
-      throw new ValidationError(errors);
-    }
-    if (
-      !(await this.pieceRuleDataService.hasPieceRule(pieceRuleId, variantId))
-    ) {
+    const pieceRule = await this.getPieceRule(variantId, pieceRuleId);
+    if (doesNotHaveValue(pieceRule)) {
       this.throwPieceRuleNotFoundError(pieceRuleId, variantId);
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throwVariantAuthorizationError("delete piece rules");
     }
-    // validate new piece type does not already exist
+    const existingPieceTypeMap = await this.getPieceTypeMap(variantId);
+    const errors = validatePieceRuleOptions(
+      options,
+      existingPieceTypeMap,
+      pieceRuleId
+    );
+    if (doesHaveValue(errors)) {
+      throw new ValidationError(errors);
+    }
     return await this.pieceRuleDataService.updatePieceRule(
       pieceRuleId,
       options
     );
+  }
+
+  private async getPieceTypeMap(
+    variantId: number
+  ): Promise<Map<PieceType, number>> {
+    const result = new Map<PieceType, number>();
+    const pieceRules = await this.pieceRuleDataService.getPieceRules(variantId);
+    pieceRules.forEach((pr) => result.set(pr.pieceTypeId, pr.pieceRuleId));
+    return result;
   }
 
   private throwPieceRuleNotFoundError(

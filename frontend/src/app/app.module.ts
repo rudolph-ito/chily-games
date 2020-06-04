@@ -12,9 +12,11 @@ import { MatInputModule } from "@angular/material/input";
 import { MatMenuModule } from "@angular/material/menu";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { ReactiveFormsModule } from "@angular/forms";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -26,6 +28,7 @@ import { UserLoginFormDialogComponent } from "./components/navigation-bar/user-l
 import { VariantsIndexComponent } from "./components/variants-index/variants-index.component";
 import { VariantFormComponent } from "./components/variant-form/variant-form.component";
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
+import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
 
 @NgModule({
   declarations: [
@@ -37,6 +40,7 @@ import { VariantShowComponent } from "./components/variant-show/variant-show.com
     VariantsIndexComponent,
     VariantFormComponent,
     VariantShowComponent,
+    PieceRuleFormComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -52,9 +56,11 @@ import { VariantShowComponent } from "./components/variant-show/variant-show.com
     MatMenuModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatRadioModule,
     MatSelectModule,
     MatTableModule,
     MatToolbarModule,
+    MatTooltipModule,
     ReactiveFormsModule,
   ],
   providers: [],

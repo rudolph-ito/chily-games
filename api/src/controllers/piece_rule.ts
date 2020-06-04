@@ -28,6 +28,21 @@ export function getPieceRulesRouter(
       })
       .catch(next);
   });
+  router.get("/:pieceRuleId", authenticationRequired, function (
+    req,
+    res,
+    next
+  ) {
+    pieceRuleService
+      .getPieceRule(
+        parseInt(req.params.variantId),
+        parseInt(req.params.pieceRuleId)
+      )
+      .then((pieceRule) => {
+        res.status(200).send(pieceRule);
+      })
+      .catch(next);
+  });
   router.put("/:pieceRuleId", authenticationRequired, function (
     req,
     res,

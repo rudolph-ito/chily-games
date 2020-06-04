@@ -5,8 +5,14 @@ import { sequelize } from "../src/database/models";
 import { shouldSequelizeLog } from "../src/shared/utilities/env";
 import supertest from "supertest";
 import { UserDataService } from "../src/services/data/user_data_service";
-import { BoardType } from "../src/shared/dtos/variant";
-import { VariantDataService } from "../src/services/data/variant_data_service";
+import { BoardType, IVariantOptions } from "../src/shared/dtos/variant";
+import { VariantService } from "../src/services/variant_service";
+import {
+  PieceType,
+  PathType,
+  CaptureType,
+} from "../src/shared/dtos/piece_rule";
+import { PieceRuleDataService } from "../src/services/data/piece_rule_data_service";
 
 chai.use(dirtyChai);
 
@@ -42,16 +48,37 @@ export async function createTestUser(
   return user.userId;
 }
 
-export async function createTestVariant(creatorId: number): Promise<number> {
-  const variant = await new VariantDataService().createVariant(
-    {
-      boardType: BoardType.HEXAGONAL,
-      boardSize: 6,
-      pieceRanks: false,
-    },
-    creatorId
-  );
+export async function createTestVariant(
+  creatorId: number,
+  options: Partial<IVariantOptions> = {}
+): Promise<number> {
+  const variant = await new VariantService().createVariant(creatorId, {
+    boardType: BoardType.HEXAGONAL,
+    boardSize: 6,
+    pieceRanks: false,
+    ...options,
+  });
   return variant.variantId;
+}
+
+export async function createTestPieceRule(
+  pieceTypeId: PieceType,
+  variantId: number
+): Promise<number> {
+  const pieceRule = await new PieceRuleDataService().createPieceRule(
+    {
+      pieceTypeId,
+      count: 1,
+      movement: {
+        type: PathType.ORTHOGONAL_WITH_TURNS,
+        minimum: 1,
+        maximum: 1,
+      },
+      captureType: CaptureType.MOVEMENT,
+    },
+    variantId
+  );
+  return pieceRule.pieceRuleId;
 }
 
 export async function loginTestUser(

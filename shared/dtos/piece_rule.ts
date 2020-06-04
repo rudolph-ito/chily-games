@@ -68,6 +68,7 @@ export interface IPieceRanksValidationErrors {
 }
 
 export interface IPieceRuleValidationErrors {
+  general?: string;
   pieceTypeId?: string;
   count?: string;
   movement?: IPathConfigurationValidationErrors;

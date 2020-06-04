@@ -12,6 +12,16 @@ import {
 } from "../../test/test_helper";
 import supertest from "supertest";
 import { IVariantOptions, BoardType } from "../shared/dtos/variant";
+import {
+  PathType,
+  CaptureType,
+  PieceType,
+  IPieceRuleOptions,
+} from "../shared/dtos/piece_rule";
+import {
+  IPreviewPieceRuleRequest,
+  IPreviewPieceRuleResponse,
+} from "../shared/dtos/game";
 
 describe("VariantRoutes", () => {
   resetDatabaseBeforeEach();
@@ -165,6 +175,53 @@ describe("VariantRoutes", () => {
       // Assert
       expect(response.body).to.exist();
       expect(response.body.boardType).to.eql(BoardType.SQUARE);
+    });
+  });
+
+  describe("preview piece rule (POST /api/variants/:variantId/preview/pieceRule)", () => {
+    it("returns the coordinate map and valid plies", async () => {
+      // Arrange
+      const creatorCredentials = createTestCredentials("test");
+      const creatorId = await createTestUser(creatorCredentials);
+      const variantId = await createTestVariant(creatorId, {
+        boardType: BoardType.HEXAGONAL,
+        boardSize: 3,
+      });
+      const pieceRuleOptions: IPieceRuleOptions = {
+        pieceTypeId: PieceType.CATAPULT,
+        count: 1,
+        movement: {
+          type: PathType.ORTHOGONAL_LINE,
+          minimum: 1,
+          maximum: 1,
+        },
+        captureType: CaptureType.MOVEMENT,
+      };
+      const request: IPreviewPieceRuleRequest = {
+        evaluationType: CaptureType.MOVEMENT,
+        pieceRule: pieceRuleOptions,
+      };
+
+      // Act
+      const response = await supertest(app)
+        .post(`/api/variants/${variantId}/preview/pieceRule`)
+        .send(request)
+        .expect(200);
+
+      // Assert
+      expect(response.body).to.exist();
+      const result: IPreviewPieceRuleResponse = response.body;
+      expect(result.origin).to.eql({ x: 0, y: 0 });
+      expect(result.validPlies.capturable).to.eql([]);
+      expect(result.validPlies.free).to.have.deep.members([
+        { x: 1, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: -1 },
+        { x: 1, y: -1 },
+        { x: -1, y: 1 },
+      ]);
+      expect(result.validPlies.reachable).to.eql([]);
     });
   });
 });
