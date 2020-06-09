@@ -68,7 +68,7 @@ module.exports = {
       },
       slowsMovementBy: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       slowsMovementFor: {
         type: pieceTypesEffectedEnum,

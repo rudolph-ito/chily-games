@@ -29,6 +29,7 @@ import { VariantsIndexComponent } from "./components/variants-index/variants-ind
 import { VariantFormComponent } from "./components/variant-form/variant-form.component";
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
 import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
+import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-
     VariantFormComponent,
     VariantShowComponent,
     PieceRuleFormComponent,
+    TerrainRuleFormComponent,
   ],
   imports: [
     AppRoutingModule,

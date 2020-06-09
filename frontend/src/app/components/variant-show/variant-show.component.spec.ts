@@ -12,12 +12,18 @@ import {
   PathType,
   CaptureType,
 } from "src/app/shared/dtos/piece_rule";
+import { TerrainRuleService } from "src/app/services/terrain-rule.service";
+import {
+  TerrainType,
+  PiecesEffectedType,
+} from "src/app/shared/dtos/terrain_rule";
 
 describe("VariantShowComponent", () => {
   let component: VariantShowComponent;
   let fixture: ComponentFixture<VariantShowComponent>;
   let mockVariantService: Partial<VariantService>;
   let mockPieceRuleService: Partial<PieceRuleService>;
+  let mockTerrainRuleService: Partial<TerrainRuleService>;
 
   beforeEach(async () => {
     mockVariantService = {
@@ -47,11 +53,39 @@ describe("VariantShowComponent", () => {
           },
         ]),
     };
+    mockTerrainRuleService = {
+      getAllForVariant: () =>
+        of([
+          {
+            terrainRuleId: 1,
+            variantId: 1,
+            terrainTypeId: TerrainType.FOREST,
+            count: 1,
+            passableMovement: {
+              for: PiecesEffectedType.ALL,
+              pieceTypeIds: [],
+            },
+            passableRange: {
+              for: PiecesEffectedType.ALL,
+              pieceTypeIds: [],
+            },
+            slowsMovement: {
+              for: PiecesEffectedType.NONE,
+              pieceTypeIds: [],
+            },
+            stopsMovement: {
+              for: PiecesEffectedType.NONE,
+              pieceTypeIds: [],
+            },
+          },
+        ]),
+    };
     await TestBed.configureTestingModule({
       imports: [RouterTestingModule, AppModule],
       providers: [
         { provide: VariantService, useValue: mockVariantService },
         { provide: PieceRuleService, useValue: mockPieceRuleService },
+        { provide: TerrainRuleService, useValue: mockTerrainRuleService },
       ],
     }).compileComponents();
   });

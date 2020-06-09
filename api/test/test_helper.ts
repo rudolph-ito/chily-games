@@ -13,6 +13,11 @@ import {
   CaptureType,
 } from "../src/shared/dtos/piece_rule";
 import { PieceRuleDataService } from "../src/services/data/piece_rule_data_service";
+import {
+  TerrainType,
+  PiecesEffectedType,
+} from "../src/shared/dtos/terrain_rule";
+import { TerrainRuleDataService } from "../src/services/data/terrain_rule_data_service";
 
 chai.use(dirtyChai);
 
@@ -79,6 +84,36 @@ export async function createTestPieceRule(
     variantId
   );
   return pieceRule.pieceRuleId;
+}
+
+export async function createTestTerrainRule(
+  terrainTypeId: TerrainType,
+  variantId: number
+): Promise<number> {
+  const terrainRule = await new TerrainRuleDataService().createTerrainRule(
+    {
+      terrainTypeId,
+      count: 1,
+      passableMovement: {
+        for: PiecesEffectedType.ALL,
+        pieceTypeIds: [],
+      },
+      passableRange: {
+        for: PiecesEffectedType.ALL,
+        pieceTypeIds: [],
+      },
+      slowsMovement: {
+        for: PiecesEffectedType.NONE,
+        pieceTypeIds: [],
+      },
+      stopsMovement: {
+        for: PiecesEffectedType.NONE,
+        pieceTypeIds: [],
+      },
+    },
+    variantId
+  );
+  return terrainRule.terrainRuleId;
 }
 
 export async function loginTestUser(

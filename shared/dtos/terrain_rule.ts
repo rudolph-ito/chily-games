@@ -1,5 +1,7 @@
 import { PieceType } from "./piece_rule";
 
+// Enums
+
 export enum TerrainType {
   FOREST = "forest",
   MOUNTAIN = "mountain",
@@ -13,13 +15,15 @@ export enum PiecesEffectedType {
   ONLY = "only",
 }
 
+// Primary interfaces
+
 export interface IPiecesEffected {
   for: PiecesEffectedType;
   pieceTypeIds: PieceType[];
 }
 
 export interface ISlowsMovement extends IPiecesEffected {
-  slowsMovementBy: number;
+  by?: number;
 }
 
 export interface ITerrainRuleOptions {
@@ -34,4 +38,25 @@ export interface ITerrainRuleOptions {
 export interface ITerrainRule extends ITerrainRuleOptions {
   terrainRuleId: number;
   variantId: number;
+}
+
+// Validation error interfaces
+
+export interface IPiecesEffectedValidationErrors {
+  for?: string;
+  pieceTypeIds?: string;
+}
+
+export interface ISlowsMovementValidationErrors
+  extends IPiecesEffectedValidationErrors {
+  by?: string;
+}
+
+export interface ITerrainRuleValidationErrors {
+  terrainTypeId?: string;
+  count?: string;
+  passableMovement?: IPiecesEffectedValidationErrors;
+  passableRange?: IPiecesEffectedValidationErrors;
+  slowsMovement?: ISlowsMovementValidationErrors;
+  stopsMovement?: IPiecesEffectedValidationErrors;
 }

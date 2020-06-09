@@ -67,7 +67,6 @@ export class PieceRuleService implements IPieceRuleService {
     if (doesHaveValue(errors)) {
       throw new ValidationError(errors);
     }
-    // validate piece type does not already exist
     return await this.pieceRuleDataService.createPieceRule(options, variantId);
   }
 

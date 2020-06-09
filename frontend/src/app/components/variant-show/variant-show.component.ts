@@ -15,6 +15,13 @@ import {
   getPieceTypeDescription,
   getCaptureTypeDescription,
 } from "src/app/formatters/piece-rule.formatter";
+import { TerrainRuleService } from "src/app/services/terrain-rule.service";
+import { ITerrainRule } from "src/app/shared/dtos/terrain_rule";
+import {
+  getPiecesEffectedDescription,
+  getSlowsMovementDescription,
+  getTerrainTypeDescription,
+} from "src/app/formatters/terrain-rule.formatter";
 
 export interface IField {
   label: string;
@@ -31,6 +38,9 @@ export class VariantShowComponent implements OnInit {
   getPathConfigurationDescription = getPathConfigurationDescription;
   getPieceTypeDescription = getPieceTypeDescription;
   getCaptureTypeDescription = getCaptureTypeDescription;
+  getPiecesEffectedDescription = getPiecesEffectedDescription;
+  getSlowsMovementDescription = getSlowsMovementDescription;
+  getTerrainTypeDescription = getTerrainTypeDescription;
 
   // state
   loading = false;
@@ -46,14 +56,26 @@ export class VariantShowComponent implements OnInit {
     "actions",
   ];
 
+  terrainRulesDisplayedColumns: string[] = [
+    "terrainType",
+    "count",
+    "passableMovementDescription",
+    "passableRangeDescription",
+    "slowsMovementDescription",
+    "stopsMovementDescription",
+    "actions",
+  ];
+
   pieceRulesDataSource = new MatTableDataSource<IPieceRule>([]);
+  terrainRulesDataSource = new MatTableDataSource<ITerrainRule>([]);
   isLoggedInUserCreatorObservable: Observable<boolean> = of(false);
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly variantService: VariantService,
     private readonly authenticationService: AuthenticationService,
-    private readonly pieceRuleService: PieceRuleService
+    private readonly pieceRuleService: PieceRuleService,
+    private readonly terrainRuleService: TerrainRuleService
   ) {}
 
   ngOnInit(): void {
@@ -61,10 +83,14 @@ export class VariantShowComponent implements OnInit {
     forkJoin({
       variant: this.variantService.get(this.getVariantId()),
       pieceRules: this.pieceRuleService.getAllForVariant(this.getVariantId()),
-    }).subscribe(({ pieceRules, variant }) => {
+      terrainRules: this.terrainRuleService.getAllForVariant(
+        this.getVariantId()
+      ),
+    }).subscribe(({ pieceRules, terrainRules, variant }) => {
       this.loading = false;
       this.variant = variant;
       this.pieceRulesDataSource.data = pieceRules;
+      this.terrainRulesDataSource.data = terrainRules;
       this.updateFields();
       this.isLoggedInUserCreatorObservable = this.authenticationService
         .getUserSubject()

@@ -154,14 +154,12 @@ export class PlyEvaluator {
           input.piece.pieceTypeId
         )
       ) {
-        return 1 + data.occupyingTerrainRule.slowsMovement.slowsMovementBy;
+        return 1 + data.occupyingTerrainRule.slowsMovement.by;
       }
     }
     return 1;
   }
 
-  // If moving, terrain can be entered if passable
-  // If range, terrain can always be entered
   private canTerrainBeEntered(
     terrainRule: ITerrainRule,
     input: IPlyEvaluateInput
@@ -173,7 +171,10 @@ export class PlyEvaluator {
           input.piece.pieceTypeId
         );
       case CaptureType.RANGE:
-        return true;
+        return this.doesEffectApplyToPieceType(
+          terrainRule.passableRange,
+          input.piece.pieceTypeId
+        );
       default:
         throw Error("Unexpected evaluationType");
     }

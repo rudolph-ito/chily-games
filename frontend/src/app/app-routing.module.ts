@@ -6,6 +6,7 @@ import { VariantFormComponent } from "./components/variant-form/variant-form.com
 import { AuthGuard } from "./guards/auth.guard";
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
 import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
+import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
 
 const routes: Routes = [
   {
@@ -37,6 +38,14 @@ const routes: Routes = [
   {
     path: "variants/:variantId/pieceRules/:pieceRuleId/edit",
     component: PieceRuleFormComponent,
+  },
+  {
+    path: "variants/:variantId/terrainRules/new",
+    component: TerrainRuleFormComponent,
+  },
+  {
+    path: "variants/:variantId/terrainRules/:terrainRuleId/edit",
+    component: TerrainRuleFormComponent,
   },
   {
     path: "",

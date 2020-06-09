@@ -14,6 +14,7 @@ import {
   ValidationError,
 } from "../services/exceptions";
 import { getPieceRulesRouter } from "./piece_rule";
+import { getTerrainRulesRouter } from "./terrain_rule";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 
@@ -75,6 +76,10 @@ export function createExpressApp(
   app.use(
     "/api/variants/:variantId/pieceRules",
     getPieceRulesRouter(authenticationRequired)
+  );
+  app.use(
+    "/api/variants/:variantId/terrainRules",
+    getTerrainRulesRouter(authenticationRequired)
   );
   app.use(errorHandler());
   return app;

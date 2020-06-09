@@ -11,7 +11,7 @@ export const PIECE_TYPE_OPTIONS: ISelectOption[] = [
   { label: "Light horse", value: PieceType.LIGHT_HORSE },
   { label: "Rabble", value: PieceType.RABBLE },
   { label: "Spear", value: PieceType.SPEAR },
-  { label: "Trebuhcet", value: PieceType.TREBUCHET },
+  { label: "Trebuchet", value: PieceType.TREBUCHET },
 ];
 
 export const PATH_TYPE_OPTIONS: ISelectOption[] = [
