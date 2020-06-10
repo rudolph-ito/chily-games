@@ -2,11 +2,11 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    // Matches shared/dtos/game:Action
-    const actionEnum = Sequelize.ENUM(
-      "setup",
-      "play",
-      "complete"
+    // Matches shared/dtos/game:PlayAs
+    const playAsEnum = Sequelize.ENUM(
+      "alabaster",
+      "onyx",
+      "random"
     );
     const userConfig = {
       type: Sequelize.INTEGER,
@@ -18,8 +18,8 @@ module.exports = {
         key: "userId",
       },
     };
-    return queryInterface.createTable("Games", {
-      gameId: {
+    return queryInterface.createTable("Challenges", {
+      challengeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
@@ -35,23 +35,10 @@ module.exports = {
           key: "variantId",
         },
       },
-      action: {
-        type: actionEnum,
-        allowNull: false,
-      },
-      actionToUserId: userConfig,
-      alabasterUserId: userConfig,
-      onyxUserId: userConfig,
-      initialSetup: {
-        type: Sequelize.JSONB,
-        allowNull: false
-      },
-      currentSetup: {
-        type: Sequelize.JSONB,
-        allowNull: false
-      },
-      plies: {
-        type: Sequelize.JSONB,
+      creatorUserId: userConfig,
+      opponentUserId: userConfig,
+      playAs: {
+        type: playAsEnum,
         allowNull: false
       },
       createdAt: {
@@ -66,6 +53,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("Games");
+    return queryInterface.dropTable("Challenges");
   }
 };
