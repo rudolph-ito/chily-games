@@ -1,14 +1,4 @@
-import { ICoordinate, IPiece, ITerrain } from "../../../shared/dtos/game";
-
-export interface ICoordinateData {
-  piece?: IPiece;
-  terrain?: ITerrain;
-}
-
-export type ISerializedCoordinateMap = Array<{
-  key: ICoordinate;
-  value: ICoordinateData;
-}>;
+import { ICoordinate, ICoordinateData, ICoordinateMapData, IPiece, ITerrain } from "../../../shared/dtos/game";
 
 export interface ICoordinateMap {
   addPiece: (coordinate: ICoordinate, piece: IPiece) => void;
@@ -19,13 +9,13 @@ export interface ICoordinateMap {
   getTerrain: (coordinate: ICoordinate) => ITerrain;
   movePiece: (from: ICoordinate, to: ICoordinate) => void;
   moveTerrain: (from: ICoordinate, to: ICoordinate) => void;
-  serialize: () => ISerializedCoordinateMap;
+  serialize: () => ICoordinateMapData[];
 }
 
 export class CoordinateMap implements ICoordinateMap {
   private readonly data: Map<string, ICoordinateData>;
 
-  static deserialize(data: ISerializedCoordinateMap): CoordinateMap {
+  static deserialize(data: ICoordinateMapData[]): CoordinateMap {
     const coordinateMap = new CoordinateMap([]);
     data.forEach((datum) =>
       coordinateMap.addPiece(datum.key, datum.value.piece)
@@ -79,7 +69,7 @@ export class CoordinateMap implements ICoordinateMap {
     this.addTerrain(to, terrain);
   }
 
-  serialize(): ISerializedCoordinateMap {
+  serialize(): ICoordinateMapData[] {
     return Array.from(this.data.entries()).map((x) => ({
       key: this.keyToCoordinate(x[0]),
       value: x[1],

@@ -1,6 +1,12 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
 
+export enum Action {
+  SETUP = "setup",
+  PLAY = "play",
+  COMPLETE = "complete"
+}
+
 export interface ICoordinate {
   x: number;
   y: number;
@@ -11,10 +17,10 @@ export interface ICoordinateData {
   terrain?: ITerrain;
 }
 
-export type ISerializedCoordinateMap = Array<{
+export interface ICoordinateMapData {
   key: ICoordinate;
   value: ICoordinateData;
-}>;
+}
 
 export interface IPiece {
   pieceTypeId: PieceType;
@@ -53,4 +59,27 @@ export interface IPreviewPieceRuleRequest {
 export interface IPreviewPieceRuleResponse {
   origin: ICoordinate;
   validPlies: ValidPlies;
+}
+
+export interface IGamePlyMovement {
+  from: ICoordinate;
+  to: ICoordinate;
+}
+
+export interface IGamePly {
+  piece: IPiece;
+  capturedPiece?: IPiece;
+  movement: IGamePlyMovement;
+  isRangeCapture: boolean;
+}
+
+export interface IGame {
+  variantId: number;
+  action: Action;
+  actionToUserId: number;
+  alabasterUserId: number;
+  onyxUserId: number;
+  initialSetup: ICoordinateMapData[];
+  currentSetup: ICoordinateMapData[];
+  plies: IGamePly[];
 }
