@@ -1,12 +1,13 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { Action, ICoordinateMapData, IGame, IGamePly } from "../../shared/dtos/game";
+import {
+  Action,
+  ICoordinateMapData,
+  IGame,
+  IGamePly,
+} from "../../shared/dtos/game";
 
-const ACTION_ENUM = DataTypes.ENUM(
-  Action.SETUP,
-  Action.PLAY,
-  Action.COMPLETE
-);
+const ACTION_ENUM = DataTypes.ENUM(Action.SETUP, Action.PLAY, Action.COMPLETE);
 
 export class Game extends Model {
   public gameId!: number;
@@ -46,15 +47,15 @@ Game.init(
     },
     initialSetup: {
       type: DataTypes.JSONB,
-      allowNull: false
+      allowNull: false,
     },
     currentSetup: {
       type: DataTypes.JSONB,
-      allowNull: false
+      allowNull: false,
     },
     plies: {
       type: DataTypes.JSONB,
-      allowNull: false
+      allowNull: false,
     },
     createdAt: {
       allowNull: false,

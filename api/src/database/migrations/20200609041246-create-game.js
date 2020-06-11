@@ -1,16 +1,12 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
     // Matches shared/dtos/game:Action
-    const actionEnum = Sequelize.ENUM(
-      "setup",
-      "play",
-      "complete"
-    );
+    const actionEnum = Sequelize.ENUM("setup", "play", "complete");
     const userConfig = {
       type: Sequelize.INTEGER,
-      allowNull: false, 
+      allowNull: false,
       references: {
         model: {
           tableName: "Users",
@@ -44,15 +40,15 @@ module.exports = {
       onyxUserId: userConfig,
       initialSetup: {
         type: Sequelize.JSONB,
-        allowNull: false
+        allowNull: false,
       },
       currentSetup: {
         type: Sequelize.JSONB,
-        allowNull: false
+        allowNull: false,
       },
       plies: {
         type: Sequelize.JSONB,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -67,5 +63,5 @@ module.exports = {
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable("Games");
-  }
+  },
 };

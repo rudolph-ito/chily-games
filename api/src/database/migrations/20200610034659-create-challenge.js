@@ -1,23 +1,9 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
     // Matches shared/dtos/game:PlayAs
-    const playAsEnum = Sequelize.ENUM(
-      "alabaster",
-      "onyx",
-      "random"
-    );
-    const userConfig = {
-      type: Sequelize.INTEGER,
-      allowNull: false, 
-      references: {
-        model: {
-          tableName: "Users",
-        },
-        key: "userId",
-      },
-    };
+    const playAsEnum = Sequelize.ENUM("alabaster", "onyx", "random");
     return queryInterface.createTable("Challenges", {
       challengeId: {
         type: Sequelize.INTEGER,
@@ -35,11 +21,29 @@ module.exports = {
           key: "variantId",
         },
       },
-      creatorUserId: userConfig,
-      opponentUserId: userConfig,
-      playAs: {
+      creatorUserId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: {
+            tableName: "Users",
+          },
+          key: "userId",
+        },
+      },
+      opponentUserId: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "Users",
+          },
+          key: "userId",
+        },
+      },
+      creatorPlayAs: {
         type: playAsEnum,
-        allowNull: false
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -54,5 +58,5 @@ module.exports = {
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable("Challenges");
-  }
+  },
 };

@@ -1,4 +1,10 @@
-import { ICoordinate, ICoordinateData, ICoordinateMapData, IPiece, ITerrain } from "../../../shared/dtos/game";
+import {
+  ICoordinate,
+  ICoordinateData,
+  ICoordinateMapData,
+  IPiece,
+  ITerrain,
+} from "../../../shared/dtos/game";
 
 export interface ICoordinateMap {
   addPiece: (coordinate: ICoordinate, piece: IPiece) => void;
