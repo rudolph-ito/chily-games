@@ -15,6 +15,7 @@ import {
 } from "../services/exceptions";
 import { getPieceRulesRouter } from "./piece_rule";
 import { getTerrainRulesRouter } from "./terrain_rule";
+import { getChallengeRouter } from "./challenge";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 
@@ -81,6 +82,7 @@ export function createExpressApp(
     "/api/variants/:variantId/terrainRules",
     getTerrainRulesRouter(authenticationRequired)
   );
+  app.use("/api/challenges", getChallengeRouter(authenticationRequired));
   app.use(errorHandler());
   return app;
 }

@@ -8,8 +8,9 @@ export interface ICreateUserOptions {
 
 export interface IUserDataService {
   createUser: (options: ICreateUserOptions) => Promise<IUser>;
-  hasUserWithUsername: (username: string) => Promise<boolean>;
   getUser: (userId: number) => Promise<IUser>;
+  hasUser: (userId: number) => Promise<boolean>;
+  hasUserWithUsername: (username: string) => Promise<boolean>;
 }
 
 export class UserDataService implements IUserDataService {
@@ -20,13 +21,18 @@ export class UserDataService implements IUserDataService {
     return user.serialize();
   }
 
+  async getUser(userId: number): Promise<IUser> {
+    const user = await User.findByPk(userId);
+    return user.serialize();
+  }
+
   async hasUserWithUsername(username: string): Promise<boolean> {
     const count = await User.count({ where: { username } });
     return count === 1;
   }
 
-  async getUser(userId: number): Promise<IUser> {
-    const user = await User.findByPk(userId);
-    return user.serialize();
+  async hasUser(userId: number): Promise<boolean> {
+    const count = await User.count({ where: { userId } });
+    return count === 1;
   }
 }
