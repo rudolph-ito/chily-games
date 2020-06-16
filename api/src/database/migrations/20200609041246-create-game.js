@@ -46,11 +46,15 @@ module.exports = {
       actionToUserId: userConfig(true),
       alabasterUserId: userConfig(false),
       onyxUserId: userConfig(false),
-      initialSetup: {
+      alabasterSetupCoordinateMap: {
         type: Sequelize.JSONB,
         allowNull: false,
       },
-      currentSetup: {
+      onyxSetupCoordinateMap: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      currentCoordinateMap: {
         type: Sequelize.JSONB,
         allowNull: false,
       },

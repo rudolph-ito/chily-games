@@ -16,8 +16,9 @@ export class Game extends Model {
   public actionToUserId!: number;
   public alabasterUserId!: number;
   public onyxUserId!: number;
-  public initialSetup!: ICoordinateMapData[];
-  public currentSetup!: ICoordinateMapData[];
+  public alabasterSetupCoordinateMap!: ICoordinateMapData[];
+  public onyxSetupCoordinateMap!: ICoordinateMapData[];
+  public currentCoordinateMap!: ICoordinateMapData[];
   public plies!: IGamePly[];
 
   serialize(): IGame {
@@ -28,8 +29,9 @@ export class Game extends Model {
       actionToUserId: this.actionToUserId,
       alabasterUserId: this.alabasterUserId,
       onyxUserId: this.onyxUserId,
-      initialSetup: this.initialSetup,
-      currentSetup: this.currentSetup,
+      alabasterSetupCoordinateMap: this.alabasterSetupCoordinateMap,
+      onyxSetupCoordinateMap: this.onyxSetupCoordinateMap,
+      currentCoordinateMap: this.currentCoordinateMap,
       plies: this.plies,
     };
   }
@@ -46,11 +48,15 @@ Game.init(
       type: ACTION_ENUM,
       allowNull: false,
     },
-    initialSetup: {
+    alabasterSetupCoordinateMap: {
       type: DataTypes.JSONB,
       allowNull: false,
     },
-    currentSetup: {
+    onyxSetupCoordinateMap: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    currentCoordinateMap: {
       type: DataTypes.JSONB,
       allowNull: false,
     },

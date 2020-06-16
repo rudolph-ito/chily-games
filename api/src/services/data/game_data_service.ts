@@ -28,8 +28,9 @@ export class GameDataService implements IGameDataService {
       actionToUserId: options.alabasterUserId,
       alabasterUserId: options.alabasterUserId,
       onyxUserId: options.onyxUserId,
-      initialSetup: [],
-      currentSetup: [],
+      alabasterSetupCoordinateMap: [],
+      onyxSetupCoordinateMap: [],
+      currentCoordinateMap: [],
       plies: [],
     });
     await game.save();

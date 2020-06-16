@@ -45,8 +45,12 @@ export class GameService implements IGameService {
   ) {}
 
   async getGame(userId: number, gameId: number): Promise<IGame> {
+    const game = await this.gameDataService.getGame(gameId);
+    if (doesNotHaveValue(game)) {
+      this.throwGameNotFoundError(gameId);
+    }
     // TODO during setup, for players, return just their view, for spectators return nothing
-    return await this.gameDataService.getGame(gameId);
+    return game;
   }
 
   async abortGame(userId: number, gameId: number): Promise<void> {
@@ -83,11 +87,15 @@ export class GameService implements IGameService {
     if (doesHaveValue(game.actionToUserId) && game.actionToUserId !== userId) {
       throw new ValidationError({ general: "Already completed setup" });
     }
-    const coordinateMap = CoordinateMap.deserialize(game.initialSetup);
     const playerColor =
       game.alabasterUserId === userId
         ? PlayerColor.ALABASTER
         : PlayerColor.ONYX;
+    const setupCoordinateMap =
+      playerColor === PlayerColor.ALABASTER
+        ? game.alabasterSetupCoordinateMap
+        : game.onyxSetupCoordinateMap;
+    const coordinateMap = CoordinateMap.deserialize(setupCoordinateMap);
     // validate
     if (doesHaveValue(change.pieceChange)) {
       if (doesHaveValue(change.pieceChange.from)) {

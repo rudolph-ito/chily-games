@@ -17,6 +17,7 @@ import { getPieceRulesRouter } from "./piece_rule";
 import { getTerrainRulesRouter } from "./terrain_rule";
 import { getChallengeRouter } from "./challenge";
 import HttpStatus from "http-status-codes";
+import { getGameRouter } from './game';
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 
@@ -80,6 +81,7 @@ export function createExpressApp(
     getTerrainRulesRouter(authenticationRequired)
   );
   app.use("/api/challenges", getChallengeRouter(authenticationRequired));
+  app.use("/api/games", getGameRouter(authenticationRequired));
   app.use(errorHandler());
   return app;
 }

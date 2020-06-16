@@ -4,7 +4,6 @@ import {
   createTestCredentials,
   resetDatabaseBeforeEach,
   createAndLoginTestUser,
-  tempStatusChecker,
   createTestChallenge,
   IUserCredentials,
   loginTestUser,
@@ -64,7 +63,7 @@ describe("ChallengeRoutes", () => {
       const response = await agent
         .post(`/api/challenges`)
         .send(challengeOptions)
-        .expect(tempStatusChecker(HttpStatus.OK));
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
