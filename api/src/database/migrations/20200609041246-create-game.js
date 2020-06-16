@@ -3,16 +3,24 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     // Matches shared/dtos/game:Action
-    const actionEnum = Sequelize.ENUM("setup", "play", "complete");
-    const userConfig = {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      references: {
-        model: {
-          tableName: "Users",
+    const actionEnum = Sequelize.ENUM(
+      "setup",
+      "play",
+      "complete",
+      "aborted",
+      "resigned"
+    );
+    const userConfig = (allowNull) => {
+      return {
+        type: Sequelize.INTEGER,
+        allowNull,
+        references: {
+          model: {
+            tableName: "Users",
+          },
+          key: "userId",
         },
-        key: "userId",
-      },
+      };
     };
     return queryInterface.createTable("Games", {
       gameId: {
@@ -35,9 +43,9 @@ module.exports = {
         type: actionEnum,
         allowNull: false,
       },
-      actionToUserId: userConfig,
-      alabasterUserId: userConfig,
-      onyxUserId: userConfig,
+      actionToUserId: userConfig(true),
+      alabasterUserId: userConfig(false),
+      onyxUserId: userConfig(false),
       initialSetup: {
         type: Sequelize.JSONB,
         allowNull: false,

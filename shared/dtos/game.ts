@@ -1,10 +1,13 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
+import { IPaginationRequest } from "./search";
 
 export enum Action {
   SETUP = "setup",
   PLAY = "play",
   COMPLETE = "complete",
+  ABORTED = "aborted",
+  RESIGNED = "resigned",
 }
 
 export interface ICoordinate {
@@ -64,16 +67,23 @@ export interface IPreviewPieceRuleResponse {
 export interface IGamePlyMovement {
   from: ICoordinate;
   to: ICoordinate;
+  capturedPiece?: IPiece;
+}
+
+export interface IGamePlyRangeCapture {
+  from: ICoordinate;
+  to: ICoordinate;
+  capturedPice?: IPiece;
 }
 
 export interface IGamePly {
   piece: IPiece;
-  capturedPiece?: IPiece;
-  movement: IGamePlyMovement;
-  isRangeCapture: boolean;
+  movement?: IGamePlyMovement;
+  rangeCapture?: IGamePlyRangeCapture;
 }
 
 export interface IGame {
+  gameId: number;
   variantId: number;
   action: Action;
   actionToUserId: number;
@@ -82,4 +92,25 @@ export interface IGame {
   initialSetup: ICoordinateMapData[];
   currentSetup: ICoordinateMapData[];
   plies: IGamePly[];
+}
+
+export interface ISearchGamesRequest {
+  pagination: IPaginationRequest;
+}
+
+export interface IGameSetupPieceChange {
+  pieceTypeId: PieceType;
+  from?: ICoordinate;
+  to?: ICoordinate;
+}
+
+export interface IGameSetupTerrainChange {
+  terrainTypeId: TerrainType;
+  from?: ICoordinate;
+  to?: ICoordinate;
+}
+
+export interface IGameSetupChange {
+  pieceChange?: IGameSetupPieceChange;
+  terrainChange?: IGameSetupTerrainChange;
 }

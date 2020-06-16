@@ -22,7 +22,7 @@ Game.belongsTo(Variant, {
   foreignKey: { name: "variantId", allowNull: false },
 });
 Game.belongsTo(User, {
-  foreignKey: { name: "actionToUserId", allowNull: false },
+  foreignKey: { name: "actionToUserId", allowNull: true },
 });
 Game.belongsTo(User, {
   foreignKey: { name: "alabasterUserId", allowNull: false },

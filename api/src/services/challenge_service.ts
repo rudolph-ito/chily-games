@@ -16,6 +16,7 @@ import {
   IChallengeOptions,
   ISearchChallengesRequest,
   IChallenge,
+  ChallengePlayAs,
 } from "../shared/dtos/challenge";
 import {
   IChallengeDataService,
@@ -24,6 +25,12 @@ import {
 import { UserDataService, IUserDataService } from "./data/user_data_service";
 import { validateChallengeOptions } from "./validators/challenge_validator";
 import { IGame } from "../shared/dtos/game";
+import { IGameDataService, GameDataService } from "./data/game_data_service";
+
+interface IPlayerColorAssignment {
+  alabasterUserId: number;
+  onyxUserId: number;
+}
 
 export interface IChallengeService {
   acceptChallenge: (userId: number, challengeId: number) => Promise<IGame>;
@@ -41,8 +48,9 @@ export interface IChallengeService {
 export class ChallengeService implements IChallengeService {
   constructor(
     private readonly challengeDataService: IChallengeDataService = new ChallengeDataService(),
-    private readonly variantDataService: IVariantDataService = new VariantDataService(),
-    private readonly userDataService: IUserDataService = new UserDataService()
+    private readonly gameDataService: IGameDataService = new GameDataService(),
+    private readonly userDataService: IUserDataService = new UserDataService(),
+    private readonly variantDataService: IVariantDataService = new VariantDataService()
   ) {}
 
   async createChallenge(
@@ -81,7 +89,8 @@ export class ChallengeService implements IChallengeService {
     const challenge = await this.challengeDataService.getChallenge(challengeId);
     if (challenge.creatorUserId === userId) {
       this.throwChallengeIdValidationError("Cannot accept your own challenge");
-    } else if (
+    }
+    if (
       doesHaveValue(challenge.opponentUserId) &&
       challenge.opponentUserId !== userId
     ) {
@@ -89,8 +98,15 @@ export class ChallengeService implements IChallengeService {
         "Cannot accept challenge for other user"
       );
     }
-    // build game
-    return null;
+    const playerColorAssignment = this.getPlayerColorAssignment(
+      challenge,
+      userId
+    );
+    return await this.gameDataService.createGame({
+      alabasterUserId: playerColorAssignment.alabasterUserId,
+      onyxUserId: playerColorAssignment.onyxUserId,
+      variantId: challenge.variantId,
+    });
   }
 
   async declineChallenge(userId: number, challengeId: number): Promise<void> {
@@ -128,5 +144,25 @@ export class ChallengeService implements IChallengeService {
 
   private throwChallengeNotFoundError(challengeId: number): void {
     throw new NotFoundError(`Challenge does not exist with id: ${challengeId}`);
+  }
+
+  private getPlayerColorAssignment(
+    challenge: IChallenge,
+    acceptedByUserId: number
+  ): IPlayerColorAssignment {
+    const isCreatorAlabaster =
+      challenge.creatorPlayAs === ChallengePlayAs.ALABASTER ||
+      (challenge.creatorPlayAs === ChallengePlayAs.RANDOM &&
+        Math.random() < 0.5);
+    if (isCreatorAlabaster) {
+      return {
+        alabasterUserId: challenge.creatorUserId,
+        onyxUserId: acceptedByUserId,
+      };
+    }
+    return {
+      alabasterUserId: acceptedByUserId,
+      onyxUserId: challenge.creatorUserId,
+    };
   }
 }

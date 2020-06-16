@@ -16,7 +16,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { ChallengeService } from "../services/challenge_service";
 
-describe.only("ChallengeRoutes", () => {
+describe("ChallengeRoutes", () => {
   resetDatabaseBeforeEach();
   const app = createExpressApp({
     corsOrigins: [],

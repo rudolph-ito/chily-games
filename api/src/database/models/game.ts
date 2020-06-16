@@ -5,6 +5,7 @@ import {
   ICoordinateMapData,
   IGame,
   IGamePly,
+  PlayerColor,
 } from "../../shared/dtos/game";
 
 const ACTION_ENUM = DataTypes.ENUM(Action.SETUP, Action.PLAY, Action.COMPLETE);
@@ -22,6 +23,7 @@ export class Game extends Model {
 
   serialize(): IGame {
     return {
+      gameId: this.gameId,
       variantId: this.variantId,
       action: this.action,
       actionToUserId: this.actionToUserId,
