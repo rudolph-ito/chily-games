@@ -20,6 +20,7 @@ import {
 } from "../shared/dtos/terrain_rule";
 import { TerrainRuleDataService } from "../services/data/terrain_rule_data_service";
 import { TerrainRule } from "../database/models";
+import HttpStatus from "http-status-codes";
 
 describe("TerrainRuleRoutes", () => {
   resetDatabaseBeforeEach();
@@ -60,19 +61,19 @@ describe("TerrainRuleRoutes", () => {
       },
     };
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .post(`/api/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
@@ -80,12 +81,12 @@ describe("TerrainRuleRoutes", () => {
       await agent
         .post(`/api/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if validation errors, returns 422 with errors in body", async () => {
+    it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -93,7 +94,7 @@ describe("TerrainRuleRoutes", () => {
       const response = await agent
         .post(`/api/variants/${variantId}/terrainRules`)
         .send({})
-        .expect(422);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -126,7 +127,7 @@ describe("TerrainRuleRoutes", () => {
       const response = await agent
         .post(`/api/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -144,37 +145,37 @@ describe("TerrainRuleRoutes", () => {
       );
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .delete(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
       // Act
       await agent
         .delete(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if not found, returns 404", async () => {
+    it("if not found, returns Not Found", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
       // Act
       await agent
         .delete(`/api/variants/${variantId}/terrainRules/999`)
-        .expect(404);
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });
@@ -186,7 +187,7 @@ describe("TerrainRuleRoutes", () => {
       // Act
       await agent
         .delete(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       const terrainRules = await new TerrainRuleDataService().getTerrainRules(
@@ -204,7 +205,7 @@ describe("TerrainRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/variants/${variantId}/terrainRules`)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -221,7 +222,7 @@ describe("TerrainRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/variants/${variantId}/terrainRules`)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -264,19 +265,19 @@ describe("TerrainRuleRoutes", () => {
       );
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .put(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
@@ -284,12 +285,12 @@ describe("TerrainRuleRoutes", () => {
       await agent
         .put(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if not found, returns 404", async () => {
+    it("if not found, returns Not Found", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -297,12 +298,12 @@ describe("TerrainRuleRoutes", () => {
       await agent
         .put(`/api/variants/${variantId}/terrainRules/999`)
         .send(updatedTerrainRuleOptions)
-        .expect(404);
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });
 
-    it("if validation errors, returns 422 with errors in body", async () => {
+    it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -310,7 +311,7 @@ describe("TerrainRuleRoutes", () => {
       const response = await agent
         .put(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send({})
-        .expect(422);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -343,7 +344,7 @@ describe("TerrainRuleRoutes", () => {
       const response = await agent
         .put(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();

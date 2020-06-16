@@ -15,6 +15,8 @@ import { IChallengeOptions, ChallengePlayAs } from "../shared/dtos/challenge";
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { ChallengeService } from "../services/challenge_service";
+import { IGame } from "../shared/dtos/game";
+import HttpStatus from "http-status-codes";
 
 describe("ChallengeRoutes", () => {
   resetDatabaseBeforeEach();
@@ -42,14 +44,14 @@ describe("ChallengeRoutes", () => {
       };
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .post(`/api/challenges`)
         .send(challengeOptions)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
@@ -62,7 +64,7 @@ describe("ChallengeRoutes", () => {
       const response = await agent
         .post(`/api/challenges`)
         .send(challengeOptions)
-        .expect(tempStatusChecker(200));
+        .expect(tempStatusChecker(HttpStatus.OK));
 
       // Assert
       expect(response.body).to.exist();
@@ -76,31 +78,35 @@ describe("ChallengeRoutes", () => {
       challengeId = await createTestChallenge(user1Id, variantId);
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
-      await supertest(app).delete(`/api/challenges/${challengeId}`).expect(401);
+      await supertest(app)
+        .delete(`/api/challenges/${challengeId}`)
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
       // Act
-      await agent.delete(`/api/challenges/${challengeId}`).expect(401);
+      await agent
+        .delete(`/api/challenges/${challengeId}`)
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if not found, returns 404", async () => {
+    it("if not found, returns Not Found", async () => {
       // Arrange
       const agent = await loginTestUser(app, user1Credentials);
 
       // Act
-      await agent.delete(`/api/challenges/999`).expect(404);
+      await agent.delete(`/api/challenges/999`).expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });
@@ -110,13 +116,157 @@ describe("ChallengeRoutes", () => {
       const agent = await loginTestUser(app, user1Credentials);
 
       // Act
-      await agent.delete(`/api/challenges/${challengeId}`).expect(200);
+      await agent
+        .delete(`/api/challenges/${challengeId}`)
+        .expect(HttpStatus.OK);
 
       // Assert
       const paginatedChallenges = await new ChallengeService().searchChallenges(
         { pagination: { pageSize: 10, pageIndex: 0 } }
       );
       expect(paginatedChallenges.total).to.equal(0);
+    });
+  });
+
+  describe("accept challenge (POST /api/challenges/:challengeId/accept)", () => {
+    it("if not found, returns Not Found", async () => {
+      // Arrange
+      const agent = await loginTestUser(app, user1Credentials);
+
+      // Act
+      await agent
+        .post(`/api/challenges/999/accept`)
+        .expect(HttpStatus.NOT_FOUND);
+
+      // Assert
+    });
+
+    describe("open challenge", () => {
+      let challengeId: number;
+      beforeEach(async () => {
+        challengeId = await createTestChallenge(user1Id, variantId);
+      });
+
+      it("if not logged in, returns Unauthorized", async () => {
+        // Arrange
+
+        // Act
+        await supertest(app)
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.UNAUTHORIZED);
+
+        // Assert
+      });
+
+      it("if logged in creator, returns Unprocessable Entity", async () => {
+        // Arrange
+        const agent = await loginTestUser(app, user1Credentials);
+
+        // Act
+        const response = await agent
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        // Assert
+        expect(response.body).to.eql({
+          challengeId: "Cannot accept your own challenge",
+        });
+      });
+
+      it("on success, deletes the object and creates a game", async () => {
+        // Arrange
+        const user2Credentials = createTestCredentials("user2");
+        const user2Id = await createTestUser(user2Credentials);
+        const agent = await loginTestUser(app, user2Credentials);
+
+        // Act
+        const response = await agent
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.OK);
+
+        // Assert
+        expect(response.body).to.exist();
+        const game: IGame = response.body;
+        expect(game.alabasterUserId).to.eql(user1Id);
+        expect(game.onyxUserId).to.eql(user2Id);
+        const paginatedChallenges = await new ChallengeService().searchChallenges(
+          { pagination: { pageSize: 10, pageIndex: 0 } }
+        );
+        expect(paginatedChallenges.total).to.equal(0);
+      });
+    });
+
+    describe("challenging a specific user", () => {
+      let user2Credentials: IUserCredentials;
+      let user2Id: number;
+      let challengeId: number;
+
+      beforeEach(async () => {
+        user2Credentials = createTestCredentials("user2");
+        user2Id = await createTestUser(user2Credentials);
+        challengeId = await createTestChallenge(user1Id, variantId, user2Id);
+      });
+
+      it("if not logged in, returns Unauthorized", async () => {
+        // Arrange
+
+        // Act
+        await supertest(app)
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.UNAUTHORIZED);
+
+        // Assert
+      });
+
+      it("if logged in creator, returns Unprocessable Entity", async () => {
+        // Arrange
+        const agent = await loginTestUser(app, user1Credentials);
+
+        // Act
+        const response = await agent
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        // Assert
+        expect(response.body).to.eql({
+          challengeId: "Cannot accept your own challenge",
+        });
+      });
+
+      it("if logged in as non-opponent, returns Unprocessable Entity", async () => {
+        // Arrange
+        const { agent } = await createAndLoginTestUser(app, "user3");
+
+        // Act
+        const response = await agent
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        // Assert
+        expect(response.body).to.eql({
+          challengeId: "Cannot accept challenge for other user",
+        });
+      });
+
+      it("on success, deletes the object and creates a game", async () => {
+        // Arrange
+        const agent = await loginTestUser(app, user2Credentials);
+
+        // Act
+        const response = await agent
+          .post(`/api/challenges/${challengeId}/accept`)
+          .expect(HttpStatus.OK);
+
+        // Assert
+        expect(response.body).to.exist();
+        const game: IGame = response.body;
+        expect(game.alabasterUserId).to.eql(user1Id);
+        expect(game.onyxUserId).to.eql(user2Id);
+        const paginatedChallenges = await new ChallengeService().searchChallenges(
+          { pagination: { pageSize: 10, pageIndex: 0 } }
+        );
+        expect(paginatedChallenges.total).to.equal(0);
+      });
     });
   });
 });

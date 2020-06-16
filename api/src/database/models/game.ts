@@ -5,7 +5,6 @@ import {
   ICoordinateMapData,
   IGame,
   IGamePly,
-  PlayerColor,
 } from "../../shared/dtos/game";
 
 const ACTION_ENUM = DataTypes.ENUM(Action.SETUP, Action.PLAY, Action.COMPLETE);

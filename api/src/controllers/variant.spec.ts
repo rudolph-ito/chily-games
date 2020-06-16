@@ -22,6 +22,7 @@ import {
   IPreviewPieceRuleRequest,
   IPreviewPieceRuleResponse,
 } from "../shared/dtos/game";
+import HttpStatus from "http-status-codes";
 
 describe("VariantRoutes", () => {
   resetDatabaseBeforeEach();
@@ -39,7 +40,7 @@ describe("VariantRoutes", () => {
       const response = await supertest(app)
         .post("/api/variants/search")
         .send({ pagination: { pageIndex: 0, pageSize: 100 } })
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.eql({
@@ -56,21 +57,27 @@ describe("VariantRoutes", () => {
       pieceRanks: false,
     };
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
-      await supertest(app).post("/api/variants").send(validRequest).expect(401);
+      await supertest(app)
+        .post("/api/variants")
+        .send(validRequest)
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if validation errors, returns 422 with errors in body", async () => {
+    it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app);
 
       // Act
-      const response = await agent.post("/api/variants").send({}).expect(422);
+      const response = await agent
+        .post("/api/variants")
+        .send({})
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -86,7 +93,7 @@ describe("VariantRoutes", () => {
       const response = await agent
         .post("/api/variants")
         .send(validRequest)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -111,19 +118,19 @@ describe("VariantRoutes", () => {
       variantId = await createTestVariant(creatorId);
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .put(`/api/variants/${variantId}`)
         .send(updatedOptions)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
@@ -131,22 +138,25 @@ describe("VariantRoutes", () => {
       await agent
         .put(`/api/variants/${variantId}`)
         .send(updatedOptions)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if invalid variant id, returns 404", async () => {
+    it("if invalid variant id, returns Not Found", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
       // Act
-      await agent.put(`/api/variants/999`).send(updatedOptions).expect(404);
+      await agent
+        .put(`/api/variants/999`)
+        .send(updatedOptions)
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });
 
-    it("if validation errors, returns 422 with errors in body", async () => {
+    it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -154,7 +164,7 @@ describe("VariantRoutes", () => {
       const response = await agent
         .put(`/api/variants/${variantId}`)
         .send({})
-        .expect(422);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -170,7 +180,7 @@ describe("VariantRoutes", () => {
       const response = await agent
         .put(`/api/variants/${variantId}`)
         .send(updatedOptions)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -206,7 +216,7 @@ describe("VariantRoutes", () => {
       const response = await supertest(app)
         .post(`/api/variants/${variantId}/preview/pieceRule`)
         .send(request)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();

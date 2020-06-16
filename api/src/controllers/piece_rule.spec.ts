@@ -21,6 +21,7 @@ import {
 } from "../shared/dtos/piece_rule";
 import { PieceRuleDataService } from "../services/data/piece_rule_data_service";
 import { PieceRule } from "../database/models";
+import HttpStatus from "http-status-codes";
 
 describe("PieceRuleRoutes", () => {
   resetDatabaseBeforeEach();
@@ -51,19 +52,19 @@ describe("PieceRuleRoutes", () => {
       captureType: CaptureType.MOVEMENT,
     };
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .post(`/api/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
@@ -71,12 +72,12 @@ describe("PieceRuleRoutes", () => {
       await agent
         .post(`/api/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if validation errors, returns 422 with errors in body", async () => {
+    it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -84,7 +85,7 @@ describe("PieceRuleRoutes", () => {
       const response = await agent
         .post(`/api/variants/${variantId}/pieceRules`)
         .send({})
-        .expect(422);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -106,7 +107,7 @@ describe("PieceRuleRoutes", () => {
       const response = await agent
         .post(`/api/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -121,37 +122,37 @@ describe("PieceRuleRoutes", () => {
       pieceRuleId = await createTestPieceRule(PieceType.RABBLE, variantId);
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .delete(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
       // Act
       await agent
         .delete(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if not found, returns 404", async () => {
+    it("if not found, returns Not Found", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
       // Act
       await agent
         .delete(`/api/variants/${variantId}/pieceRules/999`)
-        .expect(404);
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });
@@ -163,7 +164,7 @@ describe("PieceRuleRoutes", () => {
       // Act
       await agent
         .delete(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       const pieceRules = await new PieceRuleDataService().getPieceRules(
@@ -181,7 +182,7 @@ describe("PieceRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/variants/${variantId}/pieceRules`)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -198,7 +199,7 @@ describe("PieceRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/variants/${variantId}/pieceRules`)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -229,19 +230,19 @@ describe("PieceRuleRoutes", () => {
       pieceRuleId = await createTestPieceRule(PieceType.RABBLE, variantId);
     });
 
-    it("if not logged in, returns 401", async () => {
+    it("if not logged in, returns Unauthorized", async () => {
       // Arrange
 
       // Act
       await supertest(app)
         .put(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
     });
 
-    it("if logged in as non-creator, returns 401", async () => {
+    it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
       const { agent } = await createAndLoginTestUser(app, "user2");
 
@@ -249,12 +250,12 @@ describe("PieceRuleRoutes", () => {
       await agent
         .put(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
-        .expect(401);
+        .expect(HttpStatus.FORBIDDEN);
 
       // Assert
     });
 
-    it("if not found, returns 404", async () => {
+    it("if not found, returns Not Found", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -262,12 +263,12 @@ describe("PieceRuleRoutes", () => {
       await agent
         .put(`/api/variants/${variantId}/pieceRules/999`)
         .send(updatedPieceRuleOptions)
-        .expect(404);
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });
 
-    it("if validation errors, returns 422 with errors in body", async () => {
+    it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
       const agent = await loginTestUser(app, creatorCredentials);
 
@@ -275,7 +276,7 @@ describe("PieceRuleRoutes", () => {
       const response = await agent
         .put(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send({})
-        .expect(422);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -297,7 +298,7 @@ describe("PieceRuleRoutes", () => {
       const response = await agent
         .put(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
-        .expect(200);
+        .expect(HttpStatus.OK);
 
       // Assert
       expect(response.body).to.exist();

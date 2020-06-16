@@ -20,6 +20,7 @@ import {
 import { TerrainRuleDataService } from "../src/services/data/terrain_rule_data_service";
 import { ChallengePlayAs } from "../src/shared/dtos/challenge";
 import { ChallengeDataService } from "../src/services/data/challenge_data_service";
+import HttpStatus from "http-status-codes";
 
 chai.use(dirtyChai);
 
@@ -143,7 +144,7 @@ export async function loginTestUser(
     .post("/api/auth/login")
     .send(credentials)
     .expect("set-cookie", /connect\.sid/)
-    .expect(200);
+    .expect(HttpStatus.OK);
   return agent;
 }
 

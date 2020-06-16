@@ -87,6 +87,9 @@ export class ChallengeService implements IChallengeService {
 
   async acceptChallenge(userId: number, challengeId: number): Promise<IGame> {
     const challenge = await this.challengeDataService.getChallenge(challengeId);
+    if (doesNotHaveValue(challenge)) {
+      this.throwChallengeNotFoundError(challengeId);
+    }
     if (challenge.creatorUserId === userId) {
       this.throwChallengeIdValidationError("Cannot accept your own challenge");
     }
@@ -102,11 +105,13 @@ export class ChallengeService implements IChallengeService {
       challenge,
       userId
     );
-    return await this.gameDataService.createGame({
+    const game = await this.gameDataService.createGame({
       alabasterUserId: playerColorAssignment.alabasterUserId,
       onyxUserId: playerColorAssignment.onyxUserId,
       variantId: challenge.variantId,
     });
+    await this.challengeDataService.deleteChallenge(challengeId);
+    return game;
   }
 
   async declineChallenge(userId: number, challengeId: number): Promise<void> {

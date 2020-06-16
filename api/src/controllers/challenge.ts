@@ -4,6 +4,7 @@ import {
   ChallengeService,
 } from "../services/challenge_service";
 import { IUser } from "../shared/dtos/authentication";
+import HttpStatus from "http-status-codes";
 
 export function getChallengeRouter(
   authenticationRequired: express.Handler,
@@ -14,7 +15,7 @@ export function getChallengeRouter(
     challengeService
       .searchChallenges(req.body)
       .then((paginatedChallenges) => {
-        res.status(200).send(paginatedChallenges);
+        res.json(paginatedChallenges);
       })
       .catch(next);
   });
@@ -22,7 +23,7 @@ export function getChallengeRouter(
     challengeService
       .createChallenge((req.user as IUser).userId, req.body)
       .then((challenge) => {
-        res.status(200).send(challenge);
+        res.json(challenge);
       })
       .catch(next);
   });
@@ -37,7 +38,7 @@ export function getChallengeRouter(
         parseInt(req.params.challengeId)
       )
       .then(() => {
-        res.status(200).end();
+        res.end();
       })
       .catch(next);
   });
@@ -52,7 +53,7 @@ export function getChallengeRouter(
         parseInt(req.params.challengeId)
       )
       .then((game) => {
-        res.status(200).send(game);
+        res.status(HttpStatus.OK).json(game);
       })
       .catch(next);
   });
@@ -67,7 +68,7 @@ export function getChallengeRouter(
         parseInt(req.params.challengeId)
       )
       .then(() => {
-        res.status(200).end();
+        res.end();
       })
       .catch(next);
   });
