@@ -17,7 +17,7 @@ import { getPieceRulesRouter } from "./piece_rule";
 import { getTerrainRulesRouter } from "./terrain_rule";
 import { getChallengeRouter } from "./challenge";
 import HttpStatus from "http-status-codes";
-import { getGameRouter } from './game';
+import { getGameRouter } from "./game";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 

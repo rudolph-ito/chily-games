@@ -4,12 +4,22 @@ import {
   doesNotHaveValue,
   doesHaveValue,
 } from "../../shared/utilities/value_checker";
-import { IGame, Action, ISearchGamesRequest } from "../../shared/dtos/game";
+import {
+  IGame,
+  Action,
+  ISearchGamesRequest,
+  ICoordinateMapData,
+} from "../../shared/dtos/game";
 
 export interface IGameOptions {
   variantId: number;
   alabasterUserId: number;
   onyxUserId: number;
+}
+
+export interface IGameUpdateOptions {
+  alabasterSetupCoordinateMap?: ICoordinateMapData[];
+  onyxSetupCoordinateMap?: ICoordinateMapData[];
 }
 
 export interface IGameDataService {
@@ -18,6 +28,7 @@ export interface IGameDataService {
   searchGames: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<IGame>>;
+  updateGame: (gameId: number, options: IGameUpdateOptions) => Promise<void>;
 }
 
 export class GameDataService implements IGameDataService {
@@ -59,5 +70,11 @@ export class GameDataService implements IGameDataService {
       data: result.rows.map((r: Game) => r.serialize()),
       total: result.count,
     };
+  }
+
+  async updateGame(gameId: number, options: IGameUpdateOptions): Promise<void> {
+    const game = await Game.findByPk(gameId);
+    await game.save(options);
+    return game.serialize();
   }
 }

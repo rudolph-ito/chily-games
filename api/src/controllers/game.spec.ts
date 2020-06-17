@@ -9,6 +9,9 @@ import {
 import { createExpressApp } from ".";
 import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
+import { GameDataService } from "../services/data/game_data_service";
+import { GameService } from "../services/game_service";
+import { PieceType } from "../shared/dtos/piece_rule";
 
 describe("GameRoutes", () => {
   resetDatabaseBeforeEach();
@@ -40,10 +43,38 @@ describe("GameRoutes", () => {
       await agent.get(`/api/games/999`).expect(HttpStatus.NOT_FOUND);
 
       // Assert
-    })
+    });
 
     describe("in setup", () => {
-      it("on success for alabaster user, returns only the alabaster setup", () => {});
+      let gameId: number;
+
+      beforeEach(async () => {
+        gameId = (
+          await new GameDataService().createGame({
+            variantId,
+            alabasterUserId: user1Id,
+            onyxUserId: user2Id,
+          })
+        ).gameId;
+        await new GameService().updateGameSetup(user1Id, gameId, {
+          pieceChange: {
+            pieceTypeId: PieceType.KING,
+            to: { x: 0, y: 1 },
+          },
+        });
+        await new GameService().updateGameSetup(user2Id, gameId, {
+          pieceChange: {
+            pieceTypeId: PieceType.KING,
+            to: { x: 0, y: -1 },
+          },
+        });
+      });
+
+      it("on success for alabaster user, returns only the alabaster setup", () => {
+        // Arrange
+        // Act
+        // Assert
+      });
 
       it("on success for onyx user, returns only the onyx setup", () => {});
 

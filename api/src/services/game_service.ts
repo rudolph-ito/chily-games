@@ -7,7 +7,11 @@ import {
   Action,
   PlayerColor,
 } from "../shared/dtos/game";
-import { IGameDataService, GameDataService } from "./data/game_data_service";
+import {
+  IGameDataService,
+  GameDataService,
+  IGameUpdateOptions,
+} from "./data/game_data_service";
 import {
   doesNotHaveValue,
   doesHaveValue,
@@ -132,6 +136,11 @@ export class GameService implements IGameService {
         }
       }
     }
+    const updates: IGameUpdateOptions =
+      playerColor === PlayerColor.ALABASTER
+        ? { alabasterSetupCoordinateMap: coordinateMap.serialize() }
+        : { onyxSetupCoordinateMap: coordinateMap.serialize() };
+    await this.gameDataService.updateGame(gameId, updates);
   }
 
   async completeGameSetup(userId: number, gameId: number): Promise<void> {
