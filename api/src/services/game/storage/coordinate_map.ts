@@ -5,6 +5,7 @@ import {
   IPiece,
   ITerrain,
 } from "../../../shared/dtos/game";
+import { doesHaveValue } from "../../../shared/utilities/value_checker";
 
 export interface ICoordinateMap {
   addPiece: (coordinate: ICoordinate, piece: IPiece) => void;
@@ -16,21 +17,11 @@ export interface ICoordinateMap {
   movePiece: (from: ICoordinate, to: ICoordinate) => void;
   moveTerrain: (from: ICoordinate, to: ICoordinate) => void;
   serialize: () => ICoordinateMapData[];
+  deserialize: (data: ICoordinateMapData[]) => void;
 }
 
 export class CoordinateMap implements ICoordinateMap {
   private readonly data: Map<string, ICoordinateData>;
-
-  static deserialize(data: ICoordinateMapData[]): CoordinateMap {
-    const coordinateMap = new CoordinateMap([]);
-    data.forEach((datum) =>
-      coordinateMap.addPiece(datum.key, datum.value.piece)
-    );
-    data.forEach((datum) =>
-      coordinateMap.addTerrain(datum.key, datum.value.terrain)
-    );
-    return coordinateMap;
-  }
 
   constructor(coordinates: ICoordinate[]) {
     this.data = new Map<string, ICoordinateData>();
@@ -76,10 +67,17 @@ export class CoordinateMap implements ICoordinateMap {
   }
 
   serialize(): ICoordinateMapData[] {
-    return Array.from(this.data.entries()).map((x) => ({
-      key: this.keyToCoordinate(x[0]),
-      value: x[1],
-    }));
+    return Array.from(this.data.entries())
+      .filter((x) => doesHaveValue(x[1].piece) || doesHaveValue(x[1].terrain))
+      .map((x) => ({
+        key: this.keyToCoordinate(x[0]),
+        value: x[1],
+      }));
+  }
+
+  deserialize(data: ICoordinateMapData[]): void {
+    data.forEach((datum) => this.addPiece(datum.key, datum.value.piece));
+    data.forEach((datum) => this.addTerrain(datum.key, datum.value.terrain));
   }
 
   private getCoorinateData(coordinate: ICoordinate): ICoordinateData {

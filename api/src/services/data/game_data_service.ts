@@ -36,7 +36,7 @@ export class GameDataService implements IGameDataService {
     const game = Game.build({
       variantId: options.variantId,
       action: Action.SETUP,
-      actionToUserId: options.alabasterUserId,
+      actionToUserId: null,
       alabasterUserId: options.alabasterUserId,
       onyxUserId: options.onyxUserId,
       alabasterSetupCoordinateMap: [],

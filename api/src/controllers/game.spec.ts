@@ -59,13 +59,13 @@ describe("GameRoutes", () => {
         await new GameService().updateGameSetup(user1Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
-            to: { x: 0, y: 1 },
+            to: { x: 0, y: -1 },
           },
         });
         await new GameService().updateGameSetup(user2Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
-            to: { x: 0, y: -1 },
+            to: { x: 0, y: 1 },
           },
         });
       });

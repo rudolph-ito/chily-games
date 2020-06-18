@@ -22,6 +22,22 @@ import {
   ValidationError,
 } from "./exceptions";
 import { CoordinateMap } from "./game/storage/coordinate_map";
+import { getBoardForVariant } from "./game/board/builder";
+import {
+  IVariantDataService,
+  VariantDataService,
+} from "./data/variant_data_service";
+import { validateGameSetupChange } from "./validators/game_setup_change_validator";
+import {
+  IPieceRuleDataService,
+  PieceRuleDataService,
+} from "./data/piece_rule_data_service";
+import {
+  ITerrainRuleDataService,
+  TerrainRuleDataService,
+} from "./data/terrain_rule_data_service";
+import { PieceType } from "src/shared/dtos/piece_rule";
+import { TerrainType } from "src/shared/dtos/terrain_rule";
 
 export interface IGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
@@ -45,7 +61,10 @@ export interface IGameService {
 
 export class GameService implements IGameService {
   constructor(
-    private readonly gameDataService: IGameDataService = new GameDataService()
+    private readonly gameDataService: IGameDataService = new GameDataService(),
+    private readonly variantDataService: IVariantDataService = new VariantDataService(),
+    private readonly pieceRuleDataService: IPieceRuleDataService = new PieceRuleDataService(),
+    private readonly terrainRuleDataService: ITerrainRuleDataService = new TerrainRuleDataService()
   ) {}
 
   async getGame(userId: number, gameId: number): Promise<IGame> {
@@ -99,8 +118,21 @@ export class GameService implements IGameService {
       playerColor === PlayerColor.ALABASTER
         ? game.alabasterSetupCoordinateMap
         : game.onyxSetupCoordinateMap;
-    const coordinateMap = CoordinateMap.deserialize(setupCoordinateMap);
-    // validate
+    const variant = await this.variantDataService.getVariant(game.variantId);
+    const board = getBoardForVariant(variant);
+    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    coordinateMap.deserialize(setupCoordinateMap);
+    const error = validateGameSetupChange({
+      board,
+      change,
+      coordinateMap,
+      pieceTypeCountMap: await this.getPieceTypeCountMap(game.variantId),
+      playerColor,
+      terrainTypeCountMap: await this.getTerrainTypeCountMap(game.variantId),
+    });
+    if (doesHaveValue(error)) {
+      throw new ValidationError({ general: error });
+    }
     if (doesHaveValue(change.pieceChange)) {
       if (doesHaveValue(change.pieceChange.from)) {
         if (doesHaveValue(change.pieceChange.to)) {
@@ -199,5 +231,25 @@ export class GameService implements IGameService {
 
   private throwGameNotFoundError(gameId: number): void {
     throw new NotFoundError(`Game does not exist with id: ${gameId}`);
+  }
+
+  private async getPieceTypeCountMap(
+    variantId: number
+  ): Promise<Map<PieceType, number>> {
+    const result = new Map<PieceType, number>();
+    const pieceRules = await this.pieceRuleDataService.getPieceRules(variantId);
+    pieceRules.forEach((pr) => result.set(pr.pieceTypeId, pr.count));
+    return result;
+  }
+
+  private async getTerrainTypeCountMap(
+    variantId: number
+  ): Promise<Map<TerrainType, number>> {
+    const result = new Map<TerrainType, number>();
+    const pieceRules = await this.terrainRuleDataService.getTerrainRules(
+      variantId
+    );
+    pieceRules.forEach((tr) => result.set(tr.terrainTypeId, tr.count));
+    return result;
   }
 }
