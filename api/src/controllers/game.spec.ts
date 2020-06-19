@@ -5,6 +5,7 @@ import {
   resetDatabaseBeforeEach,
   IUserCredentials,
   loginTestUser,
+  createAndLoginTestUser,
 } from "../../test/test_helper";
 import { createExpressApp } from ".";
 import { describe, it } from "mocha";
@@ -12,6 +13,8 @@ import HttpStatus from "http-status-codes";
 import { GameDataService } from "../services/data/game_data_service";
 import { GameService } from "../services/game_service";
 import { PieceType } from "../shared/dtos/piece_rule";
+import { expect } from "chai";
+import { IGame, PlayerColor } from "../shared/dtos/game";
 
 describe("GameRoutes", () => {
   resetDatabaseBeforeEach();
@@ -70,19 +73,73 @@ describe("GameRoutes", () => {
         });
       });
 
-      it("on success for alabaster user, returns only the alabaster setup", () => {
+      it("on success for alabaster user, returns only the alabaster setup", async () => {
         // Arrange
+        const agent = await loginTestUser(app, user1Credentials);
+
         // Act
+        const response = await agent
+          .get(`/api/games/${gameId}`)
+          .expect(HttpStatus.OK);
+
         // Assert
+        expect(response.body).to.exist();
+        const game: IGame = response.body;
+        expect(game.alabasterSetupCoordinateMap).to.eql([
+          {
+            key: { x: 0, y: -1 },
+            value: {
+              piece: {
+                pieceTypeId: PieceType.KING,
+                playerColor: PlayerColor.ALABASTER,
+              },
+            },
+          },
+        ]);
+        expect(game.onyxSetupCoordinateMap).to.eql([]);
       });
 
-      it("on success for onyx user, returns only the onyx setup", () => {});
+      it("on success for onyx user, returns only the onyx setup", async () => {
+        // Arrange
+        const agent = await loginTestUser(app, user2Credentials);
 
-      it("on success for spectator, returns no setup", () => {});
-    });
+        // Act
+        const response = await agent
+          .get(`/api/games/${gameId}`)
+          .expect(HttpStatus.OK);
 
-    describe("in any other state", () => {
-      it("on success, returns the game", () => {});
+        // Assert
+        expect(response.body).to.exist();
+        const game: IGame = response.body;
+        expect(game.alabasterSetupCoordinateMap).to.eql([]);
+        expect(game.onyxSetupCoordinateMap).to.eql([
+          {
+            key: { x: 0, y: 1 },
+            value: {
+              piece: {
+                pieceTypeId: PieceType.KING,
+                playerColor: PlayerColor.ONYX,
+              },
+            },
+          },
+        ]);
+      });
+
+      it("on success for spectator, returns no setup", async () => {
+        // Arrange
+        const { agent } = await createAndLoginTestUser(app, "user3");
+
+        // Act
+        const response = await agent
+          .get(`/api/games/${gameId}`)
+          .expect(HttpStatus.OK);
+
+        // Assert
+        expect(response.body).to.exist();
+        const game: IGame = response.body;
+        expect(game.alabasterSetupCoordinateMap).to.eql([]);
+        expect(game.onyxSetupCoordinateMap).to.eql([]);
+      });
     });
   });
 });

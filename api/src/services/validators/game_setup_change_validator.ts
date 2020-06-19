@@ -67,6 +67,9 @@ export function validateGameSetupChange(
       }
     }
     if (doesNotHaveValue(pieceChange.from)) {
+      if (!options.pieceTypeCountMap.has(pieceChange.pieceTypeId)) {
+        return "Piece change - piece type not allowed";
+      }
       const maxPieceTypeCount = options.pieceTypeCountMap.get(
         pieceChange.pieceTypeId
       );
@@ -123,15 +126,18 @@ export function validateGameSetupChange(
       }
     }
     if (doesNotHaveValue(terrainChange.from)) {
-      const maxPieceTypeCount = options.terrainTypeCountMap.get(
+      if (!options.terrainTypeCountMap.has(terrainChange.terrainTypeId)) {
+        return "Piece change - piece type not allowed";
+      }
+      const maxTerrainTypeCount = options.terrainTypeCountMap.get(
         terrainChange.terrainTypeId
       );
-      const currentPieceTypeCount = options.coordinateMap
+      const currentTerrainTypeCount = options.coordinateMap
         .serialize()
         .filter(
           (x) => x.value.terrain?.terrainTypeId === terrainChange.terrainTypeId
         ).length;
-      if (currentPieceTypeCount === maxPieceTypeCount) {
+      if (currentTerrainTypeCount === maxTerrainTypeCount) {
         return "Terrain change - already at max count for terrain type";
       }
     }

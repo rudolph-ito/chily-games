@@ -72,7 +72,14 @@ export class GameService implements IGameService {
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
     }
-    // TODO during setup, for players, return just their view, for spectators return nothing
+    if (game.action === Action.SETUP) {
+      if (userId !== game.alabasterUserId) {
+        game.alabasterSetupCoordinateMap = [];
+      }
+      if (userId !== game.onyxUserId) {
+        game.onyxSetupCoordinateMap = [];
+      }
+    }
     return game;
   }
 
@@ -99,17 +106,7 @@ export class GameService implements IGameService {
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
     }
-    if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
-      throw new AuthorizationError("Only players may update setup");
-    }
-    if (game.action !== Action.SETUP) {
-      throw new ValidationError({
-        general: "Can only update setup during setup",
-      });
-    }
-    if (doesHaveValue(game.actionToUserId) && game.actionToUserId !== userId) {
-      throw new ValidationError({ general: "Already completed setup" });
-    }
+    await this.validateUserCanTakeSetupAction(game, userId);
     const playerColor =
       game.alabasterUserId === userId
         ? PlayerColor.ALABASTER
@@ -180,21 +177,21 @@ export class GameService implements IGameService {
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
     }
-    if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
-      throw new AuthorizationError("Only players may complete setup");
-    }
-    if (game.action !== Action.SETUP) {
-      throw new ValidationError({
-        general: "Can only update game setup during setup",
-      });
-    }
-    if (doesHaveValue(game.actionToUserId) && game.actionToUserId !== userId) {
-      throw new ValidationError({ general: "Already completed setup" });
-    }
+    await this.validateUserCanTakeSetupAction(game, userId);
+    // validate all pieces / terrain setup
     if (doesNotHaveValue(game.actionToUserId)) {
-      // update action to user id to other player
+      const opponentId =
+        game.alabasterUserId === userId
+          ? game.onyxUserId
+          : game.alabasterUserId;
+      await this.gameDataService.updateGame(gameId, {
+        actionToUserId: opponentId,
+      });
     } else {
-      // update action to play and action to user id to alabaster
+      await this.gameDataService.updateGame(gameId, {
+        action: Action.PLAY,
+        actionToUserId: game.alabasterUserId,
+      });
     }
   }
 
@@ -251,5 +248,22 @@ export class GameService implements IGameService {
     );
     pieceRules.forEach((tr) => result.set(tr.terrainTypeId, tr.count));
     return result;
+  }
+
+  private async validateUserCanTakeSetupAction(
+    game: IGame,
+    userId: number
+  ): Promise<void> {
+    if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
+      throw new AuthorizationError("Only players may complete setup");
+    }
+    if (game.action !== Action.SETUP) {
+      throw new ValidationError({
+        general: "Can only update game setup during setup",
+      });
+    }
+    if (doesHaveValue(game.actionToUserId) && game.actionToUserId !== userId) {
+      throw new ValidationError({ general: "Already completed setup" });
+    }
   }
 }

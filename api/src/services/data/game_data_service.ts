@@ -18,6 +18,8 @@ export interface IGameOptions {
 }
 
 export interface IGameUpdateOptions {
+  action?: Action;
+  actionToUserId?: number;
   alabasterSetupCoordinateMap?: ICoordinateMapData[];
   onyxSetupCoordinateMap?: ICoordinateMapData[];
 }
@@ -74,6 +76,9 @@ export class GameDataService implements IGameDataService {
 
   async updateGame(gameId: number, options: IGameUpdateOptions): Promise<void> {
     const game = await Game.findByPk(gameId);
+    for (const [key, value] of Object.entries(options)) {
+      game[key] = value;
+    }
     await game.save(options);
     return game.serialize();
   }
