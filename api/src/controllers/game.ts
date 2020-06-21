@@ -78,10 +78,7 @@ export function getGameRouter(
     next
   ) {
     gameService
-      .abortGame(
-        (req.user as IUser).userId,
-        parseInt(req.params.gameId),
-      )
+      .abortGame((req.user as IUser).userId, parseInt(req.params.gameId))
       .then(() => {
         res.status(200).end();
       })
@@ -93,10 +90,7 @@ export function getGameRouter(
     next
   ) {
     gameService
-      .resignGame(
-        (req.user as IUser).userId,
-        parseInt(req.params.gameId),
-      )
+      .resignGame((req.user as IUser).userId, parseInt(req.params.gameId))
       .then(() => {
         res.status(200).end();
       })
