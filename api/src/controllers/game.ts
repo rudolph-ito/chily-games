@@ -25,7 +25,7 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.get("/:gameId/updateSetup", authenticationRequired, function (
+  router.post("/:gameId/updateSetup", authenticationRequired, function (
     req,
     res,
     next
@@ -41,7 +41,7 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.get("/:gameId/completeSetup", authenticationRequired, function (
+  router.post("/:gameId/completeSetup", authenticationRequired, function (
     req,
     res,
     next
@@ -50,6 +50,52 @@ export function getGameRouter(
       .completeGameSetup(
         (req.user as IUser).userId,
         parseInt(req.params.gameId)
+      )
+      .then(() => {
+        res.status(200).end();
+      })
+      .catch(next);
+  });
+  router.post("/:gameId/createPly", authenticationRequired, function (
+    req,
+    res,
+    next
+  ) {
+    gameService
+      .createGamePly(
+        (req.user as IUser).userId,
+        parseInt(req.params.gameId),
+        req.body
+      )
+      .then(() => {
+        res.status(200).end();
+      })
+      .catch(next);
+  });
+  router.post("/:gameId/abort", authenticationRequired, function (
+    req,
+    res,
+    next
+  ) {
+    gameService
+      .abortGame(
+        (req.user as IUser).userId,
+        parseInt(req.params.gameId),
+      )
+      .then(() => {
+        res.status(200).end();
+      })
+      .catch(next);
+  });
+  router.post("/:gameId/resign", authenticationRequired, function (
+    req,
+    res,
+    next
+  ) {
+    gameService
+      .resignGame(
+        (req.user as IUser).userId,
+        parseInt(req.params.gameId),
       )
       .then(() => {
         res.status(200).end();
