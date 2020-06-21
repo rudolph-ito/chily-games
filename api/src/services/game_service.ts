@@ -254,7 +254,7 @@ export class GameService implements IGameService {
       .some(
         ({ value }) =>
           value.piece.pieceTypeId === PieceType.KING &&
-          value.piece.playerColor === playerColor
+          value.piece.playerColor === actionTo
       );
     await this.gameDataService.updateGame(gameId, {
       action: actionToHasKing ? Action.PLAY : Action.COMPLETE,
@@ -334,7 +334,7 @@ export class GameService implements IGameService {
         game.alabasterUserId === userId
           ? PlayerColor.ALABASTER
           : PlayerColor.ONYX;
-      if (game.actionTo === playerColor) {
+      if (game.actionTo !== playerColor) {
         throw new ValidationError({ general: "Already completed setup" });
       }
     }
