@@ -10,6 +10,8 @@ module.exports = {
       "aborted",
       "resigned"
     );
+    // Matches shared/dtos/game:PlayerColor
+    const actionToEnum = Sequelize.ENUM("alabaster", "onyx");
     const userConfig = (allowNull) => {
       return {
         type: Sequelize.INTEGER,
@@ -43,7 +45,10 @@ module.exports = {
         type: actionEnum,
         allowNull: false,
       },
-      actionToUserId: userConfig(true),
+      actionToUserId: {
+        type: actionToEnum,
+        allowNull: true,
+      },
       alabasterUserId: userConfig(false),
       onyxUserId: userConfig(false),
       alabasterSetupCoordinateMap: {

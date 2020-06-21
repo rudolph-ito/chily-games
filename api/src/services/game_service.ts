@@ -36,8 +36,8 @@ import {
   ITerrainRuleDataService,
   TerrainRuleDataService,
 } from "./data/terrain_rule_data_service";
-import { PieceType, IPieceRule } from "src/shared/dtos/piece_rule";
-import { TerrainType, ITerrainRule } from "src/shared/dtos/terrain_rule";
+import { PieceType, IPieceRule } from "../shared/dtos/piece_rule";
+import { TerrainType, ITerrainRule } from "../shared/dtos/terrain_rule";
 import { validateGameSetupComplete } from "./validators/game_setup_complete_validator";
 import { validateGamePly } from "./validators/game_ply_validator";
 
@@ -181,20 +181,25 @@ export class GameService implements IGameService {
     }
     await this.validateUserCanTakeSetupAction(game, userId);
     await this.validateUserSetupIsComplete(game, userId);
-    if (doesNotHaveValue(game.actionToUserId)) {
-      const opponentId =
+    if (doesNotHaveValue(game.actionTo)) {
+      const actionTo =
         game.alabasterUserId === userId
-          ? game.onyxUserId
-          : game.alabasterUserId;
+          ? PlayerColor.ONYX
+          : PlayerColor.ALABASTER;
       await this.gameDataService.updateGame(gameId, {
-        actionToUserId: opponentId,
+        actionTo,
       });
     } else {
+      const variant = await this.variantDataService.getVariant(game.variantId);
+      const board = getBoardForVariant(variant);
+      const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+      coordinateMap.deserialize(game.alabasterSetupCoordinateMap);
+      coordinateMap.deserialize(game.onyxSetupCoordinateMap);
       await this.gameDataService.updateGame(gameId, {
         action: Action.PLAY,
-        actionToUserId: game.alabasterUserId,
+        actionTo: PlayerColor.ALABASTER,
+        currentCoordinateMap: coordinateMap.serialize(),
       });
-      // initialize currentCoordinateMap
     }
   }
 
@@ -227,7 +232,29 @@ export class GameService implements IGameService {
     if (doesHaveValue(error)) {
       throw new ValidationError({ general: error });
     }
-    // update board, record ply
+    if (doesHaveValue(ply.movement)) {
+      coordinateMap.movePiece(ply.from, ply.movement.to);
+    }
+    if (doesHaveValue(ply.rangeCapture)) {
+      coordinateMap.deletePiece(ply.rangeCapture.to);
+    }
+    const actionTo =
+      game.alabasterUserId === userId
+        ? PlayerColor.ONYX
+        : PlayerColor.ALABASTER;
+    const actionToHasKing = coordinateMap
+      .serialize()
+      .some(
+        ({ value }) =>
+          value.piece.pieceTypeId === PieceType.KING &&
+          value.piece.playerColor === playerColor
+      );
+    await this.gameDataService.updateGame(gameId, {
+      action: actionToHasKing ? Action.PLAY : Action.COMPLETE,
+      actionTo,
+      plies: game.plies.concat([ply]),
+      currentCoordinateMap: coordinateMap.serialize(),
+    });
   }
 
   async resignGame(userId: number, gameId: number): Promise<void> {}
@@ -274,8 +301,14 @@ export class GameService implements IGameService {
         general: "Can only update game setup during setup",
       });
     }
-    if (doesHaveValue(game.actionToUserId) && game.actionToUserId !== userId) {
-      throw new ValidationError({ general: "Already completed setup" });
+    if (doesHaveValue(game.actionTo)) {
+      const playerColor =
+        game.alabasterUserId === userId
+          ? PlayerColor.ALABASTER
+          : PlayerColor.ONYX;
+      if (game.actionTo === playerColor) {
+        throw new ValidationError({ general: "Already completed setup" });
+      }
     }
   }
 
@@ -291,7 +324,11 @@ export class GameService implements IGameService {
         general: "Can only create plies while playing",
       });
     }
-    if (game.actionToUserId !== userId) {
+    const playerColor =
+      game.alabasterUserId === userId
+        ? PlayerColor.ALABASTER
+        : PlayerColor.ONYX;
+    if (game.actionTo !== playerColor) {
       throw new ValidationError({ general: "Not your turn" });
     }
   }

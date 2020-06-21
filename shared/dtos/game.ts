@@ -85,7 +85,7 @@ export interface IGame {
   gameId: number;
   variantId: number;
   action: Action;
-  actionToUserId: number;
+  actionTo: PlayerColor;
   alabasterUserId: number;
   onyxUserId: number;
   alabasterSetupCoordinateMap: ICoordinateMapData[];

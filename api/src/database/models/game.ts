@@ -5,15 +5,24 @@ import {
   ICoordinateMapData,
   IGame,
   IGamePly,
+  PlayerColor,
 } from "../../shared/dtos/game";
 
-const ACTION_ENUM = DataTypes.ENUM(Action.SETUP, Action.PLAY, Action.COMPLETE);
+const ACTION_ENUM = DataTypes.ENUM(
+  Action.SETUP,
+  Action.PLAY,
+  Action.COMPLETE,
+  Action.ABORTED,
+  Action.RESIGNED
+);
+
+const ACTION_TO_ENUM = DataTypes.ENUM(PlayerColor.ALABASTER, PlayerColor.ONYX);
 
 export class Game extends Model {
   public gameId!: number;
   public variantId!: number;
   public action!: Action;
-  public actionToUserId!: number;
+  public actionTo!: PlayerColor;
   public alabasterUserId!: number;
   public onyxUserId!: number;
   public alabasterSetupCoordinateMap!: ICoordinateMapData[];
@@ -26,7 +35,7 @@ export class Game extends Model {
       gameId: this.gameId,
       variantId: this.variantId,
       action: this.action,
-      actionToUserId: this.actionToUserId,
+      actionTo: this.actionTo,
       alabasterUserId: this.alabasterUserId,
       onyxUserId: this.onyxUserId,
       alabasterSetupCoordinateMap: this.alabasterSetupCoordinateMap,
@@ -47,6 +56,10 @@ Game.init(
     action: {
       type: ACTION_ENUM,
       allowNull: false,
+    },
+    actionTo: {
+      type: ACTION_TO_ENUM,
+      allowNull: true,
     },
     alabasterSetupCoordinateMap: {
       type: DataTypes.JSONB,

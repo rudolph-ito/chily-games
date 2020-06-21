@@ -9,6 +9,8 @@ import {
   Action,
   ISearchGamesRequest,
   ICoordinateMapData,
+  IGamePly,
+  PlayerColor,
 } from "../../shared/dtos/game";
 
 export interface IGameOptions {
@@ -19,9 +21,11 @@ export interface IGameOptions {
 
 export interface IGameUpdateOptions {
   action?: Action;
-  actionToUserId?: number;
+  actionTo?: PlayerColor;
   alabasterSetupCoordinateMap?: ICoordinateMapData[];
   onyxSetupCoordinateMap?: ICoordinateMapData[];
+  currentCoordinateMap?: ICoordinateMapData[];
+  plies?: IGamePly[];
 }
 
 export interface IGameDataService {
@@ -38,7 +42,7 @@ export class GameDataService implements IGameDataService {
     const game = Game.build({
       variantId: options.variantId,
       action: Action.SETUP,
-      actionToUserId: null,
+      actionTo: null,
       alabasterUserId: options.alabasterUserId,
       onyxUserId: options.onyxUserId,
       alabasterSetupCoordinateMap: [],

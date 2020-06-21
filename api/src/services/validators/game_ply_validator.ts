@@ -105,21 +105,21 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
   }
   // Range capture
   if (doesHaveValue(options.ply.rangeCapture)) {
-    const movementValidPlies = plyCalculator.getValidPlies({
+    const rangeValidPlies = plyCalculator.getValidPlies({
       coordinate: rangeCaptureFrom,
       evaluationType: CaptureType.RANGE,
     });
     const existingPiece = options.coordinateMap.getPiece(
-      options.ply.movement.to
+      options.ply.rangeCapture.to
     );
     if (
       doesNotHaveValue(existingPiece) ||
-      !arePiecesEqual(existingPiece, options.ply.movement.capturedPiece)
+      !arePiecesEqual(existingPiece, options.ply.rangeCapture.capturedPiece)
     ) {
       return "Range capture - captured piece is not at to coordinate";
     }
-    const isValid = movementValidPlies.capturable.some((c) =>
-      areCoordinatesEqual(c, options.ply.movement.to)
+    const isValid = rangeValidPlies.capturable.some((c) =>
+      areCoordinatesEqual(c, options.ply.rangeCapture.to)
     );
     if (!isValid) {
       return "Range capture - invalid (cannot capture)";
