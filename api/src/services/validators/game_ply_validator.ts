@@ -9,21 +9,25 @@ import {
   PieceType,
 } from "../../shared/dtos/piece_rule";
 import { ITerrainRule, TerrainType } from "../../shared/dtos/terrain_rule";
-import { IGamePly, ICoordinate, IPiece } from "../../shared/dtos/game";
+import {
+  IGamePly,
+  ICoordinate,
+  IPiece,
+  PlayerColor,
+} from "../../shared/dtos/game";
 import { IVariant } from "../../shared/dtos/variant";
 import { PlyCalculator } from "../game/ply_calculator";
 
-export interface IValidateGameSetupCompleteOptions {
+export interface IValidateGamePlyOptions {
   coordinateMap: CoordinateMap;
   pieceRuleMap: Map<PieceType, IPieceRule>;
+  playerColor: PlayerColor;
   ply: IGamePly;
   terrainRuleMap: Map<TerrainType, ITerrainRule>;
   variant: IVariant;
 }
 
-export function validateGamePly(
-  options: IValidateGameSetupCompleteOptions
-): string {
+export function validateGamePly(options: IValidateGamePlyOptions): string {
   const plyCalculator = new PlyCalculator({
     coordinateMap: options.coordinateMap,
     pieceRuleMap: options.pieceRuleMap,
@@ -34,11 +38,17 @@ export function validateGamePly(
   if (doesNotHaveValue(options.ply.piece)) {
     return "Piece is required";
   }
+  if (options.ply.piece.playerColor !== options.playerColor) {
+    return "Piece must belong to player";
+  }
   if (doesNotHaveValue(options.ply.from)) {
     return "From is required";
   }
   const existingPiece = options.coordinateMap.getPiece(options.ply.from);
-  if (!arePiecesEqual(existingPiece, options.ply.piece)) {
+  if (
+    doesNotHaveValue(existingPiece) ||
+    !arePiecesEqual(existingPiece, options.ply.piece)
+  ) {
     return "Piece is not at from coordinate";
   }
   if (
@@ -57,21 +67,24 @@ export function validateGamePly(
       const existingPiece = options.coordinateMap.getPiece(
         options.ply.movement.to
       );
-      if (!arePiecesEqual(existingPiece, options.ply.movement.capturedPiece)) {
+      if (
+        doesNotHaveValue(existingPiece) ||
+        !arePiecesEqual(existingPiece, options.ply.movement.capturedPiece)
+      ) {
         return "Movement - captured piece is not at to coordinate";
       }
       const isValid = movementValidPlies.capturable.some((c) =>
         areCoordinatesEqual(c, options.ply.movement.to)
       );
       if (!isValid) {
-        return "Movement - invalid";
+        return "Movement - invalid (cannot capture)";
       }
     } else {
       const isValid = movementValidPlies.free.some((c) =>
         areCoordinatesEqual(c, options.ply.movement.to)
       );
       if (!isValid) {
-        return "Movement - invalid";
+        return "Movement - invalid (not free)";
       }
     }
   }
@@ -99,14 +112,17 @@ export function validateGamePly(
     const existingPiece = options.coordinateMap.getPiece(
       options.ply.movement.to
     );
-    if (!arePiecesEqual(existingPiece, options.ply.movement.capturedPiece)) {
+    if (
+      doesNotHaveValue(existingPiece) ||
+      !arePiecesEqual(existingPiece, options.ply.movement.capturedPiece)
+    ) {
       return "Range capture - captured piece is not at to coordinate";
     }
     const isValid = movementValidPlies.capturable.some((c) =>
       areCoordinatesEqual(c, options.ply.movement.to)
     );
     if (!isValid) {
-      return "Range capture - invalid";
+      return "Range capture - invalid (cannot capture)";
     }
   }
   return null;

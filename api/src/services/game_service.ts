@@ -208,6 +208,10 @@ export class GameService implements IGameService {
       this.throwGameNotFoundError(gameId);
     }
     await this.validateUserCanCreatePly(game, userId);
+    const playerColor =
+      game.alabasterUserId === userId
+        ? PlayerColor.ALABASTER
+        : PlayerColor.ONYX;
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
     const coordinateMap = new CoordinateMap(board.getAllCoordinates());
@@ -215,6 +219,7 @@ export class GameService implements IGameService {
     const error = validateGamePly({
       coordinateMap,
       pieceRuleMap: await this.getPieceRuleMap(game.variantId),
+      playerColor,
       ply,
       terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
       variant,

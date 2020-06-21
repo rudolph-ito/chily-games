@@ -3,16 +3,23 @@ import {
   IPieceRule,
   CaptureType,
   PathType,
+  IPieceRuleOptions,
 } from "../src/shared/dtos/piece_rule";
 import {
   ITerrainRule,
   TerrainType,
   PiecesEffectedType,
+  ITerrainRuleOptions,
 } from "../src/shared/dtos/terrain_rule";
+import {
+  IVariant,
+  IVariantOptions,
+  BoardType,
+} from "../src/shared/dtos/variant";
 
 // Create objects without saving them to the database
 
-export function mockPieceRule(options: Partial<IPieceRule>): IPieceRule {
+export function mockPieceRule(options: Partial<IPieceRuleOptions>): IPieceRule {
   return {
     pieceRuleId: 0,
     variantId: 0,
@@ -28,7 +35,9 @@ export function mockPieceRule(options: Partial<IPieceRule>): IPieceRule {
   };
 }
 
-export function mockTerrainRule(options: Partial<ITerrainRule>): ITerrainRule {
+export function mockTerrainRule(
+  options: Partial<ITerrainRuleOptions>
+): ITerrainRule {
   return {
     terrainRuleId: 0,
     variantId: 0,
@@ -50,6 +59,17 @@ export function mockTerrainRule(options: Partial<ITerrainRule>): ITerrainRule {
       for: PiecesEffectedType.NONE,
       pieceTypeIds: [],
     },
+    ...options,
+  };
+}
+
+export function mockVariant(options: Partial<IVariantOptions> = {}): IVariant {
+  return {
+    variantId: 0,
+    userId: 0,
+    boardType: BoardType.HEXAGONAL,
+    boardSize: 6,
+    pieceRanks: false,
     ...options,
   };
 }
