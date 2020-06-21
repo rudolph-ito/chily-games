@@ -1,19 +1,19 @@
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { CoordinateMap } from "../game/storage/coordinate_map";
-import { PieceType } from "../../shared/dtos/piece_rule";
-import { TerrainType } from "../../shared/dtos/terrain_rule";
+import { PieceType, IPieceRule } from "../../shared/dtos/piece_rule";
+import { TerrainType, ITerrainRule } from "../../shared/dtos/terrain_rule";
 
 export interface IValidateGameSetupCompleteOptions {
   coordinateMap: CoordinateMap;
-  pieceTypeCountMap: Map<PieceType, number>;
-  terrainTypeCountMap: Map<TerrainType, number>;
+  pieceRuleMap: Map<PieceType, IPieceRule>;
+  terrainRuleMap: Map<TerrainType, ITerrainRule>;
 }
 
 export function validateGameSetupComplete(
   options: IValidateGameSetupCompleteOptions
 ): string {
-  const currentPieceTypeCounts = getEmptyMap(options.pieceTypeCountMap);
-  const currentTerrainTypeCounts = getEmptyMap(options.terrainTypeCountMap);
+  const currentPieceTypeCounts = getEmptyMap(options.pieceRuleMap);
+  const currentTerrainTypeCounts = getEmptyMap(options.terrainRuleMap);
   options.coordinateMap.serialize().forEach(({ value: { piece, terrain } }) => {
     if (doesHaveValue(piece)) {
       const { pieceTypeId } = piece;
@@ -31,10 +31,10 @@ export function validateGameSetupComplete(
     }
   });
   const errors = getCountDifferences(
-    options.pieceTypeCountMap,
+    options.pieceRuleMap,
     currentPieceTypeCounts
   ).concat(
-    getCountDifferences(options.terrainTypeCountMap, currentTerrainTypeCounts)
+    getCountDifferences(options.terrainRuleMap, currentTerrainTypeCounts)
   );
   if (errors.length > 0) {
     return errors.join(", ");
@@ -42,19 +42,24 @@ export function validateGameSetupComplete(
   return null;
 }
 
-function getEmptyMap<T>(referenceMap: Map<T, number>): Map<T, number> {
+interface IRuleWithCount {
+  count: number;
+}
+
+function getEmptyMap<T>(referenceMap: Map<T, IRuleWithCount>): Map<T, number> {
   return new Map<T, number>(
     Array.from(referenceMap.entries()).map(([key]) => [key, 0])
   );
 }
 
 function getCountDifferences<T>(
-  expectedMap: Map<T, number>,
+  expectedMap: Map<T, IRuleWithCount>,
   actualMap: Map<T, number>
 ): string[] {
   const errors = [];
-  Array.from(expectedMap.entries()).forEach(([key, expectedCount]) => {
+  Array.from(expectedMap.entries()).forEach(([key, rule]) => {
     const actualCount = actualMap.get(key);
+    const expectedCount = rule.count;
     if (actualCount !== expectedCount) {
       const suffix = expectedCount === 1 ? "" : "s";
       errors.push(

@@ -2,6 +2,8 @@ import { IVariant } from "../../../shared/dtos/variant";
 import {
   CaptureType,
   IPieceRuleOptions,
+  PieceType,
+  IPieceRule,
 } from "../../../shared/dtos/piece_rule";
 import { CoordinateMap } from "../storage/coordinate_map";
 import {
@@ -10,6 +12,7 @@ import {
 } from "../../../shared/dtos/game";
 import { getBoardForVariant } from "../board/builder";
 import { PlyCalculator } from ".";
+import { TerrainType, ITerrainRule } from "src/shared/dtos/terrain_rule";
 
 export interface IPreviewPieceRuleRequest {
   evaluationType: CaptureType;
@@ -27,10 +30,17 @@ export function previewPieceRule(
     pieceTypeId: request.pieceRule.pieceTypeId,
     playerColor: PlayerColor.ALABASTER,
   });
+  const pieceRule: IPieceRule = {
+    pieceRuleId: 0,
+    variantId: 0,
+    ...request.pieceRule,
+  };
   const plyCalculator = new PlyCalculator({
     coordinateMap,
-    pieceRules: [{ pieceRuleId: 0, variantId: 0, ...request.pieceRule }],
-    terrainRules: [],
+    pieceRuleMap: new Map<PieceType, IPieceRule>([
+      [pieceRule.pieceTypeId, pieceRule],
+    ]),
+    terrainRuleMap: new Map<TerrainType, ITerrainRule>(),
     variant: request.variant,
   });
   return {

@@ -36,8 +36,10 @@ import {
   ITerrainRuleDataService,
   TerrainRuleDataService,
 } from "./data/terrain_rule_data_service";
-import { PieceType } from "src/shared/dtos/piece_rule";
-import { TerrainType } from "src/shared/dtos/terrain_rule";
+import { PieceType, IPieceRule } from "src/shared/dtos/piece_rule";
+import { TerrainType, ITerrainRule } from "src/shared/dtos/terrain_rule";
+import { validateGameSetupComplete } from "./validators/game_setup_complete_validator";
+import { validateGamePly } from "./validators/game_ply_validator";
 
 export interface IGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
@@ -123,9 +125,9 @@ export class GameService implements IGameService {
       board,
       change,
       coordinateMap,
-      pieceTypeCountMap: await this.getPieceTypeCountMap(game.variantId),
+      pieceRuleMap: await this.getPieceRuleMap(game.variantId),
       playerColor,
-      terrainTypeCountMap: await this.getTerrainTypeCountMap(game.variantId),
+      terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
     });
     if (doesHaveValue(error)) {
       throw new ValidationError({ general: error });
@@ -178,7 +180,7 @@ export class GameService implements IGameService {
       this.throwGameNotFoundError(gameId);
     }
     await this.validateUserCanTakeSetupAction(game, userId);
-    // validate all pieces / terrain setup
+    await this.validateUserSetupIsComplete(game, userId);
     if (doesNotHaveValue(game.actionToUserId)) {
       const opponentId =
         game.alabasterUserId === userId
@@ -192,6 +194,7 @@ export class GameService implements IGameService {
         action: Action.PLAY,
         actionToUserId: game.alabasterUserId,
       });
+      // initialize currentCoordinateMap
     }
   }
 
@@ -204,18 +207,22 @@ export class GameService implements IGameService {
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
     }
-    if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
-      throw new AuthorizationError("Only players may create plies");
+    await this.validateUserCanCreatePly(game, userId);
+    const variant = await this.variantDataService.getVariant(game.variantId);
+    const board = getBoardForVariant(variant);
+    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    coordinateMap.deserialize(game.currentCoordinateMap);
+    const error = validateGamePly({
+      coordinateMap,
+      pieceRuleMap: await this.getPieceRuleMap(game.variantId),
+      ply,
+      terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
+      variant,
+    });
+    if (doesHaveValue(error)) {
+      throw new ValidationError({ general: error });
     }
-    if (game.action !== Action.PLAY) {
-      throw new ValidationError({
-        general: "Can only create plies while playing",
-      });
-    }
-    if (game.actionToUserId !== userId) {
-      throw new ValidationError({ general: "Not your turn" });
-    }
-    // validate and record ply
+    // update board, record ply
   }
 
   async resignGame(userId: number, gameId: number): Promise<void> {}
@@ -230,23 +237,23 @@ export class GameService implements IGameService {
     throw new NotFoundError(`Game does not exist with id: ${gameId}`);
   }
 
-  private async getPieceTypeCountMap(
+  private async getPieceRuleMap(
     variantId: number
-  ): Promise<Map<PieceType, number>> {
-    const result = new Map<PieceType, number>();
+  ): Promise<Map<PieceType, IPieceRule>> {
+    const result = new Map<PieceType, IPieceRule>();
     const pieceRules = await this.pieceRuleDataService.getPieceRules(variantId);
-    pieceRules.forEach((pr) => result.set(pr.pieceTypeId, pr.count));
+    pieceRules.forEach((pr) => result.set(pr.pieceTypeId, pr));
     return result;
   }
 
-  private async getTerrainTypeCountMap(
+  private async getTerrainRuleMap(
     variantId: number
-  ): Promise<Map<TerrainType, number>> {
-    const result = new Map<TerrainType, number>();
-    const pieceRules = await this.terrainRuleDataService.getTerrainRules(
+  ): Promise<Map<TerrainType, ITerrainRule>> {
+    const result = new Map<TerrainType, ITerrainRule>();
+    const terrainRules = await this.terrainRuleDataService.getTerrainRules(
       variantId
     );
-    pieceRules.forEach((tr) => result.set(tr.terrainTypeId, tr.count));
+    terrainRules.forEach((tr) => result.set(tr.terrainTypeId, tr));
     return result;
   }
 
@@ -264,6 +271,49 @@ export class GameService implements IGameService {
     }
     if (doesHaveValue(game.actionToUserId) && game.actionToUserId !== userId) {
       throw new ValidationError({ general: "Already completed setup" });
+    }
+  }
+
+  private async validateUserCanCreatePly(
+    game: IGame,
+    userId: number
+  ): Promise<void> {
+    if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
+      throw new AuthorizationError("Only players may create plies");
+    }
+    if (game.action !== Action.PLAY) {
+      throw new ValidationError({
+        general: "Can only create plies while playing",
+      });
+    }
+    if (game.actionToUserId !== userId) {
+      throw new ValidationError({ general: "Not your turn" });
+    }
+  }
+
+  private async validateUserSetupIsComplete(
+    game: IGame,
+    userId: number
+  ): Promise<void> {
+    const playerColor =
+      game.alabasterUserId === userId
+        ? PlayerColor.ALABASTER
+        : PlayerColor.ONYX;
+    const setupCoordinateMap =
+      playerColor === PlayerColor.ALABASTER
+        ? game.alabasterSetupCoordinateMap
+        : game.onyxSetupCoordinateMap;
+    const variant = await this.variantDataService.getVariant(game.variantId);
+    const board = getBoardForVariant(variant);
+    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    coordinateMap.deserialize(setupCoordinateMap);
+    const error = validateGameSetupComplete({
+      coordinateMap,
+      pieceRuleMap: await this.getPieceRuleMap(game.variantId),
+      terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
+    });
+    if (doesHaveValue(error)) {
+      throw new ValidationError({ general: error });
     }
   }
 }

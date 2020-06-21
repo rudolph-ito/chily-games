@@ -65,19 +65,18 @@ export interface IPreviewPieceRuleResponse {
 }
 
 export interface IGamePlyMovement {
-  from: ICoordinate;
   to: ICoordinate;
   capturedPiece?: IPiece;
 }
 
 export interface IGamePlyRangeCapture {
-  from: ICoordinate;
   to: ICoordinate;
-  capturedPice?: IPiece;
+  capturedPiece: IPiece;
 }
 
 export interface IGamePly {
   piece: IPiece;
+  from: ICoordinate;
   movement?: IGamePlyMovement;
   rangeCapture?: IGamePlyRangeCapture;
 }

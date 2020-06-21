@@ -68,7 +68,9 @@ export class CoordinateMap implements ICoordinateMap {
 
   serialize(): ICoordinateMapData[] {
     return Array.from(this.data.entries())
-      .filter(([_, data]) => doesHaveValue(data.piece) || doesHaveValue(data.terrain))
+      .filter(
+        ([_, data]) => doesHaveValue(data.piece) || doesHaveValue(data.terrain)
+      )
       .map(([coordinate, data]) => ({
         key: this.keyToCoordinate(coordinate),
         value: data,

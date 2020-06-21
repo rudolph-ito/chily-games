@@ -4,17 +4,17 @@ import {
 } from "../../shared/utilities/value_checker";
 import { IGameSetupChange, PlayerColor } from "../../shared/dtos/game";
 import { CoordinateMap } from "../game/storage/coordinate_map";
-import { PieceType } from "../../shared/dtos/piece_rule";
+import { PieceType, IPieceRule } from "../../shared/dtos/piece_rule";
 import { IBoard } from "../game/board";
-import { TerrainType } from "../../shared/dtos/terrain_rule";
+import { TerrainType, ITerrainRule } from "../../shared/dtos/terrain_rule";
 
 export interface IValidateGameSetupChangeOptions {
   board: IBoard;
   change: IGameSetupChange;
   coordinateMap: CoordinateMap;
-  pieceTypeCountMap: Map<PieceType, number>;
+  pieceRuleMap: Map<PieceType, IPieceRule>;
   playerColor: PlayerColor;
-  terrainTypeCountMap: Map<TerrainType, number>;
+  terrainRuleMap: Map<TerrainType, ITerrainRule>;
 }
 
 export function validateGameSetupChange(
@@ -25,7 +25,7 @@ export function validateGameSetupChange(
     (doesNotHaveValue(pieceChange) && doesNotHaveValue(terrainChange)) ||
     (doesHaveValue(pieceChange) && doesHaveValue(terrainChange))
   ) {
-    return "Setup change must exactly one piece change or terrain change";
+    return "Must have exactly one piece change or terrain change";
   }
   if (doesHaveValue(pieceChange)) {
     if (
@@ -67,12 +67,12 @@ export function validateGameSetupChange(
       }
     }
     if (doesNotHaveValue(pieceChange.from)) {
-      if (!options.pieceTypeCountMap.has(pieceChange.pieceTypeId)) {
+      if (!options.pieceRuleMap.has(pieceChange.pieceTypeId)) {
         return "Piece change - piece type not allowed";
       }
-      const maxPieceTypeCount = options.pieceTypeCountMap.get(
+      const maxPieceTypeCount = options.pieceRuleMap.get(
         pieceChange.pieceTypeId
-      );
+      ).count;
       const currentPieceTypeCount = options.coordinateMap
         .serialize()
         .filter((x) => x.value.piece?.pieceTypeId === pieceChange.pieceTypeId)
@@ -126,12 +126,12 @@ export function validateGameSetupChange(
       }
     }
     if (doesNotHaveValue(terrainChange.from)) {
-      if (!options.terrainTypeCountMap.has(terrainChange.terrainTypeId)) {
-        return "Piece change - piece type not allowed";
+      if (!options.terrainRuleMap.has(terrainChange.terrainTypeId)) {
+        return "Terrain change - terrain type not allowed";
       }
-      const maxTerrainTypeCount = options.terrainTypeCountMap.get(
+      const maxTerrainTypeCount = options.terrainRuleMap.get(
         terrainChange.terrainTypeId
-      );
+      ).count;
       const currentTerrainTypeCount = options.coordinateMap
         .serialize()
         .filter(
