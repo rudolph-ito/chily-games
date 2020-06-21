@@ -96,7 +96,14 @@ export class GameService implements IGameService {
     if (game.action !== Action.SETUP) {
       throw new ValidationError({ general: "Can only abort during setup" });
     }
-    // TODO abort game
+    const actionTo =
+      game.alabasterUserId === userId
+        ? PlayerColor.ONYX
+        : PlayerColor.ALABASTER;
+    await this.gameDataService.updateGame(gameId, {
+      action: Action.ABORTED,
+      actionTo,
+    });
   }
 
   async updateGameSetup(
@@ -257,7 +264,28 @@ export class GameService implements IGameService {
     });
   }
 
-  async resignGame(userId: number, gameId: number): Promise<void> {}
+  async resignGame(userId: number, gameId: number): Promise<void> {
+    const game = await this.gameDataService.getGame(gameId);
+    if (doesNotHaveValue(game)) {
+      this.throwGameNotFoundError(gameId);
+    }
+    if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
+      throw new AuthorizationError("Only players may resign");
+    }
+    if (game.action !== Action.PLAY) {
+      throw new ValidationError({
+        general: "Can only resign during play",
+      });
+    }
+    const actionTo =
+      game.alabasterUserId === userId
+        ? PlayerColor.ONYX
+        : PlayerColor.ALABASTER;
+    await this.gameDataService.updateGame(gameId, {
+      action: Action.RESIGNED,
+      actionTo,
+    });
+  }
 
   async searchGames(
     request: ISearchGamesRequest
