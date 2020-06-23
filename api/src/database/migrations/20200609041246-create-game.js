@@ -45,7 +45,7 @@ module.exports = {
         type: actionEnum,
         allowNull: false,
       },
-      actionToUserId: {
+      actionTo: {
         type: actionToEnum,
         allowNull: true,
       },
