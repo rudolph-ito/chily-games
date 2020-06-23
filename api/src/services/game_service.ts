@@ -6,6 +6,7 @@ import {
   ISearchGamesRequest,
   Action,
   PlayerColor,
+  IGameSetupRequirements,
 } from "../shared/dtos/game";
 import {
   IGameDataService,
@@ -44,6 +45,7 @@ import { validateGamePly } from "./validators/game_ply_validator";
 export interface IGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
   getGame: (userId: number, gameId: number) => Promise<IGame>;
+  getGameSetupRequirements: (gameId: number) => Promise<IGameSetupRequirements>;
   updateGameSetup: (
     userId: number,
     gameId: number,
@@ -83,6 +85,31 @@ export class GameService implements IGameService {
       }
     }
     return game;
+  }
+
+  async getGameSetupRequirements(
+    gameId: number
+  ): Promise<IGameSetupRequirements> {
+    const game = await this.gameDataService.getGame(gameId);
+    if (doesNotHaveValue(game)) {
+      this.throwGameNotFoundError(gameId);
+    }
+    const pieceRules = await this.pieceRuleDataService.getPieceRules(
+      game.variantId
+    );
+    const terrainRules = await this.terrainRuleDataService.getTerrainRules(
+      game.variantId
+    );
+    return {
+      pieces: pieceRules.map((pr) => ({
+        pieceTypeId: pr.pieceTypeId,
+        count: pr.count,
+      })),
+      terrains: terrainRules.map((tr) => ({
+        terrainTypeId: tr.terrainTypeId,
+        count: tr.count,
+      })),
+    };
   }
 
   async abortGame(userId: number, gameId: number): Promise<void> {

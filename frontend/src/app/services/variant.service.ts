@@ -17,7 +17,7 @@ import {
   providedIn: "root",
 })
 export class VariantService {
-  routePrefix = "/api/variants";
+  private readonly routePrefix = "/api/variants";
 
   constructor(private readonly http: HttpClient) {}
 

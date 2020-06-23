@@ -7,6 +7,9 @@ import { AuthGuard } from "./guards/auth.guard";
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
 import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
 import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
+import { ChallengesIndexComponent } from "./components/challenges-index/challenges-index.component";
+import { GamesIndexComponent } from "./components/games-index/games-index.component";
+import { GameShowComponent } from "./components/game-show/game-show.component";
 
 const routes: Routes = [
   {
@@ -46,6 +49,18 @@ const routes: Routes = [
   {
     path: "variants/:variantId/terrainRules/:terrainRuleId/edit",
     component: TerrainRuleFormComponent,
+  },
+  {
+    path: "challenges",
+    component: ChallengesIndexComponent,
+  },
+  {
+    path: "games",
+    component: GamesIndexComponent,
+  },
+  {
+    path: "games/:gameId",
+    component: GameShowComponent,
   },
   {
     path: "",

@@ -30,6 +30,9 @@ import { VariantFormComponent } from "./components/variant-form/variant-form.com
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
 import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
 import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
+import { ChallengesIndexComponent } from "./components/challenges-index/challenges-index.component";
+import { GameShowComponent } from "./components/game-show/game-show.component";
+import { GamesIndexComponent } from "./components/games-index/games-index.component";
 
 @NgModule({
   declarations: [
@@ -43,6 +46,9 @@ import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain
     VariantShowComponent,
     PieceRuleFormComponent,
     TerrainRuleFormComponent,
+    ChallengesIndexComponent,
+    GameShowComponent,
+    GamesIndexComponent,
   ],
   imports: [
     AppRoutingModule,

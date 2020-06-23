@@ -7,8 +7,6 @@ import { IPieceRule, IPieceRuleOptions } from "../shared/dtos/piece_rule";
   providedIn: "root",
 })
 export class PieceRuleService {
-  routePrefix = "/api/variants";
-
   constructor(private readonly http: HttpClient) {}
 
   create(
