@@ -1,14 +1,11 @@
-import { ICoordinate, IPiece, ITerrain } from "../../../shared/dtos/game";
-
-export interface ICoordinateData {
-  piece?: IPiece;
-  terrain?: ITerrain;
-}
-
-export type ISerializedCoordinateMap = Array<{
-  key: ICoordinate;
-  value: ICoordinateData;
-}>;
+import {
+  ICoordinate,
+  ICoordinateData,
+  ICoordinateMapData,
+  IPiece,
+  ITerrain,
+} from "../../../shared/dtos/game";
+import { doesHaveValue } from "../../../shared/utilities/value_checker";
 
 export interface ICoordinateMap {
   addPiece: (coordinate: ICoordinate, piece: IPiece) => void;
@@ -19,22 +16,12 @@ export interface ICoordinateMap {
   getTerrain: (coordinate: ICoordinate) => ITerrain;
   movePiece: (from: ICoordinate, to: ICoordinate) => void;
   moveTerrain: (from: ICoordinate, to: ICoordinate) => void;
-  serialize: () => ISerializedCoordinateMap;
+  serialize: () => ICoordinateMapData[];
+  deserialize: (data: ICoordinateMapData[]) => void;
 }
 
 export class CoordinateMap implements ICoordinateMap {
   private readonly data: Map<string, ICoordinateData>;
-
-  static deserialize(data: ISerializedCoordinateMap): CoordinateMap {
-    const coordinateMap = new CoordinateMap([]);
-    data.forEach((datum) =>
-      coordinateMap.addPiece(datum.key, datum.value.piece)
-    );
-    data.forEach((datum) =>
-      coordinateMap.addTerrain(datum.key, datum.value.terrain)
-    );
-    return coordinateMap;
-  }
 
   constructor(coordinates: ICoordinate[]) {
     this.data = new Map<string, ICoordinateData>();
@@ -79,11 +66,20 @@ export class CoordinateMap implements ICoordinateMap {
     this.addTerrain(to, terrain);
   }
 
-  serialize(): ISerializedCoordinateMap {
-    return Array.from(this.data.entries()).map((x) => ({
-      key: this.keyToCoordinate(x[0]),
-      value: x[1],
-    }));
+  serialize(): ICoordinateMapData[] {
+    return Array.from(this.data.entries())
+      .filter(
+        ([_, data]) => doesHaveValue(data.piece) || doesHaveValue(data.terrain)
+      )
+      .map(([coordinate, data]) => ({
+        key: this.keyToCoordinate(coordinate),
+        value: data,
+      }));
+  }
+
+  deserialize(data: ICoordinateMapData[]): void {
+    data.forEach((datum) => this.addPiece(datum.key, datum.value.piece));
+    data.forEach((datum) => this.addTerrain(datum.key, datum.value.terrain));
   }
 
   private getCoorinateData(coordinate: ICoordinate): ICoordinateData {

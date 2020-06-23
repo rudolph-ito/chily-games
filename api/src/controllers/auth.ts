@@ -9,6 +9,7 @@ import {
 import { IUser } from "../shared/dtos/authentication";
 import { UserDataService } from "../services/data/user_data_service";
 import { RegistrationService } from "../services/registration_service";
+import HttpStatus from "http-status-codes";
 
 async function verifyLogin(
   username: string,
@@ -50,27 +51,23 @@ function getAuthRouter(
   router.post("/register", function (req, res, next) {
     registrationService
       .register(req.body)
-      .then(({ errors, user }) => {
-        if (doesHaveValue(errors)) {
-          res.status(422).json(errors);
-        } else {
-          req.login(user, (err) => {
-            if (doesHaveValue(err)) {
-              next(err);
-            } else {
-              res.status(200).json(user);
-            }
-          });
-        }
+      .then((user) => {
+        req.login(user, (err) => {
+          if (doesHaveValue(err)) {
+            next(err);
+          } else {
+            res.status(HttpStatus.OK).json(user);
+          }
+        });
       })
       .catch(next);
   });
   router.post("/login", passport.authenticate("json"), function (req, res) {
-    res.status(200).json(req.user);
+    res.json(req.user);
   });
   router.delete("/logout", authenticationRequired, function (req, res) {
     req.logout();
-    res.status(200).end();
+    res.end();
   });
   router.get("/user", authenticationRequired, function (req, res) {
     res.json(req.user);
@@ -86,7 +83,7 @@ export function initAuthController(
     if (doesHaveValue(req.user)) {
       next();
     } else {
-      res.status(401).end();
+      res.status(HttpStatus.UNAUTHORIZED).end();
     }
   };
 

@@ -1,10 +1,5 @@
-import { ICoordinate } from "../../../shared/dtos/game";
-import {
-  ICoordinateUpdater,
-  BoardDirection,
-  SetupTerritoryOwner,
-  IBoard,
-} from ".";
+import { ICoordinate, PlayerColor } from "../../../shared/dtos/game";
+import { ICoordinateUpdater, BoardDirection, IBoard } from ".";
 
 interface IRange {
   min: number;
@@ -70,14 +65,14 @@ export class HexagonalBoard implements IBoard {
     throw Error("Unsupported board direction");
   }
 
-  getSetupTerritoryOwner(coordinate: ICoordinate): SetupTerritoryOwner {
+  getSetupTerritoryOwner(coordinate: ICoordinate): PlayerColor {
     if (coordinate.y === 0) {
-      return SetupTerritoryOwner.neutral;
+      return null;
     }
     if (coordinate.y < 0) {
-      return SetupTerritoryOwner.alabaster;
+      return PlayerColor.ALABASTER;
     }
-    return SetupTerritoryOwner.onyx;
+    return PlayerColor.ONYX;
   }
 
   isCoordinateValid(coordinate: ICoordinate): boolean {

@@ -24,8 +24,8 @@ import { getBoardForVariant } from "../board/builder";
 
 export interface INewPlyCalculatorOptions {
   coordinateMap: ICoordinateMap;
-  pieceRules: IPieceRule[];
-  terrainRules: ITerrainRule[];
+  pieceRuleMap: Map<PieceType, IPieceRule>;
+  terrainRuleMap: Map<TerrainType, ITerrainRule>;
   variant: IVariant;
 }
 
@@ -50,13 +50,9 @@ export class PlyCalculator {
       gameRules: {
         board: getBoardForVariant(options.variant),
         pieceRanks: options.variant.pieceRanks,
-        pieceRuleMap: new Map<PieceType, IPieceRule>(
-          options.pieceRules.map((r) => [r.pieceTypeId, r])
-        ),
+        pieceRuleMap: options.pieceRuleMap,
         supportType: options.variant.supportType,
-        terrainRuleMap: new Map<TerrainType, ITerrainRule>(
-          options.terrainRules.map((r) => [r.terrainTypeId, r])
-        ),
+        terrainRuleMap: options.terrainRuleMap,
       },
     };
     this.plyEvaluator = new PlyEvaluator(this.options);

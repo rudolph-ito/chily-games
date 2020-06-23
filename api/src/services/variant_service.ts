@@ -2,6 +2,7 @@ import {
   IVariantOptions,
   IVariant,
   ISearchVariantsRequest,
+  BoardType,
 } from "../shared/dtos/variant";
 import { doesHaveValue } from "../shared/utilities/value_checker";
 import {
@@ -77,7 +78,10 @@ export class VariantService implements IVariantService {
       pieceTypeId: PieceType.KING,
       count: 1,
       movement: {
-        type: PathType.DIAGONAL_LINE,
+        type:
+          options.boardType === BoardType.HEXAGONAL
+            ? PathType.ORTHOGONAL_LINE
+            : PathType.ORTHOGONAL_OR_DIAGONAL_LINE,
         minimum: 1,
         maximum: 1,
       },

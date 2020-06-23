@@ -1,6 +1,8 @@
 import { User } from "../src/database/models";
 import { valueOrDefault } from "../src/shared/utilities/value_checker";
 
+// Create objects saved to the database
+
 export interface ICreateUserOptions {
   username?: string;
 }

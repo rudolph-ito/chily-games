@@ -9,11 +9,7 @@ import {
   IUser,
 } from "../shared/dtos/authentication";
 import { IUserDataService, UserDataService } from "./data/user_data_service";
-
-export interface IRegisterResponse {
-  errors?: IRegisterErrors;
-  user?: IUser;
-}
+import { ValidationError } from "./exceptions";
 
 export class RegistrationService {
   constructor(
@@ -51,12 +47,11 @@ export class RegistrationService {
     return null;
   }
 
-  async register(request: IRegisterRequest): Promise<IRegisterResponse> {
+  async register(request: IRegisterRequest): Promise<IUser> {
     const errors = await this.validate(request);
     if (doesHaveValue(errors)) {
-      return { errors };
+      throw new ValidationError(errors);
     }
-    const user = await this.userDataService.createUser(request);
-    return { user };
+    return await this.userDataService.createUser(request);
   }
 }

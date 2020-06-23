@@ -15,6 +15,9 @@ import {
 } from "../services/exceptions";
 import { getPieceRulesRouter } from "./piece_rule";
 import { getTerrainRulesRouter } from "./terrain_rule";
+import { getChallengeRouter } from "./challenge";
+import HttpStatus from "http-status-codes";
+import { getGameRouter } from "./game";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 
@@ -35,17 +38,13 @@ export interface IStartServerOptions {
 function errorHandler(): express.ErrorRequestHandler {
   return (err, req, res, next) => {
     if (err instanceof AuthorizationError) {
-      res.status(401);
-      res.send(err.message);
+      res.status(HttpStatus.FORBIDDEN).send(err.message);
     } else if (err instanceof NotFoundError) {
-      res.status(404);
-      res.send(err.message);
+      res.status(HttpStatus.NOT_FOUND).send(err.message);
     } else if (err instanceof ValidationError) {
-      res.status(422);
-      res.json(err.errors);
+      res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(err.errors);
     } else {
-      res.status(500);
-      res.json({ error: err.stack });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err.stack });
     }
   };
 }
@@ -81,6 +80,8 @@ export function createExpressApp(
     "/api/variants/:variantId/terrainRules",
     getTerrainRulesRouter(authenticationRequired)
   );
+  app.use("/api/challenges", getChallengeRouter(authenticationRequired));
+  app.use("/api/games", getGameRouter(authenticationRequired));
   app.use(errorHandler());
   return app;
 }

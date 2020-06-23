@@ -1,5 +1,14 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
+import { IPaginationRequest } from "./search";
+
+export enum Action {
+  SETUP = "setup",
+  PLAY = "play",
+  COMPLETE = "complete",
+  ABORTED = "aborted",
+  RESIGNED = "resigned",
+}
 
 export interface ICoordinate {
   x: number;
@@ -11,10 +20,10 @@ export interface ICoordinateData {
   terrain?: ITerrain;
 }
 
-export type ISerializedCoordinateMap = Array<{
+export interface ICoordinateMapData {
   key: ICoordinate;
   value: ICoordinateData;
-}>;
+}
 
 export interface IPiece {
   pieceTypeId: PieceType;
@@ -53,4 +62,55 @@ export interface IPreviewPieceRuleRequest {
 export interface IPreviewPieceRuleResponse {
   origin: ICoordinate;
   validPlies: ValidPlies;
+}
+
+export interface IGamePlyMovement {
+  to: ICoordinate;
+  capturedPiece?: IPiece;
+}
+
+export interface IGamePlyRangeCapture {
+  to: ICoordinate;
+  capturedPiece: IPiece;
+}
+
+export interface IGamePly {
+  piece: IPiece;
+  from: ICoordinate;
+  movement?: IGamePlyMovement;
+  rangeCapture?: IGamePlyRangeCapture;
+}
+
+export interface IGame {
+  gameId: number;
+  variantId: number;
+  action: Action;
+  actionTo: PlayerColor;
+  alabasterUserId: number;
+  onyxUserId: number;
+  alabasterSetupCoordinateMap: ICoordinateMapData[];
+  onyxSetupCoordinateMap: ICoordinateMapData[];
+  currentCoordinateMap: ICoordinateMapData[];
+  plies: IGamePly[];
+}
+
+export interface ISearchGamesRequest {
+  pagination: IPaginationRequest;
+}
+
+export interface IGameSetupPieceChange {
+  pieceTypeId: PieceType;
+  from?: ICoordinate;
+  to?: ICoordinate;
+}
+
+export interface IGameSetupTerrainChange {
+  terrainTypeId: TerrainType;
+  from?: ICoordinate;
+  to?: ICoordinate;
+}
+
+export interface IGameSetupChange {
+  pieceChange?: IGameSetupPieceChange;
+  terrainChange?: IGameSetupTerrainChange;
 }

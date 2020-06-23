@@ -1,10 +1,5 @@
-import { ICoordinate } from "../../../shared/dtos/game";
-import {
-  ICoordinateUpdater,
-  BoardDirection,
-  SetupTerritoryOwner,
-  IBoard,
-} from ".";
+import { ICoordinate, PlayerColor } from "../../../shared/dtos/game";
+import { ICoordinateUpdater, BoardDirection, IBoard } from ".";
 
 export class SquareBoard implements IBoard {
   private readonly columns: number;
@@ -58,17 +53,17 @@ export class SquareBoard implements IBoard {
     throw Error("Unsupported board direction");
   }
 
-  getSetupTerritoryOwner(coordinate: ICoordinate): SetupTerritoryOwner {
+  getSetupTerritoryOwner(coordinate: ICoordinate): PlayerColor {
     if (
       Math.floor(this.rows / 2) !== this.rows / 2 &&
       coordinate.y === Math.floor(this.rows / 2)
     ) {
-      return SetupTerritoryOwner.neutral;
+      return null;
     }
     if (coordinate.y < this.rows / 2) {
-      return SetupTerritoryOwner.alabaster;
+      return PlayerColor.ALABASTER;
     }
-    return SetupTerritoryOwner.onyx;
+    return PlayerColor.ONYX;
   }
 
   isCoordinateValid(coordinate: ICoordinate): boolean {
