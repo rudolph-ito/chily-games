@@ -12,17 +12,15 @@ module.exports = {
     );
     // Matches shared/dtos/game:PlayerColor
     const actionToEnum = Sequelize.ENUM("alabaster", "onyx");
-    const userConfig = (allowNull) => {
-      return {
-        type: Sequelize.INTEGER,
-        allowNull,
-        references: {
-          model: {
-            tableName: "Users",
-          },
-          key: "userId",
+    const userConfig = {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: {
+          tableName: "Users",
         },
-      };
+        key: "userId",
+      },
     };
     return queryInterface.createTable("Games", {
       gameId: {
@@ -49,8 +47,8 @@ module.exports = {
         type: actionToEnum,
         allowNull: true,
       },
-      alabasterUserId: userConfig(false),
-      onyxUserId: userConfig(false),
+      alabasterUserId: userConfig,
+      onyxUserId: userConfig,
       alabasterSetupCoordinateMap: {
         type: Sequelize.JSONB,
         allowNull: false,
