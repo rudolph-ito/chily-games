@@ -8,7 +8,6 @@ import { Observable, of } from "rxjs";
 import { getBoardDescription } from "../../formatters/variant.formatter";
 import { map } from "rxjs/operators";
 import { ChallengeService } from "src/app/services/challenge.service";
-import { PlayerColor } from "src/app/shared/dtos/game";
 import { ChallengePlayAs } from "src/app/shared/dtos/challenge";
 
 @Component({

@@ -2,18 +2,15 @@ import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
 import { GameService } from "src/app/services/game.service";
 import { IGame, PlayerColor } from "src/app/shared/dtos/game";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, of } from "rxjs";
+import { Observable, of, Subject } from "rxjs";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { IVariant } from "src/app/shared/dtos/variant";
 import { VariantService } from "src/app/services/variant.service";
 import { BaseBoard } from "src/app/game/board/base_board";
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "src/app/shared/utilities/value_checker";
+import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 import { buildBoard } from "src/app/game/board/board_builder";
-import { tap } from "rxjs/operators";
+import { tap, debounceTime } from "rxjs/operators";
 
 @Component({
   selector: "app-game-show",
@@ -27,6 +24,7 @@ export class GameShowComponent implements OnInit {
   user: IUser;
   userObservable: Observable<IUser> = of(null);
   board: BaseBoard;
+  resizeObservable = new Subject<boolean>();
 
   @ViewChild("boardContainer") boardContainer: ElementRef;
 
@@ -35,7 +33,11 @@ export class GameShowComponent implements OnInit {
     private readonly gameService: GameService,
     private readonly authenticationService: AuthenticationService,
     private readonly variantService: VariantService
-  ) {}
+  ) {
+    this.resizeObservable
+      .pipe(debounceTime(250))
+      .subscribe(() => this.board.resize());
+  }
 
   ngOnInit(): void {
     this.loading = true;
@@ -62,7 +64,7 @@ export class GameShowComponent implements OnInit {
     }
     const color =
       doesNotHaveValue(this.user) ||
-      this.user.userId == this.game.alabasterUserId
+      this.user.userId === this.game.alabasterUserId
         ? PlayerColor.ALABASTER
         : PlayerColor.ONYX;
     this.board = buildBoard(this.boardContainer.nativeElement, color, {
@@ -77,5 +79,9 @@ export class GameShowComponent implements OnInit {
 
   getGameId(): number {
     return parseInt(this.route.snapshot.params.gameId);
+  }
+
+  onResize(): void {
+    this.resizeObservable.next(true);
   }
 }

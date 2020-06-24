@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
-import { IChallenge } from "src/app/shared/dtos/challenge";
+import { IChallenge } from "../../shared/dtos/challenge";
 import { Observable, of } from "rxjs";
 import { ChallengeService } from "src/app/services/challenge.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
@@ -8,6 +8,7 @@ import { map } from "rxjs/operators";
 import { doesHaveValue } from "src/app/shared/utilities/value_checker";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { Router } from "@angular/router";
+import { IGame } from "../../shared/dtos/game";
 
 @Component({
   selector: "app-challenges-index",
@@ -46,8 +47,10 @@ export class ChallengesIndexComponent implements OnInit {
   }
 
   onAcceptChallenge(challenge: IChallenge): void {
-    this.challengeService.accept(challenge.challengeId).subscribe((game) => {
-      this.router.navigate([`games/${game.gameId}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
-    });
+    this.challengeService
+      .accept(challenge.challengeId)
+      .subscribe((game: IGame) => {
+        this.router.navigate([`games/${game.gameId}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      });
   }
 }

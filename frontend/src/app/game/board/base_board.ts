@@ -82,6 +82,25 @@ export abstract class BaseBoard {
     this.spaceLayer.draw();
   }
 
+  public resize(): void {
+    this.setupForContainer();
+    this.stage.height(this.container.offsetHeight);
+    this.stage.width(this.container.offsetWidth);
+    this.getAllCoordinates().forEach((c) => {
+      const space = this.getSpace(c);
+      this.setSpacePosition(space, c);
+      this.setSpaceSize(space);
+    });
+    this.pieceCoordinateMap.forEach(
+      (coordinate: ICoordinate, image: Konva.Image) => {
+        this.setSpacePosition(image, coordinate);
+        this.setPieceSize(image);
+      }
+    );
+    this.spaceLayer.draw();
+    this.pieceLayer.draw();
+  }
+
   // Protected abstract
 
   protected abstract addSpace(
@@ -96,6 +115,10 @@ export abstract class BaseBoard {
   protected abstract getPieceSize(): number;
 
   protected abstract getSpace(coordinate: ICoordinate): Konva.Shape;
+
+  protected abstract setSpaceSize(space: Konva.Shape): void;
+
+  protected abstract setupForContainer(): void;
 
   // Protected
 

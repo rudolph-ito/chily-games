@@ -21,7 +21,7 @@ export class SquareBoard extends BaseBoard {
   constructor(element: HTMLDivElement, options: ISquareBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.setup();
+    this.setupForContainer();
   }
 
   // Protected overrides
@@ -77,9 +77,16 @@ export class SquareBoard extends BaseBoard {
     return this.spaceCoordinateMap.get(coordinate);
   }
 
-  // Private
+  protected setSpaceSize(space: Konva.Rect): void {
+    space.offset({
+      x: this.spaceSize / 2,
+      y: this.spaceSize / 2,
+    });
+    space.width(this.spaceSize);
+    space.height(this.spaceSize);
+  }
 
-  public setup(): void {
+  protected setupForContainer(): void {
     const maxSize = this.getMaxSize();
     const maxSpaceWidth = maxSize.x / this.layout.boardColumns;
     const maxSpaceHeight = maxSize.y / this.layout.boardRows;
@@ -89,14 +96,5 @@ export class SquareBoard extends BaseBoard {
       x: this.spaceSize * this.layout.boardColumns,
       y: this.spaceSize * this.layout.boardRows,
     };
-  }
-
-  private setSpaceSize(space: Konva.Rect): void {
-    space.offset({
-      x: this.spaceSize / 2,
-      y: this.spaceSize / 2,
-    });
-    space.width(this.spaceSize);
-    space.height(this.spaceSize);
   }
 }

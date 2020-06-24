@@ -25,7 +25,7 @@ export class HexagonalBoard extends BaseBoard {
   constructor(element: HTMLDivElement, options: IHexagonalBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.setup();
+    this.setupForContainer();
   }
 
   // Protected overrides
@@ -94,13 +94,11 @@ export class HexagonalBoard extends BaseBoard {
     return this.spaceCoordinateMap.get(coordinate);
   }
 
-  // Private
-
-  private setSpaceSize(polygon: Konva.RegularPolygon): void {
+  protected setSpaceSize(polygon: Konva.RegularPolygon): void {
     polygon.radius(this.spaceRadius);
   }
 
-  private setup(): void {
+  protected setupForContainer(): void {
     const verticalRadii = 3 * this.layout.boardSize + 2;
     const horizontalRadii =
       2 * (2 * this.layout.boardSize + 1) * Math.cos(Math.PI / 6);
