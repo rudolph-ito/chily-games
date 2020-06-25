@@ -1,6 +1,11 @@
 import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
 import { GameService } from "src/app/services/game.service";
-import { IGame, PlayerColor } from "src/app/shared/dtos/game";
+import {
+  IGame,
+  PlayerColor,
+  Action,
+  IGameSetupRequirements,
+} from "src/app/shared/dtos/game";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of, Subject } from "rxjs";
 import { IUser } from "src/app/shared/dtos/authentication";
@@ -8,7 +13,10 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 import { IVariant } from "src/app/shared/dtos/variant";
 import { VariantService } from "src/app/services/variant.service";
 import { BaseBoard } from "src/app/game/board/base_board";
-import { doesNotHaveValue } from "../../shared/utilities/value_checker";
+import {
+  doesNotHaveValue,
+  doesHaveValue,
+} from "../../shared/utilities/value_checker";
 import { buildBoard } from "src/app/game/board/board_builder";
 import { tap, debounceTime } from "rxjs/operators";
 
@@ -20,6 +28,7 @@ import { tap, debounceTime } from "rxjs/operators";
 export class GameShowComponent implements OnInit {
   loading = false;
   game: IGame;
+  gameSetupRequirements: IGameSetupRequirements;
   variant: IVariant;
   user: IUser;
   userObservable: Observable<IUser> = of(null);
@@ -45,13 +54,26 @@ export class GameShowComponent implements OnInit {
       this.game = game;
       this.variantService.get(game.variantId).subscribe((variant) => {
         this.variant = variant;
-        this.loading = false;
-        this.drawBoard();
+        if (this.game.action === Action.SETUP) {
+          this.gameService
+            .getSetupRequirements(this.getGameId())
+            .subscribe((gameSetupRequirements) => {
+              this.gameSetupRequirements = gameSetupRequirements;
+              this.loading = false;
+              this.drawBoard();
+            });
+        } else {
+          this.loading = false;
+          this.drawBoard();
+        }
       });
     });
     this.userObservable = this.authenticationService
       .getUserSubject()
       .pipe(tap((u) => (this.user = u)));
+    this.authenticationService
+      .getUserSubject()
+      .subscribe((u) => (this.user = u));
   }
 
   ngAfterViewInit(): void {
@@ -62,11 +84,15 @@ export class GameShowComponent implements OnInit {
     if (doesNotHaveValue(this.variant)) {
       return;
     }
-    const color =
-      doesNotHaveValue(this.user) ||
-      this.user.userId === this.game.alabasterUserId
-        ? PlayerColor.ALABASTER
-        : PlayerColor.ONYX;
+    let color = null;
+    if (doesHaveValue(this.user)) {
+      if (this.user.userId === this.game.alabasterUserId) {
+        color = PlayerColor.ALABASTER;
+      }
+      if (this.user.userId === this.game.onyxUserId) {
+        color = PlayerColor.ONYX;
+      }
+    }
     this.board = buildBoard(this.boardContainer.nativeElement, color, {
       boardType: this.variant.boardType,
       boardSize: this.variant.boardSize,
@@ -75,6 +101,9 @@ export class GameShowComponent implements OnInit {
       pieceRanks: this.variant.pieceRanks,
     });
     this.board.draw(false);
+    if (this.game.action === Action.SETUP) {
+      this.board.markTerritories(this.gameSetupRequirements.territories, color);
+    }
   }
 
   getGameId(): number {

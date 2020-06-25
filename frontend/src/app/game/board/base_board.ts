@@ -4,6 +4,7 @@ import {
   PlayerColor,
   ValidPlies,
   IPiece,
+  IGameSetupTerritories,
 } from "../../shared/dtos/game";
 import { CoordinateMap } from "./coordinate_map";
 
@@ -11,6 +12,8 @@ export enum SpaceHighlight {
   NONE = "",
   MOVEMENT_ORIGIN = "#00CC00",
   MOVEMENT_FREE = "#006633",
+  TERRITORY_NEUTRAL = "#A8A8A8",
+  TERRITORY_OPPONENT = "#505050",
 }
 
 export abstract class BaseBoard {
@@ -79,6 +82,29 @@ export abstract class BaseBoard {
       const shape = this.getSpace(c);
       this.toggleSpaceHighlight(shape, SpaceHighlight.MOVEMENT_FREE);
     });
+    this.spaceLayer.draw();
+  }
+
+  public markTerritories(
+    territories: IGameSetupTerritories,
+    playerColor: PlayerColor
+  ): void {
+    territories.neutral.forEach((c) => {
+      const shape = this.getSpace(c);
+      this.toggleSpaceHighlight(shape, SpaceHighlight.TERRITORY_NEUTRAL);
+    });
+    if (playerColor !== PlayerColor.ALABASTER) {
+      territories.alabaster.forEach((c) => {
+        const shape = this.getSpace(c);
+        this.toggleSpaceHighlight(shape, SpaceHighlight.TERRITORY_OPPONENT);
+      });
+    }
+    if (playerColor !== PlayerColor.ONYX) {
+      territories.onyx.forEach((c) => {
+        const shape = this.getSpace(c);
+        this.toggleSpaceHighlight(shape, SpaceHighlight.TERRITORY_OPPONENT);
+      });
+    }
     this.spaceLayer.draw();
   }
 

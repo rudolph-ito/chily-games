@@ -7,6 +7,7 @@ import {
   Action,
   PlayerColor,
   IGameSetupRequirements,
+  IGameSetupTerritories,
 } from "../shared/dtos/game";
 import {
   IGameDataService,
@@ -94,6 +95,23 @@ export class GameService implements IGameService {
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
     }
+    const variant = await this.variantDataService.getVariant(game.variantId);
+    const board = getBoardForVariant(variant);
+    const territories: IGameSetupTerritories = {
+      alabaster: [],
+      neutral: [],
+      onyx: [],
+    };
+    board.getAllCoordinates().forEach((c) => {
+      const territoryOwner = board.getSetupTerritoryOwner(c);
+      if (territoryOwner === PlayerColor.ALABASTER) {
+        territories.alabaster.push(c);
+      } else if (territoryOwner === PlayerColor.ONYX) {
+        territories.onyx.push(c);
+      } else {
+        territories.neutral.push(c);
+      }
+    });
     const pieceRules = await this.pieceRuleDataService.getPieceRules(
       game.variantId
     );
@@ -109,6 +127,7 @@ export class GameService implements IGameService {
         terrainTypeId: tr.terrainTypeId,
         count: tr.count,
       })),
+      territories,
     };
   }
 

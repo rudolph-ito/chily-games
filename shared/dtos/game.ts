@@ -104,9 +104,16 @@ export interface IGameSetupTerrainRequirement {
   count: number;
 }
 
+export interface IGameSetupTerritories {
+  alabaster: ICoordinate[];
+  neutral: ICoordinate[];
+  onyx: ICoordinate[];
+}
+
 export interface IGameSetupRequirements {
   pieces: IGameSetupPieceRequirement[];
   terrains: IGameSetupTerrainRequirement[];
+  territories: IGameSetupTerritories;
 }
 
 export interface ISearchGamesRequest {
