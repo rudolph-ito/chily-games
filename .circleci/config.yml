@@ -3,7 +3,7 @@ jobs:
   build:
     docker: 
       - image: circleci/node:12-browsers
-      - image: circleci/postgres:12.2-ram
+      - image: circleci/postgres:12.3-ram
         environment:
           - POSTGRES_USER=cyvasse-user
           - POSTGRES_PASSWORD=test
