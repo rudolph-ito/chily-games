@@ -129,7 +129,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
       });
     }
     if (doesHaveValue(this.board)) {
-      this.board.draw(this.boardPreviewControls.showCoordinates.value);
+      this.board.addSpaces(this.boardPreviewControls.showCoordinates.value);
     }
   }
 

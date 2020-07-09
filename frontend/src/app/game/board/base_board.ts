@@ -5,6 +5,8 @@ import {
   ValidPlies,
   IPiece,
   IGameSetupTerritories,
+  IGameSetupRequirements,
+  IGameSetupChange,
 } from "../../shared/dtos/game";
 import { CoordinateMap } from "./coordinate_map";
 
@@ -16,14 +18,25 @@ export enum SpaceHighlight {
   TERRITORY_OPPONENT = "#505050",
 }
 
+export interface IUpdateOptions {
+  color: PlayerColor;
+  inSetup: boolean;
+  setupRequirements: IGameSetupRequirements;
+}
+
 export abstract class BaseBoard {
   private readonly container: HTMLDivElement;
   private readonly stage: Konva.Stage;
   private readonly padding: number;
   private readonly pieceLayer: Konva.Layer;
+  private readonly terrainLayer: Konva.Layer;
   private readonly pieceCoordinateMap = new CoordinateMap<Konva.Image>();
-  protected readonly color: PlayerColor;
+  private readonly setupCoordinateMap = new CoordinateMap<Konva.Image>();
+  protected color: PlayerColor;
   protected size: ICoordinate;
+  protected setupWidth: number;
+  protected setupRows: number;
+  protected setupColumns: number;
   protected spaceLayer: Konva.Layer;
 
   constructor(element: HTMLDivElement, color: PlayerColor) {
@@ -56,6 +69,10 @@ export abstract class BaseBoard {
     );
   }
 
+  public addSpaces(showCoordinates: boolean): void {
+    this.getAllCoordinates().forEach((c) => this.addSpace(c, showCoordinates));
+  }
+
   public clearHighlight(): void {
     this.getAllCoordinates().forEach((c) => {
       const shape = this.getSpace(c);
@@ -70,11 +87,6 @@ export abstract class BaseBoard {
 
   public destroy(): void {
     this.stage.destroy();
-  }
-
-  public draw(showCoordinates: boolean): void {
-    this.getAllCoordinates().forEach((c) => this.addSpace(c, showCoordinates));
-    this.spaceLayer.draw();
   }
 
   public highlightValidPlies(validPlies: ValidPlies): void {
@@ -108,8 +120,9 @@ export abstract class BaseBoard {
     this.spaceLayer.draw();
   }
 
-  public resize(): void {
-    this.setupForContainer();
+  public update(options: IUpdateOptions): void {
+    this.color = options.color;
+    this.setupForContainer(options.setupRequirements);
     this.stage.height(this.container.offsetHeight);
     this.stage.width(this.container.offsetWidth);
     this.getAllCoordinates().forEach((c) => {
@@ -123,6 +136,11 @@ export abstract class BaseBoard {
         this.setPieceSize(image);
       }
     );
+    this.clearHighlight()
+    if (options.inSetup) {
+      this.markTerritories(options.setupRequirements.territories, options.color);
+      // add boneyard pieces
+    }
     this.spaceLayer.draw();
     this.pieceLayer.draw();
   }
@@ -144,7 +162,7 @@ export abstract class BaseBoard {
 
   protected abstract setSpaceSize(space: Konva.Shape): void;
 
-  protected abstract setupForContainer(): void;
+  protected abstract setupForContainer(setupRequirements: IGameSetupRequirements): void;
 
   // Protected
 
@@ -171,7 +189,7 @@ export abstract class BaseBoard {
 
   protected getOffset(): ICoordinate {
     return {
-      x: (this.container.offsetWidth - this.size.x) / 2,
+      x: (this.container.offsetWidth - this.size.x) / 2 + (this.setupWidth / 2),
       y: (this.container.offsetHeight - this.size.y) / 2,
     };
   }

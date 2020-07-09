@@ -2,12 +2,13 @@ import { BoardType, IVariantOptions } from "../../shared/dtos/variant";
 import { HexagonalBoard } from "./hexagonal_board";
 import { SquareBoard } from "./square_board";
 import { BaseBoard } from "./base_board";
-import { PlayerColor } from "../../shared/dtos/game";
+import { PlayerColor, IGameSetupRequirements } from "../../shared/dtos/game";
 
 export function buildBoard(
   element: HTMLDivElement,
   color: PlayerColor,
-  variant: IVariantOptions
+  variant: IVariantOptions,
+  setupRequirements: IGameSetupRequirements = null
 ): BaseBoard {
   if (variant.boardType === BoardType.HEXAGONAL) {
     return new HexagonalBoard(element, {
@@ -15,6 +16,7 @@ export function buildBoard(
         boardSize: variant.boardSize,
       },
       color,
+      setupRequirements
     });
   }
   if (variant.boardType === BoardType.SQUARE) {
@@ -24,6 +26,7 @@ export function buildBoard(
         boardRows: variant.boardRows,
       },
       color,
+      setupRequirements
     });
   }
   throw new Error("Unexpected board type");

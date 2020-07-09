@@ -115,7 +115,7 @@ export class PieceRuleFormComponent implements OnInit {
         PlayerColor.ONYX,
         variant
       );
-      this.board.draw(false);
+      this.board.addSpaces(false);
       this.drawPreview();
     });
   }

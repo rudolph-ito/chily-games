@@ -1,5 +1,5 @@
 import { BaseBoard } from "./base_board";
-import { ICoordinate, PlayerColor } from "../../shared/dtos/game";
+import { ICoordinate, PlayerColor, IGameSetupRequirements } from "../../shared/dtos/game";
 import Konva from "konva";
 import { CoordinateMap } from "./coordinate_map";
 
@@ -11,6 +11,7 @@ export interface ISquareBoardLayoutOptions {
 export interface ISquareBoardOptions {
   layout: ISquareBoardLayoutOptions;
   color: PlayerColor;
+  setupRequirements: IGameSetupRequirements;
 }
 
 export class SquareBoard extends BaseBoard {
@@ -21,7 +22,7 @@ export class SquareBoard extends BaseBoard {
   constructor(element: HTMLDivElement, options: ISquareBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.setupForContainer();
+    this.setupForContainer()
   }
 
   // Protected overrides
@@ -86,7 +87,7 @@ export class SquareBoard extends BaseBoard {
     space.height(this.spaceSize);
   }
 
-  protected setupForContainer(): void {
+  protected setupForContainer(setupRequirements: IGameSetupRequirements = null): void {
     const maxSize = this.getMaxSize();
     const maxSpaceWidth = maxSize.x / this.layout.boardColumns;
     const maxSpaceHeight = maxSize.y / this.layout.boardRows;

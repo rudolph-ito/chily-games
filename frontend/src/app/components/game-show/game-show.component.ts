@@ -18,7 +18,7 @@ import {
   doesHaveValue,
 } from "../../shared/utilities/value_checker";
 import { buildBoard } from "src/app/game/board/board_builder";
-import { tap, debounceTime } from "rxjs/operators";
+import { debounceTime } from "rxjs/operators";
 
 @Component({
   selector: "app-game-show",
@@ -45,7 +45,7 @@ export class GameShowComponent implements OnInit {
   ) {
     this.resizeObservable
       .pipe(debounceTime(250))
-      .subscribe(() => this.board.resize());
+      .subscribe(() => this.updateBoard());
   }
 
   ngOnInit(): void {
@@ -68,12 +68,13 @@ export class GameShowComponent implements OnInit {
         }
       });
     });
-    this.userObservable = this.authenticationService
-      .getUserSubject()
-      .pipe(tap((u) => (this.user = u)));
+    this.userObservable = this.authenticationService.getUserSubject();
     this.authenticationService
       .getUserSubject()
-      .subscribe((u) => (this.user = u));
+      .subscribe((u) => {
+        this.user = u
+        this.updateBoard()
+      });
   }
 
   ngAfterViewInit(): void {
@@ -84,6 +85,18 @@ export class GameShowComponent implements OnInit {
     if (doesNotHaveValue(this.variant)) {
       return;
     }
+    this.board = buildBoard(this.boardContainer.nativeElement, this.getPlayerColor(), {
+      boardType: this.variant.boardType,
+      boardSize: this.variant.boardSize,
+      boardColumns: this.variant.boardColumns,
+      boardRows: this.variant.boardRows,
+      pieceRanks: this.variant.pieceRanks,
+    }, this.gameSetupRequirements);
+    this.board.addSpaces(false);
+    this.updateBoard();
+  }
+
+  getPlayerColor(): PlayerColor {
     let color = null;
     if (doesHaveValue(this.user)) {
       if (this.user.userId === this.game.alabasterUserId) {
@@ -93,16 +106,16 @@ export class GameShowComponent implements OnInit {
         color = PlayerColor.ONYX;
       }
     }
-    this.board = buildBoard(this.boardContainer.nativeElement, color, {
-      boardType: this.variant.boardType,
-      boardSize: this.variant.boardSize,
-      boardColumns: this.variant.boardColumns,
-      boardRows: this.variant.boardRows,
-      pieceRanks: this.variant.pieceRanks,
-    });
-    this.board.draw(false);
-    if (this.game.action === Action.SETUP) {
-      this.board.markTerritories(this.gameSetupRequirements.territories, color);
+    return color
+  }
+
+  updateBoard(): void {
+    if (this.board) {
+      this.board.update({
+        color: this.getPlayerColor(),
+        inSetup: this.game.action === Action.SETUP,
+        setupRequirements: this.gameSetupRequirements
+      });
     }
   }
 
