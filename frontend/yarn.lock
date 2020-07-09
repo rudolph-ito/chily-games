@@ -4872,10 +4872,10 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
-konva@4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/konva/-/konva-4.2.0.tgz#424ee8f76e4b928179c2a9388fa13f254e09f28e"
-  integrity sha512-feX0eNPXzJ17UEj9SvtL/70uHWZJPMQg2kw0na1SPR+s2dx7KyecX0B4x0zwB2GnZTQmKk7L4M8q9GHG7vccOA==
+konva@4.2.2:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/konva/-/konva-4.2.2.tgz#0f1799dbe0275bb8218a03549ce931e9006a696d"
+  integrity sha512-5vq/rKy35/gdMLipjcxgFz/LhJ/S8Ct/e1XntQmH1MSwN4rMP97Oera2PzxDh3DZPsrV6TETTKHNb1G7Jb6Z5A==
 
 lcid@^2.0.0:
   version "2.0.0"
