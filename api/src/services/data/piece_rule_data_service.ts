@@ -43,7 +43,9 @@ export class PieceRuleDataService implements IPieceRuleDataService {
   }
 
   async getPieceRules(variantId: number): Promise<IPieceRule[]> {
-    const pieceRules: PieceRule[] = PieceRule.findAll({ where: { variantId } });
+    const pieceRules: PieceRule[] = await PieceRule.findAll({
+      where: { variantId },
+    });
     return pieceRules.map((pieceRule) => pieceRule.serialize());
   }
 

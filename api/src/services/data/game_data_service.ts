@@ -83,7 +83,6 @@ export class GameDataService implements IGameDataService {
     for (const [key, value] of Object.entries(options)) {
       game[key] = value;
     }
-    await game.save(options);
-    return game.serialize();
+    await game.save();
   }
 }
