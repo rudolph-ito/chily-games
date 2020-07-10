@@ -45,7 +45,7 @@ export class TerrainRuleDataService implements ITerrainRuleDataService {
   }
 
   async getTerrainRules(variantId: number): Promise<ITerrainRule[]> {
-    const terrainRules: TerrainRule[] = TerrainRule.findAll({
+    const terrainRules: TerrainRule[] = await TerrainRule.findAll({
       where: { variantId },
     });
     return terrainRules.map((terrainRule) => terrainRule.serialize());
