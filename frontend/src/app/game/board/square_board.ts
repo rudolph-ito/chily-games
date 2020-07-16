@@ -1,7 +1,10 @@
 import { BaseBoard } from "./base_board";
-import { ICoordinate, PlayerColor, IGameSetupRequirements } from "../../shared/dtos/game";
+import {
+  ICoordinate,
+  PlayerColor,
+  IGameSetupRequirements,
+} from "../../shared/dtos/game";
 import Konva from "konva";
-import { CoordinateMap } from "./coordinate_map";
 
 export interface ISquareBoardLayoutOptions {
   boardColumns: number;
@@ -15,31 +18,16 @@ export interface ISquareBoardOptions {
 }
 
 export class SquareBoard extends BaseBoard {
-  private readonly spaceCoordinateMap = new CoordinateMap<Konva.Rect>();
   private readonly layout: ISquareBoardLayoutOptions;
   private spaceSize: number;
 
   constructor(element: HTMLDivElement, options: ISquareBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.setupForContainer()
+    this.setupForContainer();
   }
 
   // Protected overrides
-
-  protected addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
-    const rect = new Konva.Rect({
-      stroke: "#000",
-      strokeWidth: 1,
-    });
-    this.spaceLayer.add(rect);
-    this.setSpaceSize(rect);
-    this.setSpacePosition(rect, coordinate);
-    this.spaceCoordinateMap.set(coordinate, rect);
-    if (showCoordinates) {
-      this.addCoordinateText(rect, coordinate);
-    }
-  }
 
   // From alabaster point of view:
   //   (0,0) in bottom left
@@ -60,6 +48,13 @@ export class SquareBoard extends BaseBoard {
     };
   }
 
+  protected createSpaceShape(): Konva.Rect {
+    return new Konva.Rect({
+      stroke: "#000",
+      strokeWidth: 1,
+    });
+  }
+
   protected getAllCoordinates(): ICoordinate[] {
     const result: ICoordinate[] = [];
     for (let x = 0; x < this.layout.boardColumns; x++) {
@@ -74,8 +69,23 @@ export class SquareBoard extends BaseBoard {
     return this.spaceSize * 0.9;
   }
 
+  protected getSetupSize(): number {
+    return this.spaceSize * 1.1;
+  }
+
   protected getSpace(coordinate: ICoordinate): Konva.Shape {
     return this.spaceCoordinateMap.get(coordinate);
+  }
+
+  protected getTerrainImageOffset(imageSize: ICoordinate): ICoordinate {
+    return {
+      x: 0,
+      y: 0,
+    };
+  }
+
+  protected getTerrainImageScaleReference(): number {
+    return this.spaceSize;
   }
 
   protected setSpaceSize(space: Konva.Rect): void {
@@ -87,7 +97,9 @@ export class SquareBoard extends BaseBoard {
     space.height(this.spaceSize);
   }
 
-  protected setupForContainer(setupRequirements: IGameSetupRequirements = null): void {
+  protected setupForContainer(
+    setupRequirements: IGameSetupRequirements = null
+  ): void {
     const maxSize = this.getMaxSize();
     const maxSpaceWidth = maxSize.x / this.layout.boardColumns;
     const maxSpaceHeight = maxSize.y / this.layout.boardRows;

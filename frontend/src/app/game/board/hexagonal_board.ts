@@ -1,8 +1,11 @@
-import { BaseBoard, IUpdateOptions } from "./base_board";
-import { ICoordinate, PlayerColor, IGameSetupRequirements } from "../../shared/dtos/game";
+import { BaseBoard } from "./base_board";
+import {
+  ICoordinate,
+  PlayerColor,
+  IGameSetupRequirements,
+} from "../../shared/dtos/game";
 import Konva from "konva";
-import { CoordinateMap } from "./coordinate_map";
-import { doesHaveValue } from 'src/app/shared/utilities/value_checker';
+import { doesHaveValue } from "../../shared/utilities/value_checker";
 
 export interface IHexagonalBoardLayoutOptions {
   boardSize: number;
@@ -15,10 +18,6 @@ export interface IHexagonalBoardOptions {
 }
 
 export class HexagonalBoard extends BaseBoard {
-  private readonly spaceCoordinateMap = new CoordinateMap<
-    Konva.RegularPolygon
-  >();
-
   private readonly layout: IHexagonalBoardLayoutOptions;
   private spaceRadius: number;
   private spaceDelta: ICoordinate;
@@ -27,25 +26,18 @@ export class HexagonalBoard extends BaseBoard {
   constructor(element: HTMLDivElement, options: IHexagonalBoardOptions) {
     super(element, options.color);
     this.layout = options.layout;
-    this.setupForContainer()
+    this.setupForContainer();
   }
 
   // Protected overrides
 
-  protected addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
-    const polygon = new Konva.RegularPolygon({
+  protected createSpaceShape(): Konva.RegularPolygon {
+    return new Konva.RegularPolygon({
       radius: 1,
       sides: 6,
       stroke: "#000",
       strokeWidth: 1,
     });
-    this.spaceLayer.add(polygon);
-    this.setSpaceSize(polygon);
-    this.setSpacePosition(polygon, coordinate);
-    this.spaceCoordinateMap.set(coordinate, polygon);
-    if (showCoordinates) {
-      this.addCoordinateText(polygon, coordinate);
-    }
   }
 
   // From alabaster point of view:
@@ -93,31 +85,44 @@ export class HexagonalBoard extends BaseBoard {
   }
 
   protected getSetupSize(): number {
-    return this.spaceRadius * 2 * 1.1
+    return this.spaceRadius * 2 * 1.1;
   }
 
-  protected getSpace(coordinate: ICoordinate): Konva.Shape {
-    return this.spaceCoordinateMap.get(coordinate);
+  protected getTerrainImageOffset(imageSize: ICoordinate): ICoordinate {
+    return {
+      x: imageSize.x / 2,
+      y: imageSize.y / 2,
+    };
+  }
+
+  protected getTerrainImageScaleReference(): number {
+    return this.spaceRadius * 2;
   }
 
   protected setSpaceSize(polygon: Konva.RegularPolygon): void {
     polygon.radius(this.spaceRadius);
   }
 
-  protected setupForContainer(setupRequirements: IGameSetupRequirements = null): void {
+  protected setupForContainer(
+    setupRequirements: IGameSetupRequirements = null
+  ): void {
     const verticalRadii = 3 * this.layout.boardSize + 2;
     const horizontalRadii =
       2 * (2 * this.layout.boardSize + 1) * Math.cos(Math.PI / 6);
 
-    let setupHorizontalRadii = 0
+    let setupHorizontalRadii = 0;
     if (doesHaveValue(setupRequirements)) {
-      this.setupRows = Math.floor(verticalRadii / 2 / 1.1)
-      this.setupColumns = Math.ceil((setupRequirements.pieces.length + setupRequirements.terrains.length) / this.setupRows)
-      setupHorizontalRadii = this.setupColumns * 2 * 1.1 + 0.1
+      this.setupRows = Math.floor(verticalRadii / 2 / 1.1);
+      this.setupColumns = Math.ceil(
+        (setupRequirements.pieces.length + setupRequirements.terrains.length) /
+          this.setupRows
+      );
+      setupHorizontalRadii = this.setupColumns * 2 * 1.1 + 0.1;
     }
 
     const maxSize = this.getMaxSize();
-    const maxHorizontalRadius = maxSize.x / (horizontalRadii + setupHorizontalRadii);
+    const maxHorizontalRadius =
+      maxSize.x / (horizontalRadii + setupHorizontalRadii);
     const maxVerticalRadius = maxSize.y / verticalRadii;
 
     this.spaceRadius = Math.min(maxVerticalRadius, maxHorizontalRadius);

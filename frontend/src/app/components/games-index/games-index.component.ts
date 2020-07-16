@@ -5,7 +5,6 @@ import { IUser } from "src/app/shared/dtos/authentication";
 import { IGame } from "src/app/shared/dtos/game";
 import { GameService } from "src/app/services/game.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
-import { Router } from "@angular/router";
 
 @Component({
   selector: "app-games-index",

@@ -7,6 +7,10 @@ export class CoordinateMap<T> {
     this.data = new Map<string, T>();
   }
 
+  clear(): void {
+    this.data.clear();
+  }
+
   delete(coordinate: ICoordinate): void {
     this.data.delete(this.coordinateToKey(coordinate));
   }

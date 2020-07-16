@@ -16,7 +16,7 @@ export function buildBoard(
         boardSize: variant.boardSize,
       },
       color,
-      setupRequirements
+      setupRequirements,
     });
   }
   if (variant.boardType === BoardType.SQUARE) {
@@ -26,7 +26,7 @@ export function buildBoard(
         boardRows: variant.boardRows,
       },
       color,
-      setupRequirements
+      setupRequirements,
     });
   }
   throw new Error("Unexpected board type");

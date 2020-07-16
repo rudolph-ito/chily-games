@@ -18,6 +18,7 @@ import { getTerrainRulesRouter } from "./terrain_rule";
 import { getChallengeRouter } from "./challenge";
 import HttpStatus from "http-status-codes";
 import { getGameRouter } from "./game";
+import { getUserRouter } from "./user";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 
@@ -82,6 +83,7 @@ export function createExpressApp(
   );
   app.use("/api/challenges", getChallengeRouter(authenticationRequired));
   app.use("/api/games", getGameRouter(authenticationRequired));
+  app.use("/api/users", getUserRouter());
   app.use(errorHandler());
   return app;
 }

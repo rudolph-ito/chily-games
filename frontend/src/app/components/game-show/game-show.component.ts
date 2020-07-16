@@ -7,7 +7,7 @@ import {
   IGameSetupRequirements,
 } from "src/app/shared/dtos/game";
 import { ActivatedRoute } from "@angular/router";
-import { Observable, of, Subject } from "rxjs";
+import { Observable, of, Subject, forkJoin } from "rxjs";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { IVariant } from "src/app/shared/dtos/variant";
@@ -19,6 +19,7 @@ import {
 } from "../../shared/utilities/value_checker";
 import { buildBoard } from "src/app/game/board/board_builder";
 import { debounceTime } from "rxjs/operators";
+import { UserService } from "src/app/services/user.service";
 
 @Component({
   selector: "app-game-show",
@@ -31,6 +32,8 @@ export class GameShowComponent implements OnInit {
   gameSetupRequirements: IGameSetupRequirements;
   variant: IVariant;
   user: IUser;
+  alabasterUser: IUser;
+  onyxUser: IUser;
   userObservable: Observable<IUser> = of(null);
   board: BaseBoard;
   resizeObservable = new Subject<boolean>();
@@ -41,7 +44,8 @@ export class GameShowComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly gameService: GameService,
     private readonly authenticationService: AuthenticationService,
-    private readonly variantService: VariantService
+    private readonly variantService: VariantService,
+    private readonly userService: UserService
   ) {
     this.resizeObservable
       .pipe(debounceTime(250))
@@ -52,29 +56,30 @@ export class GameShowComponent implements OnInit {
     this.loading = true;
     this.gameService.get(this.getGameId()).subscribe((game) => {
       this.game = game;
-      this.variantService.get(game.variantId).subscribe((variant) => {
-        this.variant = variant;
-        if (this.game.action === Action.SETUP) {
-          this.gameService
-            .getSetupRequirements(this.getGameId())
-            .subscribe((gameSetupRequirements) => {
-              this.gameSetupRequirements = gameSetupRequirements;
-              this.loading = false;
-              this.drawBoard();
-            });
-        } else {
+      forkJoin({
+        variant: this.variantService.get(game.variantId),
+        gameSetupRequirements:
+          this.game.action === Action.SETUP
+            ? this.gameService.getSetupRequirements(this.getGameId())
+            : of(null as IGameSetupRequirements),
+        alabasterUser: this.userService.get(this.game.alabasterUserId),
+        onyxUser: this.userService.get(this.game.onyxUserId),
+      }).subscribe(
+        ({ variant, gameSetupRequirements, alabasterUser, onyxUser }) => {
+          this.gameSetupRequirements = gameSetupRequirements;
+          this.variant = variant;
+          this.alabasterUser = alabasterUser;
+          this.onyxUser = onyxUser;
           this.loading = false;
           this.drawBoard();
         }
-      });
+      );
     });
     this.userObservable = this.authenticationService.getUserSubject();
-    this.authenticationService
-      .getUserSubject()
-      .subscribe((u) => {
-        this.user = u
-        this.updateBoard()
-      });
+    this.authenticationService.getUserSubject().subscribe((u) => {
+      this.user = u;
+      this.updateBoard();
+    });
   }
 
   ngAfterViewInit(): void {
@@ -85,14 +90,22 @@ export class GameShowComponent implements OnInit {
     if (doesNotHaveValue(this.variant)) {
       return;
     }
-    this.board = buildBoard(this.boardContainer.nativeElement, this.getPlayerColor(), {
-      boardType: this.variant.boardType,
-      boardSize: this.variant.boardSize,
-      boardColumns: this.variant.boardColumns,
-      boardRows: this.variant.boardRows,
-      pieceRanks: this.variant.pieceRanks,
-    }, this.gameSetupRequirements);
+    this.board = buildBoard(
+      this.boardContainer.nativeElement,
+      this.getPlayerColor(),
+      {
+        boardType: this.variant.boardType,
+        boardSize: this.variant.boardSize,
+        boardColumns: this.variant.boardColumns,
+        boardRows: this.variant.boardRows,
+        pieceRanks: this.variant.pieceRanks,
+      },
+      this.gameSetupRequirements
+    );
     this.board.addSpaces(false);
+    if (this.game.action === Action.SETUP) {
+      this.board.addSetup(this.gameSetupRequirements);
+    }
     this.updateBoard();
   }
 
@@ -106,17 +119,28 @@ export class GameShowComponent implements OnInit {
         color = PlayerColor.ONYX;
       }
     }
-    return color
+    return color;
   }
 
   updateBoard(): void {
-    if (this.board) {
+    if (doesHaveValue(this.board)) {
       this.board.update({
         color: this.getPlayerColor(),
         inSetup: this.game.action === Action.SETUP,
-        setupRequirements: this.gameSetupRequirements
+        setupRequirements: this.gameSetupRequirements,
       });
     }
+  }
+
+  getPlayerName(isHeader: boolean): string {
+    let headerUser = this.onyxUser;
+    let footerUser = this.alabasterUser;
+    if (this.getPlayerColor() === PlayerColor.ONYX) {
+      headerUser = this.alabasterUser;
+      footerUser = this.onyxUser;
+    }
+    const user = isHeader ? headerUser : footerUser;
+    return user.username;
   }
 
   getGameId(): number {
