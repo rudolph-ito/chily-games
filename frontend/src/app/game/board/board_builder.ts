@@ -1,32 +1,27 @@
 import { BoardType, IVariantOptions } from "../../shared/dtos/variant";
 import { HexagonalBoard } from "./hexagonal_board";
 import { SquareBoard } from "./square_board";
-import { BaseBoard } from "./base_board";
+import { BaseBoard, IGameCallbacks } from "./base_board";
 import { PlayerColor, IGameSetupRequirements } from "../../shared/dtos/game";
 
-export function buildBoard(
-  element: HTMLDivElement,
-  color: PlayerColor,
-  variant: IVariantOptions,
-  setupRequirements: IGameSetupRequirements = null
-): BaseBoard {
-  if (variant.boardType === BoardType.HEXAGONAL) {
-    return new HexagonalBoard(element, {
-      layout: {
-        boardSize: variant.boardSize,
-      },
-      color,
-      setupRequirements,
+export interface IBuildBoardOptions {
+  element: HTMLDivElement;
+  color: PlayerColor;
+  variant: IVariantOptions;
+  gameCallbacks?: IGameCallbacks;
+  setupRequirements?: IGameSetupRequirements;
+}
+
+export function buildBoard(options: IBuildBoardOptions): BaseBoard {
+  if (options.variant.boardType === BoardType.HEXAGONAL) {
+    return new HexagonalBoard(options, {
+      boardSize: options.variant.boardSize,
     });
   }
-  if (variant.boardType === BoardType.SQUARE) {
-    return new SquareBoard(element, {
-      layout: {
-        boardColumns: variant.boardColumns,
-        boardRows: variant.boardRows,
-      },
-      color,
-      setupRequirements,
+  if (options.variant.boardType === BoardType.SQUARE) {
+    return new SquareBoard(options, {
+      boardColumns: options.variant.boardColumns,
+      boardRows: options.variant.boardRows,
     });
   }
   throw new Error("Unexpected board type");

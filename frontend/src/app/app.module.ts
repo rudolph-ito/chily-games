@@ -14,6 +14,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -66,6 +67,7 @@ import { GamesIndexComponent } from "./components/games-index/games-index.compon
     MatProgressSpinnerModule,
     MatRadioModule,
     MatSelectModule,
+    MatSnackBarModule,
     MatTableModule,
     MatToolbarModule,
     MatTooltipModule,

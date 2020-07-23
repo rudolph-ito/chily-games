@@ -1,4 +1,4 @@
-import { BaseBoard } from "./base_board";
+import { BaseBoard, IBoardOptions } from "./base_board";
 import {
   ICoordinate,
   PlayerColor,
@@ -11,20 +11,14 @@ export interface ISquareBoardLayoutOptions {
   boardRows: number;
 }
 
-export interface ISquareBoardOptions {
-  layout: ISquareBoardLayoutOptions;
-  color: PlayerColor;
-  setupRequirements: IGameSetupRequirements;
-}
-
 export class SquareBoard extends BaseBoard {
   private readonly layout: ISquareBoardLayoutOptions;
   private spaceSize: number;
 
-  constructor(element: HTMLDivElement, options: ISquareBoardOptions) {
-    super(element, options.color);
-    this.layout = options.layout;
-    this.setupForContainer();
+  constructor(options: IBoardOptions, layout: ISquareBoardLayoutOptions) {
+    super(options);
+    this.layout = layout;
+    this.setupForContainer(options.setupRequirements);
   }
 
   // Protected overrides
@@ -53,6 +47,23 @@ export class SquareBoard extends BaseBoard {
       stroke: "#000",
       strokeWidth: 1,
     });
+  }
+
+  protected doesCoordinateContainPosition(
+    coordiante: ICoordinate,
+    position: ICoordinate
+  ): boolean {
+    const coordinatePosition = this.coordinateToPosition(coordiante);
+    const leftX = coordinatePosition.x - this.spaceSize / 2;
+    const rightX = leftX + this.spaceSize;
+    const topY = coordinatePosition.y - this.spaceSize / 2;
+    const bottomY = coordinatePosition.y + this.spaceSize;
+    return (
+      leftX <= position.x &&
+      position.x <= rightX &&
+      topY <= position.y &&
+      position.y <= bottomY
+    );
   }
 
   protected getAllCoordinates(): ICoordinate[] {

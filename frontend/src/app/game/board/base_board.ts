@@ -7,8 +7,10 @@ import {
   IGameSetupTerritories,
   IGameSetupRequirements,
   ITerrain,
+  IGameSetupChange,
 } from "../../shared/dtos/game";
 import { CoordinateMap } from "./coordinate_map";
+import { doesHaveValue } from "src/app/shared/utilities/value_checker";
 
 export enum SpaceHighlight {
   NONE = "",
@@ -24,8 +26,20 @@ export interface IUpdateOptions {
   setupRequirements: IGameSetupRequirements;
 }
 
+export interface IGameCallbacks {
+  onUpdateSetup: (setupChange: IGameSetupChange) => Promise<boolean>;
+}
+
+export interface IBoardOptions {
+  element: HTMLDivElement;
+  color: PlayerColor;
+  gameCallbacks?: IGameCallbacks;
+  setupRequirements?: IGameSetupRequirements;
+}
+
 export abstract class BaseBoard {
   private readonly container: HTMLDivElement;
+  private readonly gameCallbacks: IGameCallbacks;
   private readonly stage: Konva.Stage;
   private readonly padding: number;
   private readonly pieceLayer: Konva.Layer;
@@ -34,6 +48,7 @@ export abstract class BaseBoard {
   private readonly terrainLayer: Konva.Layer;
   private readonly terrainCoordinateMap = new CoordinateMap<Konva.Shape>();
   private readonly setupTerrainCoordinateMap = new Map<number, Konva.Shape>();
+  private inSetup: boolean;
   protected color: PlayerColor;
   protected size: ICoordinate;
   protected setupWidth: number;
@@ -42,9 +57,11 @@ export abstract class BaseBoard {
   protected spaceCoordinateMap = new CoordinateMap<Konva.Shape>();
   protected spaceLayer: Konva.Layer;
 
-  constructor(element: HTMLDivElement, color: PlayerColor) {
-    this.container = element;
-    this.color = color;
+  constructor(options: IBoardOptions) {
+    this.container = options.element;
+    this.gameCallbacks = options.gameCallbacks;
+    this.color = options.color;
+    this.inSetup = doesHaveValue(options.setupRequirements);
     this.padding = 10;
     this.stage = new Konva.Stage({
       container: this.container,
@@ -61,17 +78,19 @@ export abstract class BaseBoard {
 
   // Public Functions
 
-  public addPiece(coordinate: ICoordinate, piece: IPiece): void {
-    Konva.Image.fromURL(
-      `/assets/piece/default/${piece.pieceTypeId}_${piece.playerColor}.svg`,
-      (image: Konva.Image) => {
-        this.setSpacePositionFromCoordinate(image, coordinate);
-        this.setPieceSize(image);
-        this.pieceCoordinateMap.set(coordinate, image);
-        this.pieceLayer.add(image);
-        this.pieceLayer.draw();
-      }
-    );
+  public async addPiece(coordinate: ICoordinate, piece: IPiece): Promise<void> {
+    const image = await this.loadPieceImage(piece);
+    image.draggable(piece.playerColor === this.color);
+    image.setAttrs({
+      cyvassePiece: piece,
+      cyvasseCoordinate: coordinate,
+    });
+    image.on("dragend", async () => await this.onPieceDragEnd(image));
+    this.setSpacePositionFromCoordinate(image, coordinate);
+    this.setPieceSize(image);
+    this.pieceCoordinateMap.set(coordinate, image);
+    this.pieceLayer.add(image);
+    this.pieceLayer.draw();
   }
 
   public addSpaces(showCoordinates: boolean): void {
@@ -85,6 +104,7 @@ export abstract class BaseBoard {
         this.addCoordinateText(shape, coordinate);
       }
     });
+    this.spaceLayer.draw();
   }
 
   public addSetup(setupRequirements: IGameSetupRequirements): void {
@@ -109,6 +129,8 @@ export abstract class BaseBoard {
         }
       });
     }
+    this.pieceLayer.draw();
+    this.terrainLayer.draw();
   }
 
   public clearHighlight(): void {
@@ -136,8 +158,16 @@ export abstract class BaseBoard {
   }
 
   public update(options: IUpdateOptions): void {
-    // if color changed, remove and re-add setup
+    const oldColor = this.color;
     this.color = options.color;
+    this.inSetup = options.inSetup;
+    if (this.inSetup && oldColor !== this.color) {
+      this.setupPieceCoordinateMap.forEach((image) => image.destroy());
+      this.setupPieceCoordinateMap.clear();
+      this.setupTerrainCoordinateMap.forEach((image) => image.destroy());
+      this.setupTerrainCoordinateMap.clear();
+      this.addSetup(options.setupRequirements);
+    }
     this.setupForContainer(options.setupRequirements);
     this.stage.height(this.container.offsetHeight);
     this.stage.width(this.container.offsetWidth);
@@ -145,6 +175,11 @@ export abstract class BaseBoard {
       const space = this.spaceCoordinateMap.get(c);
       this.setSpacePositionFromCoordinate(space, c);
       this.setSpaceSize(space);
+      if (doesHaveValue(space.getAttr("text"))) {
+        const text = space.getAttr("text");
+        text.x(space.x());
+        text.y(space.y());
+      }
     });
     this.pieceCoordinateMap.forEach(
       (coordinate: ICoordinate, image: Konva.Image) => {
@@ -182,6 +217,11 @@ export abstract class BaseBoard {
   protected abstract coordinateToPosition(coordinate: ICoordinate): ICoordinate;
 
   protected abstract createSpaceShape(): Konva.Shape;
+
+  protected abstract doesCoordinateContainPosition(
+    coordinate: ICoordinate,
+    position: ICoordinate
+  ): boolean;
 
   protected abstract getAllCoordinates(): ICoordinate[];
 
@@ -225,39 +265,63 @@ export abstract class BaseBoard {
     });
     text.offsetX(text.getWidth() / 2);
     text.offsetY(text.getHeight() / 2);
+    shape.setAttrs({ text });
     this.spaceLayer.add(text);
   }
 
-  private addSetupPiece(index: number, piece: IPiece): void {
-    Konva.Image.fromURL(
-      `/assets/piece/default/${piece.pieceTypeId}_${piece.playerColor}.svg`,
-      (image: Konva.Image) => {
-        this.setSpacePositionFromSetupIndex(image, index);
-        this.setPieceSize(image);
-        this.setupPieceCoordinateMap.set(index, image);
-        this.pieceLayer.add(image);
-        this.pieceLayer.draw();
-      }
-    );
+  private async addSetupPiece(index: number, piece: IPiece): Promise<void> {
+    const image = await this.loadPieceImage(piece);
+    image.draggable(true);
+    image.setAttrs({
+      cyvassePiece: piece,
+      cyvasseSetupIndex: index,
+    });
+    image.on("dragend", () => this.onPieceDragEnd(image));
+    this.setSpacePositionFromSetupIndex(image, index);
+    this.setPieceSize(image);
+    this.setupPieceCoordinateMap.set(index, image);
+    this.pieceLayer.add(image);
+    this.pieceLayer.draw();
   }
 
-  private addSetupTerrain(index: number, terrain: ITerrain): void {
-    const image = new Image();
-    image.src = `/assets/terrain/default/${terrain.terrainTypeId}.svg`;
-    image.onload = () => {
-      const terrain = this.createSpaceShape();
-      this.setSpacePositionFromSetupIndex(terrain, index);
-      this.setSpaceSize(terrain);
-      terrain.fillPatternImage(image);
-      terrain.fillPatternRepeat("no-repeat");
-      terrain.fillPatternOffset(
-        this.getTerrainImageOffset({ x: image.width, y: image.height })
-      );
-      this.setTerrainFillPatternScale(terrain);
-      this.setupTerrainCoordinateMap.set(index, terrain);
-      this.terrainLayer.add(terrain);
-      this.terrainLayer.draw();
-    };
+  private async addSetupTerrain(
+    index: number,
+    terrain: ITerrain
+  ): Promise<void> {
+    const terrainSpace = await this.createTerrain(terrain);
+    terrainSpace.draggable(true);
+    this.setSpacePositionFromSetupIndex(terrainSpace, index);
+    this.setSpaceSize(terrainSpace);
+    this.setupTerrainCoordinateMap.set(index, terrainSpace);
+    this.terrainLayer.add(terrainSpace);
+    this.terrainLayer.draw();
+  }
+
+  private createTerrain(terrain: ITerrain): Promise<Konva.Shape> {
+    return new Promise((resolve) => {
+      const image = new Image();
+      image.src = `/assets/terrain/default/${terrain.terrainTypeId}.svg`;
+      image.onload = () => {
+        const terrain = this.createSpaceShape();
+        terrain.fillPatternImage(image);
+        terrain.fillPatternRepeat("no-repeat");
+        terrain.fillPatternOffset(
+          this.getTerrainImageOffset({ x: image.width, y: image.height })
+        );
+        this.setTerrainFillPatternScale(terrain);
+        resolve(terrain);
+      };
+    });
+  }
+
+  private getNearestCoordinate(position: ICoordinate): ICoordinate {
+    let matchingCoordinate = null;
+    this.spaceCoordinateMap.forEach((coordinate) => {
+      if (this.doesCoordinateContainPosition(coordinate, position)) {
+        matchingCoordinate = coordinate;
+      }
+    });
+    return matchingCoordinate;
   }
 
   private getSetupPosition(index: number): ICoordinate {
@@ -268,6 +332,17 @@ export abstract class BaseBoard {
       x: column * setupSize + setupSize / 2 + this.padding,
       y: row * setupSize + setupSize / 2 + this.padding,
     };
+  }
+
+  private async loadPieceImage(piece: IPiece): Promise<Konva.Image> {
+    return await new Promise((resolve) => {
+      Konva.Image.fromURL(
+        `/assets/piece/default/${piece.pieceTypeId}_${piece.playerColor}.svg`,
+        (image: Konva.Image) => {
+          resolve(image);
+        }
+      );
+    });
   }
 
   private markTerritories(
@@ -291,6 +366,44 @@ export abstract class BaseBoard {
       });
     }
     this.spaceLayer.draw();
+  }
+
+  private async onPieceDragEnd(image: Konva.Image): Promise<void> {
+    const coordinate = this.getNearestCoordinate(image.position());
+    if (this.inSetup) {
+      if (doesHaveValue(coordinate)) {
+        const result = await this.gameCallbacks.onUpdateSetup({
+          pieceChange: {
+            pieceTypeId: image.getAttr("cyvassePiece").pieceTypeId,
+            from: image.getAttr("cyvasseCoordinate"),
+            to: coordinate,
+          },
+        });
+        if (result) {
+          this.setSpacePositionFromCoordinate(image, coordinate);
+          image.setAttrs({ cyvasseCoordinate: coordinate });
+        } else {
+          this.resetPiecePosition(image);
+        }
+      } else {
+        this.resetPiecePosition(image);
+      }
+    }
+    this.pieceLayer.draw();
+  }
+
+  private resetPiecePosition(image: Konva.Image): void {
+    if (doesHaveValue(image.getAttr("cyvasseCoordinate"))) {
+      this.setSpacePositionFromCoordinate(
+        image,
+        image.getAttr("cyvasseCoordinate")
+      );
+    } else {
+      this.setSpacePositionFromSetupIndex(
+        image,
+        image.getAttr("cyvasseSetupIndex")
+      );
+    }
   }
 
   private setPieceSize(image: Konva.Image): void {

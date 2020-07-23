@@ -1,10 +1,17 @@
-import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  ElementRef,
+  ViewChild,
+  NgZone,
+} from "@angular/core";
 import { GameService } from "src/app/services/game.service";
 import {
   IGame,
   PlayerColor,
   Action,
   IGameSetupRequirements,
+  IGameSetupChange,
 } from "src/app/shared/dtos/game";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of, Subject, forkJoin } from "rxjs";
@@ -20,6 +27,8 @@ import {
 import { buildBoard } from "src/app/game/board/board_builder";
 import { debounceTime } from "rxjs/operators";
 import { UserService } from "src/app/services/user.service";
+import { HttpErrorResponse } from "@angular/common/http";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "app-game-show",
@@ -45,7 +54,9 @@ export class GameShowComponent implements OnInit {
     private readonly gameService: GameService,
     private readonly authenticationService: AuthenticationService,
     private readonly variantService: VariantService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly snackBar: MatSnackBar,
+    private readonly ngZone: NgZone
   ) {
     this.resizeObservable
       .pipe(debounceTime(250))
@@ -90,21 +101,51 @@ export class GameShowComponent implements OnInit {
     if (doesNotHaveValue(this.variant)) {
       return;
     }
-    this.board = buildBoard(
-      this.boardContainer.nativeElement,
-      this.getPlayerColor(),
-      {
+    this.board = buildBoard({
+      element: this.boardContainer.nativeElement,
+      color: this.getPlayerColor(),
+      variant: {
         boardType: this.variant.boardType,
         boardSize: this.variant.boardSize,
         boardColumns: this.variant.boardColumns,
         boardRows: this.variant.boardRows,
         pieceRanks: this.variant.pieceRanks,
       },
-      this.gameSetupRequirements
-    );
-    this.board.addSpaces(false);
+      setupRequirements: this.gameSetupRequirements,
+      gameCallbacks: {
+        onUpdateSetup: async (setupChange: IGameSetupChange) => {
+          return await new Promise((resolve, reject) => {
+            this.gameService
+              .updateSetup(this.getGameId(), setupChange)
+              .subscribe(
+                () => resolve(true),
+                (errorResponse: HttpErrorResponse) => {
+                  if (errorResponse.status === 422) {
+                    this.ngZone.run(() => {
+                      this.snackBar.open(errorResponse.error.general, null, {
+                        duration: 2500,
+                      });
+                    });
+                    resolve(false);
+                  } else {
+                    reject(errorResponse);
+                  }
+                }
+              );
+          });
+        },
+      },
+    });
+    this.board.addSpaces(true);
     if (this.game.action === Action.SETUP) {
       this.board.addSetup(this.gameSetupRequirements);
+      if (this.getPlayerColor() === PlayerColor.ALABASTER) {
+        this.game.alabasterSetupCoordinateMap.forEach((datum) => {
+          if (doesHaveValue(datum.value.piece)) {
+            this.board.addPiece(datum.key, datum.value.piece);
+          }
+        });
+      }
     }
     this.updateBoard();
   }

@@ -1,4 +1,4 @@
-import { BaseBoard } from "./base_board";
+import { BaseBoard, IBoardOptions } from "./base_board";
 import {
   ICoordinate,
   PlayerColor,
@@ -11,34 +11,22 @@ export interface IHexagonalBoardLayoutOptions {
   boardSize: number;
 }
 
-export interface IHexagonalBoardOptions {
-  layout: IHexagonalBoardLayoutOptions;
-  color: PlayerColor;
-  setupRequirements: IGameSetupRequirements;
-}
-
 export class HexagonalBoard extends BaseBoard {
   private readonly layout: IHexagonalBoardLayoutOptions;
   private spaceRadius: number;
   private spaceDelta: ICoordinate;
   private center: ICoordinate;
 
-  constructor(element: HTMLDivElement, options: IHexagonalBoardOptions) {
-    super(element, options.color);
-    this.layout = options.layout;
-    this.setupForContainer();
+  constructor(
+    options: IBoardOptions,
+    layoutOptions: IHexagonalBoardLayoutOptions
+  ) {
+    super(options);
+    this.layout = layoutOptions;
+    this.setupForContainer(options.setupRequirements);
   }
 
   // Protected overrides
-
-  protected createSpaceShape(): Konva.RegularPolygon {
-    return new Konva.RegularPolygon({
-      radius: 1,
-      sides: 6,
-      stroke: "#000",
-      strokeWidth: 1,
-    });
-  }
 
   // From alabaster point of view:
   //   (0,0) in center
@@ -59,6 +47,27 @@ export class HexagonalBoard extends BaseBoard {
       x: this.center.x + relative.x + this.getOffset().x,
       y: this.center.y + relative.y + this.getOffset().y,
     };
+  }
+
+  protected createSpaceShape(): Konva.RegularPolygon {
+    return new Konva.RegularPolygon({
+      radius: 1,
+      sides: 6,
+      stroke: "#000",
+      strokeWidth: 1,
+    });
+  }
+
+  protected doesCoordinateContainPosition(
+    coordiante: ICoordinate,
+    position: ICoordinate
+  ): boolean {
+    const { x: x1, y: y1 } = position;
+    const { x: x2, y: y2 } = this.coordinateToPosition(coordiante);
+    const positionalDistance = Math.sqrt(
+      Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)
+    );
+    return positionalDistance <= this.spaceRadius * Math.cos(Math.PI / 6);
   }
 
   protected getAllCoordinates(): ICoordinate[] {
