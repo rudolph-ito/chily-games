@@ -131,7 +131,11 @@ export abstract class BaseBoard {
 
       let index = 0;
       setupRequirements.pieces.map((setupPieceRequirement) => {
-        const currentCount = setupCoordinateMap.filter(({value: {piece}}) => doesHaveValue(piece) && piece.pieceTypeId == setupPieceRequirement.pieceTypeId).length;
+        const currentCount = setupCoordinateMap.filter(
+          ({ value: { piece } }) =>
+            doesHaveValue(piece) &&
+            piece.pieceTypeId === setupPieceRequirement.pieceTypeId
+        ).length;
         for (let i = 0; i < setupPieceRequirement.count - currentCount; i++) {
           this.addPiece(
             {
@@ -144,7 +148,11 @@ export abstract class BaseBoard {
         }
       });
       setupRequirements.terrains.forEach((setupTerrainRequirement) => {
-        const currentCount = setupCoordinateMap.filter(({value: {terrain}}) => doesHaveValue(terrain) && terrain.terrainTypeId == setupTerrainRequirement.terrainTypeId).length;
+        const currentCount = setupCoordinateMap.filter(
+          ({ value: { terrain } }) =>
+            doesHaveValue(terrain) &&
+            terrain.terrainTypeId === setupTerrainRequirement.terrainTypeId
+        ).length;
         for (let i = 0; i < setupTerrainRequirement.count - currentCount; i++) {
           this.addTerrain(
             {
@@ -346,23 +354,23 @@ export abstract class BaseBoard {
   }
 
   private getFirstOpenSetupIndex(): number {
-    let existingIndices: number[] = [];
+    const existingIndices: number[] = [];
     this.pieceLayer.children.each((image: Konva.Image) => {
-      if (doesHaveValue(image.getAttr('cyvasseSetupIndex'))) {
-        existingIndices.push(image.getAttr('cyvasseSetupIndex'))
+      if (doesHaveValue(image.getAttr("cyvasseSetupIndex"))) {
+        existingIndices.push(image.getAttr("cyvasseSetupIndex"));
       }
-    })
+    });
     this.terrainLayer.children.each((shape: Konva.Shape) => {
-      if (doesHaveValue(shape.getAttr('cyvasseSetupIndex'))) {
-        existingIndices.push(shape.getAttr('cyvasseSetupIndex'))
+      if (doesHaveValue(shape.getAttr("cyvasseSetupIndex"))) {
+        existingIndices.push(shape.getAttr("cyvasseSetupIndex"));
       }
-    })
-    existingIndices.sort()
+    });
+    existingIndices.sort((a, b) => a - b);
     for (let i = 0; i < existingIndices.length; i++) {
       if (existingIndices[i] !== i) {
-        return i
+        return i;
       }
-    } 
+    }
     return existingIndices.length;
   }
 
@@ -427,14 +435,17 @@ export abstract class BaseBoard {
           pieceChange: {
             pieceTypeId: image.getAttr("cyvassePiece").pieceTypeId,
             from,
-            to
+            to,
           },
         });
         if (result) {
           if (doesHaveValue(to)) {
             image.setAttrs({ cyvasseCoordinate: to, cyvasseSetupIndex: null });
           } else {
-            image.setAttrs({ cyvasseCoordinate: null, cyvasseSetupIndex: this.getFirstOpenSetupIndex() })
+            image.setAttrs({
+              cyvasseCoordinate: null,
+              cyvasseSetupIndex: this.getFirstOpenSetupIndex(),
+            });
           }
         }
       }
@@ -457,9 +468,15 @@ export abstract class BaseBoard {
         });
         if (result) {
           if (doesHaveValue(to)) {
-            terrainSpace.setAttrs({ cyvasseCoordinate: to, cyvasseSetupIndex: null });
+            terrainSpace.setAttrs({
+              cyvasseCoordinate: to,
+              cyvasseSetupIndex: null,
+            });
           } else {
-            terrainSpace.setAttrs({ cyvasseCoordinate: null, cyvasseSetupIndex: this.getFirstOpenSetupIndex() })
+            terrainSpace.setAttrs({
+              cyvasseCoordinate: null,
+              cyvasseSetupIndex: this.getFirstOpenSetupIndex(),
+            });
           }
         }
       }
