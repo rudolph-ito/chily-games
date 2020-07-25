@@ -84,10 +84,6 @@ export class SquareBoard extends BaseBoard {
     return this.spaceSize * 1.1;
   }
 
-  protected getSpace(coordinate: ICoordinate): Konva.Shape {
-    return this.spaceCoordinateMap.get(coordinate);
-  }
-
   protected getTerrainImageOffset(imageSize: ICoordinate): ICoordinate {
     return {
       x: 0,

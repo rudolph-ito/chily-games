@@ -104,6 +104,7 @@ export class GameShowComponent implements OnInit {
     this.board = buildBoard({
       element: this.boardContainer.nativeElement,
       color: this.getPlayerColor(),
+      game: this.game,
       variant: {
         boardType: this.variant.boardType,
         boardSize: this.variant.boardSize,
@@ -139,13 +140,6 @@ export class GameShowComponent implements OnInit {
     this.board.addSpaces(true);
     if (this.game.action === Action.SETUP) {
       this.board.addSetup(this.gameSetupRequirements);
-      if (this.getPlayerColor() === PlayerColor.ALABASTER) {
-        this.game.alabasterSetupCoordinateMap.forEach((datum) => {
-          if (doesHaveValue(datum.value.piece)) {
-            this.board.addPiece(datum.key, datum.value.piece);
-          }
-        });
-      }
     }
     this.updateBoard();
   }
@@ -167,7 +161,7 @@ export class GameShowComponent implements OnInit {
     if (doesHaveValue(this.board)) {
       this.board.update({
         color: this.getPlayerColor(),
-        inSetup: this.game.action === Action.SETUP,
+        game: this.game,
         setupRequirements: this.gameSetupRequirements,
       });
     }

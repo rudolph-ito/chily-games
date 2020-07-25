@@ -110,11 +110,11 @@ export class PieceRuleFormComponent implements OnInit {
       this.drawPreview.bind(this)
     );
     this.variantService.get(this.getVariantId()).subscribe((variant) => {
-      this.board = buildBoard(
-        this.boardContainer.nativeElement,
-        PlayerColor.ONYX,
-        variant
-      );
+      this.board = buildBoard({
+        element: this.boardContainer.nativeElement,
+        color: PlayerColor.ONYX,
+        variant,
+      });
       this.board.addSpaces(false);
       this.drawPreview();
     });
@@ -137,10 +137,13 @@ export class PieceRuleFormComponent implements OnInit {
     this.variantService
       .previewPieceRule(this.getVariantId(), CaptureType.MOVEMENT, request)
       .subscribe((result) => {
-        this.board.addPiece(result.origin, {
-          pieceTypeId: request.pieceTypeId,
-          playerColor: PlayerColor.ALABASTER,
-        });
+        this.board.addPieceAtCoordinate(
+          {
+            pieceTypeId: request.pieceTypeId,
+            playerColor: PlayerColor.ALABASTER,
+          },
+          result.origin
+        );
         this.board.highlightValidPlies(result.validPlies);
       });
   }

@@ -2,12 +2,17 @@ import { BoardType, IVariantOptions } from "../../shared/dtos/variant";
 import { HexagonalBoard } from "./hexagonal_board";
 import { SquareBoard } from "./square_board";
 import { BaseBoard, IGameCallbacks } from "./base_board";
-import { PlayerColor, IGameSetupRequirements } from "../../shared/dtos/game";
+import {
+  PlayerColor,
+  IGameSetupRequirements,
+  IGame,
+} from "../../shared/dtos/game";
 
 export interface IBuildBoardOptions {
   element: HTMLDivElement;
   color: PlayerColor;
   variant: IVariantOptions;
+  game?: IGame;
   gameCallbacks?: IGameCallbacks;
   setupRequirements?: IGameSetupRequirements;
 }
