@@ -76,10 +76,10 @@ export abstract class BaseBoard {
     this.stage.add(this.spaceLayer);
     this.spaceCoordinateTextLayer = new Konva.Layer();
     this.stage.add(this.spaceCoordinateTextLayer);
-    this.pieceLayer = new Konva.Layer();
-    this.stage.add(this.pieceLayer);
     this.terrainLayer = new Konva.Layer();
     this.stage.add(this.terrainLayer);
+    this.pieceLayer = new Konva.Layer();
+    this.stage.add(this.pieceLayer);
   }
 
   // Public Functions
@@ -131,7 +131,8 @@ export abstract class BaseBoard {
 
       let index = 0;
       setupRequirements.pieces.map((setupPieceRequirement) => {
-        for (let i = 0; i < setupPieceRequirement.count; i++) {
+        const currentCount = setupCoordinateMap.filter(({value: {piece}}) => doesHaveValue(piece) && piece.pieceTypeId == setupPieceRequirement.pieceTypeId).length;
+        for (let i = 0; i < setupPieceRequirement.count - currentCount; i++) {
           this.addPiece(
             {
               pieceTypeId: setupPieceRequirement.pieceTypeId,
@@ -143,7 +144,8 @@ export abstract class BaseBoard {
         }
       });
       setupRequirements.terrains.forEach((setupTerrainRequirement) => {
-        for (let i = 0; i < setupTerrainRequirement.count; i++) {
+        const currentCount = setupCoordinateMap.filter(({value: {terrain}}) => doesHaveValue(terrain) && terrain.terrainTypeId == setupTerrainRequirement.terrainTypeId).length;
+        for (let i = 0; i < setupTerrainRequirement.count - currentCount; i++) {
           this.addTerrain(
             {
               terrainTypeId: setupTerrainRequirement.terrainTypeId,
@@ -343,6 +345,27 @@ export abstract class BaseBoard {
     return matchingCoordinate;
   }
 
+  private getFirstOpenSetupIndex(): number {
+    let existingIndices: number[] = [];
+    this.pieceLayer.children.each((image: Konva.Image) => {
+      if (doesHaveValue(image.getAttr('cyvasseSetupIndex'))) {
+        existingIndices.push(image.getAttr('cyvasseSetupIndex'))
+      }
+    })
+    this.terrainLayer.children.each((shape: Konva.Shape) => {
+      if (doesHaveValue(shape.getAttr('cyvasseSetupIndex'))) {
+        existingIndices.push(shape.getAttr('cyvasseSetupIndex'))
+      }
+    })
+    existingIndices.sort()
+    for (let i = 0; i < existingIndices.length; i++) {
+      if (existingIndices[i] !== i) {
+        return i
+      }
+    } 
+    return existingIndices.length;
+  }
+
   private getSetupPosition(index: number): ICoordinate {
     const setupSize = this.getSetupSize();
     const row = Math.floor(index / this.setupColumns) % this.setupRows;
@@ -396,18 +419,23 @@ export abstract class BaseBoard {
   }
 
   private async onPieceDragEnd(image: Konva.Image): Promise<void> {
-    const coordinate = this.getNearestCoordinate(image.position());
+    const from = image.getAttr("cyvasseCoordinate");
+    const to = this.getNearestCoordinate(image.position());
     if (this.game.action === Action.SETUP) {
-      if (doesHaveValue(coordinate)) {
+      if (doesHaveValue(from) || doesHaveValue(to)) {
         const result = await this.gameCallbacks.onUpdateSetup({
           pieceChange: {
             pieceTypeId: image.getAttr("cyvassePiece").pieceTypeId,
-            from: image.getAttr("cyvasseCoordinate"),
-            to: coordinate,
+            from,
+            to
           },
         });
         if (result) {
-          image.setAttrs({ cyvasseCoordinate: coordinate });
+          if (doesHaveValue(to)) {
+            image.setAttrs({ cyvasseCoordinate: to, cyvasseSetupIndex: null });
+          } else {
+            image.setAttrs({ cyvasseCoordinate: null, cyvasseSetupIndex: this.getFirstOpenSetupIndex() })
+          }
         }
       }
       this.resetShapePosition(image);
@@ -416,18 +444,23 @@ export abstract class BaseBoard {
   }
 
   private async onTerrainDragEnd(terrainSpace: Konva.Shape): Promise<void> {
-    const coordinate = this.getNearestCoordinate(terrainSpace.position());
+    const from = terrainSpace.getAttr("cyvasseCoordinate");
+    const to = this.getNearestCoordinate(terrainSpace.position());
     if (this.game.action === Action.SETUP) {
-      if (doesHaveValue(coordinate)) {
+      if (doesHaveValue(from) || doesHaveValue(to)) {
         const result = await this.gameCallbacks.onUpdateSetup({
           terrainChange: {
             terrainTypeId: terrainSpace.getAttr("cyvasseTerrain").terrainTypeId,
-            from: terrainSpace.getAttr("cyvasseCoordinate"),
-            to: coordinate,
+            from,
+            to,
           },
         });
         if (result) {
-          terrainSpace.setAttrs({ cyvasseCoordinate: coordinate });
+          if (doesHaveValue(to)) {
+            terrainSpace.setAttrs({ cyvasseCoordinate: to, cyvasseSetupIndex: null });
+          } else {
+            terrainSpace.setAttrs({ cyvasseCoordinate: null, cyvasseSetupIndex: this.getFirstOpenSetupIndex() })
+          }
         }
       }
       this.resetShapePosition(terrainSpace);
