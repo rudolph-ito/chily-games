@@ -98,7 +98,10 @@ export class GameShowComponent implements OnInit {
   }
 
   drawBoard(): void {
-    if (doesNotHaveValue(this.variant)) {
+    if (
+      doesNotHaveValue(this.variant) ||
+      doesNotHaveValue(this.boardContainer)
+    ) {
       return;
     }
     this.board = buildBoard({
