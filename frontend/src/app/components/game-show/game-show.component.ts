@@ -89,7 +89,10 @@ export class GameShowComponent implements OnInit {
     this.userObservable = this.authenticationService.getUserSubject();
     this.authenticationService.getUserSubject().subscribe((u) => {
       this.user = u;
-      this.updateBoard();
+      this.gameService.get(this.getGameId()).subscribe((game) => {
+        this.game = game;
+        this.updateBoard();
+      });
     });
   }
 

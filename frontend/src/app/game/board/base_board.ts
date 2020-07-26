@@ -208,8 +208,8 @@ export abstract class BaseBoard {
     this.color = options.color;
     this.game = options.game;
     if (this.game.action === Action.SETUP && oldColor !== this.color) {
-      this.pieceLayer.children.each((image) => image.destroy());
-      this.terrainLayer.children.each((image) => image.destroy());
+      this.pieceLayer.destroyChildren()
+      this.terrainLayer.destroyChildren()
       await this.addSetup(options.setupRequirements);
     }
     this.setupForContainer(options.setupRequirements);
