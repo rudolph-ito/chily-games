@@ -7,6 +7,8 @@ import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { Observable, of } from "rxjs";
 import { getBoardDescription } from "../../formatters/variant.formatter";
 import { map } from "rxjs/operators";
+import { ChallengeService } from "src/app/services/challenge.service";
+import { ChallengePlayAs } from "src/app/shared/dtos/challenge";
 
 @Component({
   selector: "app-variants-index",
@@ -25,7 +27,8 @@ export class VariantsIndexComponent implements OnInit {
 
   constructor(
     private readonly variantService: VariantService,
-    private readonly authenticationService: AuthenticationService
+    private readonly authenticationService: AuthenticationService,
+    private readonly challengeService: ChallengeService
   ) {}
 
   ngOnInit(): void {
@@ -40,5 +43,16 @@ export class VariantsIndexComponent implements OnInit {
     this.userLoggedInObservable = this.authenticationService
       .getUserSubject()
       .pipe(map((x) => doesHaveValue(x)));
+  }
+
+  onCreateChallenge(variant: IVariant): void {
+    this.challengeService
+      .create({
+        variantId: variant.variantId,
+        creatorPlayAs: ChallengePlayAs.RANDOM,
+      })
+      .subscribe(() => {
+        alert("Challenge created");
+      });
   }
 }

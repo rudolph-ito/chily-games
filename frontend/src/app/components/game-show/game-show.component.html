@@ -1,0 +1,9 @@
+<div (window:resize)="onResize()" class="wrapper">
+  <div class="header">
+    <div *ngIf="!loading" class="player-name">{{ getPlayerName(true) }}</div>
+  </div>
+  <div class="board-container" #boardContainer></div>
+  <div class="footer">
+    <div *ngIf="!loading" class="player-name">{{ getPlayerName(false) }}</div>
+  </div>
+</div>

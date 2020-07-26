@@ -120,16 +120,20 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     }
     if (this.isBoardTypeHexagonal() || this.isBoardTypeSquare()) {
       const color = this.boardPreviewControls.viewpoint.value;
-      this.board = buildBoard(this.boardContainer.nativeElement, color, {
-        boardType: this.controls.boardType.value,
-        boardSize: this.controls.boardSize.value,
-        boardColumns: this.controls.boardColumns.value,
-        boardRows: this.controls.boardRows.value,
-        pieceRanks: this.controls.pieceRanks.value,
+      this.board = buildBoard({
+        element: this.boardContainer.nativeElement,
+        color,
+        variant: {
+          boardType: this.controls.boardType.value,
+          boardSize: this.controls.boardSize.value,
+          boardColumns: this.controls.boardColumns.value,
+          boardRows: this.controls.boardRows.value,
+          pieceRanks: this.controls.pieceRanks.value,
+        },
       });
     }
     if (doesHaveValue(this.board)) {
-      this.board.draw(this.boardPreviewControls.showCoordinates.value);
+      this.board.addSpaces(this.boardPreviewControls.showCoordinates.value);
     }
   }
 

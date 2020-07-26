@@ -21,6 +21,9 @@
         <button mat-button routerLink="/variants/{{ element.variantId }}">
           View
         </button>
+        <button mat-button *ngIf="userLoggedInObservable | async" (click)="onCreateChallenge(element)">
+          Create Challenge
+        </button>
       </td>
     </ng-container>
 

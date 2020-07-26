@@ -25,6 +25,14 @@ export function getGameRouter(
       })
       .catch(next);
   });
+  router.get("/:gameId/setupRequirements", function (req, res, next) {
+    gameService
+      .getGameSetupRequirements(parseInt(req.params.gameId))
+      .then((setupRequirements) => {
+        res.status(200).send(setupRequirements);
+      })
+      .catch(next);
+  });
   router.post("/:gameId/updateSetup", authenticationRequired, function (
     req,
     res,

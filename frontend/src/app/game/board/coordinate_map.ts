@@ -7,8 +7,18 @@ export class CoordinateMap<T> {
     this.data = new Map<string, T>();
   }
 
+  clear(): void {
+    this.data.clear();
+  }
+
   delete(coordinate: ICoordinate): void {
     this.data.delete(this.coordinateToKey(coordinate));
+  }
+
+  forEach(iterator: (coordinate: ICoordinate, data: T) => void): void {
+    return this.data.forEach((data, key) => {
+      iterator(this.keyToCoordinate(key), data);
+    });
   }
 
   get(coordinate: ICoordinate): T {
@@ -21,5 +31,10 @@ export class CoordinateMap<T> {
 
   private coordinateToKey(coordinate: ICoordinate): string {
     return `${coordinate.x},${coordinate.y}`;
+  }
+
+  private keyToCoordinate(key: string): ICoordinate {
+    const parts = key.split(",");
+    return { x: parseInt(parts[0]), y: parseInt(parts[1]) };
   }
 }

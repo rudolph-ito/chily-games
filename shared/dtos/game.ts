@@ -94,6 +94,28 @@ export interface IGame {
   plies: IGamePly[];
 }
 
+export interface IGameSetupPieceRequirement {
+  pieceTypeId: PieceType;
+  count: number;
+}
+
+export interface IGameSetupTerrainRequirement {
+  terrainTypeId: TerrainType;
+  count: number;
+}
+
+export interface IGameSetupTerritories {
+  alabaster: ICoordinate[];
+  neutral: ICoordinate[];
+  onyx: ICoordinate[];
+}
+
+export interface IGameSetupRequirements {
+  pieces: IGameSetupPieceRequirement[];
+  terrains: IGameSetupTerrainRequirement[];
+  territories: IGameSetupTerritories;
+}
+
 export interface ISearchGamesRequest {
   pagination: IPaginationRequest;
 }

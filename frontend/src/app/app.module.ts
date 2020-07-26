@@ -14,6 +14,7 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatSelectModule } from "@angular/material/select";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
@@ -30,6 +31,9 @@ import { VariantFormComponent } from "./components/variant-form/variant-form.com
 import { VariantShowComponent } from "./components/variant-show/variant-show.component";
 import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
 import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
+import { ChallengesIndexComponent } from "./components/challenges-index/challenges-index.component";
+import { GameShowComponent } from "./components/game-show/game-show.component";
+import { GamesIndexComponent } from "./components/games-index/games-index.component";
 
 @NgModule({
   declarations: [
@@ -43,6 +47,9 @@ import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain
     VariantShowComponent,
     PieceRuleFormComponent,
     TerrainRuleFormComponent,
+    ChallengesIndexComponent,
+    GameShowComponent,
+    GamesIndexComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -60,6 +67,7 @@ import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain
     MatProgressSpinnerModule,
     MatRadioModule,
     MatSelectModule,
+    MatSnackBarModule,
     MatTableModule,
     MatToolbarModule,
     MatTooltipModule,

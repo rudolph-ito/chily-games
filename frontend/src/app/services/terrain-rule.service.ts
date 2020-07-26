@@ -7,8 +7,6 @@ import { ITerrainRule, ITerrainRuleOptions } from "../shared/dtos/terrain_rule";
   providedIn: "root",
 })
 export class TerrainRuleService {
-  routePrefix = "/api/variants";
-
   constructor(private readonly http: HttpClient) {}
 
   create(

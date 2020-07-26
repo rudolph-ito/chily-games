@@ -1,50 +1,32 @@
-import { BaseBoard } from "./base_board";
-import { ICoordinate, PlayerColor } from "../../shared/dtos/game";
+import { BaseBoard, IBoardOptions } from "./base_board";
+import {
+  ICoordinate,
+  PlayerColor,
+  IGameSetupRequirements,
+} from "../../shared/dtos/game";
 import Konva from "konva";
-import { CoordinateMap } from "./coordinate_map";
+import { doesHaveValue } from "../../shared/utilities/value_checker";
 
 export interface IHexagonalBoardLayoutOptions {
   boardSize: number;
 }
 
-export interface IHexagonalBoardOptions {
-  layout: IHexagonalBoardLayoutOptions;
-  color: PlayerColor;
-}
-
 export class HexagonalBoard extends BaseBoard {
-  private readonly spaceCoordinateMap = new CoordinateMap<
-    Konva.RegularPolygon
-  >();
-
   private readonly layout: IHexagonalBoardLayoutOptions;
   private spaceRadius: number;
   private spaceDelta: ICoordinate;
   private center: ICoordinate;
 
-  constructor(element: HTMLDivElement, options: IHexagonalBoardOptions) {
-    super(element, options.color);
-    this.layout = options.layout;
-    this.setup();
+  constructor(
+    options: IBoardOptions,
+    layoutOptions: IHexagonalBoardLayoutOptions
+  ) {
+    super(options);
+    this.layout = layoutOptions;
+    this.setupForContainer(options.setupRequirements);
   }
 
   // Protected overrides
-
-  protected addSpace(coordinate: ICoordinate, showCoordinates: boolean): void {
-    const polygon = new Konva.RegularPolygon({
-      radius: 1,
-      sides: 6,
-      stroke: "#000",
-      strokeWidth: 1,
-    });
-    this.spaceLayer.add(polygon);
-    this.setSpaceSize(polygon);
-    this.setSpacePosition(polygon, coordinate);
-    this.spaceCoordinateMap.set(coordinate, polygon);
-    if (showCoordinates) {
-      this.addCoordinateText(polygon, coordinate);
-    }
-  }
 
   // From alabaster point of view:
   //   (0,0) in center
@@ -65,6 +47,27 @@ export class HexagonalBoard extends BaseBoard {
       x: this.center.x + relative.x + this.getOffset().x,
       y: this.center.y + relative.y + this.getOffset().y,
     };
+  }
+
+  protected createSpaceShape(): Konva.RegularPolygon {
+    return new Konva.RegularPolygon({
+      radius: 1,
+      sides: 6,
+      stroke: "#000",
+      strokeWidth: 1,
+    });
+  }
+
+  protected doesCoordinateContainPosition(
+    coordiante: ICoordinate,
+    position: ICoordinate
+  ): boolean {
+    const { x: x1, y: y1 } = position;
+    const { x: x2, y: y2 } = this.coordinateToPosition(coordiante);
+    const positionalDistance = Math.sqrt(
+      Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)
+    );
+    return positionalDistance <= this.spaceRadius * Math.cos(Math.PI / 6);
   }
 
   protected getAllCoordinates(): ICoordinate[] {
@@ -90,23 +93,45 @@ export class HexagonalBoard extends BaseBoard {
     return (this.spaceDelta.x / Math.sqrt(2)) * 2;
   }
 
-  protected getSpace(coordinate: ICoordinate): Konva.Shape {
-    return this.spaceCoordinateMap.get(coordinate);
+  protected getSetupSize(): number {
+    return this.spaceRadius * 2 * 1.1;
   }
 
-  // Private
+  protected getTerrainImageOffset(imageSize: ICoordinate): ICoordinate {
+    return {
+      x: imageSize.x / 2,
+      y: imageSize.y / 2,
+    };
+  }
 
-  private setSpaceSize(polygon: Konva.RegularPolygon): void {
+  protected getTerrainImageScaleReference(): number {
+    return this.spaceRadius * 2;
+  }
+
+  protected setSpaceSize(polygon: Konva.RegularPolygon): void {
     polygon.radius(this.spaceRadius);
   }
 
-  private setup(): void {
+  protected setupForContainer(
+    setupRequirements: IGameSetupRequirements = null
+  ): void {
     const verticalRadii = 3 * this.layout.boardSize + 2;
     const horizontalRadii =
       2 * (2 * this.layout.boardSize + 1) * Math.cos(Math.PI / 6);
 
+    let setupHorizontalRadii = 0;
+    if (doesHaveValue(setupRequirements)) {
+      this.setupRows = Math.floor(verticalRadii / 2 / 1.1);
+      this.setupColumns = Math.ceil(
+        (setupRequirements.pieces.length + setupRequirements.terrains.length) /
+          this.setupRows
+      );
+      setupHorizontalRadii = this.setupColumns * 2 * 1.1 + 0.1;
+    }
+
     const maxSize = this.getMaxSize();
-    const maxHorizontalRadius = maxSize.x / horizontalRadii;
+    const maxHorizontalRadius =
+      maxSize.x / (horizontalRadii + setupHorizontalRadii);
     const maxVerticalRadius = maxSize.y / verticalRadii;
 
     this.spaceRadius = Math.min(maxVerticalRadius, maxHorizontalRadius);
@@ -114,6 +139,7 @@ export class HexagonalBoard extends BaseBoard {
       x: this.spaceRadius * Math.cos(Math.PI / 6),
       y: (this.spaceRadius * 3) / 2,
     };
+    this.setupWidth = this.spaceRadius * setupHorizontalRadii;
     this.size = {
       x: this.spaceRadius * horizontalRadii,
       y: this.spaceRadius * verticalRadii,
