@@ -86,13 +86,10 @@ export abstract class BaseBoard {
 
   public async addPieceAtCoordinate(
     piece: IPiece,
-    coordinate: ICoordinate,
-    draw: boolean = false
+    coordinate: ICoordinate
   ): Promise<void> {
     await this.addPiece(piece, { cyvasseCoordinate: coordinate });
-    if (draw) {
-      this.pieceLayer.draw();
-    }
+    this.pieceLayer.draw();
   }
 
   public addSpaces(showCoordinates: boolean): void {
@@ -208,8 +205,8 @@ export abstract class BaseBoard {
     this.color = options.color;
     this.game = options.game;
     if (this.game.action === Action.SETUP && oldColor !== this.color) {
-      this.pieceLayer.destroyChildren()
-      this.terrainLayer.destroyChildren()
+      this.pieceLayer.destroyChildren();
+      this.terrainLayer.destroyChildren();
       await this.addSetup(options.setupRequirements);
     }
     this.setupForContainer(options.setupRequirements);
@@ -298,7 +295,7 @@ export abstract class BaseBoard {
     this.spaceCoordinateTextLayer.add(text);
   }
 
-  public async addPiece(
+  private async addPiece(
     piece: IPiece,
     konvaPositionalAttributes: IKonvaPositionalAttributes
   ): Promise<void> {
