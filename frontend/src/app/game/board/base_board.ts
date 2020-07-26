@@ -89,7 +89,7 @@ export abstract class BaseBoard {
     coordinate: ICoordinate,
     draw: boolean = false
   ): Promise<void> {
-    this.addPiece(piece, { cyvasseCoordinate: coordinate });
+    await this.addPiece(piece, { cyvasseCoordinate: coordinate });
     if (draw) {
       this.pieceLayer.draw();
     }
@@ -118,26 +118,28 @@ export abstract class BaseBoard {
         this.color === PlayerColor.ALABASTER
           ? this.game.alabasterSetupCoordinateMap
           : this.game.onyxSetupCoordinateMap;
-      setupCoordinateMap.forEach((datum) => {
+      for (const datum of setupCoordinateMap) {
         if (doesHaveValue(datum.value.piece)) {
-          this.addPiece(datum.value.piece, { cyvasseCoordinate: datum.key });
-        }
-        if (doesHaveValue(datum.value.terrain)) {
-          this.addTerrain(datum.value.terrain, {
+          await this.addPiece(datum.value.piece, {
             cyvasseCoordinate: datum.key,
           });
         }
-      });
+        if (doesHaveValue(datum.value.terrain)) {
+          await this.addTerrain(datum.value.terrain, {
+            cyvasseCoordinate: datum.key,
+          });
+        }
+      }
 
       let index = 0;
-      setupRequirements.pieces.map((setupPieceRequirement) => {
+      for (const setupPieceRequirement of setupRequirements.pieces) {
         const currentCount = setupCoordinateMap.filter(
           ({ value: { piece } }) =>
             doesHaveValue(piece) &&
             piece.pieceTypeId === setupPieceRequirement.pieceTypeId
         ).length;
         for (let i = 0; i < setupPieceRequirement.count - currentCount; i++) {
-          this.addPiece(
+          await this.addPiece(
             {
               pieceTypeId: setupPieceRequirement.pieceTypeId,
               playerColor: this.color,
@@ -146,15 +148,15 @@ export abstract class BaseBoard {
           );
           index++;
         }
-      });
-      setupRequirements.terrains.forEach((setupTerrainRequirement) => {
+      }
+      for (const setupTerrainRequirement of setupRequirements.terrains) {
         const currentCount = setupCoordinateMap.filter(
           ({ value: { terrain } }) =>
             doesHaveValue(terrain) &&
             terrain.terrainTypeId === setupTerrainRequirement.terrainTypeId
         ).length;
         for (let i = 0; i < setupTerrainRequirement.count - currentCount; i++) {
-          this.addTerrain(
+          await this.addTerrain(
             {
               terrainTypeId: setupTerrainRequirement.terrainTypeId,
               playerColor: this.color,
@@ -163,7 +165,7 @@ export abstract class BaseBoard {
           );
           index++;
         }
-      });
+      }
     }
     this.pieceLayer.draw();
     this.terrainLayer.draw();
@@ -201,14 +203,14 @@ export abstract class BaseBoard {
     this.spaceLayer.draw();
   }
 
-  public update(options: IUpdateOptions): void {
+  public async update(options: IUpdateOptions): Promise<void> {
     const oldColor = this.color;
     this.color = options.color;
     this.game = options.game;
     if (this.game.action === Action.SETUP && oldColor !== this.color) {
       this.pieceLayer.children.each((image) => image.destroy());
       this.terrainLayer.children.each((image) => image.destroy());
-      this.addSetup(options.setupRequirements);
+      await this.addSetup(options.setupRequirements);
     }
     this.setupForContainer(options.setupRequirements);
     this.stage.height(this.container.offsetHeight);
@@ -304,7 +306,9 @@ export abstract class BaseBoard {
     image.draggable(true);
     image.setAttr("cyvassePiece", piece);
     image.setAttrs(konvaPositionalAttributes);
-    image.on("dragend", () => this.onPieceDragEnd(image));
+    image.on("dragend", () => {
+      this.onPieceDragEnd(image); // eslint-disable-line @typescript-eslint/no-floating-promises
+    });
     this.resetShapePosition(image);
     this.setPieceSize(image);
     this.pieceLayer.add(image);
@@ -319,7 +323,9 @@ export abstract class BaseBoard {
     terrainSpace.draggable(true);
     terrainSpace.setAttr("cyvasseTerrain", terrain);
     terrainSpace.setAttrs(konvaPositionalAttributes);
-    terrainSpace.on("dragend", () => this.onTerrainDragEnd(terrainSpace));
+    terrainSpace.on("dragend", () => {
+      this.onTerrainDragEnd(terrainSpace); // eslint-disable-line @typescript-eslint/no-floating-promises
+    });
     this.resetShapePosition(terrainSpace);
     this.setSpaceSize(terrainSpace);
     this.terrainLayer.add(terrainSpace);
