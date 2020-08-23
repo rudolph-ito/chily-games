@@ -48,7 +48,7 @@
     "@types/zxcvbn": "4.4.0",
     "chai": "4.2.0",
     "dirty-chai": "2.0.1",
-    "mocha": "8.0.1",
+    "mocha": "8.1.1",
     "nodemon": "2.0.4",
     "sequelize-cli": "6.2.0",
     "supertest": "4.0.2",
