@@ -31,11 +31,11 @@ describe("GameShowComponent", () => {
           currentCoordinateMap: [],
           plies: [],
         }),
-      getSetupRequirements: () =>
+      getRules: () =>
         of({
           pieces: [],
           terrains: [],
-          territories: {
+          setupTerritories: {
             alabaster: [],
             neutral: [],
             onyx: [],

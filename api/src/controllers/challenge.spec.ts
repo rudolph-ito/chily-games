@@ -7,8 +7,9 @@ import {
   createTestChallenge,
   IUserCredentials,
   loginTestUser,
+  createTestServer,
+  ITestServer,
 } from "../../test/test_helper";
-import { createExpressApp } from ".";
 import supertest from "supertest";
 import { IChallengeOptions, ChallengePlayAs } from "../shared/dtos/challenge";
 import { expect } from "chai";
@@ -19,14 +20,18 @@ import HttpStatus from "http-status-codes";
 
 describe("ChallengeRoutes", () => {
   resetDatabaseBeforeEach();
-  const app = createExpressApp({
-    corsOrigins: [],
-    sessionCookieSecure: false,
-    sessionSecret: "test",
-  });
+  let testServer: ITestServer;
   let user1Credentials: IUserCredentials;
   let user1Id: number;
   let variantId: number;
+
+  before(() => {
+    testServer = createTestServer();
+  });
+
+  after(async () => {
+    await testServer.quit();
+  });
 
   beforeEach(async () => {
     user1Credentials = createTestCredentials("test");
@@ -47,7 +52,7 @@ describe("ChallengeRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .post(`/api/challenges`)
         .send(challengeOptions)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -57,7 +62,7 @@ describe("ChallengeRoutes", () => {
 
     it("on success, returns created object", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       const response = await agent
@@ -81,7 +86,7 @@ describe("ChallengeRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .delete(`/api/challenges/${challengeId}`)
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -90,7 +95,7 @@ describe("ChallengeRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -102,7 +107,7 @@ describe("ChallengeRoutes", () => {
 
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent.delete(`/api/challenges/999`).expect(HttpStatus.NOT_FOUND);
@@ -112,7 +117,7 @@ describe("ChallengeRoutes", () => {
 
     it("on success, deletes the object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent
@@ -130,7 +135,7 @@ describe("ChallengeRoutes", () => {
   describe("accept challenge (POST /api/challenges/:challengeId/accept)", () => {
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent
@@ -150,7 +155,7 @@ describe("ChallengeRoutes", () => {
         // Arrange
 
         // Act
-        await supertest(app)
+        await supertest(testServer.app)
           .post(`/api/challenges/${challengeId}/accept`)
           .expect(HttpStatus.UNAUTHORIZED);
 
@@ -159,7 +164,7 @@ describe("ChallengeRoutes", () => {
 
       it("if logged in creator, returns Unprocessable Entity", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
 
         // Act
         const response = await agent
@@ -176,7 +181,7 @@ describe("ChallengeRoutes", () => {
         // Arrange
         const user2Credentials = createTestCredentials("user2");
         const user2Id = await createTestUser(user2Credentials);
-        const agent = await loginTestUser(app, user2Credentials);
+        const agent = await loginTestUser(testServer.app, user2Credentials);
 
         // Act
         const response = await agent
@@ -210,7 +215,7 @@ describe("ChallengeRoutes", () => {
         // Arrange
 
         // Act
-        await supertest(app)
+        await supertest(testServer.app)
           .post(`/api/challenges/${challengeId}/accept`)
           .expect(HttpStatus.UNAUTHORIZED);
 
@@ -219,7 +224,7 @@ describe("ChallengeRoutes", () => {
 
       it("if logged in creator, returns Unprocessable Entity", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
 
         // Act
         const response = await agent
@@ -234,7 +239,7 @@ describe("ChallengeRoutes", () => {
 
       it("if logged in as non-opponent, returns Unprocessable Entity", async () => {
         // Arrange
-        const { agent } = await createAndLoginTestUser(app, "user3");
+        const { agent } = await createAndLoginTestUser(testServer.app, "user3");
 
         // Act
         const response = await agent
@@ -249,7 +254,7 @@ describe("ChallengeRoutes", () => {
 
       it("on success, deletes the object and creates a game", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user2Credentials);
+        const agent = await loginTestUser(testServer.app, user2Credentials);
 
         // Act
         const response = await agent

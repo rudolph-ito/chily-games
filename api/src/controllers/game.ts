@@ -2,9 +2,12 @@ import express from "express";
 import { IGameService, GameService } from "../services/game_service";
 import { doesHaveValue } from "../shared/utilities/value_checker";
 import { IUser } from "../shared/dtos/authentication";
+import newSocketIoEmitter from "socket.io-emitter";
+import { RedisClient } from "redis";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
+  publishRedisClient: RedisClient,
   gameService: IGameService = new GameService()
 ): express.Router {
   const router = express.Router();
@@ -25,11 +28,11 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.get("/:gameId/setupRequirements", function (req, res, next) {
+  router.get("/:gameId/rules", function (req, res, next) {
     gameService
-      .getGameSetupRequirements(parseInt(req.params.gameId))
-      .then((setupRequirements) => {
-        res.status(200).send(setupRequirements);
+      .getGameRules(parseInt(req.params.gameId))
+      .then((rules) => {
+        res.status(200).send(rules);
       })
       .catch(next);
   });
@@ -64,6 +67,18 @@ export function getGameRouter(
       })
       .catch(next);
   });
+  router.post("/:gameId/validPlies", authenticationRequired, function (
+    req,
+    res,
+    next
+  ) {
+    gameService
+      .getValidPlies(parseInt(req.params.gameId), req.body)
+      .then((validPlies) => {
+        res.status(200).send(validPlies);
+      })
+      .catch(next);
+  });
   router.post("/:gameId/createPly", authenticationRequired, function (
     req,
     res,
@@ -75,8 +90,11 @@ export function getGameRouter(
         parseInt(req.params.gameId),
         req.body
       )
-      .then(() => {
+      .then((gamePlyEvent) => {
         res.status(200).end();
+        newSocketIoEmitter(publishRedisClient as any)
+          .to(`game-${req.params.gameId}`)
+          .emit("game-ply", gamePlyEvent);
       })
       .catch(next);
   });

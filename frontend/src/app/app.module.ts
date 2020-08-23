@@ -19,6 +19,7 @@ import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ReactiveFormsModule } from "@angular/forms";
+import { SocketIoModule } from "ngx-socket-io";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -72,6 +73,10 @@ import { GamesIndexComponent } from "./components/games-index/games-index.compon
     MatToolbarModule,
     MatTooltipModule,
     ReactiveFormsModule,
+    SocketIoModule.forRoot({
+      url: "",
+      options: {},
+    }),
   ],
   providers: [],
   bootstrap: [AppComponent],

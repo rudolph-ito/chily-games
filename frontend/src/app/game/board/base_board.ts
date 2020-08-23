@@ -5,31 +5,48 @@ import {
   ValidPlies,
   IPiece,
   IGameSetupTerritories,
-  IGameSetupRequirements,
+  IGameRules,
   ITerrain,
   IGameSetupChange,
   IGame,
   Action,
+  IGamePly,
+  IGetGameValidPliesRequest,
+  IGamePieceRule,
 } from "../../shared/dtos/game";
 import { CoordinateMap } from "./coordinate_map";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
+import { areCoordinatesEqual } from "./coordinate_helpers";
+import { CaptureType, PieceType } from "../../shared/dtos/piece_rule";
 
 export enum SpaceHighlight {
   NONE = "",
+  LAST_PLY_MOVEMENT = "#FFFF33",
+  LAST_PLY_RANGE_CAPTURE = "#0066CC",
   MOVEMENT_ORIGIN = "#00CC00",
   MOVEMENT_FREE = "#006633",
+  RANGE_ORIGIN = "#CC0000",
+  RANGE_FREE = "#660033",
   TERRITORY_NEUTRAL = "#A8A8A8",
   TERRITORY_OPPONENT = "#505050",
+}
+
+export enum SpaceHighlightState {
+  LAST_PLY = "last_ply",
+  MOVEMENT_PREVIEW = "movement_preview",
+  RANGE_CAPTURE_PREVIEW = "range_capture_preview",
 }
 
 export interface IUpdateOptions {
   color: PlayerColor;
   game: IGame;
-  setupRequirements: IGameSetupRequirements;
+  gameRules: IGameRules;
 }
 
 export interface IGameCallbacks {
+  onGetValidPlies: (request: IGetGameValidPliesRequest) => Promise<ValidPlies>;
   onUpdateSetup: (setupChange: IGameSetupChange) => Promise<boolean>;
+  onCreatePly: (ply: IGamePly) => Promise<boolean>;
 }
 
 export interface IBoardOptions {
@@ -37,7 +54,13 @@ export interface IBoardOptions {
   color: PlayerColor;
   game?: IGame;
   gameCallbacks?: IGameCallbacks;
-  setupRequirements?: IGameSetupRequirements;
+  gameRules?: IGameRules;
+}
+
+export interface ValidPliesDetails {
+  origin: ICoordinate;
+  evaluationType: CaptureType;
+  validPlies: ValidPlies;
 }
 
 interface IKonvaPositionalAttributes {
@@ -48,13 +71,15 @@ interface IKonvaPositionalAttributes {
 export abstract class BaseBoard {
   private readonly container: HTMLDivElement;
   private readonly gameCallbacks: IGameCallbacks;
+  private readonly gameRules: IGameRules;
   private readonly stage: Konva.Stage;
   private readonly padding: number;
   private readonly spaceLayer: Konva.Layer;
   private readonly spaceCoordinateTextLayer: Konva.Layer;
   private readonly pieceLayer: Konva.Layer;
   private readonly terrainLayer: Konva.Layer;
-  private game: IGame;
+  private validPliesDetails: ValidPliesDetails;
+  protected game: IGame;
   protected color: PlayerColor;
   protected size: ICoordinate;
   protected setupWidth: number;
@@ -65,6 +90,7 @@ export abstract class BaseBoard {
     this.container = options.element;
     this.game = options.game;
     this.gameCallbacks = options.gameCallbacks;
+    this.gameRules = options.gameRules;
     this.color = options.color;
     this.padding = 10;
     this.stage = new Konva.Stage({
@@ -72,12 +98,12 @@ export abstract class BaseBoard {
       height: this.container.offsetHeight,
       width: this.container.offsetWidth,
     });
+    this.terrainLayer = new Konva.Layer();
+    this.stage.add(this.terrainLayer);
     this.spaceLayer = new Konva.Layer();
     this.stage.add(this.spaceLayer);
     this.spaceCoordinateTextLayer = new Konva.Layer();
     this.stage.add(this.spaceCoordinateTextLayer);
-    this.terrainLayer = new Konva.Layer();
-    this.stage.add(this.terrainLayer);
     this.pieceLayer = new Konva.Layer();
     this.stage.add(this.pieceLayer);
   }
@@ -107,9 +133,22 @@ export abstract class BaseBoard {
     this.spaceCoordinateTextLayer.draw();
   }
 
-  public async addSetup(
-    setupRequirements: IGameSetupRequirements
-  ): Promise<void> {
+  public async addCurrentSetup(): Promise<void> {
+    for (const datum of this.game.currentCoordinateMap) {
+      if (doesHaveValue(datum.value.piece)) {
+        await this.addPiece(datum.value.piece, {
+          cyvasseCoordinate: datum.key,
+        });
+      }
+      if (doesHaveValue(datum.value.terrain)) {
+        await this.addTerrain(datum.value.terrain, {
+          cyvasseCoordinate: datum.key,
+        });
+      }
+    }
+  }
+
+  public async addSetup(): Promise<void> {
     if (this.color !== null) {
       const setupCoordinateMap =
         this.color === PlayerColor.ALABASTER
@@ -129,16 +168,15 @@ export abstract class BaseBoard {
       }
 
       let index = 0;
-      for (const setupPieceRequirement of setupRequirements.pieces) {
+      for (const pieceRule of this.gameRules.pieces) {
         const currentCount = setupCoordinateMap.filter(
           ({ value: { piece } }) =>
-            doesHaveValue(piece) &&
-            piece.pieceTypeId === setupPieceRequirement.pieceTypeId
+            doesHaveValue(piece) && piece.pieceTypeId === pieceRule.pieceTypeId
         ).length;
-        for (let i = 0; i < setupPieceRequirement.count - currentCount; i++) {
+        for (let i = 0; i < pieceRule.count - currentCount; i++) {
           await this.addPiece(
             {
-              pieceTypeId: setupPieceRequirement.pieceTypeId,
+              pieceTypeId: pieceRule.pieceTypeId,
               playerColor: this.color,
             },
             { cyvasseSetupIndex: index }
@@ -146,16 +184,16 @@ export abstract class BaseBoard {
           index++;
         }
       }
-      for (const setupTerrainRequirement of setupRequirements.terrains) {
+      for (const terrainRule of this.gameRules.terrains) {
         const currentCount = setupCoordinateMap.filter(
           ({ value: { terrain } }) =>
             doesHaveValue(terrain) &&
-            terrain.terrainTypeId === setupTerrainRequirement.terrainTypeId
+            terrain.terrainTypeId === terrainRule.terrainTypeId
         ).length;
-        for (let i = 0; i < setupTerrainRequirement.count - currentCount; i++) {
+        for (let i = 0; i < terrainRule.count - currentCount; i++) {
           await this.addTerrain(
             {
-              terrainTypeId: setupTerrainRequirement.terrainTypeId,
+              terrainTypeId: terrainRule.terrainTypeId,
               playerColor: this.color,
             },
             { cyvasseSetupIndex: index }
@@ -166,6 +204,26 @@ export abstract class BaseBoard {
     }
     this.pieceLayer.draw();
     this.terrainLayer.draw();
+  }
+
+  public applyPly(ply: IGamePly): void {
+    if (doesHaveValue(ply.movement)) {
+      this.pieceLayer.children.each((image: Konva.Image) => {
+        const coordinate = image.getAttr("cyvasseCoordinate");
+        if (areCoordinatesEqual(coordinate, ply.from)) {
+          image.setAttrs({ cyvasseCoordinate: ply.movement.to });
+          this.resetShapePosition(image);
+        }
+        if (
+          doesHaveValue(ply.movement.capturedPiece) &&
+          areCoordinatesEqual(coordinate, ply.movement.to)
+        ) {
+          image.remove();
+        }
+      });
+      this.highlightLastPly();
+    }
+    this.pieceLayer.draw();
   }
 
   public clearHighlight(): void {
@@ -183,14 +241,27 @@ export abstract class BaseBoard {
     this.stage.destroy();
   }
 
-  public highlightValidPlies(validPlies: ValidPlies): void {
+  public highlightValidPlies(validPliesDetails: ValidPliesDetails): void {
     const coordinateToSpaceHighlight = new CoordinateMap<SpaceHighlight>();
     this.getAllCoordinates().forEach((c) =>
       coordinateToSpaceHighlight.set(c, SpaceHighlight.NONE)
     );
-    validPlies.free.forEach((c) =>
-      coordinateToSpaceHighlight.set(c, SpaceHighlight.MOVEMENT_FREE)
+    const originHighlight =
+      validPliesDetails.evaluationType === CaptureType.MOVEMENT
+        ? SpaceHighlight.MOVEMENT_ORIGIN
+        : SpaceHighlight.RANGE_ORIGIN;
+    const freeHighlight =
+      validPliesDetails.evaluationType === CaptureType.MOVEMENT
+        ? SpaceHighlight.MOVEMENT_FREE
+        : SpaceHighlight.RANGE_FREE;
+    coordinateToSpaceHighlight.set(validPliesDetails.origin, originHighlight);
+    validPliesDetails.validPlies.free.forEach((c) =>
+      coordinateToSpaceHighlight.set(c, freeHighlight)
     );
+    validPliesDetails.validPlies.capturable.forEach((c) => {
+      coordinateToSpaceHighlight.set(c, freeHighlight);
+    });
+    // TODO reachable
     this.spaceLayer.children.each((shape: Konva.Shape) => {
       this.toggleSpaceHighlight(
         shape,
@@ -198,6 +269,7 @@ export abstract class BaseBoard {
       );
     });
     this.spaceLayer.draw();
+    this.validPliesDetails = validPliesDetails;
   }
 
   public async update(options: IUpdateOptions): Promise<void> {
@@ -207,9 +279,9 @@ export abstract class BaseBoard {
     if (this.game.action === Action.SETUP && oldColor !== this.color) {
       this.pieceLayer.destroyChildren();
       this.terrainLayer.destroyChildren();
-      await this.addSetup(options.setupRequirements);
+      await this.addSetup();
     }
-    this.setupForContainer(options.setupRequirements);
+    this.setupForContainer(this.gameRules);
     this.stage.height(this.container.offsetHeight);
     this.stage.width(this.container.offsetWidth);
     this.spaceLayer.children.each((shape: Konva.Shape) => {
@@ -229,12 +301,12 @@ export abstract class BaseBoard {
       this.setTerrainFillPatternScale(shape);
     });
     if (this.game.action === Action.SETUP) {
-      this.markTerritories(
-        options.setupRequirements.territories,
-        options.color
-      );
+      this.markTerritories(options.gameRules.setupTerritories, options.color);
+    } else {
+      this.highlightLastPly();
     }
     this.spaceLayer.draw();
+    this.spaceCoordinateTextLayer.draw();
     this.pieceLayer.draw();
     this.terrainLayer.draw();
   }
@@ -262,9 +334,7 @@ export abstract class BaseBoard {
 
   protected abstract setSpaceSize(space: Konva.Shape): void;
 
-  protected abstract setupForContainer(
-    setupRequirements: IGameSetupRequirements
-  ): void;
+  protected abstract setupForContainer(gameRules: IGameRules): void;
 
   // Protected
 
@@ -303,6 +373,9 @@ export abstract class BaseBoard {
     image.draggable(true);
     image.setAttr("cyvassePiece", piece);
     image.setAttrs(konvaPositionalAttributes);
+    image.on("click", () => {
+      this.onPieceClick(image); // eslint-disable-line @typescript-eslint/no-floating-promises
+    });
     image.on("dragend", () => {
       this.onPieceDragEnd(image); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
@@ -346,6 +419,19 @@ export abstract class BaseBoard {
     });
   }
 
+  private getPieceAtCoordinate(coordinate: ICoordinate): IPiece {
+    const image = this.pieceLayer.children
+      .toArray()
+      .find((image: Konva.Image) => {
+        const pieceCoordinate = image.getAttr("cyvasseCoordinate");
+        return areCoordinatesEqual(coordinate, pieceCoordinate);
+      });
+    if (doesHaveValue(image)) {
+      return image.getAttr("cyvassePiece");
+    }
+    return null;
+  }
+
   private getNearestCoordinate(position: ICoordinate): ICoordinate {
     let matchingCoordinate = null;
     this.getAllCoordinates().forEach((coordinate) => {
@@ -385,6 +471,35 @@ export abstract class BaseBoard {
       x: column * setupSize + setupSize / 2 + this.padding,
       y: row * setupSize + setupSize / 2 + this.padding,
     };
+  }
+
+  private highlightLastPly(): void {
+    if (this.game.plies.length > 0) {
+      const lastPly = this.game.plies[this.game.plies.length - 1];
+      this.clearHighlight();
+      this.spaceLayer.children.each((shape: Konva.Shape) => {
+        const coordinate = shape.getAttr("cyvasseCoordinate");
+        if (areCoordinatesEqual(coordinate, lastPly.from)) {
+          this.toggleSpaceHighlight(shape, SpaceHighlight.LAST_PLY_MOVEMENT);
+        }
+        if (
+          doesHaveValue(lastPly.movement) &&
+          areCoordinatesEqual(coordinate, lastPly.movement.to)
+        ) {
+          this.toggleSpaceHighlight(shape, SpaceHighlight.LAST_PLY_MOVEMENT);
+        }
+        if (
+          doesHaveValue(lastPly.rangeCapture) &&
+          areCoordinatesEqual(coordinate, lastPly.rangeCapture.to)
+        ) {
+          this.toggleSpaceHighlight(
+            shape,
+            SpaceHighlight.LAST_PLY_RANGE_CAPTURE
+          );
+        }
+      });
+      this.spaceLayer.draw();
+    }
   }
 
   private async loadPieceImage(piece: IPiece): Promise<Konva.Image> {
@@ -429,8 +544,80 @@ export abstract class BaseBoard {
     this.spaceLayer.draw();
   }
 
+  private getPieceRule(pieceTypeId: PieceType): IGamePieceRule {
+    for (const pieceRule of this.gameRules.pieces) {
+      if (pieceRule.pieceTypeId === pieceTypeId) {
+        return pieceRule;
+      }
+    }
+    throw Error(`Piece rule not found for piece type id: ${pieceTypeId}`);
+  }
+
+  private async onPieceClick(image: Konva.Image): Promise<void> {
+    const coordinate: ICoordinate = image.getAttr("cyvasseCoordinate");
+    if (doesHaveValue(coordinate) && this.game.action === Action.PLAY) {
+      // If currently viewing range and clicked capturable square, attempt capture
+      if (
+        doesHaveValue(this.validPliesDetails) &&
+        this.validPliesDetails.evaluationType === CaptureType.RANGE &&
+        this.validPliesDetails.validPlies.capturable.some((c) =>
+          areCoordinatesEqual(c, coordinate)
+        )
+      ) {
+        const ply: IGamePly = {
+          piece: this.getPieceAtCoordinate(this.validPliesDetails.origin),
+          from: this.validPliesDetails.origin,
+          rangeCapture: {
+            to: coordinate,
+            capturedPiece: image.getAttr("cyvassePiece"),
+          },
+        };
+        const result = await this.gameCallbacks.onCreatePly(ply);
+        if (result) {
+          image.remove();
+          this.highlightLastPly();
+        }
+        return;
+      }
+
+      let evaluationType: CaptureType = null;
+
+      // Show range if currently viewing movement for a piece that captures by range
+      if (
+        doesHaveValue(this.validPliesDetails) &&
+        areCoordinatesEqual(this.validPliesDetails.origin, coordinate)
+      ) {
+        if (this.validPliesDetails.evaluationType === CaptureType.MOVEMENT) {
+          const pieceRule = this.getPieceRule(
+            image.getAttr("cyvassePiece").pieceTypeId
+          );
+          if (pieceRule.captureType === CaptureType.RANGE) {
+            evaluationType = CaptureType.RANGE;
+          }
+        }
+      } else {
+        evaluationType = CaptureType.MOVEMENT;
+      }
+
+      if (doesHaveValue(evaluationType)) {
+        const validPlies = await this.gameCallbacks.onGetValidPlies({
+          coordinate,
+          evaluationType,
+        });
+        this.highlightValidPlies({
+          origin: coordinate,
+          evaluationType,
+          validPlies,
+        });
+      } else {
+        this.validPliesDetails = null;
+        this.highlightLastPly();
+      }
+    }
+  }
+
   private async onPieceDragEnd(image: Konva.Image): Promise<void> {
-    const from = image.getAttr("cyvasseCoordinate");
+    const from: ICoordinate = image.getAttr("cyvasseCoordinate");
     const to = this.getNearestCoordinate(image.position());
     if (this.game.action === Action.SETUP) {
       if (doesHaveValue(from) || doesHaveValue(to)) {
@@ -452,6 +639,31 @@ export abstract class BaseBoard {
           }
         }
       }
+      this.resetShapePosition(image);
+    } else if (
+      this.game.action === Action.PLAY &&
+      this.color === this.game.actionTo &&
+      doesHaveValue(to)
+    ) {
+      // TODO stage ply if can move and range capture
+      const ply: IGamePly = {
+        piece: {
+          pieceTypeId: image.getAttr("cyvassePiece").pieceTypeId,
+          playerColor: this.color,
+        },
+        from,
+        movement: {
+          capturedPiece: this.getPieceAtCoordinate(to),
+          to,
+        },
+      };
+      const result = await this.gameCallbacks.onCreatePly(ply);
+      if (result) {
+        image.setAttrs({ cyvasseCoordinate: to });
+      }
+      this.resetShapePosition(image);
+      this.highlightLastPly();
+    } else {
       this.resetShapePosition(image);
     }
     this.pieceLayer.draw();
@@ -541,7 +753,7 @@ export abstract class BaseBoard {
     value: SpaceHighlight
   ): void {
     if (value === SpaceHighlight.NONE) {
-      shape.fill("#FFFFFF");
+      shape.fill("");
       shape.opacity(1);
     } else {
       shape.fill(value);

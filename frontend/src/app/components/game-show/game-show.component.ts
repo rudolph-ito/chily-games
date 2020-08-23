@@ -10,12 +10,16 @@ import {
   IGame,
   PlayerColor,
   Action,
-  IGameSetupRequirements,
+  IGameRules,
   IGameSetupChange,
-} from "src/app/shared/dtos/game";
+  IGamePlyEvent,
+  IGamePly,
+  IGetGameValidPliesRequest,
+  ValidPlies,
+} from "../../shared/dtos/game";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of, Subject, forkJoin } from "rxjs";
-import { IUser } from "src/app/shared/dtos/authentication";
+import { IUser } from "../../shared/dtos/authentication";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { IVariant } from "src/app/shared/dtos/variant";
 import { VariantService } from "src/app/services/variant.service";
@@ -29,6 +33,7 @@ import { debounceTime } from "rxjs/operators";
 import { UserService } from "src/app/services/user.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { Socket } from "ngx-socket-io";
 
 @Component({
   selector: "app-game-show",
@@ -38,7 +43,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 export class GameShowComponent implements OnInit {
   loading = false;
   game: IGame;
-  gameSetupRequirements: IGameSetupRequirements;
+  gameRules: IGameRules;
   variant: IVariant;
   user: IUser;
   alabasterUser: IUser;
@@ -56,7 +61,8 @@ export class GameShowComponent implements OnInit {
     private readonly variantService: VariantService,
     private readonly userService: UserService,
     private readonly snackBar: MatSnackBar,
-    private readonly ngZone: NgZone
+    private readonly ngZone: NgZone,
+    private readonly socket: Socket
   ) {
     this.resizeObservable
       .pipe(debounceTime(250))
@@ -64,27 +70,36 @@ export class GameShowComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.socket.emit("join-game", this.getGameId());
+    this.socket
+      .fromEvent<IGamePlyEvent>("game-ply")
+      .subscribe((gamePlyEvent) => {
+        this.game.action = gamePlyEvent.nextAction;
+        this.game.actionTo = gamePlyEvent.nextActionTo;
+        if (this.game.plies.length === gamePlyEvent.plyIndex) {
+          this.game.plies.push(gamePlyEvent.ply);
+          this.board.applyPly(gamePlyEvent.ply);
+        } else {
+          // TODO refresh with snackbar saying game out of date, refreshing
+          alert("Out of date. Please refresh");
+        }
+      });
     this.loading = true;
     this.gameService.get(this.getGameId()).subscribe((game) => {
       this.game = game;
       forkJoin({
         variant: this.variantService.get(game.variantId),
-        gameSetupRequirements:
-          this.game.action === Action.SETUP
-            ? this.gameService.getSetupRequirements(this.getGameId())
-            : of(null as IGameSetupRequirements),
+        gameRules: this.gameService.getRules(this.getGameId()),
         alabasterUser: this.userService.get(this.game.alabasterUserId),
         onyxUser: this.userService.get(this.game.onyxUserId),
-      }).subscribe(
-        ({ variant, gameSetupRequirements, alabasterUser, onyxUser }) => {
-          this.gameSetupRequirements = gameSetupRequirements;
-          this.variant = variant;
-          this.alabasterUser = alabasterUser;
-          this.onyxUser = onyxUser;
-          this.loading = false;
-          this.drawBoard();
-        }
-      );
+      }).subscribe(({ variant, gameRules, alabasterUser, onyxUser }) => {
+        this.gameRules = gameRules;
+        this.variant = variant;
+        this.alabasterUser = alabasterUser;
+        this.onyxUser = onyxUser;
+        this.loading = false;
+        this.drawBoard();
+      });
     });
     this.userObservable = this.authenticationService.getUserSubject();
     this.authenticationService.getUserSubject().subscribe((u) => {
@@ -118,7 +133,7 @@ export class GameShowComponent implements OnInit {
         boardRows: this.variant.boardRows,
         pieceRanks: this.variant.pieceRanks,
       },
-      setupRequirements: this.gameSetupRequirements,
+      gameRules: this.gameRules,
       gameCallbacks: {
         onUpdateSetup: async (setupChange: IGameSetupChange) => {
           return await new Promise((resolve, reject) => {
@@ -141,11 +156,40 @@ export class GameShowComponent implements OnInit {
               );
           });
         },
+        onCreatePly: async (ply: IGamePly) => {
+          return await new Promise((resolve, reject) => {
+            this.gameService.createPly(this.getGameId(), ply).subscribe(
+              () => resolve(true),
+              (errorResponse: HttpErrorResponse) => {
+                if (errorResponse.status === 422) {
+                  this.ngZone.run(() => {
+                    this.snackBar.open(errorResponse.error.general, null, {
+                      duration: 2500,
+                    });
+                  });
+                  resolve(false);
+                } else {
+                  reject(errorResponse);
+                }
+              }
+            );
+          });
+        },
+        onGetValidPlies: async (request: IGetGameValidPliesRequest) => {
+          return await new Promise((resolve, reject) => {
+            this.gameService.getValidPlies(this.getGameId(), request).subscribe(
+              (validPlies: ValidPlies) => resolve(validPlies),
+              (errorResponse: HttpErrorResponse) => reject(errorResponse)
+            );
+          });
+        },
       },
     });
     this.board.addSpaces(true);
     if (this.game.action === Action.SETUP) {
-      this.board.addSetup(this.gameSetupRequirements);
+      this.board.addSetup();
+    } else {
+      this.board.addCurrentSetup();
     }
     this.updateBoard();
   }
@@ -168,20 +212,22 @@ export class GameShowComponent implements OnInit {
       this.board.update({
         color: this.getPlayerColor(),
         game: this.game,
-        setupRequirements: this.gameSetupRequirements,
+        gameRules: this.gameRules,
       });
     }
   }
 
   getPlayerName(isHeader: boolean): string {
-    let headerUser = this.onyxUser;
-    let footerUser = this.alabasterUser;
-    if (this.getPlayerColor() === PlayerColor.ONYX) {
-      headerUser = this.alabasterUser;
-      footerUser = this.onyxUser;
+    let isAlabaster = true;
+    if (isHeader) {
+      isAlabaster = this.getPlayerColor() === PlayerColor.ONYX;
+    } else {
+      isAlabaster = this.getPlayerColor() !== PlayerColor.ONYX;
     }
-    const user = isHeader ? headerUser : footerUser;
-    return user.username;
+    if (isAlabaster) {
+      return `Alabaster (${this.alabasterUser.username})`;
+    }
+    return `Onyx (${this.onyxUser.username})`;
   }
 
   getGameId(): number {
@@ -190,5 +236,61 @@ export class GameShowComponent implements OnInit {
 
   onResize(): void {
     this.resizeObservable.next(true);
+  }
+
+  canCompleteSetup(): boolean {
+    return (
+      doesHaveValue(this.getPlayerColor()) &&
+      this.game.action === Action.SETUP &&
+      (doesNotHaveValue(this.game.actionTo) ||
+        this.game.actionTo === this.getPlayerColor())
+    );
+  }
+
+  onCompleteSetup(): void {
+    this.gameService.completeSetup(this.getGameId()).subscribe(
+      () => {
+        this.gameService.get(this.getGameId()).subscribe((game) => {
+          this.game = game;
+        });
+      },
+      (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.ngZone.run(() => {
+            this.snackBar.open(errorResponse.error.general, null, {
+              duration: 2500,
+            });
+          });
+        }
+      }
+    );
+  }
+
+  getGameStatus(): string {
+    if (this.game.action === Action.SETUP) {
+      if (doesNotHaveValue(this.game.actionTo)) {
+        return "Both players setting up";
+      } else {
+        return `${this.game.actionTo} setting up`;
+      }
+    } else if (this.game.action === Action.PLAY) {
+      return `${this.game.actionTo} to play`;
+    } else if (this.game.action === Action.COMPLETE) {
+      return `${this.game.actionTo} has been defeated`;
+    }
+    return "TODO";
+  }
+
+  isActionTo(isHeader: boolean): boolean {
+    let isAlabaster = true;
+    if (isHeader) {
+      isAlabaster = this.getPlayerColor() === PlayerColor.ONYX;
+    } else {
+      isAlabaster = this.getPlayerColor() !== PlayerColor.ONYX;
+    }
+    if (isAlabaster) {
+      return this.game.actionTo === PlayerColor.ALABASTER;
+    }
+    return this.game.actionTo === PlayerColor.ONYX;
   }
 }

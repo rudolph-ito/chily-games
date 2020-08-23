@@ -1,5 +1,4 @@
 import { describe, it } from "mocha";
-import { createExpressApp } from "./";
 import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
@@ -10,6 +9,8 @@ import {
   createTestVariant,
   createTestCredentials,
   createTestPieceRule,
+  createTestServer,
+  ITestServer,
 } from "../../test/test_helper";
 import supertest from "supertest";
 import {
@@ -25,14 +26,18 @@ import HttpStatus from "http-status-codes";
 
 describe("PieceRuleRoutes", () => {
   resetDatabaseBeforeEach();
-  const app = createExpressApp({
-    corsOrigins: [],
-    sessionCookieSecure: false,
-    sessionSecret: "test",
-  });
+  let testServer: ITestServer;
   let creatorCredentials: IUserCredentials;
   let creatorId: number;
   let variantId: number;
+
+  before(() => {
+    testServer = createTestServer();
+  });
+
+  after(async () => {
+    await testServer.quit();
+  });
 
   beforeEach(async () => {
     creatorCredentials = createTestCredentials("test");
@@ -56,7 +61,7 @@ describe("PieceRuleRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .post(`/api/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -66,7 +71,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -79,7 +84,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -101,7 +106,7 @@ describe("PieceRuleRoutes", () => {
 
     it("on success, returns created object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -126,7 +131,7 @@ describe("PieceRuleRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .delete(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -135,7 +140,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -147,7 +152,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -159,7 +164,7 @@ describe("PieceRuleRoutes", () => {
 
     it("on success, deletes the object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -177,7 +182,7 @@ describe("PieceRuleRoutes", () => {
   describe("get piece rules (GET /api/variants/:variantId/pieceRules)", () => {
     it("with default piece rules, returns the king piece rule", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -194,7 +199,7 @@ describe("PieceRuleRoutes", () => {
       // Arrange
       await createTestPieceRule(PieceType.RABBLE, variantId);
       await createTestPieceRule(PieceType.SPEAR, variantId);
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -234,7 +239,7 @@ describe("PieceRuleRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .put(`/api/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -244,7 +249,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -257,7 +262,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -270,7 +275,7 @@ describe("PieceRuleRoutes", () => {
 
     it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -292,7 +297,7 @@ describe("PieceRuleRoutes", () => {
 
     it("on success, returns the updated object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent

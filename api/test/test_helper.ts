@@ -21,8 +21,40 @@ import { TerrainRuleDataService } from "../src/services/data/terrain_rule_data_s
 import { ChallengePlayAs } from "../src/shared/dtos/challenge";
 import { ChallengeDataService } from "../src/services/data/challenge_data_service";
 import HttpStatus from "http-status-codes";
+import { createExpressApp } from "../src/controllers";
+import express from "express";
+import { createClient } from "redis";
+import { promisify } from "util";
 
 chai.use(dirtyChai);
+
+export interface ITestServer {
+  app: express.Express;
+  quit: () => Promise<void>;
+}
+
+export function createTestServer(): ITestServer {
+  const publishRedisClient = createClient({ host: "localhost", port: 6379 });
+  const sessionStoreRedisClient = createClient({
+    host: "localhost",
+    port: 6379,
+  });
+  return {
+    app: createExpressApp({
+      corsOrigins: [],
+      publishRedisClient,
+      sessionCookieSecure: false,
+      sessionSecret: "test",
+      sessionStoreRedisClient,
+    }),
+    quit: async (): Promise<void> => {
+      await Promise.all([
+        promisify(publishRedisClient.quit.bind(publishRedisClient))(),
+        promisify(sessionStoreRedisClient.quit.bind(sessionStoreRedisClient))(),
+      ]);
+    },
+  };
+}
 
 export function resetDatabaseBeforeEach(): void {
   beforeEach(async () => {

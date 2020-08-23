@@ -1,5 +1,4 @@
 import { describe, it } from "mocha";
-import { createExpressApp } from ".";
 import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
@@ -10,6 +9,8 @@ import {
   createTestVariant,
   createTestCredentials,
   createTestTerrainRule,
+  createTestServer,
+  ITestServer,
 } from "../../test/test_helper";
 import supertest from "supertest";
 import {
@@ -24,14 +25,18 @@ import HttpStatus from "http-status-codes";
 
 describe("TerrainRuleRoutes", () => {
   resetDatabaseBeforeEach();
-  const app = createExpressApp({
-    corsOrigins: [],
-    sessionCookieSecure: false,
-    sessionSecret: "test",
-  });
+  let testServer: ITestServer;
   let creatorCredentials: IUserCredentials;
   let creatorId: number;
   let variantId: number;
+
+  before(() => {
+    testServer = createTestServer();
+  });
+
+  after(async () => {
+    await testServer.quit();
+  });
 
   beforeEach(async () => {
     creatorCredentials = createTestCredentials("test");
@@ -65,7 +70,7 @@ describe("TerrainRuleRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .post(`/api/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -75,7 +80,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -88,7 +93,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -121,7 +126,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("on success, returns created object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -149,7 +154,7 @@ describe("TerrainRuleRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .delete(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -158,7 +163,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -170,7 +175,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -182,7 +187,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("on success, deletes the object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -200,7 +205,7 @@ describe("TerrainRuleRoutes", () => {
   describe("get terrain rules (GET /api/variants/:variantId/terrainRules)", () => {
     it("with default terrain rules, returns the king terrain rule", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -217,7 +222,7 @@ describe("TerrainRuleRoutes", () => {
       // Arrange
       await createTestTerrainRule(TerrainType.FOREST, variantId);
       await createTestTerrainRule(TerrainType.MOUNTAIN, variantId);
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -269,7 +274,7 @@ describe("TerrainRuleRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .put(`/api/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -279,7 +284,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -292,7 +297,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -305,7 +310,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -338,7 +343,7 @@ describe("TerrainRuleRoutes", () => {
 
     it("on success, returns the updated object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent

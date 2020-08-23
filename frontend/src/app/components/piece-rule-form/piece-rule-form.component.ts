@@ -38,6 +38,10 @@ interface IPieceRuleFormControls {
   moveAndRangeCapture: FormControl;
 }
 
+interface IPieceRuleBoardPreviewControls {
+  evaluationType: FormControl;
+}
+
 @Component({
   selector: "app-piece-rule-form",
   templateUrl: "./piece-rule-form.component.html",
@@ -59,6 +63,10 @@ export class PieceRuleFormComponent implements OnInit {
     rangeMinimum: new FormControl(),
     rangeMaximum: new FormControl(),
     moveAndRangeCapture: new FormControl(),
+  };
+
+  boardPreviewControls: IPieceRuleBoardPreviewControls = {
+    evaluationType: new FormControl(CaptureType.MOVEMENT),
   };
 
   generalError: string;
@@ -97,18 +105,19 @@ export class PieceRuleFormComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.controls.pieceTypeId.valueChanges.subscribe(
-      this.drawPreview.bind(this)
-    );
-    this.controls.movementType.valueChanges.subscribe(
-      this.drawPreview.bind(this)
-    );
-    this.controls.movementMinimum.valueChanges.subscribe(
-      this.drawPreview.bind(this)
-    );
-    this.controls.movementMaximum.valueChanges.subscribe(
-      this.drawPreview.bind(this)
-    );
+    const formControlsTriggeringPreviewUpdate: FormControl[] = [
+      this.controls.pieceTypeId,
+      this.controls.movementType,
+      this.controls.movementMinimum,
+      this.controls.movementMaximum,
+      this.controls.rangeType,
+      this.controls.rangeMinimum,
+      this.controls.rangeMaximum,
+      this.boardPreviewControls.evaluationType,
+    ];
+    formControlsTriggeringPreviewUpdate.forEach((formControl) => {
+      formControl.valueChanges.subscribe(this.drawPreview.bind(this));
+    });
     this.variantService.get(this.getVariantId()).subscribe((variant) => {
       this.board = buildBoard({
         element: this.boardContainer.nativeElement,
@@ -134,8 +143,12 @@ export class PieceRuleFormComponent implements OnInit {
     ) {
       return;
     }
+    let evaluationType = CaptureType.MOVEMENT;
+    if (this.controls.captureType.value === CaptureType.RANGE) {
+      evaluationType = this.boardPreviewControls.evaluationType.value;
+    }
     this.variantService
-      .previewPieceRule(this.getVariantId(), CaptureType.MOVEMENT, request)
+      .previewPieceRule(this.getVariantId(), evaluationType, request)
       .subscribe((result) => {
         this.board.addPieceAtCoordinate(
           {
@@ -144,7 +157,11 @@ export class PieceRuleFormComponent implements OnInit {
           },
           result.origin
         );
-        this.board.highlightValidPlies(result.validPlies);
+        this.board.highlightValidPlies({
+          origin: result.origin,
+          evaluationType,
+          validPlies: result.validPlies,
+        });
       });
   }
 

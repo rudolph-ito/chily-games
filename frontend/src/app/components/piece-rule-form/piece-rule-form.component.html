@@ -69,8 +69,14 @@
     <mat-checkbox *ngIf="isCaptureTypeRange()" [formControl]="controls.moveAndRangeCapture">Move and range capture</mat-checkbox>
   </div>
   <div class="board-preview-wrapper">
-    <div class="title">Movement Preview</div>
+    <div class="title">Movement / Range Preview</div>
     <div class="container" #boardContainer></div>
+    <div class="board-preview-inputs">
+      <mat-radio-group *ngIf="isCaptureTypeRange()" [formControl]="boardPreviewControls.evaluationType">
+        <mat-radio-button value="movement">Movement</mat-radio-button>
+        <mat-radio-button value="range">Range</mat-radio-button>
+      </mat-radio-group>
+    </div>
   </div>
 </div>
 

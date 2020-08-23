@@ -64,6 +64,10 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
       evaluationType: CaptureType.MOVEMENT,
     });
     if (doesHaveValue(options.ply.movement.capturedPiece)) {
+      const pieceRule = options.pieceRuleMap.get(options.ply.piece.pieceTypeId);
+      if (pieceRule.captureType !== CaptureType.MOVEMENT) {
+        return "Movement - piece cannot capture by movement";
+      }
       const existingPiece = options.coordinateMap.getPiece(
         options.ply.movement.to
       );

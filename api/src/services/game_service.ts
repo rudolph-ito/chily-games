@@ -6,8 +6,11 @@ import {
   ISearchGamesRequest,
   Action,
   PlayerColor,
-  IGameSetupRequirements,
   IGameSetupTerritories,
+  IGamePlyEvent,
+  ValidPlies,
+  IGetGameValidPliesRequest,
+  IGameRules,
 } from "../shared/dtos/game";
 import {
   IGameDataService,
@@ -42,11 +45,16 @@ import { PieceType, IPieceRule } from "../shared/dtos/piece_rule";
 import { TerrainType, ITerrainRule } from "../shared/dtos/terrain_rule";
 import { validateGameSetupComplete } from "./validators/game_setup_complete_validator";
 import { validateGamePly } from "./validators/game_ply_validator";
+import { PlyCalculator } from "./game/ply_calculator";
 
 export interface IGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
   getGame: (userId: number, gameId: number) => Promise<IGame>;
-  getGameSetupRequirements: (gameId: number) => Promise<IGameSetupRequirements>;
+  getGameRules: (gameId: number) => Promise<IGameRules>;
+  getValidPlies: (
+    gameId: number,
+    request: IGetGameValidPliesRequest
+  ) => Promise<ValidPlies>;
   updateGameSetup: (
     userId: number,
     gameId: number,
@@ -57,7 +65,7 @@ export interface IGameService {
     userId: number,
     gameId: number,
     ply: IGamePly
-  ) => Promise<void>;
+  ) => Promise<IGamePlyEvent>;
   resignGame: (userId: number, gameId: number) => Promise<void>;
   searchGames: (
     request: ISearchGamesRequest
@@ -88,16 +96,14 @@ export class GameService implements IGameService {
     return game;
   }
 
-  async getGameSetupRequirements(
-    gameId: number
-  ): Promise<IGameSetupRequirements> {
+  async getGameRules(gameId: number): Promise<IGameRules> {
     const game = await this.gameDataService.getGame(gameId);
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
     }
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
-    const territories: IGameSetupTerritories = {
+    const setupTerritories: IGameSetupTerritories = {
       alabaster: [],
       neutral: [],
       onyx: [],
@@ -105,11 +111,11 @@ export class GameService implements IGameService {
     board.getAllCoordinates().forEach((c) => {
       const territoryOwner = board.getSetupTerritoryOwner(c);
       if (territoryOwner === PlayerColor.ALABASTER) {
-        territories.alabaster.push(c);
+        setupTerritories.alabaster.push(c);
       } else if (territoryOwner === PlayerColor.ONYX) {
-        territories.onyx.push(c);
+        setupTerritories.onyx.push(c);
       } else {
-        territories.neutral.push(c);
+        setupTerritories.neutral.push(c);
       }
     });
     const pieceRules = await this.pieceRuleDataService.getPieceRules(
@@ -122,13 +128,36 @@ export class GameService implements IGameService {
       pieces: pieceRules.map((pr) => ({
         pieceTypeId: pr.pieceTypeId,
         count: pr.count,
+        captureType: pr.captureType,
+        moveAndRangeCapture: pr.moveAndRangeCapture,
       })),
       terrains: terrainRules.map((tr) => ({
         terrainTypeId: tr.terrainTypeId,
         count: tr.count,
       })),
-      territories,
+      setupTerritories,
     };
+  }
+
+  async getValidPlies(
+    gameId: number,
+    request: IGetGameValidPliesRequest
+  ): Promise<ValidPlies> {
+    const game = await this.gameDataService.getGame(gameId);
+    if (doesNotHaveValue(game)) {
+      this.throwGameNotFoundError(gameId);
+    }
+    const variant = await this.variantDataService.getVariant(game.variantId);
+    const board = getBoardForVariant(variant);
+    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    coordinateMap.deserialize(game.currentCoordinateMap);
+    const plyCalculator = new PlyCalculator({
+      coordinateMap,
+      pieceRuleMap: await this.getPieceRuleMap(game.variantId),
+      terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
+      variant: variant,
+    });
+    return plyCalculator.getValidPlies(request);
   }
 
   async abortGame(userId: number, gameId: number): Promise<void> {
@@ -260,7 +289,7 @@ export class GameService implements IGameService {
     userId: number,
     gameId: number,
     ply: IGamePly
-  ): Promise<void> {
+  ): Promise<IGamePlyEvent> {
     const game = await this.gameDataService.getGame(gameId);
     if (doesNotHaveValue(game)) {
       this.throwGameNotFoundError(gameId);
@@ -291,7 +320,7 @@ export class GameService implements IGameService {
     if (doesHaveValue(ply.rangeCapture)) {
       coordinateMap.deletePiece(ply.rangeCapture.to);
     }
-    const actionTo =
+    const nextActionTo =
       game.alabasterUserId === userId
         ? PlayerColor.ONYX
         : PlayerColor.ALABASTER;
@@ -299,15 +328,23 @@ export class GameService implements IGameService {
       .serialize()
       .some(
         ({ value }) =>
+          doesHaveValue(value.piece) &&
           value.piece.pieceTypeId === PieceType.KING &&
-          value.piece.playerColor === actionTo
+          value.piece.playerColor === nextActionTo
       );
+    const nextAction = actionToHasKing ? Action.PLAY : Action.COMPLETE;
     await this.gameDataService.updateGame(gameId, {
-      action: actionToHasKing ? Action.PLAY : Action.COMPLETE,
-      actionTo,
+      action: nextAction,
+      actionTo: nextActionTo,
       plies: game.plies.concat([ply]),
       currentCoordinateMap: coordinateMap.serialize(),
     });
+    return {
+      nextAction,
+      nextActionTo,
+      plyIndex: game.plies.length,
+      ply,
+    };
   }
 
   async resignGame(userId: number, gameId: number): Promise<void> {

@@ -6,8 +6,9 @@ import {
   IUserCredentials,
   loginTestUser,
   createAndLoginTestUser,
+  createTestServer,
+  ITestServer,
 } from "../../test/test_helper";
-import { createExpressApp } from ".";
 import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
 import { GameDataService } from "../services/data/game_data_service";
@@ -24,16 +25,20 @@ import {
 
 describe("GameRoutes", () => {
   resetDatabaseBeforeEach();
-  const app = createExpressApp({
-    corsOrigins: [],
-    sessionCookieSecure: false,
-    sessionSecret: "test",
-  });
+  let testServer: ITestServer;
   let user1Credentials: IUserCredentials;
   let user1Id: number;
   let user2Credentials: IUserCredentials;
   let user2Id: number;
   let variantId: number;
+
+  before(() => {
+    testServer = createTestServer();
+  });
+
+  after(async () => {
+    await testServer.quit();
+  });
 
   beforeEach(async () => {
     user1Credentials = createTestCredentials("user1");
@@ -46,7 +51,7 @@ describe("GameRoutes", () => {
   describe("get game (GET /api/games/:gameId)", () => {
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent.get(`/api/games/999`).expect(HttpStatus.NOT_FOUND);
@@ -81,7 +86,7 @@ describe("GameRoutes", () => {
 
       it("on success for alabaster user, returns only the alabaster setup", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
 
         // Act
         const response = await agent
@@ -107,7 +112,7 @@ describe("GameRoutes", () => {
 
       it("on success for onyx user, returns only the onyx setup", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user2Credentials);
+        const agent = await loginTestUser(testServer.app, user2Credentials);
 
         // Act
         const response = await agent
@@ -133,7 +138,7 @@ describe("GameRoutes", () => {
 
       it("on success for spectator, returns no setup", async () => {
         // Arrange
-        const { agent } = await createAndLoginTestUser(app, "user3");
+        const { agent } = await createAndLoginTestUser(testServer.app, "user3");
 
         // Act
         const response = await agent
@@ -152,7 +157,7 @@ describe("GameRoutes", () => {
   describe("update game setup (POST /api/games/:gameId/updateSetup)", () => {
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent
@@ -177,7 +182,7 @@ describe("GameRoutes", () => {
 
       it("on success for alabaster user, updates", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
         const request: IGameSetupChange = {
           pieceChange: {
             pieceTypeId: PieceType.KING,
@@ -211,7 +216,7 @@ describe("GameRoutes", () => {
   describe("complete game setup (POST /api/games/:gameId/completeSetup)", () => {
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent
@@ -242,7 +247,7 @@ describe("GameRoutes", () => {
 
       it("on success, updates state", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
 
         // Act
         await agent
@@ -284,7 +289,7 @@ describe("GameRoutes", () => {
 
       it("on success, updates state", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
 
         // Act
         await agent
@@ -322,7 +327,7 @@ describe("GameRoutes", () => {
   describe("create game ply (POST /api/games/:gameId/createPly)", () => {
     it("if not found, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, user1Credentials);
+      const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
       await agent.post(`/api/games/999/createPly`).expect(HttpStatus.NOT_FOUND);
@@ -359,7 +364,7 @@ describe("GameRoutes", () => {
 
       it("on success, updates state", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user1Credentials);
+        const agent = await loginTestUser(testServer.app, user1Credentials);
         const request: IGamePly = {
           piece: {
             pieceTypeId: PieceType.KING,
@@ -444,7 +449,7 @@ describe("GameRoutes", () => {
 
       it("on success, updates state", async () => {
         // Arrange
-        const agent = await loginTestUser(app, user2Credentials);
+        const agent = await loginTestUser(testServer.app, user2Credentials);
         const request: IGamePly = {
           piece: { pieceTypeId: PieceType.KING, playerColor: PlayerColor.ONYX },
           from: { x: 0, y: 1 },

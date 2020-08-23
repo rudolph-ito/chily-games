@@ -168,6 +168,30 @@ describe("validateGamePly", () => {
     expect(error).to.eql(null);
   });
 
+  it("returns error on movement capture when capture by range", () => {
+    // Arrange
+    const options = getBaseTestOptions({
+      piece: {
+        pieceTypeId: PieceType.CROSSBOW,
+        playerColor: PlayerColor.ALABASTER,
+      },
+      from: { x: 0, y: 1 },
+      movement: {
+        to: { x: 0, y: 0 },
+        capturedPiece: {
+          pieceTypeId: PieceType.KING,
+          playerColor: PlayerColor.ONYX,
+        },
+      },
+    });
+
+    // Act
+    const error = validateGamePly(options);
+
+    // Assert
+    expect(error).to.eql("Movement - piece cannot capture by movement");
+  });
+
   it("returns null on happy path range capture", () => {
     // Arrange
     const options = getBaseTestOptions({

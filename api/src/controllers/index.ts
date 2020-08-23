@@ -19,18 +19,28 @@ import { getChallengeRouter } from "./challenge";
 import HttpStatus from "http-status-codes";
 import { getGameRouter } from "./game";
 import { getUserRouter } from "./user";
+import newSocketIoServer from "socket.io";
+import newSocketIoRedisAdapter from "socket.io-redis";
+import { RedisClient } from "redis";
+import connectRedis from "connect-redis";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
+const RedisStore = connectRedis(expressSession);
 
 export interface ICreateExpressAppOptions {
   corsOrigins: string[];
+  publishRedisClient: RedisClient;
   sessionCookieSecure: boolean;
   sessionSecret: string;
+  sessionStoreRedisClient: RedisClient;
 }
+
+export type RedisClientBuilder = () => RedisClient;
 
 export interface IStartServerOptions {
   corsOrigins: string[];
   port: number;
+  redisClientBuilder: RedisClientBuilder;
   sessionCookieSecure: boolean;
   sessionSecret: string;
   shouldLog: boolean;
@@ -45,6 +55,7 @@ function errorHandler(): express.ErrorRequestHandler {
     } else if (err instanceof ValidationError) {
       res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(err.errors);
     } else {
+      console.error(err.stack);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err.stack });
     }
   };
@@ -63,6 +74,7 @@ export function createExpressApp(
       resave: false,
       saveUninitialized: false,
       secret: options.sessionSecret,
+      store: new RedisStore({ client: options.sessionStoreRedisClient }),
     })
   );
   if (options.corsOrigins.length > 0) {
@@ -82,21 +94,47 @@ export function createExpressApp(
     getTerrainRulesRouter(authenticationRequired)
   );
   app.use("/api/challenges", getChallengeRouter(authenticationRequired));
-  app.use("/api/games", getGameRouter(authenticationRequired));
+  app.use(
+    "/api/games",
+    getGameRouter(authenticationRequired, options.publishRedisClient)
+  );
   app.use("/api/users", getUserRouter());
   app.use(errorHandler());
   return app;
 }
 
 export function startServer(options: IStartServerOptions): Server {
-  const app = createExpressApp(options);
+  const publishRedisClient = options.redisClientBuilder();
+  const subscribeRedisClient = options.redisClientBuilder();
+  const sessionStoreRedisClient = options.redisClientBuilder();
+  const app = createExpressApp({
+    corsOrigins: options.corsOrigins,
+    publishRedisClient,
+    sessionCookieSecure: options.sessionCookieSecure,
+    sessionSecret: options.sessionSecret,
+    sessionStoreRedisClient,
+  });
   const serverOptions = {
     key: readFileSync(pathJoin(certsDir, "server.key")),
     cert: readFileSync(pathJoin(certsDir, "server.cert")),
   };
-  return createServer(serverOptions, app).listen(options.port, () => {
+  const server = createServer(serverOptions, app);
+  const socketIoServer = newSocketIoServer(server);
+  socketIoServer.adapter(
+    newSocketIoRedisAdapter({
+      pubClient: publishRedisClient,
+      subClient: subscribeRedisClient,
+    })
+  );
+  socketIoServer.on("connection", (socket) => {
+    socket.on("join-game", (gameId: number) => {
+      socket.join(`game-${gameId}`);
+    });
+  });
+  server.listen(options.port, () => {
     if (options.shouldLog) {
       console.log(`App listening on port ${options.port}!`);
     }
   });
+  return server;
 }

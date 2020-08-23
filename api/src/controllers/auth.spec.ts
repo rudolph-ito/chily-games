@@ -1,17 +1,24 @@
 import { describe, it } from "mocha";
-import { createExpressApp } from "./";
 import { expect } from "chai";
-import { resetDatabaseBeforeEach } from "../../test/test_helper";
+import {
+  resetDatabaseBeforeEach,
+  createTestServer,
+  ITestServer,
+} from "../../test/test_helper";
 import supertest from "supertest";
 import { User } from "../database/models";
 import HttpStatus from "http-status-codes";
 
 describe("AuthRoutes", () => {
   resetDatabaseBeforeEach();
-  const app = createExpressApp({
-    corsOrigins: [],
-    sessionCookieSecure: false,
-    sessionSecret: "test",
+  let testServer: ITestServer;
+
+  before(() => {
+    testServer = createTestServer();
+  });
+
+  after(async () => {
+    await testServer.quit();
   });
 
   describe("accessing protected routes while not logged in", () => {
@@ -19,7 +26,7 @@ describe("AuthRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .get("/api/auth/user")
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -30,7 +37,7 @@ describe("AuthRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .delete("/api/auth/logout")
         .expect(HttpStatus.UNAUTHORIZED);
 
@@ -48,7 +55,7 @@ describe("AuthRoutes", () => {
       await user.save();
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .post("/api/auth/login")
         .send({ username, password: "wrong" })
         .expect(HttpStatus.UNAUTHORIZED);
@@ -60,7 +67,7 @@ describe("AuthRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .post("/api/auth/login")
         .send({ username: "non-existant", password: "wrong" })
         .expect(HttpStatus.UNAUTHORIZED);
@@ -78,7 +85,7 @@ describe("AuthRoutes", () => {
         user.setPassword(password);
         await user.save();
 
-        agent = supertest.agent(app);
+        agent = supertest.agent(testServer.app);
         await agent
           .post("/api/auth/login")
           .send({ username, password })
@@ -120,7 +127,7 @@ describe("AuthRoutes", () => {
       user.setPassword(password);
       await user.save();
 
-      const agent = supertest.agent(app);
+      const agent = supertest.agent(testServer.app);
       await agent
         .post("/api/auth/login")
         .send({ username, password })
@@ -143,7 +150,7 @@ describe("AuthRoutes", () => {
       // Arrange
 
       // Act
-      const response = await supertest(app)
+      const response = await supertest(testServer.app)
         .post("/api/auth/register")
         .send({ username: "", password: "", passwordConfirmation: "" })
         .set("Accept", "application/json")
@@ -161,7 +168,7 @@ describe("AuthRoutes", () => {
       // Arrange
       const username = "test";
       const password = "strong enough";
-      const agent = supertest.agent(app);
+      const agent = supertest.agent(testServer.app);
 
       // Act
       await agent

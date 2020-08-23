@@ -1,5 +1,4 @@
 import { describe, it } from "mocha";
-import { createExpressApp } from "./";
 import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
@@ -9,6 +8,8 @@ import {
   createAndLoginTestUser,
   createTestVariant,
   createTestCredentials,
+  createTestServer,
+  ITestServer,
 } from "../../test/test_helper";
 import supertest from "supertest";
 import { IVariantOptions, BoardType } from "../shared/dtos/variant";
@@ -26,10 +27,14 @@ import HttpStatus from "http-status-codes";
 
 describe("VariantRoutes", () => {
   resetDatabaseBeforeEach();
-  const app = createExpressApp({
-    corsOrigins: [],
-    sessionCookieSecure: false,
-    sessionSecret: "test",
+  let testServer: ITestServer;
+
+  before(() => {
+    testServer = createTestServer();
+  });
+
+  after(async () => {
+    await testServer.quit();
   });
 
   describe("get all variants (GET /api/variants)", () => {
@@ -37,7 +42,7 @@ describe("VariantRoutes", () => {
       // Arrange
 
       // Act
-      const response = await supertest(app)
+      const response = await supertest(testServer.app)
         .post("/api/variants/search")
         .send({ pagination: { pageIndex: 0, pageSize: 100 } })
         .expect(HttpStatus.OK);
@@ -61,7 +66,7 @@ describe("VariantRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .post("/api/variants")
         .send(validRequest)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -71,7 +76,7 @@ describe("VariantRoutes", () => {
 
     it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app);
+      const { agent } = await createAndLoginTestUser(testServer.app);
 
       // Act
       const response = await agent
@@ -87,7 +92,7 @@ describe("VariantRoutes", () => {
 
     it("on success, returns created object", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app);
+      const { agent } = await createAndLoginTestUser(testServer.app);
 
       // Act
       const response = await agent
@@ -122,7 +127,7 @@ describe("VariantRoutes", () => {
       // Arrange
 
       // Act
-      await supertest(app)
+      await supertest(testServer.app)
         .put(`/api/variants/${variantId}`)
         .send(updatedOptions)
         .expect(HttpStatus.UNAUTHORIZED);
@@ -132,7 +137,7 @@ describe("VariantRoutes", () => {
 
     it("if logged in as non-creator, returns Forbidden", async () => {
       // Arrange
-      const { agent } = await createAndLoginTestUser(app, "user2");
+      const { agent } = await createAndLoginTestUser(testServer.app, "user2");
 
       // Act
       await agent
@@ -145,7 +150,7 @@ describe("VariantRoutes", () => {
 
     it("if invalid variant id, returns Not Found", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       await agent
@@ -158,7 +163,7 @@ describe("VariantRoutes", () => {
 
     it("if validation errors, returns Unprocessable Entity", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -174,7 +179,7 @@ describe("VariantRoutes", () => {
 
     it("on success, returns created object", async () => {
       // Arrange
-      const agent = await loginTestUser(app, creatorCredentials);
+      const agent = await loginTestUser(testServer.app, creatorCredentials);
 
       // Act
       const response = await agent
@@ -213,7 +218,7 @@ describe("VariantRoutes", () => {
       };
 
       // Act
-      const response = await supertest(app)
+      const response = await supertest(testServer.app)
         .post(`/api/variants/${variantId}/preview/pieceRule`)
         .send(request)
         .expect(HttpStatus.OK);

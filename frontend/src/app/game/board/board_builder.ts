@@ -2,11 +2,7 @@ import { BoardType, IVariantOptions } from "../../shared/dtos/variant";
 import { HexagonalBoard } from "./hexagonal_board";
 import { SquareBoard } from "./square_board";
 import { BaseBoard, IGameCallbacks } from "./base_board";
-import {
-  PlayerColor,
-  IGameSetupRequirements,
-  IGame,
-} from "../../shared/dtos/game";
+import { PlayerColor, IGame, IGameRules } from "../../shared/dtos/game";
 
 export interface IBuildBoardOptions {
   element: HTMLDivElement;
@@ -14,7 +10,7 @@ export interface IBuildBoardOptions {
   variant: IVariantOptions;
   game?: IGame;
   gameCallbacks?: IGameCallbacks;
-  setupRequirements?: IGameSetupRequirements;
+  gameRules?: IGameRules;
 }
 
 export function buildBoard(options: IBuildBoardOptions): BaseBoard {

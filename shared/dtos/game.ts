@@ -64,6 +64,11 @@ export interface IPreviewPieceRuleResponse {
   validPlies: ValidPlies;
 }
 
+export interface IGetGameValidPliesRequest {
+  coordinate: ICoordinate;
+  evaluationType: CaptureType;
+}
+
 export interface IGamePlyMovement {
   to: ICoordinate;
   capturedPiece?: IPiece;
@@ -81,6 +86,13 @@ export interface IGamePly {
   rangeCapture?: IGamePlyRangeCapture;
 }
 
+export interface IGamePlyEvent {
+  nextAction: Action;
+  nextActionTo: PlayerColor;
+  ply: IGamePly;
+  plyIndex: number;
+}
+
 export interface IGame {
   gameId: number;
   variantId: number;
@@ -94,12 +106,14 @@ export interface IGame {
   plies: IGamePly[];
 }
 
-export interface IGameSetupPieceRequirement {
+export interface IGamePieceRule {
   pieceTypeId: PieceType;
   count: number;
+  captureType: CaptureType;
+  moveAndRangeCapture: boolean;
 }
 
-export interface IGameSetupTerrainRequirement {
+export interface IGameTerrainRule {
   terrainTypeId: TerrainType;
   count: number;
 }
@@ -110,10 +124,10 @@ export interface IGameSetupTerritories {
   onyx: ICoordinate[];
 }
 
-export interface IGameSetupRequirements {
-  pieces: IGameSetupPieceRequirement[];
-  terrains: IGameSetupTerrainRequirement[];
-  territories: IGameSetupTerritories;
+export interface IGameRules {
+  pieces: IGamePieceRule[];
+  terrains: IGameTerrainRule[];
+  setupTerritories: IGameSetupTerritories;
 }
 
 export interface ISearchGamesRequest {

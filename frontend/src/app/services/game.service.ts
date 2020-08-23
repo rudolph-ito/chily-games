@@ -6,7 +6,9 @@ import {
   IGameSetupChange,
   IGamePly,
   ISearchGamesRequest,
-  IGameSetupRequirements,
+  IGameRules,
+  IGetGameValidPliesRequest,
+  ValidPlies,
 } from "../shared/dtos/game";
 import { IPaginatedResponse } from "../shared/dtos/search";
 
@@ -20,9 +22,17 @@ export class GameService {
     return this.http.get<IGame>(this.getRoutePrefix(gameId));
   }
 
-  getSetupRequirements(gameId: number): Observable<IGameSetupRequirements> {
-    return this.http.get<IGameSetupRequirements>(
-      `${this.getRoutePrefix(gameId)}/setupRequirements`
+  getRules(gameId: number): Observable<IGameRules> {
+    return this.http.get<IGameRules>(`${this.getRoutePrefix(gameId)}/rules`);
+  }
+
+  getValidPlies(
+    gameId: number,
+    request: IGetGameValidPliesRequest
+  ): Observable<ValidPlies> {
+    return this.http.post<ValidPlies>(
+      `${this.getRoutePrefix(gameId)}/validPlies`,
+      request
     );
   }
 

@@ -2,9 +2,11 @@ import { BaseBoard, IBoardOptions } from "./base_board";
 import {
   ICoordinate,
   PlayerColor,
-  IGameSetupRequirements,
+  IGameRules,
+  Action,
 } from "../../shared/dtos/game";
 import Konva from "konva";
+import { doesHaveValue } from "../../shared/utilities/value_checker";
 
 export interface ISquareBoardLayoutOptions {
   boardColumns: number;
@@ -18,7 +20,7 @@ export class SquareBoard extends BaseBoard {
   constructor(options: IBoardOptions, layout: ISquareBoardLayoutOptions) {
     super(options);
     this.layout = layout;
-    this.setupForContainer(options.setupRequirements);
+    this.setupForContainer(options.gameRules);
   }
 
   // Protected overrides
@@ -104,11 +106,18 @@ export class SquareBoard extends BaseBoard {
     space.height(this.spaceSize);
   }
 
-  protected setupForContainer(
-    setupRequirements: IGameSetupRequirements = null
-  ): void {
+  protected setupForContainer(gameRules: IGameRules): void {
+    let setupSpaces = 0;
+    if (doesHaveValue(this.game) && this.game.action === Action.SETUP) {
+      this.setupRows = Math.floor(this.layout.boardRows / 1.1);
+      this.setupColumns = Math.ceil(
+        (gameRules.pieces.length + gameRules.terrains.length) / this.setupRows
+      );
+      setupSpaces = this.setupColumns * 1.1 + 0.05;
+    }
+
     const maxSize = this.getMaxSize();
-    const maxSpaceWidth = maxSize.x / this.layout.boardColumns;
+    const maxSpaceWidth = maxSize.x / (this.layout.boardColumns + setupSpaces);
     const maxSpaceHeight = maxSize.y / this.layout.boardRows;
 
     this.spaceSize = Math.min(maxSpaceWidth, maxSpaceHeight);
