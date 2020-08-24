@@ -5,13 +5,13 @@ import {
   doesHaveValue,
 } from "../../shared/utilities/value_checker";
 import {
-  IGame,
   Action,
   ISearchGamesRequest,
   ICoordinateMapData,
   IGamePly,
   PlayerColor,
 } from "../../shared/dtos/game";
+import { ISerializedGame } from "src/database/models/game";
 
 export interface IGameOptions {
   variantId: number;
@@ -29,16 +29,16 @@ export interface IGameUpdateOptions {
 }
 
 export interface IGameDataService {
-  createGame: (options: IGameOptions) => Promise<IGame>;
-  getGame: (gameId: number) => Promise<IGame>;
+  createGame: (options: IGameOptions) => Promise<ISerializedGame>;
+  getGame: (gameId: number) => Promise<ISerializedGame>;
   searchGames: (
     request: ISearchGamesRequest
-  ) => Promise<IPaginatedResponse<IGame>>;
+  ) => Promise<IPaginatedResponse<ISerializedGame>>;
   updateGame: (gameId: number, options: IGameUpdateOptions) => Promise<void>;
 }
 
 export class GameDataService implements IGameDataService {
-  async createGame(options: IGameOptions): Promise<IGame> {
+  async createGame(options: IGameOptions): Promise<ISerializedGame> {
     const game = Game.build({
       variantId: options.variantId,
       action: Action.SETUP,
@@ -54,7 +54,7 @@ export class GameDataService implements IGameDataService {
     return game.serialize();
   }
 
-  async getGame(gameId: number): Promise<IGame> {
+  async getGame(gameId: number): Promise<ISerializedGame> {
     const game = await Game.findByPk(gameId);
     if (doesHaveValue(game)) {
       return game.serialize();
@@ -64,7 +64,7 @@ export class GameDataService implements IGameDataService {
 
   async searchGames(
     request: ISearchGamesRequest
-  ): Promise<IPaginatedResponse<IGame>> {
+  ): Promise<IPaginatedResponse<ISerializedGame>> {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }

@@ -26,6 +26,8 @@ import { UserDataService, IUserDataService } from "./data/user_data_service";
 import { validateChallengeOptions } from "./validators/challenge_validator";
 import { IGame } from "../shared/dtos/game";
 import { IGameDataService, GameDataService } from "./data/game_data_service";
+import { ISerializedChallenge } from "src/database/models/challenge";
+import { addChallengeUserData, addGameUserData } from "./helpers/user_helpers";
 
 interface IPlayerColorAssignment {
   alabasterUserId: number;
@@ -71,18 +73,37 @@ export class ChallengeService implements IChallengeService {
     if (doesHaveValue(validationErrors)) {
       throw new ValidationError(validationErrors);
     }
-    const challenge = await this.challengeDataService.createChallenge(
+    const serializedChallenge = await this.challengeDataService.createChallenge(
       options,
       userId
     );
-    return challenge;
+    const userMap = await this.userDataService.getUsers([
+      serializedChallenge.creatorUserId,
+      serializedChallenge.opponentUserId,
+    ]);
+    return addChallengeUserData(serializedChallenge, userMap);
   }
 
   async searchChallenges(
     request: ISearchChallengesRequest
   ): Promise<IPaginatedResponse<IChallenge>> {
     // TODO validate request
-    return await this.challengeDataService.searchChallenges(request);
+    const serializedChallengesPaginatedResponse = await this.challengeDataService.searchChallenges(
+      request
+    );
+    const userIdsSet = new Set<number>();
+    serializedChallengesPaginatedResponse.data.forEach((serializedGame) => {
+      userIdsSet.add(serializedGame.creatorUserId);
+      userIdsSet.add(serializedGame.opponentUserId);
+    });
+    const userMap = await this.userDataService.getUsers(Array.from(userIdsSet));
+    const challenges = serializedChallengesPaginatedResponse.data.map((g) =>
+      addChallengeUserData(g, userMap)
+    );
+    return {
+      data: challenges,
+      total: serializedChallengesPaginatedResponse.total,
+    };
   }
 
   async acceptChallenge(userId: number, challengeId: number): Promise<IGame> {
@@ -105,13 +126,17 @@ export class ChallengeService implements IChallengeService {
       challenge,
       userId
     );
-    const game = await this.gameDataService.createGame({
+    const serializedGame = await this.gameDataService.createGame({
       alabasterUserId: playerColorAssignment.alabasterUserId,
       onyxUserId: playerColorAssignment.onyxUserId,
       variantId: challenge.variantId,
     });
     await this.challengeDataService.deleteChallenge(challengeId);
-    return game;
+    const userMap = await this.userDataService.getUsers([
+      serializedGame.alabasterUserId,
+      serializedGame.onyxUserId,
+    ]);
+    return addGameUserData(serializedGame, userMap);
   }
 
   async declineChallenge(userId: number, challengeId: number): Promise<void> {
@@ -152,7 +177,7 @@ export class ChallengeService implements IChallengeService {
   }
 
   private getPlayerColorAssignment(
-    challenge: IChallenge,
+    challenge: ISerializedChallenge,
     acceptedByUserId: number
   ): IPlayerColorAssignment {
     const isCreatorAlabaster =

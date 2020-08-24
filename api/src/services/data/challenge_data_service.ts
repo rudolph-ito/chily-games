@@ -6,27 +6,27 @@ import {
 } from "../../shared/utilities/value_checker";
 import {
   IChallengeOptions,
-  IChallenge,
   ISearchChallengesRequest,
 } from "../../shared/dtos/challenge";
+import { ISerializedChallenge } from "src/database/models/challenge";
 
 export interface IChallengeDataService {
   createChallenge: (
     options: IChallengeOptions,
     userId: number
-  ) => Promise<IChallenge>;
+  ) => Promise<ISerializedChallenge>;
   deleteChallenge: (challengeId: number) => Promise<void>;
-  getChallenge: (challengeId: number) => Promise<IChallenge>;
+  getChallenge: (challengeId: number) => Promise<ISerializedChallenge>;
   searchChallenges: (
     request: ISearchChallengesRequest
-  ) => Promise<IPaginatedResponse<IChallenge>>;
+  ) => Promise<IPaginatedResponse<ISerializedChallenge>>;
 }
 
 export class ChallengeDataService implements IChallengeDataService {
   async createChallenge(
     options: IChallengeOptions,
     userId: number
-  ): Promise<IChallenge> {
+  ): Promise<ISerializedChallenge> {
     const challenge = Challenge.build({
       creatorUserId: userId,
       creatorPlayAs: options.creatorPlayAs,
@@ -41,7 +41,7 @@ export class ChallengeDataService implements IChallengeDataService {
     await Challenge.destroy({ where: { challengeId } });
   }
 
-  async getChallenge(challengeId: number): Promise<IChallenge> {
+  async getChallenge(challengeId: number): Promise<ISerializedChallenge> {
     const challenge = await Challenge.findByPk(challengeId);
     if (doesHaveValue(challenge)) {
       return challenge.serialize();
@@ -51,7 +51,7 @@ export class ChallengeDataService implements IChallengeDataService {
 
   async searchChallenges(
     request: ISearchChallengesRequest
-  ): Promise<IPaginatedResponse<IChallenge>> {
+  ): Promise<IPaginatedResponse<ISerializedChallenge>> {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }

@@ -9,6 +9,7 @@ import { getBoardDescription } from "../../formatters/variant.formatter";
 import { map } from "rxjs/operators";
 import { ChallengeService } from "src/app/services/challenge.service";
 import { ChallengePlayAs } from "src/app/shared/dtos/challenge";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "app-variants-index",
@@ -28,7 +29,8 @@ export class VariantsIndexComponent implements OnInit {
   constructor(
     private readonly variantService: VariantService,
     private readonly authenticationService: AuthenticationService,
-    private readonly challengeService: ChallengeService
+    private readonly challengeService: ChallengeService,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -45,14 +47,16 @@ export class VariantsIndexComponent implements OnInit {
       .pipe(map((x) => doesHaveValue(x)));
   }
 
-  onCreateChallenge(variant: IVariant): void {
+  onCreateOpenChallenge(variant: IVariant): void {
     this.challengeService
       .create({
         variantId: variant.variantId,
         creatorPlayAs: ChallengePlayAs.RANDOM,
       })
       .subscribe(() => {
-        alert("Challenge created");
+        this.snackBar.open("Challenge created", null, {
+          duration: 2500,
+        });
       });
   }
 }

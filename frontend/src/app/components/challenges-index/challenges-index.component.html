@@ -3,7 +3,7 @@
 
     <ng-container matColumnDef="creatorId">
       <th mat-header-cell *matHeaderCellDef> Creator </th>
-      <td mat-cell *matCellDef="let element"> {{element.creatorUserId}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.creatorUser.username}} </td>
     </ng-container>
     
     <ng-container matColumnDef="variantId">
@@ -14,8 +14,11 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-button *ngIf="(userObservable | async).userId !== element.creatorUserId" (click)="onAcceptChallenge(element)">
+        <button mat-button *ngIf="(userObservable | async).userId !== element.creatorUser.userId" (click)="onAcceptChallenge(element)">
           Accept
+        </button>
+        <button mat-button *ngIf="(userObservable | async).userId === element.creatorUser.userId" (click)="onDeleteChallenge(element)">
+          Delete
         </button>
       </td>
     </ng-container>

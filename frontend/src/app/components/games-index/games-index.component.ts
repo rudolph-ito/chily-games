@@ -5,6 +5,7 @@ import { IUser } from "src/app/shared/dtos/authentication";
 import { IGame } from "src/app/shared/dtos/game";
 import { GameService } from "src/app/services/game.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
+import { GameFormatterService } from "src/app/services/game-formatter.service";
 
 @Component({
   selector: "app-games-index",
@@ -21,6 +22,7 @@ export class GamesIndexComponent implements OnInit {
     "alabasterUserId",
     "onyxUserId",
     "variantId",
+    "status",
     "actions",
   ];
 
@@ -28,6 +30,7 @@ export class GamesIndexComponent implements OnInit {
 
   constructor(
     private readonly gameService: GameService,
+    private readonly gameFormatterService: GameFormatterService,
     private readonly authenticationService: AuthenticationService
   ) {}
 
@@ -41,5 +44,9 @@ export class GamesIndexComponent implements OnInit {
         this.total = result.total;
       });
     this.userObservable = this.authenticationService.getUserSubject();
+  }
+
+  getGameStatus(game: IGame): string {
+    return this.gameFormatterService.getGameStatus(game);
   }
 }

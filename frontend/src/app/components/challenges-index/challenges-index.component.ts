@@ -9,6 +9,7 @@ import { doesHaveValue } from "src/app/shared/utilities/value_checker";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { Router } from "@angular/router";
 import { IGame } from "../../shared/dtos/game";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
   selector: "app-challenges-index",
@@ -28,10 +29,19 @@ export class ChallengesIndexComponent implements OnInit {
   constructor(
     private readonly challengeService: ChallengeService,
     private readonly authenticationService: AuthenticationService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    this.refreshChallenges();
+    this.userObservable = this.authenticationService.getUserSubject();
+    this.userLoggedInObservable = this.authenticationService
+      .getUserSubject()
+      .pipe(map((x) => doesHaveValue(x)));
+  }
+
+  refreshChallenges(): void {
     this.loading = true;
     this.challengeService
       .search({ pagination: { pageIndex: 0, pageSize: 100 } })
@@ -40,10 +50,6 @@ export class ChallengesIndexComponent implements OnInit {
         this.challengesDataSource.data = result.data;
         this.total = result.total;
       });
-    this.userObservable = this.authenticationService.getUserSubject();
-    this.userLoggedInObservable = this.authenticationService
-      .getUserSubject()
-      .pipe(map((x) => doesHaveValue(x)));
   }
 
   onAcceptChallenge(challenge: IChallenge): void {
@@ -52,5 +58,14 @@ export class ChallengesIndexComponent implements OnInit {
       .subscribe((game: IGame) => {
         this.router.navigate([`games/${game.gameId}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
       });
+  }
+
+  onDeleteChallenge(challenge: IChallenge): void {
+    this.challengeService.delete(challenge.challengeId).subscribe(() => {
+      this.refreshChallenges();
+      this.snackBar.open("Challenge deleted", null, {
+        duration: 2500,
+      });
+    });
   }
 }

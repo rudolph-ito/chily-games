@@ -3,7 +3,6 @@ import { sequelize } from "./connection";
 import {
   Action,
   ICoordinateMapData,
-  IGame,
   IGamePly,
   PlayerColor,
 } from "../../shared/dtos/game";
@@ -18,6 +17,19 @@ const ACTION_ENUM = DataTypes.ENUM(
 
 const ACTION_TO_ENUM = DataTypes.ENUM(PlayerColor.ALABASTER, PlayerColor.ONYX);
 
+export interface ISerializedGame {
+  gameId: number;
+  variantId: number;
+  action: Action;
+  actionTo: PlayerColor;
+  alabasterUserId: number;
+  onyxUserId: number;
+  alabasterSetupCoordinateMap: ICoordinateMapData[];
+  onyxSetupCoordinateMap: ICoordinateMapData[];
+  currentCoordinateMap: ICoordinateMapData[];
+  plies: IGamePly[];
+}
+
 export class Game extends Model {
   public gameId!: number;
   public variantId!: number;
@@ -30,7 +42,7 @@ export class Game extends Model {
   public currentCoordinateMap!: ICoordinateMapData[];
   public plies!: IGamePly[];
 
-  serialize(): IGame {
+  serialize(): ISerializedGame {
     return {
       gameId: this.gameId,
       variantId: this.variantId,

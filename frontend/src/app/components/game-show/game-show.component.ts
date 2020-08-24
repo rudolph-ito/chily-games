@@ -30,10 +30,10 @@ import {
 } from "../../shared/utilities/value_checker";
 import { buildBoard } from "src/app/game/board/board_builder";
 import { debounceTime } from "rxjs/operators";
-import { UserService } from "src/app/services/user.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { Socket } from "ngx-socket-io";
+import { GameFormatterService } from "src/app/services/game-formatter.service";
 
 @Component({
   selector: "app-game-show",
@@ -46,8 +46,6 @@ export class GameShowComponent implements OnInit {
   gameRules: IGameRules;
   variant: IVariant;
   user: IUser;
-  alabasterUser: IUser;
-  onyxUser: IUser;
   userObservable: Observable<IUser> = of(null);
   board: BaseBoard;
   resizeObservable = new Subject<boolean>();
@@ -58,8 +56,8 @@ export class GameShowComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly gameService: GameService,
     private readonly authenticationService: AuthenticationService,
+    private readonly gameFormatterService: GameFormatterService,
     private readonly variantService: VariantService,
-    private readonly userService: UserService,
     private readonly snackBar: MatSnackBar,
     private readonly ngZone: NgZone,
     private readonly socket: Socket
@@ -90,13 +88,9 @@ export class GameShowComponent implements OnInit {
       forkJoin({
         variant: this.variantService.get(game.variantId),
         gameRules: this.gameService.getRules(this.getGameId()),
-        alabasterUser: this.userService.get(this.game.alabasterUserId),
-        onyxUser: this.userService.get(this.game.onyxUserId),
-      }).subscribe(({ variant, gameRules, alabasterUser, onyxUser }) => {
+      }).subscribe(({ variant, gameRules }) => {
         this.gameRules = gameRules;
         this.variant = variant;
-        this.alabasterUser = alabasterUser;
-        this.onyxUser = onyxUser;
         this.loading = false;
         this.drawBoard();
       });
@@ -197,10 +191,10 @@ export class GameShowComponent implements OnInit {
   getPlayerColor(): PlayerColor {
     let color = null;
     if (doesHaveValue(this.user)) {
-      if (this.user.userId === this.game.alabasterUserId) {
+      if (this.user.userId === this.game.alabasterUser.userId) {
         color = PlayerColor.ALABASTER;
       }
-      if (this.user.userId === this.game.onyxUserId) {
+      if (this.user.userId === this.game.onyxUser.userId) {
         color = PlayerColor.ONYX;
       }
     }
@@ -225,9 +219,9 @@ export class GameShowComponent implements OnInit {
       isAlabaster = this.getPlayerColor() !== PlayerColor.ONYX;
     }
     if (isAlabaster) {
-      return `Alabaster (${this.alabasterUser.username})`;
+      return `Alabaster (${this.game.alabasterUser.username})`;
     }
-    return `Onyx (${this.onyxUser.username})`;
+    return `Onyx (${this.game.onyxUser.username})`;
   }
 
   getGameId(): number {
@@ -267,18 +261,7 @@ export class GameShowComponent implements OnInit {
   }
 
   getGameStatus(): string {
-    if (this.game.action === Action.SETUP) {
-      if (doesNotHaveValue(this.game.actionTo)) {
-        return "Both players setting up";
-      } else {
-        return `${this.game.actionTo} setting up`;
-      }
-    } else if (this.game.action === Action.PLAY) {
-      return `${this.game.actionTo} to play`;
-    } else if (this.game.action === Action.COMPLETE) {
-      return `${this.game.actionTo} has been defeated`;
-    }
-    return "TODO";
+    return this.gameFormatterService.getGameStatus(this.game);
   }
 
   isActionTo(isHeader: boolean): boolean {

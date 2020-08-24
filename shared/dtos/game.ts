@@ -1,6 +1,7 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
 import { IPaginationRequest } from "./search";
+import { IUser } from "./authentication";
 
 export enum Action {
   SETUP = "setup",
@@ -98,8 +99,8 @@ export interface IGame {
   variantId: number;
   action: Action;
   actionTo: PlayerColor;
-  alabasterUserId: number;
-  onyxUserId: number;
+  alabasterUser: IUser;
+  onyxUser: IUser;
   alabasterSetupCoordinateMap: ICoordinateMapData[];
   onyxSetupCoordinateMap: ICoordinateMapData[];
   currentCoordinateMap: ICoordinateMapData[];

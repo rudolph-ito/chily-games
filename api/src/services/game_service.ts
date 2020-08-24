@@ -46,6 +46,9 @@ import { TerrainType, ITerrainRule } from "../shared/dtos/terrain_rule";
 import { validateGameSetupComplete } from "./validators/game_setup_complete_validator";
 import { validateGamePly } from "./validators/game_ply_validator";
 import { PlyCalculator } from "./game/ply_calculator";
+import { IUserDataService, UserDataService } from "./data/user_data_service";
+import { ISerializedGame } from "src/database/models/game";
+import { addGameUserData } from "./helpers/user_helpers";
 
 export interface IGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
@@ -77,19 +80,25 @@ export class GameService implements IGameService {
     private readonly gameDataService: IGameDataService = new GameDataService(),
     private readonly variantDataService: IVariantDataService = new VariantDataService(),
     private readonly pieceRuleDataService: IPieceRuleDataService = new PieceRuleDataService(),
-    private readonly terrainRuleDataService: ITerrainRuleDataService = new TerrainRuleDataService()
+    private readonly terrainRuleDataService: ITerrainRuleDataService = new TerrainRuleDataService(),
+    private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
 
   async getGame(userId: number, gameId: number): Promise<IGame> {
-    const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
+    const serializedGame = await this.gameDataService.getGame(gameId);
+    if (doesNotHaveValue(serializedGame)) {
       this.throwGameNotFoundError(gameId);
     }
+    const userMap = await this.userDataService.getUsers([
+      serializedGame.alabasterUserId,
+      serializedGame.onyxUserId,
+    ]);
+    const game = addGameUserData(serializedGame, userMap);
     if (game.action === Action.SETUP) {
-      if (userId !== game.alabasterUserId) {
+      if (userId !== serializedGame.alabasterUserId) {
         game.alabasterSetupCoordinateMap = [];
       }
-      if (userId !== game.onyxUserId) {
+      if (userId !== serializedGame.onyxUserId) {
         game.onyxSetupCoordinateMap = [];
       }
     }
@@ -373,7 +382,22 @@ export class GameService implements IGameService {
   async searchGames(
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<IGame>> {
-    return await this.gameDataService.searchGames(request);
+    const serializedGamesPaginatedResponse = await this.gameDataService.searchGames(
+      request
+    );
+    const userIdsSet = new Set<number>();
+    serializedGamesPaginatedResponse.data.forEach((serializedGame) => {
+      userIdsSet.add(serializedGame.alabasterUserId);
+      userIdsSet.add(serializedGame.onyxUserId);
+    });
+    const userMap = await this.userDataService.getUsers(Array.from(userIdsSet));
+    const games = serializedGamesPaginatedResponse.data.map((g) =>
+      addGameUserData(g, userMap)
+    );
+    return {
+      data: games,
+      total: serializedGamesPaginatedResponse.total,
+    };
   }
 
   private throwGameNotFoundError(gameId: number): void {
@@ -401,7 +425,7 @@ export class GameService implements IGameService {
   }
 
   private async validateUserCanTakeSetupAction(
-    game: IGame,
+    game: ISerializedGame,
     userId: number
   ): Promise<void> {
     if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
@@ -424,7 +448,7 @@ export class GameService implements IGameService {
   }
 
   private async validateUserCanCreatePly(
-    game: IGame,
+    game: ISerializedGame,
     userId: number
   ): Promise<void> {
     if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
@@ -445,7 +469,7 @@ export class GameService implements IGameService {
   }
 
   private async validateUserSetupIsComplete(
-    game: IGame,
+    game: ISerializedGame,
     userId: number
   ): Promise<void> {
     const playerColor =

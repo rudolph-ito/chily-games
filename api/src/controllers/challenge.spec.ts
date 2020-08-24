@@ -191,8 +191,8 @@ describe("ChallengeRoutes", () => {
         // Assert
         expect(response.body).to.exist();
         const game: IGame = response.body;
-        expect(game.alabasterUserId).to.eql(user1Id);
-        expect(game.onyxUserId).to.eql(user2Id);
+        expect(game.alabasterUser.userId).to.eql(user1Id);
+        expect(game.onyxUser.userId).to.eql(user2Id);
         const paginatedChallenges = await new ChallengeService().searchChallenges(
           { pagination: { pageSize: 10, pageIndex: 0 } }
         );
@@ -264,8 +264,8 @@ describe("ChallengeRoutes", () => {
         // Assert
         expect(response.body).to.exist();
         const game: IGame = response.body;
-        expect(game.alabasterUserId).to.eql(user1Id);
-        expect(game.onyxUserId).to.eql(user2Id);
+        expect(game.alabasterUser.userId).to.eql(user1Id);
+        expect(game.onyxUser.userId).to.eql(user2Id);
         const paginatedChallenges = await new ChallengeService().searchChallenges(
           { pagination: { pageSize: 10, pageIndex: 0 } }
         );

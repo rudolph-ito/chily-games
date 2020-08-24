@@ -1,12 +1,20 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { ChallengePlayAs, IChallenge } from "../../shared/dtos/challenge";
+import { ChallengePlayAs } from "../../shared/dtos/challenge";
 
 const PLAY_AS_ENUM = DataTypes.ENUM(
   ChallengePlayAs.ALABASTER,
   ChallengePlayAs.ONYX,
   ChallengePlayAs.RANDOM
 );
+
+export interface ISerializedChallenge {
+  challengeId: number;
+  variantId: number;
+  creatorPlayAs: ChallengePlayAs;
+  creatorUserId: number;
+  opponentUserId: number;
+}
 
 export class Challenge extends Model {
   public challengeId!: number;
@@ -15,7 +23,7 @@ export class Challenge extends Model {
   public creatorUserId!: number;
   public opponentUserId!: number;
 
-  serialize(): IChallenge {
+  serialize(): ISerializedChallenge {
     return {
       challengeId: this.challengeId,
       variantId: this.variantId,

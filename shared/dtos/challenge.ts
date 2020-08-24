@@ -1,4 +1,5 @@
 import { IPaginationRequest } from "./search";
+import { IUser } from "./authentication";
 
 // Enums
 
@@ -16,9 +17,12 @@ export interface IChallengeOptions {
   opponentUserId?: number;
 }
 
-export interface IChallenge extends IChallengeOptions {
+export interface IChallenge {
+  variantId: number;
+  creatorPlayAs: ChallengePlayAs;
+  opponentUser: IUser;
   challengeId: number;
-  creatorUserId: number;
+  creatorUser: IUser;
 }
 
 export interface ISearchChallengesRequest {

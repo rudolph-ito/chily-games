@@ -9,6 +9,7 @@ export interface ICreateUserOptions {
 export interface IUserDataService {
   createUser: (options: ICreateUserOptions) => Promise<IUser>;
   getUser: (userId: number) => Promise<IUser>;
+  getUsers: (userIds: number[]) => Promise<Map<number, IUser>>;
   hasUser: (userId: number) => Promise<boolean>;
   hasUserWithUsername: (username: string) => Promise<boolean>;
 }
@@ -24,6 +25,15 @@ export class UserDataService implements IUserDataService {
   async getUser(userId: number): Promise<IUser> {
     const user = await User.findByPk(userId);
     return user.serialize();
+  }
+
+  async getUsers(userIds: number[]): Promise<Map<number, IUser>> {
+    const users = await User.findAll({
+      where: {
+        userId: userIds,
+      },
+    });
+    return new Map<number, IUser>(users.map((u) => [u.userId, u]));
   }
 
   async hasUserWithUsername(username: string): Promise<boolean> {
