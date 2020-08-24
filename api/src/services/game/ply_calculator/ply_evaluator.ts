@@ -8,6 +8,7 @@ import {
   PieceType,
   IPieceRule,
   CaptureType,
+  IPathConfiguration,
 } from "../../../shared/dtos/piece_rule";
 import {
   ITerrainRule,
@@ -30,6 +31,7 @@ interface IPlyEvaluateInput {
   coordinate: ICoordinate;
   count: number;
   evaluationType: CaptureType;
+  pathConfiguration: IPathConfiguration;
   piece: IPiece;
 }
 
@@ -90,7 +92,7 @@ export class PlyEvaluator {
   //   no occupying piece OR can capture occupying piece
   //   no terrain OR terrain is passable
   private isValid(input: IPlyEvaluateInput, data: IPlyEvaluateData): boolean {
-    if (input.count < data.pieceRule.movement.minimum) {
+    if (input.count < input.pathConfiguration.minimum) {
       return false;
     }
     if (doesHaveValue(data.occupyingPiece)) {

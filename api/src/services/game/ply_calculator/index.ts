@@ -99,6 +99,7 @@ export class PlyCalculator {
           coordinate: to,
           count,
           evaluationType: input.evaluationType,
+          pathConfiguration: data.pathConfiguration,
           piece: data.piece,
         });
         if (plyEvaluation.valid) {
@@ -158,6 +159,7 @@ export class PlyCalculator {
         coordinate: to,
         count,
         evaluationType: input.evaluationType,
+        pathConfiguration: data.pathConfiguration,
         piece: data.piece,
       });
       if (plyEvaluation.valid) {
