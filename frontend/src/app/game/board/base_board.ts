@@ -98,10 +98,10 @@ export abstract class BaseBoard {
       height: this.container.offsetHeight,
       width: this.container.offsetWidth,
     });
-    this.terrainLayer = new Konva.Layer();
-    this.stage.add(this.terrainLayer);
     this.spaceLayer = new Konva.Layer();
     this.stage.add(this.spaceLayer);
+    this.terrainLayer = new Konva.Layer();
+    this.stage.add(this.terrainLayer);
     this.spaceCoordinateTextLayer = new Konva.Layer();
     this.stage.add(this.spaceCoordinateTextLayer);
     this.pieceLayer = new Konva.Layer();
@@ -304,6 +304,7 @@ export abstract class BaseBoard {
       this.markTerritories(options.gameRules.setupTerritories, options.color);
     } else {
       this.highlightLastPly();
+      this.terrainLayer.moveToBottom()
     }
     this.spaceLayer.draw();
     this.spaceCoordinateTextLayer.draw();
