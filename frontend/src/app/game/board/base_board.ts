@@ -304,7 +304,7 @@ export abstract class BaseBoard {
       this.markTerritories(options.gameRules.setupTerritories, options.color);
     } else {
       this.highlightLastPly();
-      this.terrainLayer.moveToBottom()
+      this.terrainLayer.moveToBottom();
     }
     this.spaceLayer.draw();
     this.spaceCoordinateTextLayer.draw();

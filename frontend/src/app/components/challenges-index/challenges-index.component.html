@@ -14,10 +14,10 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-button *ngIf="(userObservable | async).userId !== element.creatorUser.userId" (click)="onAcceptChallenge(element)">
+        <button mat-button *ngIf="canAcceptChallengeObservable(element) | async" (click)="onAcceptChallenge(element)">
           Accept
         </button>
-        <button mat-button *ngIf="(userObservable | async).userId === element.creatorUser.userId" (click)="onDeleteChallenge(element)">
+        <button mat-button *ngIf="canDeclineChallengeObservable(element) | async" (click)="onDeleteChallenge(element)">
           Delete
         </button>
       </td>

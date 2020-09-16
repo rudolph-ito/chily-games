@@ -5,7 +5,7 @@ import { Observable, of } from "rxjs";
 import { ChallengeService } from "src/app/services/challenge.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { map } from "rxjs/operators";
-import { doesHaveValue } from "src/app/shared/utilities/value_checker";
+import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { Router } from "@angular/router";
 import { IGame } from "../../shared/dtos/game";
@@ -24,7 +24,6 @@ export class ChallengesIndexComponent implements OnInit {
   total: number;
   displayedColumns: string[] = ["creatorId", "variantId", "actions"];
   userObservable: Observable<IUser> = of(null);
-  userLoggedInObservable: Observable<boolean> = of(false);
 
   constructor(
     private readonly challengeService: ChallengeService,
@@ -36,9 +35,6 @@ export class ChallengesIndexComponent implements OnInit {
   ngOnInit(): void {
     this.refreshChallenges();
     this.userObservable = this.authenticationService.getUserSubject();
-    this.userLoggedInObservable = this.authenticationService
-      .getUserSubject()
-      .pipe(map((x) => doesHaveValue(x)));
   }
 
   refreshChallenges(): void {
@@ -67,5 +63,34 @@ export class ChallengesIndexComponent implements OnInit {
         duration: 2500,
       });
     });
+  }
+
+  canAcceptChallengeObservable(challenge: IChallenge): Observable<boolean> {
+    return this.userObservable.pipe(
+      map((user) => this.canAcceptChallenge(challenge, user))
+    );
+  }
+
+  canDeclineChallengeObservable(challenge: IChallenge): Observable<boolean> {
+    return this.userObservable.pipe(
+      map((user) => this.canDeclineChallenge(challenge, user))
+    );
+  }
+
+  canAcceptChallenge(challenge: IChallenge, currentUser: IUser): boolean {
+    return (
+      doesHaveValue(currentUser) &&
+      ((doesHaveValue(challenge.opponentUser) &&
+        currentUser.userId === challenge.opponentUser.userId) ||
+        currentUser.userId !== challenge.creatorUser.userId)
+    );
+  }
+
+  canDeclineChallenge(challenge: IChallenge, currentUser: IUser): boolean {
+    return (
+      doesHaveValue(currentUser) &&
+      doesHaveValue(challenge.opponentUser) &&
+      currentUser.userId === challenge.opponentUser.userId
+    );
   }
 }
