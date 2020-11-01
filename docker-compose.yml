@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   database:
-    image: postgres:12.3
+    image: postgres:12.4
     ports:
       - "5432:5432"
     environment:
