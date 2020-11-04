@@ -3,7 +3,7 @@ import {
   IVariant,
   IVariantOptions,
 } from "../../shared/dtos/variant";
-import { Variant } from "../../database/models";
+import { CyvasseVariant } from "../../database/models";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 import { UserDataService } from "./user_data_service";
@@ -34,7 +34,7 @@ export class VariantDataService implements IVariantDataService {
     options: IVariantOptions,
     userId: number
   ): Promise<IVariant> {
-    const variant = Variant.build({
+    const variant = CyvasseVariant.build({
       boardType: options.boardType,
       boardRows: options.boardRows,
       boardColumns: options.boardColumns,
@@ -48,7 +48,7 @@ export class VariantDataService implements IVariantDataService {
   }
 
   async deleteVariant(variantId: number): Promise<void> {
-    await Variant.destroy({ where: { variantId } });
+    await CyvasseVariant.destroy({ where: { variantId } });
   }
 
   async searchVariants(
@@ -57,7 +57,7 @@ export class VariantDataService implements IVariantDataService {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
-    const result = await Variant.findAndCountAll({
+    const result = await CyvasseVariant.findAndCountAll({
       offset: request.pagination.pageIndex * request.pagination.pageSize,
       limit: request.pagination.pageSize,
     });
@@ -68,12 +68,12 @@ export class VariantDataService implements IVariantDataService {
   }
 
   async getVariant(variantId: number): Promise<IVariant> {
-    const variant = await Variant.findByPk(variantId);
+    const variant = await CyvasseVariant.findByPk(variantId);
     return variant.serialize();
   }
 
   async hasVariant(variantId: number): Promise<boolean> {
-    const count = await Variant.count({ where: { variantId } });
+    const count = await CyvasseVariant.count({ where: { variantId } });
     return count === 1;
   }
 
@@ -81,7 +81,7 @@ export class VariantDataService implements IVariantDataService {
     variantId: number,
     options: IVariantOptions
   ): Promise<IVariant> {
-    const variant = await Variant.findByPk(variantId);
+    const variant = await CyvasseVariant.findByPk(variantId);
     variant.boardType = options.boardType;
     variant.boardRows = options.boardRows;
     variant.boardColumns = options.boardColumns;

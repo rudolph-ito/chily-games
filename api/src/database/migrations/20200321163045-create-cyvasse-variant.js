@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("Variants", {
+    return queryInterface.createTable("CyvasseVariants", {
       variantId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -51,6 +51,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("Variants");
+    return queryInterface.dropTable("CyvasseVariants");
   },
 };

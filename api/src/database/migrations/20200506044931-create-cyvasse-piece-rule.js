@@ -16,7 +16,7 @@ module.exports = {
       "trebuchet"
     );
 
-    await queryInterface.createTable("PieceRules", {
+    await queryInterface.createTable("CyvassePieceRules", {
       pieceRuleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -28,7 +28,7 @@ module.exports = {
         allowNull: false,
         references: {
           model: {
-            tableName: "Variants",
+            tableName: "CyvasseVariants",
           },
           key: "variantId",
         },
@@ -96,12 +96,12 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
-    await queryInterface.addIndex("PieceRules", ["variantId", "pieceTypeId"], {
+    await queryInterface.addIndex("CyvassePieceRules", ["variantId", "pieceTypeId"], {
       unique: true,
     });
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("PieceRules");
+    return queryInterface.dropTable("CyvassePieceRules");
   },
 };

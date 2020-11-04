@@ -22,7 +22,7 @@ module.exports = {
         key: "userId",
       },
     };
-    return queryInterface.createTable("Games", {
+    return queryInterface.createTable("CyvasseGames", {
       gameId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -34,7 +34,7 @@ module.exports = {
         allowNull: false,
         references: {
           model: {
-            tableName: "Variants",
+            tableName: "CyvasseVariants",
           },
           key: "variantId",
         },
@@ -77,6 +77,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("Games");
+    return queryInterface.dropTable("CyvasseGames");
   },
 };

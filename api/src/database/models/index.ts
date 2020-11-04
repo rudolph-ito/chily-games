@@ -1,43 +1,53 @@
 import { User } from "./user";
-import { Variant } from "./variant";
+import { CyvasseVariant } from "./cyvasse_variant";
 import { sequelize } from "./connection";
-import { PieceRule } from "./piece_rule";
-import { TerrainRule } from "./terrain_rule";
-import { Game } from "./game";
-import { Challenge } from "./challenge";
+import { CyvassePieceRule } from "./cyvasse_piece_rule";
+import { CyvasseTerrainRule } from "./cyvasse_terrain_rule";
+import { CyvasseGame } from "./cyvasse_game";
+import { CyvasseChallenge } from "./cyvasse_challenge";
 
 // Challenge
-Challenge.belongsTo(Variant, {
+CyvasseChallenge.belongsTo(CyvasseVariant, {
   foreignKey: { name: "variantId", allowNull: false },
 });
-Challenge.belongsTo(User, {
+CyvasseChallenge.belongsTo(User, {
   foreignKey: { name: "creatorUserId", allowNull: false },
 });
-Challenge.belongsTo(User, {
+CyvasseChallenge.belongsTo(User, {
   foreignKey: { name: "opponentUserId", allowNull: true },
 });
 
 // Game
-Game.belongsTo(Variant, {
+CyvasseGame.belongsTo(CyvasseVariant, {
   foreignKey: { name: "variantId", allowNull: false },
 });
-Game.belongsTo(User, {
+CyvasseGame.belongsTo(User, {
   foreignKey: { name: "alabasterUserId", allowNull: false },
 });
-Game.belongsTo(User, { foreignKey: { name: "onyxUserId", allowNull: false } });
+CyvasseGame.belongsTo(User, { foreignKey: { name: "onyxUserId", allowNull: false } });
 
 // PieceRule
-PieceRule.belongsTo(Variant, {
+CyvassePieceRule.belongsTo(CyvasseVariant, {
   foreignKey: { name: "variantId", allowNull: false },
 });
 
 // TerrainRule
-TerrainRule.belongsTo(Variant, {
+CyvasseTerrainRule.belongsTo(CyvasseVariant, {
   foreignKey: { name: "variantId", allowNull: false },
 });
 
 // Variant
-Variant.belongsTo(User, { foreignKey: { name: "userId", allowNull: false } });
+CyvasseVariant.belongsTo(User, { foreignKey: { name: "userId", allowNull: false } });
 
 // Classes should be imported from so associations are setup properly
-export { sequelize, Challenge, Game, PieceRule, TerrainRule, User, Variant };
+export { 
+  sequelize, 
+
+  User,
+  
+  CyvasseChallenge, 
+  CyvasseGame, 
+  CyvassePieceRule, 
+  CyvasseTerrainRule, 
+  CyvasseVariant 
+};

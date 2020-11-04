@@ -127,8 +127,8 @@ export function startServer(options: IStartServerOptions): Server {
     })
   );
   socketIoServer.on("connection", (socket) => {
-    socket.on("join-game", (gameId: number) => {
-      socket.join(`game-${gameId}`);
+    socket.on("cyvasse-join-game", (gameId: number) => {
+      socket.join(`cyvasse-game-${gameId}`);
     });
   });
   server.listen(options.port, () => {

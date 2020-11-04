@@ -1,4 +1,4 @@
-import { Challenge } from "../../database/models";
+import { CyvasseChallenge } from "../../database/models";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
   doesNotHaveValue,
@@ -27,7 +27,7 @@ export class ChallengeDataService implements IChallengeDataService {
     options: IChallengeOptions,
     userId: number
   ): Promise<IChallenge> {
-    const challenge = Challenge.build({
+    const challenge = CyvasseChallenge.build({
       creatorUserId: userId,
       creatorPlayAs: options.creatorPlayAs,
       opponentUserId: options.opponentUserId,
@@ -38,11 +38,11 @@ export class ChallengeDataService implements IChallengeDataService {
   }
 
   async deleteChallenge(challengeId: number): Promise<void> {
-    await Challenge.destroy({ where: { challengeId } });
+    await CyvasseChallenge.destroy({ where: { challengeId } });
   }
 
   async getChallenge(challengeId: number): Promise<IChallenge> {
-    const challenge = await Challenge.findByPk(challengeId);
+    const challenge = await CyvasseChallenge.findByPk(challengeId);
     if (doesHaveValue(challenge)) {
       return challenge.serialize();
     }
@@ -55,12 +55,12 @@ export class ChallengeDataService implements IChallengeDataService {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
-    const result = await Challenge.findAndCountAll({
+    const result = await CyvasseChallenge.findAndCountAll({
       offset: request.pagination.pageIndex * request.pagination.pageSize,
       limit: request.pagination.pageSize,
     });
     return {
-      data: result.rows.map((r: Challenge) => r.serialize()),
+      data: result.rows.map((r: CyvasseChallenge) => r.serialize()),
       total: result.count,
     };
   }

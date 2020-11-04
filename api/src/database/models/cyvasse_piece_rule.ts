@@ -15,7 +15,7 @@ const PATH_ENUM = DataTypes.ENUM(
   PathType.DIAGONAL_WITH_TURNS
 );
 
-export class PieceRule extends Model {
+export class CyvassePieceRule extends Model {
   public pieceRuleId!: number;
   public variantId!: number;
   public pieceTypeId!: PieceType;
@@ -56,7 +56,7 @@ export class PieceRule extends Model {
     };
   }
 }
-PieceRule.init(
+CyvassePieceRule.init(
   {
     pieceRuleId: {
       type: DataTypes.INTEGER,

@@ -25,7 +25,7 @@ module.exports = {
       "trebuchet"
     );
 
-    await queryInterface.createTable("TerrainRules", {
+    await queryInterface.createTable("CyvasseTerrainRules", {
       terrainRuleId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -37,7 +37,7 @@ module.exports = {
         allowNull: false,
         references: {
           model: {
-            tableName: "Variants",
+            tableName: "CyvasseVariants",
           },
           key: "variantId",
         },
@@ -96,13 +96,13 @@ module.exports = {
       },
     });
     await queryInterface.addIndex(
-      "TerrainRules",
+      "CyvasseTerrainRules",
       ["variantId", "terrainTypeId"],
       { unique: true }
     );
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("TerrainRules");
+    return queryInterface.dropTable("CyvasseTerrainRules");
   },
 };

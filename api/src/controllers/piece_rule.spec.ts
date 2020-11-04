@@ -21,7 +21,6 @@ import {
   IPieceRule,
 } from "../shared/dtos/piece_rule";
 import { PieceRuleDataService } from "../services/data/piece_rule_data_service";
-import { PieceRule } from "../database/models";
 import HttpStatus from "http-status-codes";
 
 describe("PieceRuleRoutes", () => {
@@ -208,7 +207,7 @@ describe("PieceRuleRoutes", () => {
 
       // Assert
       expect(response.body).to.exist();
-      const pieceRules: PieceRule[] = response.body;
+      const pieceRules: IPieceRule[] = response.body;
       expect(pieceRules.length).to.eql(3);
       expect(pieceRules.map((x) => x.pieceTypeId)).to.have.members([
         PieceType.KING,

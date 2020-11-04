@@ -8,7 +8,7 @@ const PLAY_AS_ENUM = DataTypes.ENUM(
   ChallengePlayAs.RANDOM
 );
 
-export class Challenge extends Model {
+export class CyvasseChallenge extends Model {
   public challengeId!: number;
   public variantId!: number;
   public creatorPlayAs!: ChallengePlayAs;
@@ -25,7 +25,7 @@ export class Challenge extends Model {
     };
   }
 }
-Challenge.init(
+CyvasseChallenge.init(
   {
     challengeId: {
       type: DataTypes.INTEGER,

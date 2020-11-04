@@ -1,5 +1,5 @@
 import { IPieceRuleOptions, IPieceRule } from "../../shared/dtos/piece_rule";
-import { PieceRule } from "../../database/models";
+import { CyvassePieceRule } from "../../database/models";
 import {
   doesHaveValue,
   valueOrDefault,
@@ -25,7 +25,7 @@ export class PieceRuleDataService implements IPieceRuleDataService {
     options: IPieceRuleOptions,
     variantId: number
   ): Promise<IPieceRule> {
-    const pieceRule = PieceRule.build({
+    const pieceRule = CyvassePieceRule.build({
       variantId,
     });
     this.assignPieceRule(pieceRule, options);
@@ -34,23 +34,23 @@ export class PieceRuleDataService implements IPieceRuleDataService {
   }
 
   async deletePieceRule(pieceRuleId: number): Promise<void> {
-    await PieceRule.destroy({ where: { pieceRuleId } });
+    await CyvassePieceRule.destroy({ where: { pieceRuleId } });
   }
 
   async getPieceRule(pieceRuleId: number): Promise<IPieceRule> {
-    const pieceRule = await PieceRule.findByPk(pieceRuleId);
+    const pieceRule = await CyvassePieceRule.findByPk(pieceRuleId);
     return pieceRule.serialize();
   }
 
   async getPieceRules(variantId: number): Promise<IPieceRule[]> {
-    const pieceRules: PieceRule[] = await PieceRule.findAll({
+    const pieceRules: CyvassePieceRule[] = await CyvassePieceRule.findAll({
       where: { variantId },
     });
     return pieceRules.map((pieceRule) => pieceRule.serialize());
   }
 
   async hasPieceRule(pieceRuleId: number, variantId: number): Promise<boolean> {
-    const count = await PieceRule.count({ where: { pieceRuleId, variantId } });
+    const count = await CyvassePieceRule.count({ where: { pieceRuleId, variantId } });
     return count === 1;
   }
 
@@ -58,13 +58,13 @@ export class PieceRuleDataService implements IPieceRuleDataService {
     pieceRuleId: number,
     options: IPieceRuleOptions
   ): Promise<IPieceRule> {
-    const pieceRule = await PieceRule.findByPk(pieceRuleId);
+    const pieceRule = await CyvassePieceRule.findByPk(pieceRuleId);
     this.assignPieceRule(pieceRule, options);
     await pieceRule.save();
     return pieceRule.serialize();
   }
 
-  private assignPieceRule(obj: PieceRule, options: IPieceRuleOptions): void {
+  private assignPieceRule(obj: CyvassePieceRule, options: IPieceRuleOptions): void {
     obj.pieceTypeId = options.pieceTypeId;
     obj.count = options.count;
     obj.movementType = options.movement.type;

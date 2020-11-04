@@ -3,7 +3,7 @@ import { sequelize } from "./connection";
 import { IVariant, BoardType, SupportType } from "../../shared/dtos/variant";
 import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 
-export class Variant extends Model {
+export class CyvasseVariant extends Model {
   public variantId!: number;
   public boardType!: BoardType;
   public boardRows!: number;
@@ -36,7 +36,7 @@ export class Variant extends Model {
     };
   }
 }
-Variant.init(
+CyvasseVariant.init(
   {
     variantId: {
       type: DataTypes.INTEGER,
@@ -51,7 +51,7 @@ Variant.init(
     boardRows: {
       type: DataTypes.INTEGER,
       validate: {
-        custom(this: Variant, value: number) {
+        custom(this: CyvasseVariant, value: number) {
           this.requiredForBoards(BoardType.SQUARE, "board_rows", value);
         },
       },
@@ -59,7 +59,7 @@ Variant.init(
     boardColumns: {
       type: DataTypes.INTEGER,
       validate: {
-        custom(this: Variant, value: number) {
+        custom(this: CyvasseVariant, value: number) {
           this.requiredForBoards(BoardType.SQUARE, "board_columns", value);
         },
       },
@@ -67,7 +67,7 @@ Variant.init(
     boardSize: {
       type: DataTypes.INTEGER,
       validate: {
-        custom(this: Variant, value: number) {
+        custom(this: CyvasseVariant, value: number) {
           this.requiredForBoards(BoardType.HEXAGONAL, "board_size", value);
         },
       },
@@ -80,7 +80,7 @@ Variant.init(
         SupportType.SUM
       ),
       validate: {
-        custom(this: Variant, value: SupportType) {
+        custom(this: CyvasseVariant, value: SupportType) {
           if (doesNotHaveValue(value) && this.pieceRanks) {
             throw new Error(`supportType is required`);
           }

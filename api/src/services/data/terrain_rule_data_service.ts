@@ -2,7 +2,7 @@ import {
   ITerrainRuleOptions,
   ITerrainRule,
 } from "../../shared/dtos/terrain_rule";
-import { TerrainRule } from "../../database/models";
+import { CyvasseTerrainRule } from "../../database/models";
 
 export interface ITerrainRuleDataService {
   createTerrainRule: (
@@ -27,7 +27,7 @@ export class TerrainRuleDataService implements ITerrainRuleDataService {
     options: ITerrainRuleOptions,
     variantId: number
   ): Promise<ITerrainRule> {
-    const terrainRule = TerrainRule.build({
+    const terrainRule = CyvasseTerrainRule.build({
       variantId,
     });
     this.assignTerrainRule(terrainRule, options);
@@ -36,16 +36,16 @@ export class TerrainRuleDataService implements ITerrainRuleDataService {
   }
 
   async deleteTerrainRule(terrainRuleId: number): Promise<void> {
-    await TerrainRule.destroy({ where: { terrainRuleId } });
+    await CyvasseTerrainRule.destroy({ where: { terrainRuleId } });
   }
 
   async getTerrainRule(terrainRuleId: number): Promise<ITerrainRule> {
-    const terrainRule = await TerrainRule.findByPk(terrainRuleId);
+    const terrainRule = await CyvasseTerrainRule.findByPk(terrainRuleId);
     return terrainRule.serialize();
   }
 
   async getTerrainRules(variantId: number): Promise<ITerrainRule[]> {
-    const terrainRules: TerrainRule[] = await TerrainRule.findAll({
+    const terrainRules: CyvasseTerrainRule[] = await CyvasseTerrainRule.findAll({
       where: { variantId },
     });
     return terrainRules.map((terrainRule) => terrainRule.serialize());
@@ -55,7 +55,7 @@ export class TerrainRuleDataService implements ITerrainRuleDataService {
     terrainRuleId: number,
     variantId: number
   ): Promise<boolean> {
-    const count = await TerrainRule.count({
+    const count = await CyvasseTerrainRule.count({
       where: { terrainRuleId, variantId },
     });
     return count === 1;
@@ -65,14 +65,14 @@ export class TerrainRuleDataService implements ITerrainRuleDataService {
     terrainRuleId: number,
     options: ITerrainRuleOptions
   ): Promise<ITerrainRule> {
-    const terrainRule = await TerrainRule.findByPk(terrainRuleId);
+    const terrainRule = await CyvasseTerrainRule.findByPk(terrainRuleId);
     this.assignTerrainRule(terrainRule, options);
     await terrainRule.save();
     return terrainRule.serialize();
   }
 
   private assignTerrainRule(
-    obj: TerrainRule,
+    obj: CyvasseTerrainRule,
     options: ITerrainRuleOptions
   ): void {
     obj.terrainTypeId = options.terrainTypeId;

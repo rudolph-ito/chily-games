@@ -1,4 +1,4 @@
-import { Game } from "../../database/models";
+import { CyvasseGame } from "../../database/models";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
   doesNotHaveValue,
@@ -39,7 +39,7 @@ export interface IGameDataService {
 
 export class GameDataService implements IGameDataService {
   async createGame(options: IGameOptions): Promise<IGame> {
-    const game = Game.build({
+    const game = CyvasseGame.build({
       variantId: options.variantId,
       action: Action.SETUP,
       actionTo: null,
@@ -55,7 +55,7 @@ export class GameDataService implements IGameDataService {
   }
 
   async getGame(gameId: number): Promise<IGame> {
-    const game = await Game.findByPk(gameId);
+    const game = await CyvasseGame.findByPk(gameId);
     if (doesHaveValue(game)) {
       return game.serialize();
     }
@@ -68,18 +68,18 @@ export class GameDataService implements IGameDataService {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
-    const result = await Game.findAndCountAll({
+    const result = await CyvasseGame.findAndCountAll({
       offset: request.pagination.pageIndex * request.pagination.pageSize,
       limit: request.pagination.pageSize,
     });
     return {
-      data: result.rows.map((r: Game) => r.serialize()),
+      data: result.rows.map((r: CyvasseGame) => r.serialize()),
       total: result.count,
     };
   }
 
   async updateGame(gameId: number, options: IGameUpdateOptions): Promise<void> {
-    const game = await Game.findByPk(gameId);
+    const game = await CyvasseGame.findByPk(gameId);
     for (const [key, value] of Object.entries(options)) {
       game[key] = value;
     }

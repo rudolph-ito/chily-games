@@ -70,7 +70,7 @@ export class GameShowComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.socket.emit("join-game", this.getGameId());
+    this.socket.emit("cyvasse-join-game", this.getGameId());
     this.socket
       .fromEvent<IGamePlyEvent>("game-ply")
       .subscribe((gamePlyEvent) => {

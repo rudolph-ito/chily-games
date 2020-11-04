@@ -20,7 +20,6 @@ import {
   PiecesEffectedType,
 } from "../shared/dtos/terrain_rule";
 import { TerrainRuleDataService } from "../services/data/terrain_rule_data_service";
-import { TerrainRule } from "../database/models";
 import HttpStatus from "http-status-codes";
 
 describe("TerrainRuleRoutes", () => {
@@ -231,7 +230,7 @@ describe("TerrainRuleRoutes", () => {
 
       // Assert
       expect(response.body).to.exist();
-      const terrainRules: TerrainRule[] = response.body;
+      const terrainRules: ITerrainRule[] = response.body;
       expect(terrainRules.length).to.eql(2);
       expect(terrainRules.map((x) => x.terrainTypeId)).to.have.members([
         TerrainType.FOREST,

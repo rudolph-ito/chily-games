@@ -18,7 +18,7 @@ const ACTION_ENUM = DataTypes.ENUM(
 
 const ACTION_TO_ENUM = DataTypes.ENUM(PlayerColor.ALABASTER, PlayerColor.ONYX);
 
-export class Game extends Model {
+export class CyvasseGame extends Model {
   public gameId!: number;
   public variantId!: number;
   public action!: Action;
@@ -45,7 +45,7 @@ export class Game extends Model {
     };
   }
 }
-Game.init(
+CyvasseGame.init(
   {
     gameId: {
       type: DataTypes.INTEGER,

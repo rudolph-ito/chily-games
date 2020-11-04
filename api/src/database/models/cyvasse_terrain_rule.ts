@@ -27,7 +27,7 @@ const PIECE_TYPE_ENUM = DataTypes.ENUM(
   PieceType.TREBUCHET
 );
 
-export class TerrainRule extends Model {
+export class CyvasseTerrainRule extends Model {
   public terrainRuleId!: number;
   public variantId!: number;
   public terrainTypeId!: TerrainType;
@@ -68,7 +68,7 @@ export class TerrainRule extends Model {
     };
   }
 }
-TerrainRule.init(
+CyvasseTerrainRule.init(
   {
     terrainRuleId: {
       type: DataTypes.INTEGER,

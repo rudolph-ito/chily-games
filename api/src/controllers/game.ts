@@ -93,7 +93,7 @@ export function getGameRouter(
       .then((gamePlyEvent) => {
         res.status(200).end();
         newSocketIoEmitter(publishRedisClient as any)
-          .to(`game-${req.params.gameId}`)
+          .to(`cyvasse-game-${req.params.gameId}`)
           .emit("game-ply", gamePlyEvent);
       })
       .catch(next);
