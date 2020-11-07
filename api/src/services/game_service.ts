@@ -13,10 +13,10 @@ import {
   IGameRules,
 } from "../shared/dtos/game";
 import {
-  IGameDataService,
-  GameDataService,
+  ICyvasseGameDataService,
+  CyvasseGameDataService,
   IGameUpdateOptions,
-} from "./data/game_data_service";
+} from "./data/cyvasse_game_data_service";
 import {
   doesNotHaveValue,
   doesHaveValue,
@@ -29,18 +29,18 @@ import {
 import { CoordinateMap } from "./game/storage/coordinate_map";
 import { getBoardForVariant } from "./game/board/builder";
 import {
-  IVariantDataService,
-  VariantDataService,
-} from "./data/variant_data_service";
+  ICyvasseVariantDataService,
+  CyvasseVariantDataService,
+} from "./data/cyvasse_variant_data_service";
 import { validateGameSetupChange } from "./validators/game_setup_change_validator";
 import {
-  IPieceRuleDataService,
-  PieceRuleDataService,
-} from "./data/piece_rule_data_service";
+  ICyvassePieceRuleDataService,
+  CyvassePieceRuleDataService,
+} from "./data/cyvasse_piece_rule_data_service";
 import {
-  ITerrainRuleDataService,
-  TerrainRuleDataService,
-} from "./data/terrain_rule_data_service";
+  ICyvasseTerrainRuleDataService,
+  CyvasseTerrainRuleDataService,
+} from "./data/cyvasse_terrain_rule_data_service";
 import { PieceType, IPieceRule } from "../shared/dtos/piece_rule";
 import { TerrainType, ITerrainRule } from "../shared/dtos/terrain_rule";
 import { validateGameSetupComplete } from "./validators/game_setup_complete_validator";
@@ -74,10 +74,10 @@ export interface IGameService {
 
 export class GameService implements IGameService {
   constructor(
-    private readonly gameDataService: IGameDataService = new GameDataService(),
-    private readonly variantDataService: IVariantDataService = new VariantDataService(),
-    private readonly pieceRuleDataService: IPieceRuleDataService = new PieceRuleDataService(),
-    private readonly terrainRuleDataService: ITerrainRuleDataService = new TerrainRuleDataService()
+    private readonly gameDataService: ICyvasseGameDataService = new CyvasseGameDataService(),
+    private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService(),
+    private readonly pieceRuleDataService: ICyvassePieceRuleDataService = new CyvassePieceRuleDataService(),
+    private readonly terrainRuleDataService: ICyvasseTerrainRuleDataService = new CyvasseTerrainRuleDataService()
   ) {}
 
   async getGame(userId: number, gameId: number): Promise<IGame> {

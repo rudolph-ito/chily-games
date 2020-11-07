@@ -12,14 +12,14 @@ import {
   PathType,
   CaptureType,
 } from "../src/shared/dtos/piece_rule";
-import { PieceRuleDataService } from "../src/services/data/piece_rule_data_service";
+import { CyvassePieceRuleDataService } from "../src/services/data/cyvasse_piece_rule_data_service";
 import {
   TerrainType,
   PiecesEffectedType,
 } from "../src/shared/dtos/terrain_rule";
-import { TerrainRuleDataService } from "../src/services/data/terrain_rule_data_service";
+import { CyvasseTerrainRuleDataService } from "../src/services/data/cyvasse_terrain_rule_data_service";
 import { ChallengePlayAs } from "../src/shared/dtos/challenge";
-import { ChallengeDataService } from "../src/services/data/challenge_data_service";
+import { CyvasseChallengeDataService } from "../src/services/data/cyvasse_challenge_data_service";
 import HttpStatus from "http-status-codes";
 import { createExpressApp } from "../src/controllers";
 import express from "express";
@@ -105,7 +105,7 @@ export async function createTestPieceRule(
   pieceTypeId: PieceType,
   variantId: number
 ): Promise<number> {
-  const pieceRule = await new PieceRuleDataService().createPieceRule(
+  const pieceRule = await new CyvassePieceRuleDataService().createPieceRule(
     {
       pieceTypeId,
       count: 1,
@@ -125,7 +125,7 @@ export async function createTestTerrainRule(
   terrainTypeId: TerrainType,
   variantId: number
 ): Promise<number> {
-  const terrainRule = await new TerrainRuleDataService().createTerrainRule(
+  const terrainRule = await new CyvasseTerrainRuleDataService().createTerrainRule(
     {
       terrainTypeId,
       count: 1,
@@ -156,7 +156,7 @@ export async function createTestChallenge(
   variantId: number,
   opponentUserId: number = null
 ): Promise<number> {
-  const challenge = await new ChallengeDataService().createChallenge(
+  const challenge = await new CyvasseChallengeDataService().createChallenge(
     {
       creatorPlayAs: ChallengePlayAs.ALABASTER,
       opponentUserId,

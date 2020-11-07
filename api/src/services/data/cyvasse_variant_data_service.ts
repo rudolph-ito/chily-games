@@ -8,7 +8,7 @@ import { IPaginatedResponse } from "../../shared/dtos/search";
 import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 import { UserDataService } from "./user_data_service";
 
-export interface IVariantDataService {
+export interface ICyvasseVariantDataService {
   createVariant: (
     options: IVariantOptions,
     userId: number
@@ -25,7 +25,7 @@ export interface IVariantDataService {
   ) => Promise<IVariant>;
 }
 
-export class VariantDataService implements IVariantDataService {
+export class CyvasseVariantDataService implements ICyvasseVariantDataService {
   constructor(
     private readonly userDataService: UserDataService = new UserDataService()
   ) {}

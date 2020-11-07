@@ -3,9 +3,9 @@ import {
   doesNotHaveValue,
 } from "../shared/utilities/value_checker";
 import {
-  IVariantDataService,
-  VariantDataService,
-} from "./data/variant_data_service";
+  ICyvasseVariantDataService,
+  CyvasseVariantDataService,
+} from "./data/cyvasse_variant_data_service";
 import { IPaginatedResponse } from "../shared/dtos/search";
 import {
   ValidationError,
@@ -19,13 +19,16 @@ import {
   ChallengePlayAs,
 } from "../shared/dtos/challenge";
 import {
-  IChallengeDataService,
-  ChallengeDataService,
-} from "./data/challenge_data_service";
+  ICyvasseChallengeDataService,
+  CyvasseChallengeDataService,
+} from "./data/cyvasse_challenge_data_service";
 import { UserDataService, IUserDataService } from "./data/user_data_service";
 import { validateChallengeOptions } from "./validators/challenge_validator";
 import { IGame } from "../shared/dtos/game";
-import { IGameDataService, GameDataService } from "./data/game_data_service";
+import {
+  ICyvasseGameDataService,
+  CyvasseGameDataService,
+} from "./data/cyvasse_game_data_service";
 
 interface IPlayerColorAssignment {
   alabasterUserId: number;
@@ -47,10 +50,10 @@ export interface IChallengeService {
 
 export class ChallengeService implements IChallengeService {
   constructor(
-    private readonly challengeDataService: IChallengeDataService = new ChallengeDataService(),
-    private readonly gameDataService: IGameDataService = new GameDataService(),
+    private readonly challengeDataService: ICyvasseChallengeDataService = new CyvasseChallengeDataService(),
+    private readonly gameDataService: ICyvasseGameDataService = new CyvasseGameDataService(),
     private readonly userDataService: IUserDataService = new UserDataService(),
-    private readonly variantDataService: IVariantDataService = new VariantDataService()
+    private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService()
   ) {}
 
   async createChallenge(

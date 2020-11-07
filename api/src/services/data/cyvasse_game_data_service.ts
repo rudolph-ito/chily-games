@@ -28,7 +28,7 @@ export interface IGameUpdateOptions {
   plies?: IGamePly[];
 }
 
-export interface IGameDataService {
+export interface ICyvasseGameDataService {
   createGame: (options: IGameOptions) => Promise<IGame>;
   getGame: (gameId: number) => Promise<IGame>;
   searchGames: (
@@ -37,7 +37,7 @@ export interface IGameDataService {
   updateGame: (gameId: number, options: IGameUpdateOptions) => Promise<void>;
 }
 
-export class GameDataService implements IGameDataService {
+export class CyvasseGameDataService implements ICyvasseGameDataService {
   async createGame(options: IGameOptions): Promise<IGame> {
     const game = CyvasseGame.build({
       variantId: options.variantId,

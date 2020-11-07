@@ -19,7 +19,7 @@ import {
   ITerrainRule,
   PiecesEffectedType,
 } from "../shared/dtos/terrain_rule";
-import { TerrainRuleDataService } from "../services/data/terrain_rule_data_service";
+import { CyvasseTerrainRuleDataService } from "../services/data/cyvasse_terrain_rule_data_service";
 import HttpStatus from "http-status-codes";
 
 describe("TerrainRuleRoutes", () => {
@@ -194,7 +194,7 @@ describe("TerrainRuleRoutes", () => {
         .expect(HttpStatus.OK);
 
       // Assert
-      const terrainRules = await new TerrainRuleDataService().getTerrainRules(
+      const terrainRules = await new CyvasseTerrainRuleDataService().getTerrainRules(
         variantId
       );
       expect(terrainRules).to.eql([]);

@@ -4,7 +4,7 @@ import {
 } from "../../shared/dtos/terrain_rule";
 import { CyvasseTerrainRule } from "../../database/models";
 
-export interface ITerrainRuleDataService {
+export interface ICyvasseTerrainRuleDataService {
   createTerrainRule: (
     options: ITerrainRuleOptions,
     variantId: number
@@ -22,7 +22,8 @@ export interface ITerrainRuleDataService {
   ) => Promise<ITerrainRule>;
 }
 
-export class TerrainRuleDataService implements ITerrainRuleDataService {
+export class CyvasseTerrainRuleDataService
+  implements ICyvasseTerrainRuleDataService {
   async createTerrainRule(
     options: ITerrainRuleOptions,
     variantId: number
@@ -45,9 +46,11 @@ export class TerrainRuleDataService implements ITerrainRuleDataService {
   }
 
   async getTerrainRules(variantId: number): Promise<ITerrainRule[]> {
-    const terrainRules: CyvasseTerrainRule[] = await CyvasseTerrainRule.findAll({
-      where: { variantId },
-    });
+    const terrainRules: CyvasseTerrainRule[] = await CyvasseTerrainRule.findAll(
+      {
+        where: { variantId },
+      }
+    );
     return terrainRules.map((terrainRule) => terrainRule.serialize());
   }
 

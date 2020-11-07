@@ -1,11 +1,11 @@
 import {
-  IVariantDataService,
-  VariantDataService,
-} from "./data/variant_data_service";
+  ICyvasseVariantDataService,
+  CyvasseVariantDataService,
+} from "./data/cyvasse_variant_data_service";
 import {
-  IPieceRuleDataService,
-  PieceRuleDataService,
-} from "./data/piece_rule_data_service";
+  ICyvassePieceRuleDataService,
+  CyvassePieceRuleDataService,
+} from "./data/cyvasse_piece_rule_data_service";
 import {
   IPieceRuleOptions,
   IPieceRule,
@@ -46,8 +46,8 @@ export interface IPieceRuleService {
 
 export class PieceRuleService implements IPieceRuleService {
   constructor(
-    private readonly pieceRuleDataService: IPieceRuleDataService = new PieceRuleDataService(),
-    private readonly variantDataService: IVariantDataService = new VariantDataService()
+    private readonly pieceRuleDataService: ICyvassePieceRuleDataService = new CyvassePieceRuleDataService(),
+    private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService()
   ) {}
 
   async createPieceRule(

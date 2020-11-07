@@ -1,11 +1,11 @@
 import {
-  IVariantDataService,
-  VariantDataService,
-} from "./data/variant_data_service";
+  ICyvasseVariantDataService,
+  CyvasseVariantDataService,
+} from "./data/cyvasse_variant_data_service";
 import {
-  ITerrainRuleDataService,
-  TerrainRuleDataService,
-} from "./data/terrain_rule_data_service";
+  ICyvasseTerrainRuleDataService,
+  CyvasseTerrainRuleDataService,
+} from "./data/cyvasse_terrain_rule_data_service";
 import {
   ITerrainRuleOptions,
   ITerrainRule,
@@ -49,8 +49,8 @@ export interface ITerrainRuleService {
 
 export class TerrainRuleService implements ITerrainRuleService {
   constructor(
-    private readonly terrainRuleDataService: ITerrainRuleDataService = new TerrainRuleDataService(),
-    private readonly variantDataService: IVariantDataService = new VariantDataService()
+    private readonly terrainRuleDataService: ICyvasseTerrainRuleDataService = new CyvasseTerrainRuleDataService(),
+    private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService()
   ) {}
 
   async createTerrainRule(

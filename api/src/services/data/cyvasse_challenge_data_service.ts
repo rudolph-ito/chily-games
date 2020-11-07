@@ -10,7 +10,7 @@ import {
   ISearchChallengesRequest,
 } from "../../shared/dtos/challenge";
 
-export interface IChallengeDataService {
+export interface ICyvasseChallengeDataService {
   createChallenge: (
     options: IChallengeOptions,
     userId: number
@@ -22,7 +22,8 @@ export interface IChallengeDataService {
   ) => Promise<IPaginatedResponse<IChallenge>>;
 }
 
-export class ChallengeDataService implements IChallengeDataService {
+export class CyvasseChallengeDataService
+  implements ICyvasseChallengeDataService {
   async createChallenge(
     options: IChallengeOptions,
     userId: number

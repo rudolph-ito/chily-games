@@ -11,7 +11,7 @@ import {
 } from "../../test/test_helper";
 import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
-import { GameDataService } from "../services/data/game_data_service";
+import { CyvasseGameDataService } from "../services/data/cyvasse_game_data_service";
 import { GameService } from "../services/game_service";
 import { PieceType } from "../shared/dtos/piece_rule";
 import { expect } from "chai";
@@ -64,7 +64,7 @@ describe("GameRoutes", () => {
 
       beforeEach(async () => {
         gameId = (
-          await new GameDataService().createGame({
+          await new CyvasseGameDataService().createGame({
             variantId,
             alabasterUserId: user1Id,
             onyxUserId: user2Id,
@@ -172,7 +172,7 @@ describe("GameRoutes", () => {
 
       beforeEach(async () => {
         gameId = (
-          await new GameDataService().createGame({
+          await new CyvasseGameDataService().createGame({
             variantId,
             alabasterUserId: user1Id,
             onyxUserId: user2Id,
@@ -197,7 +197,7 @@ describe("GameRoutes", () => {
           .expect(HttpStatus.OK);
 
         // Assert
-        const updatedGame = await new GameDataService().getGame(gameId);
+        const updatedGame = await new CyvasseGameDataService().getGame(gameId);
         expect(updatedGame.alabasterSetupCoordinateMap).to.eql([
           {
             key: { x: 0, y: -1 },
@@ -231,7 +231,7 @@ describe("GameRoutes", () => {
 
       beforeEach(async () => {
         gameId = (
-          await new GameDataService().createGame({
+          await new CyvasseGameDataService().createGame({
             variantId,
             alabasterUserId: user1Id,
             onyxUserId: user2Id,
@@ -255,7 +255,7 @@ describe("GameRoutes", () => {
           .expect(HttpStatus.OK);
 
         // Assert
-        const updatedGame = await new GameDataService().getGame(gameId);
+        const updatedGame = await new CyvasseGameDataService().getGame(gameId);
         expect(updatedGame.action).to.eql(Action.SETUP);
         expect(updatedGame.actionTo).to.eql(PlayerColor.ONYX);
       });
@@ -266,7 +266,7 @@ describe("GameRoutes", () => {
 
       beforeEach(async () => {
         gameId = (
-          await new GameDataService().createGame({
+          await new CyvasseGameDataService().createGame({
             variantId,
             alabasterUserId: user1Id,
             onyxUserId: user2Id,
@@ -297,7 +297,7 @@ describe("GameRoutes", () => {
           .expect(HttpStatus.OK);
 
         // Assert
-        const updatedGame = await new GameDataService().getGame(gameId);
+        const updatedGame = await new CyvasseGameDataService().getGame(gameId);
         expect(updatedGame.action).to.eql(Action.PLAY);
         expect(updatedGame.actionTo).to.eql(PlayerColor.ALABASTER);
         expect(updatedGame.currentCoordinateMap).to.eql([
@@ -340,7 +340,7 @@ describe("GameRoutes", () => {
 
       beforeEach(async () => {
         gameId = (
-          await new GameDataService().createGame({
+          await new CyvasseGameDataService().createGame({
             variantId,
             alabasterUserId: user1Id,
             onyxUserId: user2Id,
@@ -383,7 +383,7 @@ describe("GameRoutes", () => {
           .expect(HttpStatus.OK);
 
         // Assert
-        const updatedGame = await new GameDataService().getGame(gameId);
+        const updatedGame = await new CyvasseGameDataService().getGame(gameId);
         expect(updatedGame.action).to.eql(Action.PLAY);
         expect(updatedGame.actionTo).to.eql(PlayerColor.ONYX);
         expect(updatedGame.currentCoordinateMap).to.eql([
@@ -415,7 +415,7 @@ describe("GameRoutes", () => {
 
       beforeEach(async () => {
         gameId = (
-          await new GameDataService().createGame({
+          await new CyvasseGameDataService().createGame({
             variantId,
             alabasterUserId: user1Id,
             onyxUserId: user2Id,
@@ -469,7 +469,7 @@ describe("GameRoutes", () => {
           .expect(HttpStatus.OK);
 
         // Assert
-        const updatedGame = await new GameDataService().getGame(gameId);
+        const updatedGame = await new CyvasseGameDataService().getGame(gameId);
         expect(updatedGame.action).to.eql(Action.COMPLETE);
         expect(updatedGame.actionTo).to.eql(PlayerColor.ALABASTER);
         expect(updatedGame.currentCoordinateMap).to.eql([

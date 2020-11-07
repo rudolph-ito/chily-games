@@ -96,9 +96,13 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
-    await queryInterface.addIndex("CyvassePieceRules", ["variantId", "pieceTypeId"], {
-      unique: true,
-    });
+    await queryInterface.addIndex(
+      "CyvassePieceRules",
+      ["variantId", "pieceTypeId"],
+      {
+        unique: true,
+      }
+    );
   },
 
   down: (queryInterface, Sequelize) => {

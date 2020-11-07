@@ -24,7 +24,9 @@ CyvasseGame.belongsTo(CyvasseVariant, {
 CyvasseGame.belongsTo(User, {
   foreignKey: { name: "alabasterUserId", allowNull: false },
 });
-CyvasseGame.belongsTo(User, { foreignKey: { name: "onyxUserId", allowNull: false } });
+CyvasseGame.belongsTo(User, {
+  foreignKey: { name: "onyxUserId", allowNull: false },
+});
 
 // PieceRule
 CyvassePieceRule.belongsTo(CyvasseVariant, {
@@ -37,17 +39,17 @@ CyvasseTerrainRule.belongsTo(CyvasseVariant, {
 });
 
 // Variant
-CyvasseVariant.belongsTo(User, { foreignKey: { name: "userId", allowNull: false } });
+CyvasseVariant.belongsTo(User, {
+  foreignKey: { name: "userId", allowNull: false },
+});
 
 // Classes should be imported from so associations are setup properly
-export { 
-  sequelize, 
-
+export {
+  sequelize,
   User,
-  
-  CyvasseChallenge, 
-  CyvasseGame, 
-  CyvassePieceRule, 
-  CyvasseTerrainRule, 
-  CyvasseVariant 
+  CyvasseChallenge,
+  CyvasseGame,
+  CyvassePieceRule,
+  CyvasseTerrainRule,
+  CyvasseVariant,
 };

@@ -20,7 +20,7 @@ import {
   CaptureType,
   IPieceRule,
 } from "../shared/dtos/piece_rule";
-import { PieceRuleDataService } from "../services/data/piece_rule_data_service";
+import { CyvassePieceRuleDataService } from "../services/data/cyvasse_piece_rule_data_service";
 import HttpStatus from "http-status-codes";
 
 describe("PieceRuleRoutes", () => {
@@ -171,7 +171,7 @@ describe("PieceRuleRoutes", () => {
         .expect(HttpStatus.OK);
 
       // Assert
-      const pieceRules = await new PieceRuleDataService().getPieceRules(
+      const pieceRules = await new CyvassePieceRuleDataService().getPieceRules(
         variantId
       );
       expect(pieceRules.map((pr) => pr.pieceTypeId)).to.eql([PieceType.KING]);

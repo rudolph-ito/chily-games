@@ -5,7 +5,7 @@ import {
   valueOrDefault,
 } from "../../shared/utilities/value_checker";
 
-export interface IPieceRuleDataService {
+export interface ICyvassePieceRuleDataService {
   createPieceRule: (
     options: IPieceRuleOptions,
     variantId: number
@@ -20,7 +20,8 @@ export interface IPieceRuleDataService {
   ) => Promise<IPieceRule>;
 }
 
-export class PieceRuleDataService implements IPieceRuleDataService {
+export class CyvassePieceRuleDataService
+  implements ICyvassePieceRuleDataService {
   async createPieceRule(
     options: IPieceRuleOptions,
     variantId: number
@@ -50,7 +51,9 @@ export class PieceRuleDataService implements IPieceRuleDataService {
   }
 
   async hasPieceRule(pieceRuleId: number, variantId: number): Promise<boolean> {
-    const count = await CyvassePieceRule.count({ where: { pieceRuleId, variantId } });
+    const count = await CyvassePieceRule.count({
+      where: { pieceRuleId, variantId },
+    });
     return count === 1;
   }
 
@@ -64,7 +67,10 @@ export class PieceRuleDataService implements IPieceRuleDataService {
     return pieceRule.serialize();
   }
 
-  private assignPieceRule(obj: CyvassePieceRule, options: IPieceRuleOptions): void {
+  private assignPieceRule(
+    obj: CyvassePieceRule,
+    options: IPieceRuleOptions
+  ): void {
     obj.pieceTypeId = options.pieceTypeId;
     obj.count = options.count;
     obj.movementType = options.movement.type;
