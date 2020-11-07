@@ -1,5 +1,5 @@
 import express from "express";
-import { IUserService, UserService } from "../services/user_service";
+import { IUserService, UserService } from "../services/shared/user_service";
 
 export function getUserRouter(
   userService: IUserService = new UserService()

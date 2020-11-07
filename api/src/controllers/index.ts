@@ -4,7 +4,6 @@ import expressCookieParser from "cookie-parser";
 import expressBodyParser from "body-parser";
 import expressCors from "cors";
 import { initAuthController } from "./auth";
-import { getVariantRouter } from "./variant";
 import { createServer, Server } from "https";
 import { join as pathJoin } from "path";
 import { readFileSync } from "fs";
@@ -12,17 +11,14 @@ import {
   AuthorizationError,
   NotFoundError,
   ValidationError,
-} from "../services/exceptions";
-import { getPieceRulesRouter } from "./piece_rule";
-import { getTerrainRulesRouter } from "./terrain_rule";
-import { getChallengeRouter } from "./challenge";
+} from "../services/shared/exceptions";
 import HttpStatus from "http-status-codes";
-import { getGameRouter } from "./game";
 import { getUserRouter } from "./user";
 import newSocketIoServer from "socket.io";
 import newSocketIoRedisAdapter from "socket.io-redis";
 import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
+import { getCyvasseRouter } from './cyvasse';
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 const RedisStore = connectRedis(expressSession);
@@ -84,20 +80,7 @@ export function createExpressApp(
     res.status(200).end();
   });
   const authenticationRequired = initAuthController(app, "/api/auth");
-  app.use("/api/variants", getVariantRouter(authenticationRequired));
-  app.use(
-    "/api/variants/:variantId/pieceRules",
-    getPieceRulesRouter(authenticationRequired)
-  );
-  app.use(
-    "/api/variants/:variantId/terrainRules",
-    getTerrainRulesRouter(authenticationRequired)
-  );
-  app.use("/api/challenges", getChallengeRouter(authenticationRequired));
-  app.use(
-    "/api/games",
-    getGameRouter(authenticationRequired, options.publishRedisClient)
-  );
+  app.use("/api/cyvasse", getCyvasseRouter(authenticationRequired, options.publishRedisClient));
   app.use("/api/users", getUserRouter());
   app.use(errorHandler());
   return app;
