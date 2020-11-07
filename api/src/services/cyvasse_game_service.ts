@@ -47,7 +47,7 @@ import { validateGameSetupComplete } from "./validators/game_setup_complete_vali
 import { validateGamePly } from "./validators/game_ply_validator";
 import { PlyCalculator } from "./game/ply_calculator";
 
-export interface IGameService {
+export interface ICyvasseGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
   getGame: (userId: number, gameId: number) => Promise<IGame>;
   getGameRules: (gameId: number) => Promise<IGameRules>;
@@ -72,7 +72,7 @@ export interface IGameService {
   ) => Promise<IPaginatedResponse<IGame>>;
 }
 
-export class GameService implements IGameService {
+export class CyvasseGameService implements ICyvasseGameService {
   constructor(
     private readonly gameDataService: ICyvasseGameDataService = new CyvasseGameDataService(),
     private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService(),

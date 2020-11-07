@@ -23,7 +23,7 @@ import {
   NotFoundError,
 } from "./exceptions";
 
-export interface ITerrainRuleService {
+export interface ICyvasseTerrainRuleService {
   createTerrainRule: (
     userId: number,
     variantId: number,
@@ -47,7 +47,7 @@ export interface ITerrainRuleService {
   ) => Promise<ITerrainRule>;
 }
 
-export class TerrainRuleService implements ITerrainRuleService {
+export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
   constructor(
     private readonly terrainRuleDataService: ICyvasseTerrainRuleDataService = new CyvasseTerrainRuleDataService(),
     private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService()

@@ -12,7 +12,7 @@ import {
 import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
 import { CyvasseGameDataService } from "../services/data/cyvasse_game_data_service";
-import { GameService } from "../services/game_service";
+import { CyvasseGameService } from "../services/cyvasse_game_service";
 import { PieceType } from "../shared/dtos/piece_rule";
 import { expect } from "chai";
 import {
@@ -70,13 +70,13 @@ describe("GameRoutes", () => {
             onyxUserId: user2Id,
           })
         ).gameId;
-        await new GameService().updateGameSetup(user1Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user1Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: -1 },
           },
         });
-        await new GameService().updateGameSetup(user2Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user2Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: 1 },
@@ -237,7 +237,7 @@ describe("GameRoutes", () => {
             onyxUserId: user2Id,
           })
         ).gameId;
-        await new GameService().updateGameSetup(user1Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user1Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: -1 },
@@ -272,19 +272,19 @@ describe("GameRoutes", () => {
             onyxUserId: user2Id,
           })
         ).gameId;
-        await new GameService().updateGameSetup(user1Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user1Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: -1 },
           },
         });
-        await new GameService().updateGameSetup(user2Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user2Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: 1 },
           },
         });
-        await new GameService().completeGameSetup(user2Id, gameId);
+        await new CyvasseGameService().completeGameSetup(user2Id, gameId);
       });
 
       it("on success, updates state", async () => {
@@ -346,20 +346,20 @@ describe("GameRoutes", () => {
             onyxUserId: user2Id,
           })
         ).gameId;
-        await new GameService().updateGameSetup(user1Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user1Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: -1 },
           },
         });
-        await new GameService().updateGameSetup(user2Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user2Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: 1 },
           },
         });
-        await new GameService().completeGameSetup(user1Id, gameId);
-        await new GameService().completeGameSetup(user2Id, gameId);
+        await new CyvasseGameService().completeGameSetup(user1Id, gameId);
+        await new CyvasseGameService().completeGameSetup(user2Id, gameId);
       });
 
       it("on success, updates state", async () => {
@@ -421,21 +421,21 @@ describe("GameRoutes", () => {
             onyxUserId: user2Id,
           })
         ).gameId;
-        await new GameService().updateGameSetup(user1Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user1Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: -1 },
           },
         });
-        await new GameService().updateGameSetup(user2Id, gameId, {
+        await new CyvasseGameService().updateGameSetup(user2Id, gameId, {
           pieceChange: {
             pieceTypeId: PieceType.KING,
             to: { x: 0, y: 1 },
           },
         });
-        await new GameService().completeGameSetup(user1Id, gameId);
-        await new GameService().completeGameSetup(user2Id, gameId);
-        await new GameService().createGamePly(user1Id, gameId, {
+        await new CyvasseGameService().completeGameSetup(user1Id, gameId);
+        await new CyvasseGameService().completeGameSetup(user2Id, gameId);
+        await new CyvasseGameService().createGamePly(user1Id, gameId, {
           piece: {
             pieceTypeId: PieceType.KING,
             playerColor: PlayerColor.ALABASTER,

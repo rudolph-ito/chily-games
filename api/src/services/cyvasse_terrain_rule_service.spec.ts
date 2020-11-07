@@ -1,4 +1,4 @@
-import { TerrainRuleService } from "./terrain_rule_service";
+import { CyvasseTerrainRuleService } from "./cyvasse_terrain_rule_service";
 import { describe, it } from "mocha";
 import {
   createTestVariant,
@@ -14,9 +14,9 @@ import { TerrainType, PiecesEffectedType } from "../shared/dtos/terrain_rule";
 describe("TerrainRuleService", () => {
   resetDatabaseBeforeEach();
 
-  let service: TerrainRuleService;
+  let service: CyvasseTerrainRuleService;
   beforeEach(() => {
-    service = new TerrainRuleService();
+    service = new CyvasseTerrainRuleService();
   });
 
   describe("createTerrainRule", () => {

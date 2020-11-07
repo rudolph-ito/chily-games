@@ -14,7 +14,7 @@ import supertest from "supertest";
 import { IChallengeOptions, ChallengePlayAs } from "../shared/dtos/challenge";
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { ChallengeService } from "../services/challenge_service";
+import { CyvasseChallengeService } from "../services/cyvasse_challenge_service";
 import { IGame } from "../shared/dtos/game";
 import HttpStatus from "http-status-codes";
 
@@ -125,7 +125,7 @@ describe("ChallengeRoutes", () => {
         .expect(HttpStatus.OK);
 
       // Assert
-      const paginatedChallenges = await new ChallengeService().searchChallenges(
+      const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
         { pagination: { pageSize: 10, pageIndex: 0 } }
       );
       expect(paginatedChallenges.total).to.equal(0);
@@ -193,7 +193,7 @@ describe("ChallengeRoutes", () => {
         const game: IGame = response.body;
         expect(game.alabasterUserId).to.eql(user1Id);
         expect(game.onyxUserId).to.eql(user2Id);
-        const paginatedChallenges = await new ChallengeService().searchChallenges(
+        const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
           { pagination: { pageSize: 10, pageIndex: 0 } }
         );
         expect(paginatedChallenges.total).to.equal(0);
@@ -266,7 +266,7 @@ describe("ChallengeRoutes", () => {
         const game: IGame = response.body;
         expect(game.alabasterUserId).to.eql(user1Id);
         expect(game.onyxUserId).to.eql(user2Id);
-        const paginatedChallenges = await new ChallengeService().searchChallenges(
+        const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
           { pagination: { pageSize: 10, pageIndex: 0 } }
         );
         expect(paginatedChallenges.total).to.equal(0);

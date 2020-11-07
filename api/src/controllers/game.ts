@@ -1,5 +1,5 @@
 import express from "express";
-import { IGameService, GameService } from "../services/game_service";
+import { ICyvasseGameService, CyvasseGameService } from "../services/cyvasse_game_service";
 import { doesHaveValue } from "../shared/utilities/value_checker";
 import { IUser } from "../shared/dtos/authentication";
 import newSocketIoEmitter from "socket.io-emitter";
@@ -8,7 +8,7 @@ import { RedisClient } from "redis";
 export function getGameRouter(
   authenticationRequired: express.Handler,
   publishRedisClient: RedisClient,
-  gameService: IGameService = new GameService()
+  gameService: ICyvasseGameService = new CyvasseGameService()
 ): express.Router {
   const router = express.Router();
   router.post("/search", function (req, res, next) {

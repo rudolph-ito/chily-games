@@ -1,4 +1,4 @@
-import { PieceRuleService } from "./piece_rule_service";
+import { CyvassePieceRuleService } from "./cyvasse_piece_rule_service";
 import { describe, it } from "mocha";
 import {
   createTestVariant,
@@ -14,9 +14,9 @@ import { PieceType, PathType, CaptureType } from "../shared/dtos/piece_rule";
 describe("PieceRuleService", () => {
   resetDatabaseBeforeEach();
 
-  let service: PieceRuleService;
+  let service: CyvassePieceRuleService;
   beforeEach(() => {
-    service = new PieceRuleService();
+    service = new CyvassePieceRuleService();
   });
 
   describe("createPieceRule", () => {

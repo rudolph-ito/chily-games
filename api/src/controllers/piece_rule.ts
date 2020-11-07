@@ -1,11 +1,11 @@
 import express from "express";
 import { IUser } from "../shared/dtos/authentication";
-import { PieceRuleService } from "../services/piece_rule_service";
+import { CyvassePieceRuleService } from "../services/cyvasse_piece_rule_service";
 
 // Assumes parentRouter has variantId in params
 export function getPieceRulesRouter(
   authenticationRequired: express.Handler,
-  pieceRuleService: PieceRuleService = new PieceRuleService()
+  pieceRuleService: CyvassePieceRuleService = new CyvassePieceRuleService()
 ): express.Router {
   const router = express.Router({ mergeParams: true });
   router.get("/", function (req, res, next) {

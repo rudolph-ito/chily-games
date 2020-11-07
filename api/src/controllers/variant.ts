@@ -1,10 +1,10 @@
 import express from "express";
-import { VariantService, IVariantService } from "../services/variant_service";
+import { CyvasseVariantService, ICyvasseVariantService } from "../services/cyvasse_variant_service";
 import { IUser } from "../shared/dtos/authentication";
 
 export function getVariantRouter(
   authenticationRequired: express.Handler,
-  variantService: IVariantService = new VariantService()
+  variantService: ICyvasseVariantService = new CyvasseVariantService()
 ): express.Router {
   const router = express.Router();
   router.post("/search", function (req, res, next) {

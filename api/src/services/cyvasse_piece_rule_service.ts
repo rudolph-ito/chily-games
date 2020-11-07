@@ -23,7 +23,7 @@ import {
   NotFoundError,
 } from "./exceptions";
 
-export interface IPieceRuleService {
+export interface ICyvassePieceRuleService {
   createPieceRule: (
     userId: number,
     variantId: number,
@@ -44,7 +44,7 @@ export interface IPieceRuleService {
   ) => Promise<IPieceRule>;
 }
 
-export class PieceRuleService implements IPieceRuleService {
+export class CyvassePieceRuleService implements ICyvassePieceRuleService {
   constructor(
     private readonly pieceRuleDataService: ICyvassePieceRuleDataService = new CyvassePieceRuleDataService(),
     private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService()

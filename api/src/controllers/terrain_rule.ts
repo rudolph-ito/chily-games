@@ -1,11 +1,11 @@
 import express from "express";
 import { IUser } from "../shared/dtos/authentication";
-import { TerrainRuleService } from "../services/terrain_rule_service";
+import { CyvasseTerrainRuleService } from "../services/cyvasse_terrain_rule_service";
 
 // Assumes parentRouter has variantId in params
 export function getTerrainRulesRouter(
   authenticationRequired: express.Handler,
-  terrainRuleService: TerrainRuleService = new TerrainRuleService()
+  terrainRuleService: CyvasseTerrainRuleService = new CyvasseTerrainRuleService()
 ): express.Router {
   const router = express.Router({ mergeParams: true });
   router.get("/", function (req, res, next) {

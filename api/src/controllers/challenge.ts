@@ -1,14 +1,14 @@
 import express from "express";
 import {
-  IChallengeService,
-  ChallengeService,
-} from "../services/challenge_service";
+  ICyvasseChallengeService,
+  CyvasseChallengeService,
+} from "../services/cyvasse_challenge_service";
 import { IUser } from "../shared/dtos/authentication";
 import HttpStatus from "http-status-codes";
 
 export function getChallengeRouter(
   authenticationRequired: express.Handler,
-  challengeService: IChallengeService = new ChallengeService()
+  challengeService: ICyvasseChallengeService = new CyvasseChallengeService()
 ): express.Router {
   const router = express.Router();
   router.post("/search", function (req, res, next) {

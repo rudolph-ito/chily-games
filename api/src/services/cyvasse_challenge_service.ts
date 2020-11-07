@@ -35,7 +35,7 @@ interface IPlayerColorAssignment {
   onyxUserId: number;
 }
 
-export interface IChallengeService {
+export interface ICyvasseChallengeService {
   acceptChallenge: (userId: number, challengeId: number) => Promise<IGame>;
   createChallenge: (
     userId: number,
@@ -48,7 +48,7 @@ export interface IChallengeService {
   ) => Promise<IPaginatedResponse<IChallenge>>;
 }
 
-export class ChallengeService implements IChallengeService {
+export class CyvasseChallengeService implements ICyvasseChallengeService {
   constructor(
     private readonly challengeDataService: ICyvasseChallengeDataService = new CyvasseChallengeDataService(),
     private readonly gameDataService: ICyvasseGameDataService = new CyvasseGameDataService(),

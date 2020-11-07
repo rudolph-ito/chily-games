@@ -6,7 +6,7 @@ import { shouldSequelizeLog } from "../src/shared/utilities/env";
 import supertest from "supertest";
 import { UserDataService } from "../src/services/data/user_data_service";
 import { BoardType, IVariantOptions } from "../src/shared/dtos/variant";
-import { VariantService } from "../src/services/variant_service";
+import { CyvasseVariantService } from "../src/services/cyvasse_variant_service";
 import {
   PieceType,
   PathType,
@@ -92,7 +92,7 @@ export async function createTestVariant(
   creatorId: number,
   options: Partial<IVariantOptions> = {}
 ): Promise<number> {
-  const variant = await new VariantService().createVariant(creatorId, {
+  const variant = await new CyvasseVariantService().createVariant(creatorId, {
     boardType: BoardType.HEXAGONAL,
     boardSize: 6,
     pieceRanks: false,

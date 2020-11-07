@@ -32,7 +32,7 @@ import {
   CaptureType,
 } from "../shared/dtos/piece_rule";
 
-export interface IVariantService {
+export interface ICyvasseVariantService {
   createVariant: (
     userId: number,
     options: IVariantOptions
@@ -53,7 +53,7 @@ export interface IVariantService {
   ) => Promise<IVariant>;
 }
 
-export class VariantService implements IVariantService {
+export class CyvasseVariantService implements ICyvasseVariantService {
   constructor(
     private readonly pieceRuleDataService: ICyvassePieceRuleDataService = new CyvassePieceRuleDataService(),
     private readonly variantDataService: ICyvasseVariantDataService = new CyvasseVariantDataService()
