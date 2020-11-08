@@ -330,7 +330,9 @@ describe("CyvasseGameRoutes", () => {
       const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
-      await agent.post(`/api/cyvasse/games/999/createPly`).expect(HttpStatus.NOT_FOUND);
+      await agent
+        .post(`/api/cyvasse/games/999/createPly`)
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });

@@ -1,7 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { ITerrainRule, ITerrainRuleOptions } from "../shared/dtos/terrain_rule";
+import {
+  ITerrainRule,
+  ITerrainRuleOptions,
+} from "../../shared/dtos/terrain_rule";
 
 @Injectable({
   providedIn: "root",
@@ -51,6 +54,6 @@ export class TerrainRuleService {
   }
 
   private getRoutePrefix(variantId: number): string {
-    return `/api/variants/${variantId}/terrainRules`;
+    return `/api/cyvasse/variants/${variantId}/terrainRules`;
   }
 }

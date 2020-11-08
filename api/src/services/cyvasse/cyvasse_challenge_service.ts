@@ -22,7 +22,10 @@ import {
   ICyvasseChallengeDataService,
   CyvasseChallengeDataService,
 } from "./data/cyvasse_challenge_data_service";
-import { UserDataService, IUserDataService } from "../shared/data/user_data_service";
+import {
+  UserDataService,
+  IUserDataService,
+} from "../shared/data/user_data_service";
 import { validateChallengeOptions } from "./validators/cyvasse_challenge_validator";
 import { IGame } from "../../shared/dtos/game";
 import {

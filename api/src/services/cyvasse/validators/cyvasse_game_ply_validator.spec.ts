@@ -10,7 +10,10 @@ import {
 import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 import { PlayerColor, IGamePly } from "../../../shared/dtos/game";
 import { mockPieceRule, mockVariant } from "../../../../test/mocks";
-import { validateGamePly, IValidateGamePlyOptions } from "./cyvasse_game_ply_validator";
+import {
+  validateGamePly,
+  IValidateGamePlyOptions,
+} from "./cyvasse_game_ply_validator";
 import { BoardType } from "../../../shared/dtos/variant";
 import { getBoardForVariant } from "../game/board/cyvasse_board_builder";
 

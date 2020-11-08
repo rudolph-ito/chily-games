@@ -10,14 +10,14 @@ import {
   ITerrainRule,
   ITerrainRuleValidationErrors,
   PiecesEffectedType,
-} from "../../shared/dtos/terrain_rule";
+} from "../../../shared/dtos/terrain_rule";
 import {
   doesHaveValue,
   valueOrDefault,
-} from "../../shared/utilities/value_checker";
+} from "../../../shared/utilities/value_checker";
 import { Observable } from "rxjs";
 import { ActivatedRoute, Router } from "@angular/router";
-import { TerrainRuleService } from "src/app/services/terrain-rule.service";
+import { TerrainRuleService } from "src/app/services/cyvasse/terrain-rule.service";
 import { setError } from "src/app/utils/form-control-helpers";
 
 export interface ITerrainEffect {
@@ -247,6 +247,6 @@ export class TerrainRuleFormComponent implements OnInit {
   }
 
   goToVariant(): void {
-    this.router.navigate([`variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+    this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
   }
 }

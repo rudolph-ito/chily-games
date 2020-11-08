@@ -18,7 +18,7 @@ import newSocketIoServer from "socket.io";
 import newSocketIoRedisAdapter from "socket.io-redis";
 import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
-import { getCyvasseRouter } from './cyvasse';
+import { getCyvasseRouter } from "./cyvasse";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 const RedisStore = connectRedis(expressSession);
@@ -80,7 +80,10 @@ export function createExpressApp(
     res.status(200).end();
   });
   const authenticationRequired = initAuthController(app, "/api/auth");
-  app.use("/api/cyvasse", getCyvasseRouter(authenticationRequired, options.publishRedisClient));
+  app.use(
+    "/api/cyvasse",
+    getCyvasseRouter(authenticationRequired, options.publishRedisClient)
+  );
   app.use("/api/users", getUserRouter());
   app.use(errorHandler());
   return app;

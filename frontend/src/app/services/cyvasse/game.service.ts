@@ -9,8 +9,8 @@ import {
   IGameRules,
   IGetGameValidPliesRequest,
   ValidPlies,
-} from "../shared/dtos/game";
-import { IPaginatedResponse } from "../shared/dtos/search";
+} from "../../shared/dtos/game";
+import { IPaginatedResponse } from "../../shared/dtos/search";
 
 @Injectable({
   providedIn: "root",
@@ -63,12 +63,12 @@ export class GameService {
 
   search(request: ISearchGamesRequest): Observable<IPaginatedResponse<IGame>> {
     return this.http.post<IPaginatedResponse<IGame>>(
-      `/api/games/search`,
+      `/api/cyvasse/games/search`,
       request
     );
   }
 
   private getRoutePrefix(gameId: number): string {
-    return `/api/games/${gameId}`;
+    return `/api/cyvasse/games/${gameId}`;
   }
 }

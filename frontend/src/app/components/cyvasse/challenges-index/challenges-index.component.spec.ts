@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { ChallengesIndexComponent } from "./challenges-index.component";
 import { AppModule } from "src/app/app.module";
-import { ChallengeService } from "src/app/services/challenge.service";
+import { ChallengeService } from "src/app/services/cyvasse/challenge.service";
 import { of } from "rxjs";
 
 describe("ChallengesIndexComponent", () => {

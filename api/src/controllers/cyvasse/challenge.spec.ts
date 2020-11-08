@@ -11,7 +11,10 @@ import {
   ITestServer,
 } from "../../../test/test_helper";
 import supertest from "supertest";
-import { IChallengeOptions, ChallengePlayAs } from "../../shared/dtos/challenge";
+import {
+  IChallengeOptions,
+  ChallengePlayAs,
+} from "../../shared/dtos/challenge";
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { CyvasseChallengeService } from "../../services/cyvasse/cyvasse_challenge_service";
@@ -110,7 +113,9 @@ describe("CyvasseChallengeRoutes", () => {
       const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
-      await agent.delete(`/api/cyvasse/challenges/999`).expect(HttpStatus.NOT_FOUND);
+      await agent
+        .delete(`/api/cyvasse/challenges/999`)
+        .expect(HttpStatus.NOT_FOUND);
 
       // Assert
     });

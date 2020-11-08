@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { VariantShowComponent } from "./variant-show.component";
-import { VariantService } from "src/app/services/variant.service";
+import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { RouterTestingModule } from "@angular/router/testing";
 import { AppModule } from "src/app/app.module";
 import { of } from "rxjs";
 import { BoardType } from "src/app/shared/dtos/variant";
-import { PieceRuleService } from "src/app/services/piece-rule.service";
+import { PieceRuleService } from "src/app/services/cyvasse/piece-rule.service";
 import {
   PieceType,
   PathType,
   CaptureType,
 } from "src/app/shared/dtos/piece_rule";
-import { TerrainRuleService } from "src/app/services/terrain-rule.service";
+import { TerrainRuleService } from "src/app/services/cyvasse/terrain-rule.service";
 import {
   TerrainType,
   PiecesEffectedType,

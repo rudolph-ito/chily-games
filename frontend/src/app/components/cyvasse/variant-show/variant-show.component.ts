@@ -1,21 +1,21 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { VariantService } from "../../services/variant.service";
-import { IVariant } from "../../shared/dtos/variant";
-import { getBoardDescription } from "../../formatters/variant.formatter";
+import { VariantService } from "../../../services/cyvasse/variant.service";
+import { IVariant } from "../../../shared/dtos/variant";
+import { getBoardDescription } from "../../../formatters/variant.formatter";
 import { MatTableDataSource } from "@angular/material/table";
 import { Observable, of, forkJoin } from "rxjs";
-import { AuthenticationService } from "../../services/authentication.service";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
+import { AuthenticationService } from "../../../services/authentication.service";
+import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { map } from "rxjs/operators";
 import { IPieceRule, CaptureType } from "src/app/shared/dtos/piece_rule";
-import { PieceRuleService } from "../../services/piece-rule.service";
+import { PieceRuleService } from "../../../services/cyvasse/piece-rule.service";
 import {
   getPathConfigurationDescription,
   getPieceTypeDescription,
   getCaptureTypeDescription,
 } from "src/app/formatters/piece-rule.formatter";
-import { TerrainRuleService } from "src/app/services/terrain-rule.service";
+import { TerrainRuleService } from "src/app/services/cyvasse/terrain-rule.service";
 import { ITerrainRule } from "src/app/shared/dtos/terrain_rule";
 import {
   getPiecesEffectedDescription,

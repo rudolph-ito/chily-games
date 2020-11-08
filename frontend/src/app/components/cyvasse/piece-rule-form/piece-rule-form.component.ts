@@ -8,19 +8,19 @@ import {
 import { ISelectOption } from "src/app/models/form";
 import { FormControl } from "@angular/forms";
 import { Observable } from "rxjs";
-import { PieceRuleService } from "src/app/services/piece-rule.service";
+import { PieceRuleService } from "src/app/services/cyvasse/piece-rule.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   doesHaveValue,
   doesNotHaveValue,
-} from "../../shared/utilities/value_checker";
+} from "../../../shared/utilities/value_checker";
 import { setError } from "src/app/utils/form-control-helpers";
 import {
   PIECE_TYPE_OPTIONS,
   PATH_TYPE_OPTIONS,
   CAPTURE_TYPE_OPTIONS,
 } from "src/app/models/piece-rule";
-import { VariantService } from "src/app/services/variant.service";
+import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { BaseBoard } from "src/app/game/board/base_board";
 import { PlayerColor } from "src/app/shared/dtos/game";
 import { buildBoard } from "src/app/game/board/board_builder";
@@ -244,6 +244,6 @@ export class PieceRuleFormComponent implements OnInit {
   }
 
   goToVariant(): void {
-    this.router.navigate([`variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+    this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
   }
 }

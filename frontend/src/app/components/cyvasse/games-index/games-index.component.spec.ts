@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { GamesIndexComponent } from "./games-index.component";
 import { AppModule } from "src/app/app.module";
-import { GameService } from "src/app/services/game.service";
+import { GameService } from "src/app/services/cyvasse/game.service";
 import { of } from "rxjs";
 
 describe("GamesIndexComponent", () => {

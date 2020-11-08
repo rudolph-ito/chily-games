@@ -1,5 +1,8 @@
 import express from "express";
-import { CyvasseVariantService, ICyvasseVariantService } from "../../services/cyvasse/cyvasse_variant_service";
+import {
+  CyvasseVariantService,
+  ICyvasseVariantService,
+} from "../../services/cyvasse/cyvasse_variant_service";
 import { IUser } from "../../shared/dtos/authentication";
 
 export function getVariantRouter(

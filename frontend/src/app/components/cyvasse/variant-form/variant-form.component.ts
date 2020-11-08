@@ -11,17 +11,17 @@ import {
   IVariant,
   BoardType,
   SupportType,
-} from "../../shared/dtos/variant";
+} from "../../../shared/dtos/variant";
 import { FormControl } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
-import { VariantService } from "src/app/services/variant.service";
+import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { setError } from "src/app/utils/form-control-helpers";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
+import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { Observable } from "rxjs";
 import { BaseBoard } from "src/app/game/board/base_board";
 import { buildBoard } from "src/app/game/board/board_builder";
 import { ISelectOption } from "src/app/models/form";
-import { PlayerColor } from "../../shared/dtos/game";
+import { PlayerColor } from "../../../shared/dtos/game";
 
 const BOARD_TYPE_OPTIONS: ISelectOption[] = [
   { label: "Hexagonal", value: BoardType.HEXAGONAL },
@@ -163,9 +163,9 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
 
   goBack(): void {
     if (this.isUpdatingExistingVariant()) {
-      this.router.navigate([`variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
     } else {
-      this.router.navigate(["variants"]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/cyvasse/variants"]); // eslint-disable-line @typescript-eslint/no-floating-promises
     }
   }
 

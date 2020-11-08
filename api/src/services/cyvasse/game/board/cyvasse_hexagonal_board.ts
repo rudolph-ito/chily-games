@@ -1,5 +1,9 @@
 import { ICoordinate, PlayerColor } from "../../../../shared/dtos/game";
-import { ICoordinateUpdater, BoardDirection, ICyvasseBoard } from "./cyvasse_board";
+import {
+  ICoordinateUpdater,
+  BoardDirection,
+  ICyvasseBoard,
+} from "./cyvasse_board";
 
 interface IRange {
   min: number;

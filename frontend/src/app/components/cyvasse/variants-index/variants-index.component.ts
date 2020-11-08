@@ -1,13 +1,13 @@
 import { Component, OnInit } from "@angular/core";
-import { VariantService } from "../../services/variant.service";
-import { IVariant } from "../../shared/dtos/variant";
+import { VariantService } from "../../../services/cyvasse/variant.service";
+import { IVariant } from "../../../shared/dtos/variant";
 import { MatTableDataSource } from "@angular/material/table";
-import { AuthenticationService } from "../../services/authentication.service";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
+import { AuthenticationService } from "../../../services/authentication.service";
+import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { Observable, of } from "rxjs";
-import { getBoardDescription } from "../../formatters/variant.formatter";
+import { getBoardDescription } from "../../../formatters/variant.formatter";
 import { map } from "rxjs/operators";
-import { ChallengeService } from "src/app/services/challenge.service";
+import { ChallengeService } from "src/app/services/cyvasse/challenge.service";
 import { ChallengePlayAs } from "src/app/shared/dtos/challenge";
 
 @Component({

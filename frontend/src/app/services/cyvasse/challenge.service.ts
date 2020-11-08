@@ -1,19 +1,19 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { IGame } from "../shared/dtos/game";
+import { IGame } from "../../shared/dtos/game";
 import {
   IChallengeOptions,
   IChallenge,
   ISearchChallengesRequest,
-} from "../shared/dtos/challenge";
-import { IPaginatedResponse } from "../shared/dtos/search";
+} from "../../shared/dtos/challenge";
+import { IPaginatedResponse } from "../../shared/dtos/search";
 
 @Injectable({
   providedIn: "root",
 })
 export class ChallengeService {
-  private readonly routePrefix = "/api/challenges";
+  private readonly routePrefix = "/api/cyvasse/challenges";
 
   constructor(private readonly http: HttpClient) {}
 

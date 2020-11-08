@@ -154,7 +154,9 @@ describe("CyvasseTerrainRuleRoutes", () => {
 
       // Act
       await supertest(testServer.app)
-        .delete(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
+        .delete(
+          `/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`
+        )
         .expect(HttpStatus.UNAUTHORIZED);
 
       // Assert
@@ -166,7 +168,9 @@ describe("CyvasseTerrainRuleRoutes", () => {
 
       // Act
       await agent
-        .delete(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
+        .delete(
+          `/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`
+        )
         .expect(HttpStatus.FORBIDDEN);
 
       // Assert
@@ -190,7 +194,9 @@ describe("CyvasseTerrainRuleRoutes", () => {
 
       // Act
       await agent
-        .delete(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
+        .delete(
+          `/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`
+        )
         .expect(HttpStatus.OK);
 
       // Assert

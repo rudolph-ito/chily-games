@@ -5,7 +5,7 @@ import {
   ViewChild,
   NgZone,
 } from "@angular/core";
-import { GameService } from "src/app/services/game.service";
+import { GameService } from "src/app/services/cyvasse/game.service";
 import {
   IGame,
   PlayerColor,
@@ -16,18 +16,18 @@ import {
   IGamePly,
   IGetGameValidPliesRequest,
   ValidPlies,
-} from "../../shared/dtos/game";
+} from "../../../shared/dtos/game";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of, Subject, forkJoin } from "rxjs";
-import { IUser } from "../../shared/dtos/authentication";
+import { IUser } from "../../../shared/dtos/authentication";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { IVariant } from "src/app/shared/dtos/variant";
-import { VariantService } from "src/app/services/variant.service";
+import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { BaseBoard } from "src/app/game/board/base_board";
 import {
   doesNotHaveValue,
   doesHaveValue,
-} from "../../shared/utilities/value_checker";
+} from "../../../shared/utilities/value_checker";
 import { buildBoard } from "src/app/game/board/board_builder";
 import { debounceTime } from "rxjs/operators";
 import { UserService } from "src/app/services/user.service";

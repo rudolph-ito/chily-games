@@ -1,15 +1,15 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { HomeComponent } from "./components/home/home.component";
-import { VariantsIndexComponent } from "./components/variants-index/variants-index.component";
-import { VariantFormComponent } from "./components/variant-form/variant-form.component";
+import { VariantsIndexComponent } from "./components/cyvasse/variants-index/variants-index.component";
+import { VariantFormComponent } from "./components/cyvasse/variant-form/variant-form.component";
 import { AuthGuard } from "./guards/auth.guard";
-import { VariantShowComponent } from "./components/variant-show/variant-show.component";
-import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
-import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
-import { ChallengesIndexComponent } from "./components/challenges-index/challenges-index.component";
-import { GamesIndexComponent } from "./components/games-index/games-index.component";
-import { GameShowComponent } from "./components/game-show/game-show.component";
+import { VariantShowComponent } from "./components/cyvasse/variant-show/variant-show.component";
+import { PieceRuleFormComponent } from "./components/cyvasse/piece-rule-form/piece-rule-form.component";
+import { TerrainRuleFormComponent } from "./components/cyvasse/terrain-rule-form/terrain-rule-form.component";
+import { ChallengesIndexComponent } from "./components/cyvasse/challenges-index/challenges-index.component";
+import { GamesIndexComponent } from "./components/cyvasse/games-index/games-index.component";
+import { GameShowComponent } from "./components/cyvasse/game-show/game-show.component";
 
 const routes: Routes = [
   {
@@ -17,49 +17,49 @@ const routes: Routes = [
     component: HomeComponent,
   },
   {
-    path: "variants",
+    path: "cyvasse/variants",
     component: VariantsIndexComponent,
   },
   {
-    path: "variants/new",
+    path: "cyvasse/variants/new",
     component: VariantFormComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: "variants/:variantId",
+    path: "cyvasse/variants/:variantId",
     component: VariantShowComponent,
   },
   {
-    path: "variants/:variantId/edit",
+    path: "cyvasse/variants/:variantId/edit",
     component: VariantFormComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: "variants/:variantId/pieceRules/new",
+    path: "cyvasse/variants/:variantId/pieceRules/new",
     component: PieceRuleFormComponent,
   },
   {
-    path: "variants/:variantId/pieceRules/:pieceRuleId/edit",
+    path: "cyvasse/variants/:variantId/pieceRules/:pieceRuleId/edit",
     component: PieceRuleFormComponent,
   },
   {
-    path: "variants/:variantId/terrainRules/new",
+    path: "cyvasse/variants/:variantId/terrainRules/new",
     component: TerrainRuleFormComponent,
   },
   {
-    path: "variants/:variantId/terrainRules/:terrainRuleId/edit",
+    path: "cyvasse/variants/:variantId/terrainRules/:terrainRuleId/edit",
     component: TerrainRuleFormComponent,
   },
   {
-    path: "challenges",
+    path: "cyvasse/challenges",
     component: ChallengesIndexComponent,
   },
   {
-    path: "games",
+    path: "cyvasse/games",
     component: GamesIndexComponent,
   },
   {
-    path: "games/:gameId",
+    path: "cyvasse/games/:gameId",
     component: GameShowComponent,
   },
   {

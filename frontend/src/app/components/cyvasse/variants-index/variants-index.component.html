@@ -18,7 +18,7 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-button routerLink="/variants/{{ element.variantId }}">
+        <button mat-button routerLink="/cyvasse/variants/{{ element.variantId }}">
           View
         </button>
         <button mat-button *ngIf="userLoggedInObservable | async" (click)="onCreateChallenge(element)">

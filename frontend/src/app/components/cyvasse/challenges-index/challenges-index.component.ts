@@ -1,14 +1,14 @@
 import { Component, OnInit } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
-import { IChallenge } from "../../shared/dtos/challenge";
+import { IChallenge } from "../../../shared/dtos/challenge";
 import { Observable, of } from "rxjs";
-import { ChallengeService } from "src/app/services/challenge.service";
+import { ChallengeService } from "src/app/services/cyvasse/challenge.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { map } from "rxjs/operators";
 import { doesHaveValue } from "src/app/shared/utilities/value_checker";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { Router } from "@angular/router";
-import { IGame } from "../../shared/dtos/game";
+import { IGame } from "../../../shared/dtos/game";
 
 @Component({
   selector: "app-challenges-index",

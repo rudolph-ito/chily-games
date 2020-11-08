@@ -5,19 +5,19 @@ import {
   IVariant,
   ISearchVariantsRequest,
   IVariantOptions,
-} from "../shared/dtos/variant";
-import { IPaginatedResponse } from "../shared/dtos/search";
-import { IPieceRuleOptions, CaptureType } from "../shared/dtos/piece_rule";
+} from "../../shared/dtos/variant";
+import { IPaginatedResponse } from "../../shared/dtos/search";
+import { IPieceRuleOptions, CaptureType } from "../../shared/dtos/piece_rule";
 import {
   IPreviewPieceRuleResponse,
   IPreviewPieceRuleRequest,
-} from "../shared/dtos/game";
+} from "../../shared/dtos/game";
 
 @Injectable({
   providedIn: "root",
 })
 export class VariantService {
-  private readonly routePrefix = "/api/variants";
+  private readonly routePrefix = "/api/cyvasse/variants";
 
   constructor(private readonly http: HttpClient) {}
 

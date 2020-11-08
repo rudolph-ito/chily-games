@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { IPieceRule, IPieceRuleOptions } from "../shared/dtos/piece_rule";
+import { IPieceRule, IPieceRuleOptions } from "../../shared/dtos/piece_rule";
 
 @Injectable({
   providedIn: "root",
@@ -48,6 +48,6 @@ export class PieceRuleService {
   }
 
   private getRoutePrefix(variantId: number): string {
-    return `/api/variants/${variantId}/pieceRules`;
+    return `/api/cyvasse/variants/${variantId}/pieceRules`;
   }
 }

@@ -9,7 +9,10 @@ import {
 } from "../../../test/test_helper";
 import { expect } from "chai";
 import { ValidationError } from "../shared/exceptions";
-import { TerrainType, PiecesEffectedType } from "../../shared/dtos/terrain_rule";
+import {
+  TerrainType,
+  PiecesEffectedType,
+} from "../../shared/dtos/terrain_rule";
 
 describe("CyvasseTerrainRuleService", () => {
   resetDatabaseBeforeEach();

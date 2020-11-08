@@ -25,5 +25,5 @@ export function getCyvasseRouter(
     "/games",
     getGameRouter(authenticationRequired, publishRedisClient)
   );
-  return router
+  return router;
 }
