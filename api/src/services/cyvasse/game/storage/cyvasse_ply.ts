@@ -1,5 +1,5 @@
-import { CaptureType } from "../../../../shared/dtos/piece_rule";
-import { ICoordinate, IPiece } from "../../../../shared/dtos/game";
+import { CaptureType } from "../../../../shared/dtos/cyvasse/piece_rule";
+import { ICoordinate, IPiece } from "../../../../shared/dtos/cyvasse/game";
 
 export interface IPlyMovement {
   from: ICoordinate;

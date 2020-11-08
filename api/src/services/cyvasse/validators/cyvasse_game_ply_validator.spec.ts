@@ -6,15 +6,15 @@ import {
   IPieceRule,
   PathType,
   CaptureType,
-} from "../../../shared/dtos/piece_rule";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
-import { PlayerColor, IGamePly } from "../../../shared/dtos/game";
+} from "../../../shared/dtos/cyvasse/piece_rule";
+import { TerrainType, ITerrainRule } from "../../../shared/dtos/cyvasse/terrain_rule";
+import { PlayerColor, IGamePly } from "../../../shared/dtos/cyvasse/game";
 import { mockPieceRule, mockVariant } from "../../../../test/mocks";
 import {
   validateGamePly,
   IValidateGamePlyOptions,
 } from "./cyvasse_game_ply_validator";
-import { BoardType } from "../../../shared/dtos/variant";
+import { BoardType } from "../../../shared/dtos/cyvasse/variant";
 import { getBoardForVariant } from "../game/board/cyvasse_board_builder";
 
 function getBaseTestOptions(ply: IGamePly): IValidateGamePlyOptions {

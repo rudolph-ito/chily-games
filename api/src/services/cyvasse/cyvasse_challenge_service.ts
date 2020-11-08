@@ -17,7 +17,7 @@ import {
   ISearchChallengesRequest,
   IChallenge,
   ChallengePlayAs,
-} from "../../shared/dtos/challenge";
+} from "../../shared/dtos/cyvasse/challenge";
 import {
   ICyvasseChallengeDataService,
   CyvasseChallengeDataService,
@@ -27,7 +27,7 @@ import {
   IUserDataService,
 } from "../shared/data/user_data_service";
 import { validateChallengeOptions } from "./validators/cyvasse_challenge_validator";
-import { IGame } from "../../shared/dtos/game";
+import { IGame } from "../../shared/dtos/cyvasse/game";
 import {
   ICyvasseGameDataService,
   CyvasseGameDataService,

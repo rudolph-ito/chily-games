@@ -10,7 +10,7 @@ import {
   ITerrainRule,
   ITerrainRuleValidationErrors,
   PiecesEffectedType,
-} from "../../../shared/dtos/terrain_rule";
+} from "../../../shared/dtos/cyvasse/terrain_rule";
 import {
   doesHaveValue,
   valueOrDefault,

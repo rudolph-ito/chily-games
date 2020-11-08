@@ -12,17 +12,17 @@ import {
   ITestServer,
 } from "../../../test/test_helper";
 import supertest from "supertest";
-import { IVariantOptions, BoardType } from "../../shared/dtos/variant";
+import { IVariantOptions, BoardType } from "../../shared/dtos/cyvasse/variant";
 import {
   PathType,
   CaptureType,
   PieceType,
   IPieceRuleOptions,
-} from "../../shared/dtos/piece_rule";
+} from "../../shared/dtos/cyvasse/piece_rule";
 import {
   IPreviewPieceRuleRequest,
   IPreviewPieceRuleResponse,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 import HttpStatus from "http-status-codes";
 
 describe("CyvasseVariantRoutes", () => {

@@ -1,7 +1,7 @@
 import {
   ITerrainRuleOptions,
   ITerrainRule,
-} from "../../../shared/dtos/terrain_rule";
+} from "../../../shared/dtos/cyvasse/terrain_rule";
 import { CyvasseTerrainRule } from "../../../database/models";
 
 export interface ICyvasseTerrainRuleDataService {

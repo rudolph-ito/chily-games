@@ -2,9 +2,9 @@ import {
   ITerrainRule,
   TerrainType,
   PiecesEffectedType,
-} from "../../shared/dtos/terrain_rule";
+} from "../../shared/dtos/cyvasse/terrain_rule";
 import { Model, DataTypes } from "sequelize";
-import { PieceType } from "../../shared/dtos/piece_rule";
+import { PieceType } from "../../shared/dtos/cyvasse/piece_rule";
 import { sequelize } from "./connection";
 
 const PIECES_EFFECTED_TYPE_ENUM = DataTypes.ENUM(

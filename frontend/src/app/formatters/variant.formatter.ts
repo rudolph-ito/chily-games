@@ -1,4 +1,4 @@
-import { IVariant, BoardType } from "../shared/dtos/variant";
+import { IVariant, BoardType } from "../shared/dtos/cyvasse/variant";
 
 export function getBoardDescription(variant: IVariant): string {
   if (variant.boardType === BoardType.HEXAGONAL) {

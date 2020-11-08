@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    // Matches shared/dtos/game:PlayAs
+    // Matches shared/dtos/cyvasse/game:PlayAs
     const playAsEnum = Sequelize.ENUM("alabaster", "onyx", "random");
     return queryInterface.createTable("Challenges", {
       challengeId: {

@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import {
   ITerrainRule,
   ITerrainRuleOptions,
-} from "../../shared/dtos/terrain_rule";
+} from "../../shared/dtos/cyvasse/terrain_rule";
 
 @Injectable({
   providedIn: "root",

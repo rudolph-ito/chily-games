@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    // Matches shared/dtos/game:Action
+    // Matches shared/dtos/cyvasse/game:Action
     const actionEnum = Sequelize.ENUM(
       "setup",
       "play",
@@ -10,7 +10,7 @@ module.exports = {
       "aborted",
       "resigned"
     );
-    // Matches shared/dtos/game:PlayerColor
+    // Matches shared/dtos/cyvasse/game:PlayerColor
     const actionToEnum = Sequelize.ENUM("alabaster", "onyx");
     const userConfig = {
       type: Sequelize.INTEGER,

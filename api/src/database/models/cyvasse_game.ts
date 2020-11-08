@@ -6,7 +6,7 @@ import {
   IGame,
   IGamePly,
   PlayerColor,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 
 const ACTION_ENUM = DataTypes.ENUM(
   Action.SETUP,

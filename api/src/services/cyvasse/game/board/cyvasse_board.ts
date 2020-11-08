@@ -1,4 +1,4 @@
-import { ICoordinate, PlayerColor } from "../../../../shared/dtos/game";
+import { ICoordinate, PlayerColor } from "../../../../shared/dtos/cyvasse/game";
 
 export type ICoordinateUpdater = (coordinate: ICoordinate) => ICoordinate;
 

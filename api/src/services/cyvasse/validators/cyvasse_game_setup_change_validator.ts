@@ -2,11 +2,11 @@ import {
   doesNotHaveValue,
   doesHaveValue,
 } from "../../../shared/utilities/value_checker";
-import { IGameSetupChange, PlayerColor } from "../../../shared/dtos/game";
+import { IGameSetupChange, PlayerColor } from "../../../shared/dtos/cyvasse/game";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
-import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
+import { PieceType, IPieceRule } from "../../../shared/dtos/cyvasse/piece_rule";
 import { ICyvasseBoard } from "../game/board/cyvasse_board";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
+import { TerrainType, ITerrainRule } from "../../../shared/dtos/cyvasse/terrain_rule";
 
 export interface IValidateGameSetupChangeOptions {
   board: ICyvasseBoard;

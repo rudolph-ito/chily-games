@@ -2,16 +2,16 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Matches shared/dtos/terrain_rule.ts:PathRuleEffectType
+    // Matches shared/dtos/cyvasse/terrain_rule.ts:PathRuleEffectType
     const pieceTypesEffectedEnum = Sequelize.ENUM(
       "all",
       "all_except",
       "none",
       "only"
     );
-    // Matches shared/dtos/terrain_rule.ts:TerrainType
+    // Matches shared/dtos/cyvasse/terrain_rule.ts:TerrainType
     const terrainTypeEnum = Sequelize.ENUM("forest", "mountain", "water");
-    // Matches shared/dtos/piece_rule:PieceType
+    // Matches shared/dtos/cyvasse/piece_rule:PieceType
     const pieceTypeEnum = Sequelize.ENUM(
       "catapult",
       "crossbow",

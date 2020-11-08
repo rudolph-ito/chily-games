@@ -10,7 +10,7 @@ import {
   ITerrainRuleOptions,
   ITerrainRule,
   TerrainType,
-} from "../../shared/dtos/terrain_rule";
+} from "../../shared/dtos/cyvasse/terrain_rule";
 import { validateTerrainRuleOptions } from "./validators/cyvasse_terrain_rule_validator";
 import {
   doesHaveValue,

@@ -18,7 +18,7 @@ import {
   TerrainType,
   ITerrainRule,
   PiecesEffectedType,
-} from "../../shared/dtos/terrain_rule";
+} from "../../shared/dtos/cyvasse/terrain_rule";
 import { CyvasseTerrainRuleDataService } from "../../services/cyvasse/data/cyvasse_terrain_rule_data_service";
 import HttpStatus from "http-status-codes";
 

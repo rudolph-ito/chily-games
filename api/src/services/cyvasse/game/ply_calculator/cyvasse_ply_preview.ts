@@ -1,18 +1,18 @@
-import { IVariant } from "../../../../shared/dtos/variant";
+import { IVariant } from "../../../../shared/dtos/cyvasse/variant";
 import {
   CaptureType,
   IPieceRuleOptions,
   PieceType,
   IPieceRule,
-} from "../../../../shared/dtos/piece_rule";
+} from "../../../../shared/dtos/cyvasse/piece_rule";
 import { CyvasseCoordinateMap } from "../storage/cyvasse_coordinate_map";
 import {
   PlayerColor,
   IPreviewPieceRuleResponse,
-} from "../../../../shared/dtos/game";
+} from "../../../../shared/dtos/cyvasse/game";
 import { getBoardForVariant } from "../board/cyvasse_board_builder";
 import { CyvassePlyCalculator } from "./cyvasse_ply_calculator";
-import { TerrainType, ITerrainRule } from "src/shared/dtos/terrain_rule";
+import { TerrainType, ITerrainRule } from "src/shared/dtos/cyvasse/terrain_rule";
 
 export interface IPreviewPieceRuleRequest {
   evaluationType: CaptureType;

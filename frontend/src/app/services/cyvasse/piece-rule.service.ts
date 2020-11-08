@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { IPieceRule, IPieceRuleOptions } from "../../shared/dtos/piece_rule";
+import { IPieceRule, IPieceRuleOptions } from "../../shared/dtos/cyvasse/piece_rule";
 
 @Injectable({
   providedIn: "root",

@@ -4,7 +4,7 @@ import { PieceRuleFormComponent } from "./piece-rule-form.component";
 import { RouterTestingModule } from "@angular/router/testing";
 import { AppModule } from "src/app/app.module";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
-import { BoardType } from "src/app/shared/dtos/variant";
+import { BoardType } from "src/app/shared/dtos/cyvasse/variant";
 import { of } from "rxjs";
 
 describe("PieceRuleFormComponent", () => {

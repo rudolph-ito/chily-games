@@ -4,7 +4,7 @@ import {
   IPieceRule,
   IPieceRuleValidationErrors,
   CaptureType,
-} from "src/app/shared/dtos/piece_rule";
+} from "src/app/shared/dtos/cyvasse/piece_rule";
 import { ISelectOption } from "src/app/models/form";
 import { FormControl } from "@angular/forms";
 import { Observable } from "rxjs";
@@ -22,7 +22,7 @@ import {
 } from "src/app/models/piece-rule";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { BaseBoard } from "src/app/game/board/base_board";
-import { PlayerColor } from "src/app/shared/dtos/game";
+import { PlayerColor } from "src/app/shared/dtos/cyvasse/game";
 import { buildBoard } from "src/app/game/board/board_builder";
 
 interface IPieceRuleFormControls {

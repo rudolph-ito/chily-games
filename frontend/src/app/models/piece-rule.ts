@@ -1,5 +1,5 @@
 import { ISelectOption } from "./form";
-import { PathType, PieceType, CaptureType } from "../shared/dtos/piece_rule";
+import { PathType, PieceType, CaptureType } from "../shared/dtos/cyvasse/piece_rule";
 
 export const PIECE_TYPE_OPTIONS: ISelectOption[] = [
   { label: "Catapult", value: PieceType.CATAPULT },

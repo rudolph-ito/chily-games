@@ -4,10 +4,10 @@ import { GameShowComponent } from "./game-show.component";
 import { AppModule } from "src/app/app.module";
 import { GameService } from "src/app/services/cyvasse/game.service";
 import { of } from "rxjs";
-import { Action } from "../../../shared/dtos/game";
+import { Action } from "../../../shared/dtos/cyvasse/game";
 import { UserService } from "src/app/services/user.service";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
-import { BoardType } from "src/app/shared/dtos/variant";
+import { BoardType } from "src/app/shared/dtos/cyvasse/variant";
 
 describe("GameShowComponent", () => {
   let component: GameShowComponent;

@@ -1,4 +1,4 @@
-import { IPieceRuleOptions, IPieceRule } from "../../../shared/dtos/piece_rule";
+import { IPieceRuleOptions, IPieceRule } from "../../../shared/dtos/cyvasse/piece_rule";
 import { CyvassePieceRule } from "../../../database/models";
 import {
   doesHaveValue,

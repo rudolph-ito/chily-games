@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Matches shared/dtos/piece_rule:PieceType
+    // Matches shared/dtos/cyvasse/piece_rule:PieceType
     const pieceTypeEnum = Sequelize.ENUM(
       "catapult",
       "crossbow",

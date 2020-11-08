@@ -5,18 +5,18 @@ import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { RouterTestingModule } from "@angular/router/testing";
 import { AppModule } from "src/app/app.module";
 import { of } from "rxjs";
-import { BoardType } from "src/app/shared/dtos/variant";
+import { BoardType } from "src/app/shared/dtos/cyvasse/variant";
 import { PieceRuleService } from "src/app/services/cyvasse/piece-rule.service";
 import {
   PieceType,
   PathType,
   CaptureType,
-} from "src/app/shared/dtos/piece_rule";
+} from "src/app/shared/dtos/cyvasse/piece_rule";
 import { TerrainRuleService } from "src/app/services/cyvasse/terrain-rule.service";
 import {
   TerrainType,
   PiecesEffectedType,
-} from "src/app/shared/dtos/terrain_rule";
+} from "src/app/shared/dtos/cyvasse/terrain_rule";
 
 describe("VariantShowComponent", () => {
   let component: VariantShowComponent;

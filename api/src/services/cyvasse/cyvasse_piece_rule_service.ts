@@ -10,7 +10,7 @@ import {
   IPieceRuleOptions,
   IPieceRule,
   PieceType,
-} from "../../shared/dtos/piece_rule";
+} from "../../shared/dtos/cyvasse/piece_rule";
 import { validatePieceRuleOptions } from "./validators/cyvasse_piece_rule_validator";
 import {
   doesHaveValue,

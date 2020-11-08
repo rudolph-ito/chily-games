@@ -14,11 +14,11 @@ import supertest from "supertest";
 import {
   IChallengeOptions,
   ChallengePlayAs,
-} from "../../shared/dtos/challenge";
+} from "../../shared/dtos/cyvasse/challenge";
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { CyvasseChallengeService } from "../../services/cyvasse/cyvasse_challenge_service";
-import { IGame } from "../../shared/dtos/game";
+import { IGame } from "../../shared/dtos/cyvasse/game";
 import HttpStatus from "http-status-codes";
 
 describe("CyvasseChallengeRoutes", () => {

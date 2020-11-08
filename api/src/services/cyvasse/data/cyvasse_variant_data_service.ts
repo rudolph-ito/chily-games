@@ -2,7 +2,7 @@ import {
   ISearchVariantsRequest,
   IVariant,
   IVariantOptions,
-} from "../../../shared/dtos/variant";
+} from "../../../shared/dtos/cyvasse/variant";
 import { CyvasseVariant } from "../../../database/models";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { doesNotHaveValue } from "../../../shared/utilities/value_checker";

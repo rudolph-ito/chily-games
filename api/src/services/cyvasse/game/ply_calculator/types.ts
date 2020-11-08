@@ -1,10 +1,10 @@
 import { ICyvasseBoard } from "../board/cyvasse_board";
-import { PieceType, IPieceRule } from "../../../../shared/dtos/piece_rule";
+import { PieceType, IPieceRule } from "../../../../shared/dtos/cyvasse/piece_rule";
 import {
   TerrainType,
   ITerrainRule,
-} from "../../../../shared/dtos/terrain_rule";
-import { SupportType } from "../../../../shared/dtos/variant";
+} from "../../../../shared/dtos/cyvasse/terrain_rule";
+import { SupportType } from "../../../../shared/dtos/cyvasse/variant";
 import { ICyvasseCoordinateMap } from "../storage/cyvasse_coordinate_map";
 
 export interface IGameRules {

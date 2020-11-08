@@ -4,18 +4,18 @@ import {
   CaptureType,
   PathType,
   IPieceRuleOptions,
-} from "../src/shared/dtos/piece_rule";
+} from "../src/shared/dtos/cyvasse/piece_rule";
 import {
   ITerrainRule,
   TerrainType,
   PiecesEffectedType,
   ITerrainRuleOptions,
-} from "../src/shared/dtos/terrain_rule";
+} from "../src/shared/dtos/cyvasse/terrain_rule";
 import {
   IVariant,
   IVariantOptions,
   BoardType,
-} from "../src/shared/dtos/variant";
+} from "../src/shared/dtos/cyvasse/variant";
 
 // Create objects without saving them to the database
 

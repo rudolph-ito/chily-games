@@ -9,7 +9,7 @@ import {
   PieceType,
   IPathConfiguration,
   CaptureType,
-} from "../../../shared/dtos/piece_rule";
+} from "../../../shared/dtos/cyvasse/piece_rule";
 
 export function validatePieceRuleOptions(
   options: IPieceRuleOptions,

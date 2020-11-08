@@ -2,7 +2,7 @@ import {
   PieceType,
   IPathConfiguration,
   CaptureType,
-} from "../shared/dtos/piece_rule";
+} from "../shared/dtos/cyvasse/piece_rule";
 import {
   PIECE_TYPE_OPTIONS,
   PATH_TYPE_OPTIONS,

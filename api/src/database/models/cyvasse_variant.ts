@@ -1,6 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { IVariant, BoardType, SupportType } from "../../shared/dtos/variant";
+import { IVariant, BoardType, SupportType } from "../../shared/dtos/cyvasse/variant";
 import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 
 export class CyvasseVariant extends Model {

@@ -3,7 +3,7 @@ import {
   IVariant,
   ISearchVariantsRequest,
   BoardType,
-} from "../../shared/dtos/variant";
+} from "../../shared/dtos/cyvasse/variant";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import {
   ICyvasseVariantDataService,
@@ -19,7 +19,7 @@ import {
 import {
   IPreviewPieceRuleRequest,
   IPreviewPieceRuleResponse,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 import { previewPieceRule } from "./game/ply_calculator/cyvasse_ply_preview";
 import {
   ICyvassePieceRuleDataService,
@@ -30,7 +30,7 @@ import {
   PieceType,
   PathType,
   CaptureType,
-} from "../../shared/dtos/piece_rule";
+} from "../../shared/dtos/cyvasse/piece_rule";
 
 export interface ICyvasseVariantService {
   createVariant: (

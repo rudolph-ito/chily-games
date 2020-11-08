@@ -19,7 +19,7 @@ import {
   PathType,
   CaptureType,
   IPieceRule,
-} from "../../shared/dtos/piece_rule";
+} from "../../shared/dtos/cyvasse/piece_rule";
 import { CyvassePieceRuleDataService } from "../../services/cyvasse/data/cyvasse_piece_rule_data_service";
 import HttpStatus from "http-status-codes";
 

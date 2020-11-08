@@ -6,9 +6,9 @@ import {
 } from "./cyvasse_game_setup_change_validator";
 import { CyvasseHexagonalBoard } from "../game/board/cyvasse_hexagonal_board";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
-import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
-import { PlayerColor } from "../../../shared/dtos/game";
+import { PieceType, IPieceRule } from "../../../shared/dtos/cyvasse/piece_rule";
+import { TerrainType, ITerrainRule } from "../../../shared/dtos/cyvasse/terrain_rule";
+import { PlayerColor } from "../../../shared/dtos/cyvasse/game";
 import { mockPieceRule } from "../../../../test/mocks";
 
 describe("Cyvasse - validateGameSetupChange", () => {

@@ -16,12 +16,12 @@ import {
   IGamePly,
   IGetGameValidPliesRequest,
   ValidPlies,
-} from "../../../shared/dtos/game";
+} from "../../../shared/dtos/cyvasse/game";
 import { ActivatedRoute } from "@angular/router";
 import { Observable, of, Subject, forkJoin } from "rxjs";
 import { IUser } from "../../../shared/dtos/authentication";
 import { AuthenticationService } from "src/app/services/authentication.service";
-import { IVariant } from "src/app/shared/dtos/variant";
+import { IVariant } from "src/app/shared/dtos/cyvasse/variant";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { BaseBoard } from "src/app/game/board/base_board";
 import {

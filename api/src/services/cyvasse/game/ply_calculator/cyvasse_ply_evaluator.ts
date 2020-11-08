@@ -3,17 +3,17 @@ import {
   IPiece,
   ITerrain,
   PlyEvaluationFlag,
-} from "../../../../shared/dtos/game";
+} from "../../../../shared/dtos/cyvasse/game";
 import {
   PieceType,
   IPieceRule,
   CaptureType,
-} from "../../../../shared/dtos/piece_rule";
+} from "../../../../shared/dtos/cyvasse/piece_rule";
 import {
   ITerrainRule,
   IPiecesEffected,
   PiecesEffectedType,
-} from "../../../../shared/dtos/terrain_rule";
+} from "../../../../shared/dtos/cyvasse/terrain_rule";
 import {
   doesHaveValue,
   doesNotHaveValue,

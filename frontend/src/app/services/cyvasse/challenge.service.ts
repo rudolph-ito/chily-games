@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { IGame } from "../../shared/dtos/game";
+import { IGame } from "../../shared/dtos/cyvasse/game";
 import {
   IChallengeOptions,
   IChallenge,
   ISearchChallengesRequest,
-} from "../../shared/dtos/challenge";
+} from "../../shared/dtos/cyvasse/challenge";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 
 @Injectable({

@@ -1,7 +1,7 @@
 import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
-import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
+import { PieceType, IPieceRule } from "../../../shared/dtos/cyvasse/piece_rule";
+import { TerrainType, ITerrainRule } from "../../../shared/dtos/cyvasse/terrain_rule";
 
 export interface IValidateGameSetupCompleteOptions {
   coordinateMap: CyvasseCoordinateMap;

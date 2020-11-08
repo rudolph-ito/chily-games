@@ -12,7 +12,7 @@ import { ValidationError } from "../shared/exceptions";
 import {
   TerrainType,
   PiecesEffectedType,
-} from "../../shared/dtos/terrain_rule";
+} from "../../shared/dtos/cyvasse/terrain_rule";
 
 describe("CyvasseTerrainRuleService", () => {
   resetDatabaseBeforeEach();

@@ -9,7 +9,7 @@ import {
   IGameRules,
   IGetGameValidPliesRequest,
   ValidPlies,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 
 @Injectable({

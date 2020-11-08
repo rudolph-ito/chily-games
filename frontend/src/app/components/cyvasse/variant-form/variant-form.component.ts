@@ -11,7 +11,7 @@ import {
   IVariant,
   BoardType,
   SupportType,
-} from "../../../shared/dtos/variant";
+} from "../../../shared/dtos/cyvasse/variant";
 import { FormControl } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
@@ -21,7 +21,7 @@ import { Observable } from "rxjs";
 import { BaseBoard } from "src/app/game/board/base_board";
 import { buildBoard } from "src/app/game/board/board_builder";
 import { ISelectOption } from "src/app/models/form";
-import { PlayerColor } from "../../../shared/dtos/game";
+import { PlayerColor } from "../../../shared/dtos/cyvasse/game";
 
 const BOARD_TYPE_OPTIONS: ISelectOption[] = [
   { label: "Hexagonal", value: BoardType.HEXAGONAL },

@@ -1,6 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { ChallengePlayAs, IChallenge } from "../../shared/dtos/challenge";
+import { ChallengePlayAs, IChallenge } from "../../shared/dtos/cyvasse/challenge";
 
 const PLAY_AS_ENUM = DataTypes.ENUM(
   ChallengePlayAs.ALABASTER,

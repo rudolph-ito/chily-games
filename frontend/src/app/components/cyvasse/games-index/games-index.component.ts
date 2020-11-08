@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { MatTableDataSource } from "@angular/material/table";
 import { Observable, of } from "rxjs";
 import { IUser } from "src/app/shared/dtos/authentication";
-import { IGame } from "src/app/shared/dtos/game";
+import { IGame } from "src/app/shared/dtos/cyvasse/game";
 import { GameService } from "src/app/services/cyvasse/game.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 

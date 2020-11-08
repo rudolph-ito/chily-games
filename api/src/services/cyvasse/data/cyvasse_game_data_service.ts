@@ -11,7 +11,7 @@ import {
   ICoordinateMapData,
   IGamePly,
   PlayerColor,
-} from "../../../shared/dtos/game";
+} from "../../../shared/dtos/cyvasse/game";
 
 export interface IGameOptions {
   variantId: number;

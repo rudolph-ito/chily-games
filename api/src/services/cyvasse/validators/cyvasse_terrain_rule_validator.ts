@@ -11,7 +11,7 @@ import {
   PiecesEffectedType,
   ISlowsMovement,
   ISlowsMovementValidationErrors,
-} from "../../../shared/dtos/terrain_rule";
+} from "../../../shared/dtos/cyvasse/terrain_rule";
 
 export function validateTerrainRuleOptions(
   options: ITerrainRuleOptions,

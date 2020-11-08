@@ -1,4 +1,4 @@
-import { IPaginationRequest } from "./search";
+import { IPaginationRequest } from "../search";
 
 export enum BoardType {
   SQUARE = "square",

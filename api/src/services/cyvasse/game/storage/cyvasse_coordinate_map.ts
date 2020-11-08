@@ -4,7 +4,7 @@ import {
   ICoordinateMapData,
   IPiece,
   ITerrain,
-} from "../../../../shared/dtos/game";
+} from "../../../../shared/dtos/cyvasse/game";
 import { doesHaveValue } from "../../../../shared/utilities/value_checker";
 
 export interface ICyvasseCoordinateMap {

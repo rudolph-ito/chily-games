@@ -1,4 +1,4 @@
-import { IPaginationRequest } from "./search";
+import { IPaginationRequest } from "../search";
 
 // Enums
 

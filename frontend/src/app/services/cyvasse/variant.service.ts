@@ -5,13 +5,13 @@ import {
   IVariant,
   ISearchVariantsRequest,
   IVariantOptions,
-} from "../../shared/dtos/variant";
+} from "../../shared/dtos/cyvasse/variant";
 import { IPaginatedResponse } from "../../shared/dtos/search";
-import { IPieceRuleOptions, CaptureType } from "../../shared/dtos/piece_rule";
+import { IPieceRuleOptions, CaptureType } from "../../shared/dtos/cyvasse/piece_rule";
 import {
   IPreviewPieceRuleResponse,
   IPreviewPieceRuleRequest,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 
 @Injectable({
   providedIn: "root",

@@ -2,7 +2,7 @@ import {
   IVariantOptions,
   IVariantValidationErrors,
   BoardType,
-} from "../../../shared/dtos/variant";
+} from "../../../shared/dtos/cyvasse/variant";
 import { doesNotHaveValue } from "../../../shared/utilities/value_checker";
 
 export function validateVariantOptions(

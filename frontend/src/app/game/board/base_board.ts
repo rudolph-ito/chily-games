@@ -13,11 +13,11 @@ import {
   IGamePly,
   IGetGameValidPliesRequest,
   IGamePieceRule,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 import { CoordinateMap } from "./coordinate_map";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { areCoordinatesEqual } from "./coordinate_helpers";
-import { CaptureType, PieceType } from "../../shared/dtos/piece_rule";
+import { CaptureType, PieceType } from "../../shared/dtos/cyvasse/piece_rule";
 
 export enum SpaceHighlight {
   NONE = "",

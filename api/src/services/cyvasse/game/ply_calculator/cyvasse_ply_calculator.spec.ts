@@ -4,9 +4,9 @@ import {
   PathType,
   IPathConfiguration,
   IPieceRuleOptions,
-} from "../../../../shared/dtos/piece_rule";
-import { IVariant, BoardType } from "../../../../shared/dtos/variant";
-import { ValidPlies, PlyEvaluationFlag } from "../../../../shared/dtos/game";
+} from "../../../../shared/dtos/cyvasse/piece_rule";
+import { IVariant, BoardType } from "../../../../shared/dtos/cyvasse/variant";
+import { ValidPlies, PlyEvaluationFlag } from "../../../../shared/dtos/cyvasse/game";
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { previewPieceRule } from "./cyvasse_ply_preview";

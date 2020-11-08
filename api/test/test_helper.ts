@@ -5,20 +5,20 @@ import { sequelize } from "../src/database/models";
 import { shouldSequelizeLog } from "../src/shared/utilities/env";
 import supertest from "supertest";
 import { UserDataService } from "../src/services/shared/data/user_data_service";
-import { BoardType, IVariantOptions } from "../src/shared/dtos/variant";
+import { BoardType, IVariantOptions } from "../src/shared/dtos/cyvasse/variant";
 import { CyvasseVariantService } from "../src/services/cyvasse/cyvasse_variant_service";
 import {
   PieceType,
   PathType,
   CaptureType,
-} from "../src/shared/dtos/piece_rule";
+} from "../src/shared/dtos/cyvasse/piece_rule";
 import { CyvassePieceRuleDataService } from "../src/services/cyvasse/data/cyvasse_piece_rule_data_service";
 import {
   TerrainType,
   PiecesEffectedType,
-} from "../src/shared/dtos/terrain_rule";
+} from "../src/shared/dtos/cyvasse/terrain_rule";
 import { CyvasseTerrainRuleDataService } from "../src/services/cyvasse/data/cyvasse_terrain_rule_data_service";
-import { ChallengePlayAs } from "../src/shared/dtos/challenge";
+import { ChallengePlayAs } from "../src/shared/dtos/cyvasse/challenge";
 import { CyvasseChallengeDataService } from "../src/services/cyvasse/data/cyvasse_challenge_data_service";
 import HttpStatus from "http-status-codes";
 import { createExpressApp } from "../src/controllers";

@@ -6,7 +6,7 @@ import {
   IChallengeOptions,
   IChallengeValidationErrors,
   ChallengePlayAs,
-} from "../../../shared/dtos/challenge";
+} from "../../../shared/dtos/cyvasse/challenge";
 
 const VALID_CHALLENGE_PLAY_AS: ChallengePlayAs[] = [
   ChallengePlayAs.ALABASTER,

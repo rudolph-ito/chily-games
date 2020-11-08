@@ -1,6 +1,6 @@
 import { PieceType, CaptureType, IPieceRuleOptions } from "./piece_rule";
 import { TerrainType } from "./terrain_rule";
-import { IPaginationRequest } from "./search";
+import { IPaginationRequest } from "../search";
 
 export enum Action {
   SETUP = "setup",

@@ -5,7 +5,7 @@ import {
   IPieceRule,
   PathType,
   PieceType,
-} from "../../shared/dtos/piece_rule";
+} from "../../shared/dtos/cyvasse/piece_rule";
 
 const PATH_ENUM = DataTypes.ENUM(
   PathType.ORTHOGONAL_LINE,

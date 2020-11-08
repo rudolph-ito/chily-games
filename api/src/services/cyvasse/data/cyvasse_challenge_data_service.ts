@@ -8,7 +8,7 @@ import {
   IChallengeOptions,
   IChallenge,
   ISearchChallengesRequest,
-} from "../../../shared/dtos/challenge";
+} from "../../../shared/dtos/cyvasse/challenge";
 
 export interface ICyvasseChallengeDataService {
   createChallenge: (

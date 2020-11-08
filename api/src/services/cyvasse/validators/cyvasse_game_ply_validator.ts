@@ -7,15 +7,15 @@ import {
   IPieceRule,
   CaptureType,
   PieceType,
-} from "../../../shared/dtos/piece_rule";
-import { ITerrainRule, TerrainType } from "../../../shared/dtos/terrain_rule";
+} from "../../../shared/dtos/cyvasse/piece_rule";
+import { ITerrainRule, TerrainType } from "../../../shared/dtos/cyvasse/terrain_rule";
 import {
   IGamePly,
   ICoordinate,
   IPiece,
   PlayerColor,
-} from "../../../shared/dtos/game";
-import { IVariant } from "../../../shared/dtos/variant";
+} from "../../../shared/dtos/cyvasse/game";
+import { IVariant } from "../../../shared/dtos/cyvasse/variant";
 import { CyvassePlyCalculator } from "../game/ply_calculator/cyvasse_ply_calculator";
 
 export interface IValidateGamePlyOptions {

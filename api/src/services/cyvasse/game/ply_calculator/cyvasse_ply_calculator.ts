@@ -3,14 +3,14 @@ import {
   ICoordinate,
   PLY_EVALUATION_FLAGS,
   ValidPlies,
-} from "../../../../shared/dtos/game";
+} from "../../../../shared/dtos/cyvasse/game";
 import {
   CaptureType,
   PathType,
   IPathConfiguration,
   IPieceRule,
   PieceType,
-} from "../../../../shared/dtos/piece_rule";
+} from "../../../../shared/dtos/cyvasse/piece_rule";
 import { ICoordinateUpdater, BoardDirection } from "../board/cyvasse_board";
 import { doesHaveValue } from "../../../../shared/utilities/value_checker";
 import { IPlyEvaluateOptions } from "./types";
@@ -18,8 +18,8 @@ import { CyvassePlyEvaluator } from "./cyvasse_ply_evaluator";
 import uniqBy from "lodash.uniqby";
 
 import { ICyvasseCoordinateMap } from "../storage/cyvasse_coordinate_map";
-import { ITerrainRule, TerrainType } from "src/shared/dtos/terrain_rule";
-import { IVariant } from "src/shared/dtos/variant";
+import { ITerrainRule, TerrainType } from "src/shared/dtos/cyvasse/terrain_rule";
+import { IVariant } from "src/shared/dtos/cyvasse/variant";
 import { getBoardForVariant } from "../board/cyvasse_board_builder";
 
 export interface INewPlyCalculatorOptions {

@@ -13,7 +13,7 @@ import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
 import { CyvasseGameDataService } from "../../services/cyvasse/data/cyvasse_game_data_service";
 import { CyvasseGameService } from "../../services/cyvasse/cyvasse_game_service";
-import { PieceType } from "../../shared/dtos/piece_rule";
+import { PieceType } from "../../shared/dtos/cyvasse/piece_rule";
 import { expect } from "chai";
 import {
   IGame,
@@ -21,7 +21,7 @@ import {
   IGameSetupChange,
   Action,
   IGamePly,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 
 describe("CyvasseGameRoutes", () => {
   resetDatabaseBeforeEach();
