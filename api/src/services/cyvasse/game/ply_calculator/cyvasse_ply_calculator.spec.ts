@@ -6,7 +6,10 @@ import {
   IPieceRuleOptions,
 } from "../../../../shared/dtos/cyvasse/piece_rule";
 import { IVariant, BoardType } from "../../../../shared/dtos/cyvasse/variant";
-import { ValidPlies, PlyEvaluationFlag } from "../../../../shared/dtos/cyvasse/game";
+import {
+  ValidPlies,
+  PlyEvaluationFlag,
+} from "../../../../shared/dtos/cyvasse/game";
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { previewPieceRule } from "./cyvasse_ply_preview";

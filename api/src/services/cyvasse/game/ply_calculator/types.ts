@@ -1,5 +1,8 @@
 import { ICyvasseBoard } from "../board/cyvasse_board";
-import { PieceType, IPieceRule } from "../../../../shared/dtos/cyvasse/piece_rule";
+import {
+  PieceType,
+  IPieceRule,
+} from "../../../../shared/dtos/cyvasse/piece_rule";
 import {
   TerrainType,
   ITerrainRule,

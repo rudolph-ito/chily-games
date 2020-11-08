@@ -1,4 +1,7 @@
-import { BoardType, IVariantOptions } from "../../../../shared/dtos/cyvasse/variant";
+import {
+  BoardType,
+  IVariantOptions,
+} from "../../../../shared/dtos/cyvasse/variant";
 import { ICyvasseBoard } from "./cyvasse_board";
 import { CyvasseHexagonalBoard } from "./cyvasse_hexagonal_board";
 import { CyvasseSquareBoard } from "./cyvasse_square_board";

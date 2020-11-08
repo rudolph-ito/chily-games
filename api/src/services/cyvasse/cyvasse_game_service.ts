@@ -42,7 +42,10 @@ import {
   CyvasseTerrainRuleDataService,
 } from "./data/cyvasse_terrain_rule_data_service";
 import { PieceType, IPieceRule } from "../../shared/dtos/cyvasse/piece_rule";
-import { TerrainType, ITerrainRule } from "../../shared/dtos/cyvasse/terrain_rule";
+import {
+  TerrainType,
+  ITerrainRule,
+} from "../../shared/dtos/cyvasse/terrain_rule";
 import { validateGameSetupComplete } from "./validators/cyvasse_game_setup_complete_validator";
 import { validateGamePly } from "./validators/cyvasse_game_ply_validator";
 import { CyvassePlyCalculator } from "./game/ply_calculator/cyvasse_ply_calculator";

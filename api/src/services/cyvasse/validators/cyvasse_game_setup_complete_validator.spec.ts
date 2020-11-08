@@ -3,7 +3,10 @@ import { describe, it } from "mocha";
 import { CyvasseHexagonalBoard } from "../game/board/cyvasse_hexagonal_board";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import { PieceType, IPieceRule } from "../../../shared/dtos/cyvasse/piece_rule";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/cyvasse/terrain_rule";
+import {
+  TerrainType,
+  ITerrainRule,
+} from "../../../shared/dtos/cyvasse/terrain_rule";
 import {
   IValidateGameSetupCompleteOptions,
   validateGameSetupComplete,

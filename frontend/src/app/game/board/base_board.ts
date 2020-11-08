@@ -405,7 +405,7 @@ export abstract class BaseBoard {
   private async createTerrain(terrain: ITerrain): Promise<Konva.Shape> {
     return await new Promise((resolve) => {
       const image = new Image();
-      image.src = `/assets/terrain/default/${terrain.terrainTypeId}.svg`;
+      image.src = `/assets/cyvasse/terrain/default/${terrain.terrainTypeId}.svg`;
       image.onload = () => {
         const terrain = this.createSpaceShape();
         terrain.fillPatternImage(image);
@@ -505,7 +505,7 @@ export abstract class BaseBoard {
   private async loadPieceImage(piece: IPiece): Promise<Konva.Image> {
     return await new Promise((resolve) => {
       Konva.Image.fromURL(
-        `/assets/piece/default/${piece.pieceTypeId}_${piece.playerColor}.svg`,
+        `/assets/cyvasse/piece/default/${piece.pieceTypeId}_${piece.playerColor}.svg`,
         (image: Konva.Image) => {
           resolve(image);
         }

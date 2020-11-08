@@ -8,7 +8,10 @@ import { Observable, of, forkJoin } from "rxjs";
 import { AuthenticationService } from "../../../services/authentication.service";
 import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { map } from "rxjs/operators";
-import { IPieceRule, CaptureType } from "src/app/shared/dtos/cyvasse/piece_rule";
+import {
+  IPieceRule,
+  CaptureType,
+} from "src/app/shared/dtos/cyvasse/piece_rule";
 import { PieceRuleService } from "../../../services/cyvasse/piece-rule.service";
 import {
   getPathConfigurationDescription,

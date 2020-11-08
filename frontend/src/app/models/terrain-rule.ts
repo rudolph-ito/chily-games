@@ -1,5 +1,8 @@
 import { ISelectOption } from "./form";
-import { TerrainType, PiecesEffectedType } from "../shared/dtos/cyvasse/terrain_rule";
+import {
+  TerrainType,
+  PiecesEffectedType,
+} from "../shared/dtos/cyvasse/terrain_rule";
 
 export const TERRAIN_TYPE_OPTIONS: ISelectOption[] = [
   { label: "Forest", value: TerrainType.FOREST },

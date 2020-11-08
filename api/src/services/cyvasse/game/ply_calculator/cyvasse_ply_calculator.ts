@@ -18,7 +18,10 @@ import { CyvassePlyEvaluator } from "./cyvasse_ply_evaluator";
 import uniqBy from "lodash.uniqby";
 
 import { ICyvasseCoordinateMap } from "../storage/cyvasse_coordinate_map";
-import { ITerrainRule, TerrainType } from "src/shared/dtos/cyvasse/terrain_rule";
+import {
+  ITerrainRule,
+  TerrainType,
+} from "src/shared/dtos/cyvasse/terrain_rule";
 import { IVariant } from "src/shared/dtos/cyvasse/variant";
 import { getBoardForVariant } from "../board/cyvasse_board_builder";
 

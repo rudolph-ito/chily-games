@@ -7,7 +7,10 @@ import {
   IVariantOptions,
 } from "../../shared/dtos/cyvasse/variant";
 import { IPaginatedResponse } from "../../shared/dtos/search";
-import { IPieceRuleOptions, CaptureType } from "../../shared/dtos/cyvasse/piece_rule";
+import {
+  IPieceRuleOptions,
+  CaptureType,
+} from "../../shared/dtos/cyvasse/piece_rule";
 import {
   IPreviewPieceRuleResponse,
   IPreviewPieceRuleRequest,

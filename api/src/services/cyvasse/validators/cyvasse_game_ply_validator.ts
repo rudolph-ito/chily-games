@@ -8,7 +8,10 @@ import {
   CaptureType,
   PieceType,
 } from "../../../shared/dtos/cyvasse/piece_rule";
-import { ITerrainRule, TerrainType } from "../../../shared/dtos/cyvasse/terrain_rule";
+import {
+  ITerrainRule,
+  TerrainType,
+} from "../../../shared/dtos/cyvasse/terrain_rule";
 import {
   IGamePly,
   ICoordinate,

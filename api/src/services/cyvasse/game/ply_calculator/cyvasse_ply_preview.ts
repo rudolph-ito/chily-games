@@ -12,7 +12,10 @@ import {
 } from "../../../../shared/dtos/cyvasse/game";
 import { getBoardForVariant } from "../board/cyvasse_board_builder";
 import { CyvassePlyCalculator } from "./cyvasse_ply_calculator";
-import { TerrainType, ITerrainRule } from "src/shared/dtos/cyvasse/terrain_rule";
+import {
+  TerrainType,
+  ITerrainRule,
+} from "src/shared/dtos/cyvasse/terrain_rule";
 
 export interface IPreviewPieceRuleRequest {
   evaluationType: CaptureType;

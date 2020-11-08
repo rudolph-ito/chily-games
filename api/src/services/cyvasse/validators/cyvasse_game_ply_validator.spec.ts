@@ -7,7 +7,10 @@ import {
   PathType,
   CaptureType,
 } from "../../../shared/dtos/cyvasse/piece_rule";
-import { TerrainType, ITerrainRule } from "../../../shared/dtos/cyvasse/terrain_rule";
+import {
+  TerrainType,
+  ITerrainRule,
+} from "../../../shared/dtos/cyvasse/terrain_rule";
 import { PlayerColor, IGamePly } from "../../../shared/dtos/cyvasse/game";
 import { mockPieceRule, mockVariant } from "../../../../test/mocks";
 import {

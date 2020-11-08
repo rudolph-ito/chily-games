@@ -9,7 +9,11 @@ import {
 } from "../../../test/test_helper";
 import { expect } from "chai";
 import { ValidationError } from "../shared/exceptions";
-import { PieceType, PathType, CaptureType } from "../../shared/dtos/cyvasse/piece_rule";
+import {
+  PieceType,
+  PathType,
+  CaptureType,
+} from "../../shared/dtos/cyvasse/piece_rule";
 
 describe("CyvassePieceRuleService", () => {
   resetDatabaseBeforeEach();
