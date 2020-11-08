@@ -11,19 +11,19 @@ import {
   IPieceRule,
   PieceType,
 } from "../../../../shared/dtos/piece_rule";
-import { ICoordinateUpdater, BoardDirection } from "../board";
+import { ICoordinateUpdater, BoardDirection } from "../board/cyvasse_board";
 import { doesHaveValue } from "../../../../shared/utilities/value_checker";
 import { IPlyEvaluateOptions } from "./types";
-import { PlyEvaluator } from "./ply_evaluator";
+import { CyvassePlyEvaluator } from "./cyvasse_ply_evaluator";
 import uniqBy from "lodash.uniqby";
 
-import { ICoordinateMap } from "../storage/coordinate_map";
+import { ICyvasseCoordinateMap } from "../storage/cyvasse_coordinate_map";
 import { ITerrainRule, TerrainType } from "src/shared/dtos/terrain_rule";
 import { IVariant } from "src/shared/dtos/variant";
-import { getBoardForVariant } from "../board/builder";
+import { getBoardForVariant } from "../board/cyvasse_board_builder";
 
 export interface INewPlyCalculatorOptions {
-  coordinateMap: ICoordinateMap;
+  coordinateMap: ICyvasseCoordinateMap;
   pieceRuleMap: Map<PieceType, IPieceRule>;
   terrainRuleMap: Map<TerrainType, ITerrainRule>;
   variant: IVariant;
@@ -40,9 +40,9 @@ interface IGetValidPliesData {
   pathConfiguration: IPathConfiguration;
 }
 
-export class PlyCalculator {
+export class CyvassePlyCalculator {
   options: IPlyEvaluateOptions;
-  plyEvaluator: PlyEvaluator;
+  plyEvaluator: CyvassePlyEvaluator;
 
   constructor(options: INewPlyCalculatorOptions) {
     this.options = {
@@ -55,7 +55,7 @@ export class PlyCalculator {
         terrainRuleMap: options.terrainRuleMap,
       },
     };
-    this.plyEvaluator = new PlyEvaluator(this.options);
+    this.plyEvaluator = new CyvassePlyEvaluator(this.options);
   }
 
   getValidPlies(input: IGetValidPliesInput): ValidPlies {

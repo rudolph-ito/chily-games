@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { CoordinateMap } from "../game/storage/coordinate_map";
+import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import {
   PieceType,
   IPieceRule,
@@ -12,7 +12,7 @@ import { PlayerColor, IGamePly } from "../../../shared/dtos/game";
 import { mockPieceRule, mockVariant } from "../../../../test/mocks";
 import { validateGamePly, IValidateGamePlyOptions } from "./cyvasse_game_ply_validator";
 import { BoardType } from "../../../shared/dtos/variant";
-import { getBoardForVariant } from "../game/board/builder";
+import { getBoardForVariant } from "../game/board/cyvasse_board_builder";
 
 function getBaseTestOptions(ply: IGamePly): IValidateGamePlyOptions {
   const variant = mockVariant({ boardType: BoardType.HEXAGONAL, boardSize: 3 });
@@ -30,7 +30,7 @@ function getBaseTestOptions(ply: IGamePly): IValidateGamePlyOptions {
     range: { type: PathType.ORTHOGONAL_LINE, minimum: 1, maximum: 1 },
   });
   const board = getBoardForVariant(variant);
-  const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+  const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
   coordinateMap.addPiece(
     { x: 0, y: -1 },
     { pieceTypeId: PieceType.KING, playerColor: PlayerColor.ALABASTER }
@@ -56,7 +56,7 @@ function getBaseTestOptions(ply: IGamePly): IValidateGamePlyOptions {
   };
 }
 
-describe("validateGamePly", () => {
+describe("Cyvasse - validateGamePly", () => {
   it("returns error if no piece", () => {
     // Arrange
     const options = getBaseTestOptions({

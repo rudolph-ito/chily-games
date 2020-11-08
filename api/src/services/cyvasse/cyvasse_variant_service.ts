@@ -20,7 +20,7 @@ import {
   IPreviewPieceRuleRequest,
   IPreviewPieceRuleResponse,
 } from "../../shared/dtos/game";
-import { previewPieceRule } from "./game/ply_calculator/preview";
+import { previewPieceRule } from "./game/ply_calculator/cyvasse_ply_preview";
 import {
   ICyvassePieceRuleDataService,
   CyvassePieceRuleDataService,

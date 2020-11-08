@@ -7,7 +7,7 @@ export enum BoardDirection {
   diagonal,
 }
 
-export interface IBoard {
+export interface ICyvasseBoard {
   getAllCoordinates: () => ICoordinate[];
   getCenter: () => ICoordinate;
   getCoordinateDistance: (

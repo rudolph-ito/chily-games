@@ -1,10 +1,10 @@
 import { doesHaveValue } from "../../../shared/utilities/value_checker";
-import { CoordinateMap } from "../game/storage/coordinate_map";
+import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
 import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 
 export interface IValidateGameSetupCompleteOptions {
-  coordinateMap: CoordinateMap;
+  coordinateMap: CyvasseCoordinateMap;
   pieceRuleMap: Map<PieceType, IPieceRule>;
   terrainRuleMap: Map<TerrainType, ITerrainRule>;
 }

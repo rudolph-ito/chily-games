@@ -41,7 +41,7 @@ interface IPlyEvaluateData {
   pieceRule: IPieceRule;
 }
 
-export class PlyEvaluator {
+export class CyvassePlyEvaluator {
   private readonly options: IPlyEvaluateOptions;
 
   constructor(options: IPlyEvaluateOptions) {

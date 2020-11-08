@@ -4,21 +4,21 @@ import {
   validateGameSetupChange,
   IValidateGameSetupChangeOptions,
 } from "./cyvasse_game_setup_change_validator";
-import { HexagonalBoard } from "../game/board/hexagonal_board";
-import { CoordinateMap } from "../game/storage/coordinate_map";
+import { CyvasseHexagonalBoard } from "../game/board/cyvasse_hexagonal_board";
+import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
 import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 import { PlayerColor } from "../../../shared/dtos/game";
 import { mockPieceRule } from "../../../../test/mocks";
 
-describe("validateGameSetupChange", () => {
+describe("Cyvasse - validateGameSetupChange", () => {
   it("returns error if no piece change or terrain change", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
     const options: IValidateGameSetupChangeOptions = {
       board,
-      coordinateMap: new CoordinateMap(board.getAllCoordinates()),
+      coordinateMap: new CyvasseCoordinateMap(board.getAllCoordinates()),
       change: {},
       pieceRuleMap: new Map<PieceType, IPieceRule>([
         [pieceRule.pieceTypeId, pieceRule],
@@ -38,11 +38,11 @@ describe("validateGameSetupChange", () => {
 
   it("returns null if happy path adding a piece", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
     const options: IValidateGameSetupChangeOptions = {
       board,
-      coordinateMap: new CoordinateMap(board.getAllCoordinates()),
+      coordinateMap: new CyvasseCoordinateMap(board.getAllCoordinates()),
       change: {
         pieceChange: {
           pieceTypeId: PieceType.KING,
@@ -65,9 +65,9 @@ describe("validateGameSetupChange", () => {
 
   it("returns null if happy path deleting a piece", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.addPiece(
       { x: 0, y: -1 },
       { pieceTypeId: PieceType.KING, playerColor: PlayerColor.ALABASTER }
@@ -97,9 +97,9 @@ describe("validateGameSetupChange", () => {
 
   it("returns null if happy path moving a piece", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.addPiece(
       { x: 0, y: -1 },
       { pieceTypeId: PieceType.KING, playerColor: PlayerColor.ALABASTER }

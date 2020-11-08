@@ -1,12 +1,12 @@
 import { ICoordinate, PlayerColor } from "../../../../shared/dtos/game";
-import { ICoordinateUpdater, BoardDirection, IBoard } from ".";
+import { ICoordinateUpdater, BoardDirection, ICyvasseBoard } from "./cyvasse_board";
 
 interface IRange {
   min: number;
   max: number;
 }
 
-export class HexagonalBoard implements IBoard {
+export class CyvasseHexagonalBoard implements ICyvasseBoard {
   private readonly size: number;
 
   constructor(size: number) {

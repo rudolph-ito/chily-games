@@ -5,13 +5,13 @@ import {
   PieceType,
   IPieceRule,
 } from "../../../../shared/dtos/piece_rule";
-import { CoordinateMap } from "../storage/coordinate_map";
+import { CyvasseCoordinateMap } from "../storage/cyvasse_coordinate_map";
 import {
   PlayerColor,
   IPreviewPieceRuleResponse,
 } from "../../../../shared/dtos/game";
-import { getBoardForVariant } from "../board/builder";
-import { PlyCalculator } from ".";
+import { getBoardForVariant } from "../board/cyvasse_board_builder";
+import { CyvassePlyCalculator } from "./cyvasse_ply_calculator";
 import { TerrainType, ITerrainRule } from "src/shared/dtos/terrain_rule";
 
 export interface IPreviewPieceRuleRequest {
@@ -24,7 +24,7 @@ export function previewPieceRule(
   request: IPreviewPieceRuleRequest
 ): IPreviewPieceRuleResponse {
   const board = getBoardForVariant(request.variant);
-  const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+  const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
   const coordinate = board.getCenter();
   coordinateMap.addPiece(coordinate, {
     pieceTypeId: request.pieceRule.pieceTypeId,
@@ -35,7 +35,7 @@ export function previewPieceRule(
     variantId: 0,
     ...request.pieceRule,
   };
-  const plyCalculator = new PlyCalculator({
+  const plyCalculator = new CyvassePlyCalculator({
     coordinateMap,
     pieceRuleMap: new Map<PieceType, IPieceRule>([
       [pieceRule.pieceTypeId, pieceRule],

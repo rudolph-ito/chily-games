@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { HexagonalBoard } from "../game/board/hexagonal_board";
-import { CoordinateMap } from "../game/storage/coordinate_map";
+import { CyvasseHexagonalBoard } from "../game/board/cyvasse_hexagonal_board";
+import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
 import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 import {
@@ -11,16 +11,16 @@ import {
 import { PlayerColor } from "../../../shared/dtos/game";
 import { mockPieceRule, mockTerrainRule } from "../../../../test/mocks";
 
-describe("validateGameSetupComplete", () => {
+describe("Cyvasse - validateGameSetupComplete", () => {
   it("returns null if has correct pieces / terrains", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
     const terrainRule = mockTerrainRule({
       terrainTypeId: TerrainType.FOREST,
       count: 1,
     });
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.addPiece(
       { x: 0, y: -1 },
       { pieceTypeId: PieceType.KING, playerColor: PlayerColor.ALABASTER }
@@ -48,10 +48,10 @@ describe("validateGameSetupComplete", () => {
 
   it("returns error if missing piece (expected 1)", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
     const options: IValidateGameSetupCompleteOptions = {
-      coordinateMap: new CoordinateMap(board.getAllCoordinates()),
+      coordinateMap: new CyvasseCoordinateMap(board.getAllCoordinates()),
       pieceRuleMap: new Map<PieceType, IPieceRule>([
         [pieceRule.pieceTypeId, pieceRule],
       ]),
@@ -67,12 +67,12 @@ describe("validateGameSetupComplete", () => {
 
   it("returns error if missing piece (expected more than 1)", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({
       pieceTypeId: PieceType.CROSSBOW,
       count: 3,
     });
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.addPiece(
       { x: 0, y: -1 },
       { pieceTypeId: PieceType.CROSSBOW, playerColor: PlayerColor.ALABASTER }
@@ -98,13 +98,13 @@ describe("validateGameSetupComplete", () => {
 
   it("returns error if missing terrain (expected 1)", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const terrainRule = mockTerrainRule({
       terrainTypeId: TerrainType.FOREST,
       count: 1,
     });
     const options: IValidateGameSetupCompleteOptions = {
-      coordinateMap: new CoordinateMap(board.getAllCoordinates()),
+      coordinateMap: new CyvasseCoordinateMap(board.getAllCoordinates()),
       pieceRuleMap: new Map<PieceType, IPieceRule>(),
       terrainRuleMap: new Map<TerrainType, ITerrainRule>([
         [terrainRule.terrainTypeId, terrainRule],
@@ -120,12 +120,12 @@ describe("validateGameSetupComplete", () => {
 
   it("returns error if missing terrain (expected more than 1)", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const terrainRule = mockTerrainRule({
       terrainTypeId: TerrainType.FOREST,
       count: 3,
     });
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.addTerrain(
       { x: 0, y: -1 },
       { terrainTypeId: TerrainType.FOREST, playerColor: PlayerColor.ALABASTER }
@@ -151,14 +151,14 @@ describe("validateGameSetupComplete", () => {
 
   it("returns error if missing piece and terrain", () => {
     // Arrange
-    const board = new HexagonalBoard(3);
+    const board = new CyvasseHexagonalBoard(3);
     const pieceRule = mockPieceRule({ pieceTypeId: PieceType.KING, count: 1 });
     const terrainRule = mockTerrainRule({
       terrainTypeId: TerrainType.FOREST,
       count: 1,
     });
     const options: IValidateGameSetupCompleteOptions = {
-      coordinateMap: new CoordinateMap(board.getAllCoordinates()),
+      coordinateMap: new CyvasseCoordinateMap(board.getAllCoordinates()),
       pieceRuleMap: new Map<PieceType, IPieceRule>([
         [pieceRule.pieceTypeId, pieceRule],
       ]),

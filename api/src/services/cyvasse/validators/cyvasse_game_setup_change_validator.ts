@@ -3,15 +3,15 @@ import {
   doesHaveValue,
 } from "../../../shared/utilities/value_checker";
 import { IGameSetupChange, PlayerColor } from "../../../shared/dtos/game";
-import { CoordinateMap } from "../game/storage/coordinate_map";
+import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import { PieceType, IPieceRule } from "../../../shared/dtos/piece_rule";
-import { IBoard } from "../game/board";
+import { ICyvasseBoard } from "../game/board/cyvasse_board";
 import { TerrainType, ITerrainRule } from "../../../shared/dtos/terrain_rule";
 
 export interface IValidateGameSetupChangeOptions {
-  board: IBoard;
+  board: ICyvasseBoard;
   change: IGameSetupChange;
-  coordinateMap: CoordinateMap;
+  coordinateMap: CyvasseCoordinateMap;
   pieceRuleMap: Map<PieceType, IPieceRule>;
   playerColor: PlayerColor;
   terrainRuleMap: Map<TerrainType, ITerrainRule>;

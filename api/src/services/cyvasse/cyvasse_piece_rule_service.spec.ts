@@ -11,7 +11,7 @@ import { expect } from "chai";
 import { ValidationError } from "../shared/exceptions";
 import { PieceType, PathType, CaptureType } from "../../shared/dtos/piece_rule";
 
-describe("PieceRuleService", () => {
+describe("CyvassePieceRuleService", () => {
   resetDatabaseBeforeEach();
 
   let service: CyvassePieceRuleService;

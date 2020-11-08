@@ -7,7 +7,7 @@ import {
 } from "../../../../shared/dtos/game";
 import { doesHaveValue } from "../../../../shared/utilities/value_checker";
 
-export interface ICoordinateMap {
+export interface ICyvasseCoordinateMap {
   addPiece: (coordinate: ICoordinate, piece: IPiece) => void;
   addTerrain: (coordinate: ICoordinate, terrain: ITerrain) => void;
   deletePiece: (coordinate: ICoordinate) => void;
@@ -20,7 +20,7 @@ export interface ICoordinateMap {
   deserialize: (data: ICoordinateMapData[]) => void;
 }
 
-export class CoordinateMap implements ICoordinateMap {
+export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
   private readonly data: Map<string, ICoordinateData>;
 
   constructor(coordinates: ICoordinate[]) {

@@ -1,7 +1,7 @@
 import { ICoordinate, PlayerColor } from "../../../../shared/dtos/game";
-import { ICoordinateUpdater, BoardDirection, IBoard } from ".";
+import { ICoordinateUpdater, BoardDirection, ICyvasseBoard } from "./cyvasse_board";
 
-export class SquareBoard implements IBoard {
+export class CyvasseSquareBoard implements ICyvasseBoard {
   private readonly columns: number;
   private readonly rows: number;
 

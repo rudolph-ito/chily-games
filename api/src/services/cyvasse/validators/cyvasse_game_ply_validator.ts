@@ -2,7 +2,7 @@ import {
   doesHaveValue,
   doesNotHaveValue,
 } from "../../../shared/utilities/value_checker";
-import { CoordinateMap } from "../game/storage/coordinate_map";
+import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import {
   IPieceRule,
   CaptureType,
@@ -16,10 +16,10 @@ import {
   PlayerColor,
 } from "../../../shared/dtos/game";
 import { IVariant } from "../../../shared/dtos/variant";
-import { PlyCalculator } from "../game/ply_calculator";
+import { CyvassePlyCalculator } from "../game/ply_calculator/cyvasse_ply_calculator";
 
 export interface IValidateGamePlyOptions {
-  coordinateMap: CoordinateMap;
+  coordinateMap: CyvasseCoordinateMap;
   pieceRuleMap: Map<PieceType, IPieceRule>;
   playerColor: PlayerColor;
   ply: IGamePly;
@@ -28,7 +28,7 @@ export interface IValidateGamePlyOptions {
 }
 
 export function validateGamePly(options: IValidateGamePlyOptions): string {
-  const plyCalculator = new PlyCalculator({
+  const plyCalculator = new CyvassePlyCalculator({
     coordinateMap: options.coordinateMap,
     pieceRuleMap: options.pieceRuleMap,
     terrainRuleMap: options.terrainRuleMap,

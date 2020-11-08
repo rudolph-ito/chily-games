@@ -26,8 +26,8 @@ import {
   NotFoundError,
   ValidationError,
 } from "../shared/exceptions";
-import { CoordinateMap } from "./game/storage/coordinate_map";
-import { getBoardForVariant } from "./game/board/builder";
+import { CyvasseCoordinateMap } from "./game/storage/cyvasse_coordinate_map";
+import { getBoardForVariant } from "./game/board/cyvasse_board_builder";
 import {
   ICyvasseVariantDataService,
   CyvasseVariantDataService,
@@ -45,7 +45,7 @@ import { PieceType, IPieceRule } from "../../shared/dtos/piece_rule";
 import { TerrainType, ITerrainRule } from "../../shared/dtos/terrain_rule";
 import { validateGameSetupComplete } from "./validators/cyvasse_game_setup_complete_validator";
 import { validateGamePly } from "./validators/cyvasse_game_ply_validator";
-import { PlyCalculator } from "./game/ply_calculator";
+import { CyvassePlyCalculator } from "./game/ply_calculator/cyvasse_ply_calculator";
 
 export interface ICyvasseGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
@@ -149,9 +149,9 @@ export class CyvasseGameService implements ICyvasseGameService {
     }
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.deserialize(game.currentCoordinateMap);
-    const plyCalculator = new PlyCalculator({
+    const plyCalculator = new CyvassePlyCalculator({
       coordinateMap,
       pieceRuleMap: await this.getPieceRuleMap(game.variantId),
       terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
@@ -201,7 +201,7 @@ export class CyvasseGameService implements ICyvasseGameService {
         : game.onyxSetupCoordinateMap;
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.deserialize(setupCoordinateMap);
     const error = validateGameSetupChange({
       board,
@@ -274,7 +274,7 @@ export class CyvasseGameService implements ICyvasseGameService {
     } else {
       const variant = await this.variantDataService.getVariant(game.variantId);
       const board = getBoardForVariant(variant);
-      const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+      const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
       coordinateMap.deserialize(game.alabasterSetupCoordinateMap);
       coordinateMap.deserialize(game.onyxSetupCoordinateMap);
       await this.gameDataService.updateGame(gameId, {
@@ -301,7 +301,7 @@ export class CyvasseGameService implements ICyvasseGameService {
         : PlayerColor.ONYX;
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.deserialize(game.currentCoordinateMap);
     const error = validateGamePly({
       coordinateMap,
@@ -458,7 +458,7 @@ export class CyvasseGameService implements ICyvasseGameService {
         : game.onyxSetupCoordinateMap;
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
-    const coordinateMap = new CoordinateMap(board.getAllCoordinates());
+    const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
     coordinateMap.deserialize(setupCoordinateMap);
     const error = validateGameSetupComplete({
       coordinateMap,

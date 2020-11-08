@@ -9,7 +9,7 @@ import { IVariant, BoardType } from "../../../../shared/dtos/variant";
 import { ValidPlies, PlyEvaluationFlag } from "../../../../shared/dtos/game";
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { previewPieceRule } from "./preview";
+import { previewPieceRule } from "./cyvasse_ply_preview";
 
 function getMockVariant(data: Partial<IVariant>): IVariant {
   return {
@@ -40,7 +40,7 @@ function testDirectionalMovement(
   return result.validPlies;
 }
 
-describe("PlyCalculator", () => {
+describe("CyvassePlyCalculator", () => {
   describe("hexagonal board, piece alone in the center", () => {
     it("board size 3, orthogonal line (1-2)", () => {
       // Arrange

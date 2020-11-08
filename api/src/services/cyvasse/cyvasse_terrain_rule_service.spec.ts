@@ -11,7 +11,7 @@ import { expect } from "chai";
 import { ValidationError } from "../shared/exceptions";
 import { TerrainType, PiecesEffectedType } from "../../shared/dtos/terrain_rule";
 
-describe("TerrainRuleService", () => {
+describe("CyvasseTerrainRuleService", () => {
   resetDatabaseBeforeEach();
 
   let service: CyvasseTerrainRuleService;
