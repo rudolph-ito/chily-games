@@ -29,6 +29,10 @@ test-api: # Run api tests
 	cd api && yarn build
 	cd api && yarn test --reporter spec
 
+.PHONY: test-api-unit
+test-api-unit: # Run api unit tests (without database)
+	cd api && yarn test --reporter spec
+
 .PHONY: test-frontend
 test-frontend: # Run frontend tests
 	cd frontend && yarn test

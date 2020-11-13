@@ -1,6 +1,6 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
 
-const rankToNumber = {
+export const rankToNumber = {
   [CardRank.ACE]: 0,
   [CardRank.TWO]: 1,
   [CardRank.THREE]: 2,
@@ -47,4 +47,11 @@ export function deserializeCard(cardNumber: number): ICard {
   const rankNumber = cardNumber % 13;
   const suitNumber = (cardNumber - rankNumber) / 13;
   return { rank: numberToRank[rankNumber], suit: numberToSuit[suitNumber] };
+}
+
+export function areCardsEqual(a: ICard, b: ICard): boolean {
+  if (a.isJoker) {
+    return b.isJoker
+  }
+  return a.rank === b.rank && a.suit == b.suit
 }
