@@ -1,4 +1,5 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
+import shuffle from 'knuth-shuffle-seeded'
 
 export const rankToNumber = {
   [CardRank.ACE]: 0,
@@ -51,7 +52,20 @@ export function deserializeCard(cardNumber: number): ICard {
 
 export function areCardsEqual(a: ICard, b: ICard): boolean {
   if (a.isJoker) {
-    return b.isJoker
+    return b.isJoker;
   }
-  return a.rank === b.rank && a.suit == b.suit
+  return a.rank === b.rank && a.suit === b.suit;
+}
+
+const STANDARD_DECK: ICard[] = []
+for (let i = 0; i <= 52; i++) {
+  STANDARD_DECK.push(deserializeCard(i))
+}
+STANDARD_DECK.push({ isJoker: true });
+STANDARD_DECK.push({ isJoker: true });
+
+export function getShuffledDeck(): ICard[] {
+  const deck = STANDARD_DECK.slice()
+  shuffle(deck)
+  return deck
 }

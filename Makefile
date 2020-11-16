@@ -23,10 +23,13 @@ create-databases: # Create development / test databases and migrate the developm
 	sleep 2
 	cd api && yarn create-databases && yarn sequelize db:migrate
 
+.PHONY: build-api
+build-api: # Build api
+	cd api && yarn build
+
 .PHONY: test-api
 test-api: # Run api tests
 	docker-compose up -d database redis
-	cd api && yarn build
 	cd api && yarn test --reporter spec
 
 .PHONY: test-api-unit

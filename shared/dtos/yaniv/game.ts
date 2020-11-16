@@ -2,27 +2,31 @@ import { ICard } from "./card";
 
 export interface IPlayerState {
   userId: number;
-  numberOfCards: number;
+  numberOfCards?: number;
+  cards?: ICard[];
 }
 
 export enum RoundScoreType {
-  default = "default",
-  yaniv = "yaniv",
-  asaf = "asaf",
+  DEFAULT = "default",
+  YANIV = "yaniv",
+  ASAF = "asaf",
+}
+
+export interface IRoundScore {
+  [userId: number]: IRoundPlayerScore;
+}
+
+export interface IRoundScoreWithCards {
+  [userId: number]: IRoundPlayerScoreWithCards;
 }
 
 export interface IRoundPlayerScore {
-  userId: number;
   score: number;
   scoreType: RoundScoreType;
 }
 
 export interface IRoundPlayerScoreWithCards extends IRoundPlayerScore {
   cards: ICard[];
-}
-
-export interface IRoundHistory {
-  playerScores: IRoundPlayerScore[];
 }
 
 export interface IGameOptions {
@@ -36,16 +40,20 @@ export enum GameState {
   COMPLETE = "complete",
 }
 
-export interface IGameState {
+export interface IGame {
+  gameId: number;
+  hostUserId: number;
   options: IGameOptions;
-  roundStarted: boolean;
-  actionTo: number;
+  state: GameState;
   playerStates: IPlayerState[];
-  roundHistory: IRoundHistory[];
-  cardsOnTopOfDiscardPile: ICard[];
+  roundScores: IRoundScore[];
+
+  // Fields populated with state == ROUND_ACTIVE
+  actionToUserId?: number;
+  cardsOnTopOfDiscardPile?: ICard[];
 }
 
-export interface IGamePlayRequest {
+export interface IGameActionRequest {
   callYaniv: boolean;
   cardsDiscarded: ICard[];
   cardPickedUp: ICard;
@@ -68,7 +76,7 @@ export interface IActionToNextPlayerEvent {
 }
 
 export interface IRoundFinishedEvent {
-  players: IRoundPlayerScoreWithCards[];
+  roundScore: IRoundScoreWithCards;
 }
 
 // endpoints

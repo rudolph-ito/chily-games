@@ -19,6 +19,7 @@ import newSocketIoRedisAdapter from "socket.io-redis";
 import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
+import { getYanivRouter } from "./yaniv";
 
 const certsDir = pathJoin(__dirname, "..", "..", "certs");
 const RedisStore = connectRedis(expressSession);
@@ -85,6 +86,10 @@ export function createExpressApp(
     getCyvasseRouter(authenticationRequired, options.publishRedisClient)
   );
   app.use("/api/users", getUserRouter());
+  app.use(
+    "/api/yaniv",
+    getYanivRouter(authenticationRequired, options.publishRedisClient)
+  );
   app.use(errorHandler());
   return app;
 }

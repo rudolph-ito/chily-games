@@ -1,6 +1,6 @@
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 import { expect } from "chai";
-import { deserializeCard, serializeCard } from "./card_helpers";
+import { deserializeCard, getShuffledDeck, serializeCard } from "./card_helpers";
 
 describe("YanivCardHelpers", () => {
   describe("serializeCard", () => {
@@ -118,4 +118,16 @@ describe("YanivCardHelpers", () => {
       expect(result).to.eql({ isJoker: true });
     });
   });
+
+  describe("getShuffledDeck", () => {
+    it("returns a list of 54 cards (standard deck and 2 jokers)", () => {
+      // arrange
+
+      // act
+      const result = getShuffledDeck()
+
+      // assert
+      expect(result.length).to.eql(54)
+    })
+  })
 });

@@ -3,16 +3,17 @@ import { sequelize } from "./connection";
 import { GameState, IGameOptions } from "../../shared/dtos/yaniv/game";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
+import { ISerializedYanivGameCompletedRound } from "./yaniv_game_completed_round";
 
 export interface ISerializedYanivGame {
   gameId: number;
   hostUserId: number;
   state: GameState;
   options: IGameOptions;
-  actionToUserId: number;
-  cardsInDeck: ICard[];
-  cardsBuriedInDiscardPile: ICard[];
-  cardsOnTopOfDiscardPile: ICard[];
+  actionToUserId?: number;
+  cardsInDeck?: ICard[];
+  cardsBuriedInDiscardPile?: ICard[];
+  cardsOnTopOfDiscardPile?: ICard[];
 }
 
 const STATE_ENUM = DataTypes.ENUM(
@@ -33,20 +34,23 @@ export class YanivGame extends Model {
   public cardsOnTopOfDiscardPile!: number[];
 
   serialize(): ISerializedYanivGame {
-    return {
+    const out: ISerializedYanivGame = {
       gameId: this.gameId,
       hostUserId: this.hostUserId,
       state: this.state,
       options: this.options,
-      actionToUserId: this.actionToUserId,
-      cardsInDeck: this.cardsInDeck.map(deserializeCard),
-      cardsBuriedInDiscardPile: this.cardsBuriedInDiscardPile.map(
-        deserializeCard
-      ),
-      cardsOnTopOfDiscardPile: this.cardsOnTopOfDiscardPile.map(
-        deserializeCard
-      ),
     };
+    if (this.state === GameState.ROUND_ACTIVE) {
+      out.actionToUserId = this.actionToUserId;
+      out.cardsInDeck = this.cardsInDeck.map(deserializeCard);
+      out.cardsBuriedInDiscardPile = this.cardsBuriedInDiscardPile.map(
+        deserializeCard
+      );
+      out.cardsOnTopOfDiscardPile = this.cardsOnTopOfDiscardPile.map(
+        deserializeCard
+      );
+    }
+    return out;
   }
 }
 YanivGame.init(
@@ -63,19 +67,19 @@ YanivGame.init(
     },
     options: {
       type: DataTypes.JSONB,
-      allowNull: true,
+      allowNull: false,
     },
     cardsInDeck: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
+      allowNull: true,
     },
     cardsBuriedInDiscardPile: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
+      allowNull: true,
     },
     cardsOnTopOfDiscardPile: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
+      allowNull: true,
     },
     createdAt: {
       allowNull: false,
