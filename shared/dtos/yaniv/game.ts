@@ -54,9 +54,9 @@ export interface IGame {
 }
 
 export interface IGameActionRequest {
-  callYaniv: boolean;
-  cardsDiscarded: ICard[];
-  cardPickedUp: ICard;
+  callYaniv?: boolean;
+  cardsDiscarded?: ICard[];
+  cardPickedUp?: ICard;
 }
 
 export interface IPlayerJoinedEvent {

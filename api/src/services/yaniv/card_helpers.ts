@@ -1,5 +1,7 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
-import shuffle from 'knuth-shuffle-seeded'
+import shuffle from "knuth-shuffle-seeded";
+
+const NUMBER_OF_STANDARD_CARDS = 52;
 
 export const rankToNumber = {
   [CardRank.ACE]: 0,
@@ -36,14 +38,17 @@ Object.keys(suitToNumber).forEach(
 
 export function serializeCard(card: ICard): number {
   if (card.isJoker) {
-    return 52;
+    return NUMBER_OF_STANDARD_CARDS + card.jokerNumber;
   }
   return rankToNumber[card.rank] + 13 * suitToNumber[card.suit];
 }
 
 export function deserializeCard(cardNumber: number): ICard {
-  if (cardNumber === 52) {
-    return { isJoker: true };
+  if (cardNumber >= NUMBER_OF_STANDARD_CARDS) {
+    return {
+      isJoker: true,
+      jokerNumber: cardNumber - NUMBER_OF_STANDARD_CARDS,
+    };
   }
   const rankNumber = cardNumber % 13;
   const suitNumber = (cardNumber - rankNumber) / 13;
@@ -52,20 +57,16 @@ export function deserializeCard(cardNumber: number): ICard {
 
 export function areCardsEqual(a: ICard, b: ICard): boolean {
   if (a.isJoker) {
-    return b.isJoker;
+    return b.isJoker && a.jokerNumber === b.jokerNumber;
   }
   return a.rank === b.rank && a.suit === b.suit;
 }
 
-const STANDARD_DECK: ICard[] = []
-for (let i = 0; i <= 52; i++) {
-  STANDARD_DECK.push(deserializeCard(i))
-}
-STANDARD_DECK.push({ isJoker: true });
-STANDARD_DECK.push({ isJoker: true });
-
-export function getShuffledDeck(): ICard[] {
-  const deck = STANDARD_DECK.slice()
+export function standardDeckWithTwoJokers(): ICard[] {
+  const deck: ICard[] = [];
+  for (let i = 0; i < NUMBER_OF_STANDARD_CARDS + 2; i++) {
+    deck.push(deserializeCard(i));
+  }
   shuffle(deck)
-  return deck
+  return deck;
 }

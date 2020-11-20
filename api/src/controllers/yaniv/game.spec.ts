@@ -11,9 +11,12 @@ import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
 import { expect } from "chai";
 import { GameState, IGame } from "../../shared/dtos/yaniv/game";
-import { createTestYanivGame, joinTestYanivGame } from '../../../test/yaniv_test_helper';
+import {
+  createTestYanivGame,
+  joinTestYanivGame,
+} from "../../../test/yaniv_test_helper";
 
-describe.only("YanivGameRoutes", () => {
+describe("YanivGameRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
   let user1Credentials: IUserCredentials;
@@ -81,9 +84,9 @@ describe.only("YanivGameRoutes", () => {
       // Assert
       expect(response.body).to.exist();
       const game: IGame = response.body;
-      expect(game.gameId).to.eql(gameId)
-      expect(game.state).to.eql(GameState.PLAYERS_JOINING)
-      expect(game.playerStates).to.eql( [
+      expect(game.gameId).to.eql(gameId);
+      expect(game.state).to.eql(GameState.PLAYERS_JOINING);
+      expect(game.playerStates).to.eql([
         {
           userId: user1Id,
         },
@@ -109,13 +112,13 @@ describe.only("YanivGameRoutes", () => {
       // Assert
       expect(response.body).to.exist();
       const game: IGame = response.body;
-      expect(game.gameId).to.eql(gameId)
-      expect(game.state).to.eql(GameState.ROUND_ACTIVE)
-      expect(game.actionToUserId).to.eql(user1Id)
-      expect(game.cardsOnTopOfDiscardPile.length).to.eql(1)
-      expect(game.playerStates[0].userId).to.eql(user1Id)
-      expect(game.playerStates[0].numberOfCards).to.eql(5)
-      expect(game.playerStates[1].userId).to.eql(user2Id)
+      expect(game.gameId).to.eql(gameId);
+      expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+      expect(game.actionToUserId).to.eql(user1Id);
+      expect(game.cardsOnTopOfDiscardPile.length).to.eql(1);
+      expect(game.playerStates[0].userId).to.eql(user1Id);
+      expect(game.playerStates[0].numberOfCards).to.eql(5);
+      expect(game.playerStates[1].userId).to.eql(user2Id);
       expect(game.playerStates[1].numberOfCards).to.eql(5);
     });
   });

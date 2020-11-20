@@ -1,35 +1,23 @@
 import { YanivGameCompletedRound } from "../../../database/models";
 import { ISerializedYanivGameCompletedRound } from "../../../database/models/yaniv_game_completed_round";
-import { IRoundScore } from "../../../shared/dtos/yaniv/game";
 
 export interface IYanivGameCompletedRoundDataService {
-  createForRound: (
-    gameId: number,
-    roundNumber: number,
-    roundScore: IRoundScore
+  createMany: (
+    completedRounds: ISerializedYanivGameCompletedRound[]
   ) => Promise<void>;
   getAllForGame: (
     gameId: number
   ) => Promise<ISerializedYanivGameCompletedRound[]>;
+  getNextRoundNumber: (gameId: number) => Promise<number>;
 }
 
 export class YanivGameCompletedRoundDataService
   implements IYanivGameCompletedRoundDataService {
-  async createForRound(
-    gameId: number,
-    roundNumber: number,
-    roundScore: IRoundScore
+  async createMany(
+    completedRounds: ISerializedYanivGameCompletedRound[]
   ): Promise<void> {
-    for (const userId in roundScore) {
-      const playerScore = roundScore[userId];
-      const gameCompletedRound = YanivGameCompletedRound.build({
-        gameId,
-        roundNumber,
-        userId,
-        score: playerScore.score,
-        scoreType: playerScore.scoreType,
-      });
-      await gameCompletedRound.save();
+    for (const completedRound of completedRounds) {
+      await YanivGameCompletedRound.build(completedRound).save();
     }
   }
 
@@ -41,5 +29,16 @@ export class YanivGameCompletedRoundDataService
       where: { gameId },
     });
     return gameCompletedRounds.map((x) => x.serialize());
+  }
+
+  async getNextRoundNumber(gameId: number): Promise<number> {
+    const gameCompletedRounds = await YanivGameCompletedRound.findAll({
+      order: [["roundNumber", "DESC"]],
+      where: { gameId },
+      limit: 1,
+    });
+    return gameCompletedRounds.length === 1
+      ? gameCompletedRounds[0].roundNumber + 1
+      : 1;
   }
 }

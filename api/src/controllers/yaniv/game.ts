@@ -57,7 +57,7 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.put("/:gameId/take-action", authenticationRequired, function (
+  router.put("/:gameId/play-turn", authenticationRequired, function (
     req,
     res,
     next

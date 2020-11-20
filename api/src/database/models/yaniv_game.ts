@@ -3,7 +3,6 @@ import { sequelize } from "./connection";
 import { GameState, IGameOptions } from "../../shared/dtos/yaniv/game";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
-import { ISerializedYanivGameCompletedRound } from "./yaniv_game_completed_round";
 
 export interface ISerializedYanivGame {
   gameId: number;

@@ -1,11 +1,11 @@
 import { YanivGamePlayer } from "../../../database/models";
 import { ISerializedYanivGamePlayer } from "../../../database/models/yaniv_game_player";
-import { serializeCard } from '../card_helpers';
+import { serializeCard } from "../card_helpers";
 
 export interface IYanivGamePlayerDataService {
   create: (gameId: number, userId: number, position: number) => Promise<void>;
   getAllForGame: (gameId: number) => Promise<ISerializedYanivGamePlayer[]>;
-  updateAll(playerStates: ISerializedYanivGamePlayer[]): Promise<void>;
+  updateAll: (playerStates: ISerializedYanivGamePlayer[]) => Promise<void>;
 }
 
 export class YanivGamePlayerDataService implements IYanivGamePlayerDataService {
@@ -33,15 +33,18 @@ export class YanivGamePlayerDataService implements IYanivGamePlayerDataService {
 
   async updateAll(playerStates: ISerializedYanivGamePlayer[]): Promise<void> {
     for (const playerState of playerStates) {
-      await YanivGamePlayer.update({
-        position: playerState.position,
-        cardsInHand: playerState.cardsInHand.map(serializeCard)
-      }, {
-        where: { 
-          gameId: playerState.gameId,
-          userId: playerState.userId
+      await YanivGamePlayer.update(
+        {
+          position: playerState.position,
+          cardsInHand: playerState.cardsInHand.map(serializeCard),
+        },
+        {
+          where: {
+            gameId: playerState.gameId,
+            userId: playerState.userId,
+          },
         }
-      })
+      );
     }
-  } 
+  }
 }

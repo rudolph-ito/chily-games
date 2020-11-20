@@ -1,6 +1,10 @@
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 import { expect } from "chai";
-import { deserializeCard, getShuffledDeck, serializeCard } from "./card_helpers";
+import {
+  deserializeCard,
+  serializeCard,
+  standardDeckWithTwoJokers,
+} from "./card_helpers";
 
 describe("YanivCardHelpers", () => {
   describe("serializeCard", () => {
@@ -56,14 +60,14 @@ describe("YanivCardHelpers", () => {
       expect(result).to.eql(13);
     });
 
-    it("returns 52 for joken", () => {
+    it("returns 52 + jokerNumber for joker", () => {
       // arrange
 
       // act
-      const result = serializeCard({ isJoker: true });
+      const result = serializeCard({ isJoker: true, jokerNumber: 1 });
 
       // assert
-      expect(result).to.eql(52);
+      expect(result).to.eql(53);
     });
   });
 
@@ -108,26 +112,29 @@ describe("YanivCardHelpers", () => {
       expect(result).to.eql({ rank: CardRank.ACE, suit: CardSuit.DIAMONDS });
     });
 
-    it("returns joker for 52", () => {
+    it("returns joker for numbers greater than or equal to 52", () => {
       // arrange
 
       // act
-      const result = deserializeCard(52);
+      const result = deserializeCard(54);
 
       // assert
-      expect(result).to.eql({ isJoker: true });
+      expect(result).to.eql({ isJoker: true, jokerNumber: 2 });
     });
   });
 
-  describe("getShuffledDeck", () => {
+  describe("standardDeckWithTwoJokers", () => {
     it("returns a list of 54 cards (standard deck and 2 jokers)", () => {
       // arrange
 
       // act
-      const result = getShuffledDeck()
+      const deck = standardDeckWithTwoJokers();
 
       // assert
-      expect(result.length).to.eql(54)
-    })
-  })
+      expect(deck.length).to.eql(54);
+      expect(deck.filter((x) => x.suit === CardSuit.SPADES).length).to.eql(13);
+      expect(deck.filter((x) => x.rank === CardRank.SEVEN).length).to.eql(4);
+      expect(deck.filter((x) => x.isJoker).length).to.eql(2);
+    });
+  });
 });

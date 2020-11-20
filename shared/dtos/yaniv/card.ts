@@ -23,6 +23,7 @@ export enum CardSuit {
 
 export interface ICard {
   isJoker?: boolean;
+  jokerNumber?: number;
   rank?: CardRank;
   suit?: CardSuit;
 }
