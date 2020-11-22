@@ -57,12 +57,17 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.put("/:gameId/play-turn", authenticationRequired, function (
+  router.put("/:gameId/play", authenticationRequired, function (
     req,
     res,
     next
   ) {
-    // take action in game
+    gameService
+      .play((req.user as IUser).userId, parseInt(req.params.gameId), req.body)
+      .then((game) => {
+        res.status(200).send(game);
+      })
+      .catch(next);
   });
   router.put("/:gameId/settings", authenticationRequired, function (
     req,

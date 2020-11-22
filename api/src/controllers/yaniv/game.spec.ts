@@ -10,11 +10,13 @@ import {
 import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
 import { expect } from "chai";
-import { GameState, IGame } from "../../shared/dtos/yaniv/game";
+import { GameState, IGame, IGameActionRequest } from "../../shared/dtos/yaniv/game";
 import {
   createTestYanivGame,
+  createTestYanivRoundActiveGame,
   joinTestYanivGame,
 } from "../../../test/yaniv_test_helper";
+import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 
 describe("YanivGameRoutes", () => {
   resetDatabaseBeforeEach();
@@ -122,6 +124,51 @@ describe("YanivGameRoutes", () => {
       expect(game.playerStates[0].numberOfCards).to.eql(5);
       expect(game.playerStates[1].userId).to.eql(user2Id);
       expect(game.playerStates[1].numberOfCards).to.eql(5);
+    });
+  });
+
+  describe("play (PUT /api/yaniv/games/<game_id>/play", () => {
+    it("returns the updated game", async () => {
+      // Arrange
+      const {
+        userCredentials: [user1Credentials],
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestYanivRoundActiveGame({
+        playerCards: [
+          [
+            { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+            { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
+          ],
+          [],
+        ],
+        cardsInDeck: [{ rank: CardRank.SEVEN, suit: CardSuit.HEARTS }],
+        cardsOnTopOfDiscardPile: [
+          { rank: CardRank.TWO, suit: CardSuit.SPADES },
+        ],
+      });
+      const action: IGameActionRequest = {
+        cardsDiscarded: [{ rank: CardRank.KING, suit: CardSuit.DIAMONDS }],
+      };
+      const agent = await loginTestUser(testServer.app, user1Credentials);
+
+      // Act
+      const response = await agent
+        .put(`/api/yaniv/games/${gameId}/play`)
+        .send(action)
+        .expect(HttpStatus.OK);
+
+      // Assert
+      expect(response.body).to.exist();
+      const game: IGame = response.body;
+      expect(game.gameId).to.eql(gameId);
+      expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+      expect(game.actionToUserId).to.eql(user2Id);
+      expect(game.cardsOnTopOfDiscardPile).to.eql([{ rank: CardRank.KING, suit: CardSuit.DIAMONDS }]);
+      expect(game.playerStates[0].cards).to.eql([
+        { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+        { rank: CardRank.SEVEN, suit: CardSuit.HEARTS }
+      ]);
     });
   });
 });

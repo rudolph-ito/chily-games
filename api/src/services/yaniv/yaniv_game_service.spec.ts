@@ -4,60 +4,17 @@ import {
   createTestUser,
   resetDatabaseBeforeEach,
 } from "../../../test/test_helper";
-import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
+import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { YanivGameDataService } from "./data/yaniv_game_data_service";
 import { YanivGameService } from "./yaniv_game_service";
-import bluebird from "bluebird";
-import { YanivGamePlayerDataService } from "./data/yaniv_game_player_data_service";
 import {
   GameState,
   IGame,
   IGameActionRequest,
   RoundScoreType,
 } from "../../shared/dtos/yaniv/game";
-
-interface ITestGameOptions {
-  playerCards: ICard[][];
-  cardsOnTopOfDiscardPile: ICard[];
-  cardsInDeck: ICard[];
-}
-
-interface ITestGame {
-  userIds: number[];
-  gameId: number;
-}
-
-async function createTestGame(options: ITestGameOptions): Promise<ITestGame> {
-  const gameService = new YanivGameService();
-  const gameDataService = new YanivGameDataService();
-  const gamePlayerDataService = new YanivGamePlayerDataService();
-  const userIds = await bluebird.mapSeries(
-    options.playerCards,
-    async (_, index) => {
-      const userCreds = createTestCredentials(`test${index}`);
-      return await createTestUser(userCreds);
-    }
-  );
-  const game = await gameService.create(userIds[0], { playTo: 100 });
-  await bluebird.mapSeries(
-    userIds.slice(1),
-    async (userId) => await gameService.join(userId, game.gameId)
-  );
-  const playerStates = await gamePlayerDataService.getAllForGame(game.gameId);
-  playerStates.forEach(
-    (x, index) => (x.cardsInHand = options.playerCards[index])
-  );
-  await gamePlayerDataService.updateAll(playerStates);
-  await gameDataService.update(game.gameId, {
-    state: GameState.ROUND_ACTIVE,
-    actionToUserId: userIds[0],
-    cardsBuriedInDiscardPile: [],
-    cardsOnTopOfDiscardPile: options.cardsOnTopOfDiscardPile,
-    cardsInDeck: options.cardsInDeck,
-  });
-  return { userIds, gameId: game.gameId };
-}
+import { createTestYanivRoundActiveGame } from "../../../test/yaniv_test_helper";
 
 interface ITestPlayResult {
   error: Error;
@@ -103,7 +60,7 @@ describe("YanivGameService", () => {
       const {
         userIds: [, user2Id],
         gameId,
-      } = await createTestGame({
+      } = await createTestYanivRoundActiveGame({
         playerCards: [[], []],
         cardsInDeck: [],
         cardsOnTopOfDiscardPile: [],
@@ -126,7 +83,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -159,7 +116,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -189,7 +146,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -220,7 +177,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -251,7 +208,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -306,7 +263,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -364,7 +321,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -398,7 +355,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id, user2Id, user3Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -450,7 +407,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id, user2Id, user3Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -499,7 +456,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id, user2Id, user3Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
@@ -548,7 +505,7 @@ describe("YanivGameService", () => {
         const {
           userIds: [user1Id, user2Id, user3Id, user4Id],
           gameId,
-        } = await createTestGame({
+        } = await createTestYanivRoundActiveGame({
           playerCards: [
             [
               { rank: CardRank.ACE, suit: CardSuit.CLUBS },
