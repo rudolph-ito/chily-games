@@ -31,6 +31,7 @@ import { isValidDiscard, isValidPickup } from "./discard_validator";
 import { ISerializedYanivGameCompletedRound } from "../../database/models/yaniv_game_completed_round";
 import { getCardsScore } from "./score_helpers";
 import { ISerializedYanivGamePlayer } from "src/database/models/yaniv_game_player";
+import shuffle from 'knuth-shuffle-seeded';
 
 export interface IYanivGameService {
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
@@ -74,13 +75,15 @@ export class YanivGameService implements IYanivGameService {
     if (doesNotHaveValue(game)) {
       throwGameNotFoundError(gameId);
     }
-    // validate not already in game
     if (game.state !== GameState.PLAYERS_JOINING) {
       throw new ValidationError("Cannot join in-progress or completed game.");
     }
     const playerStates = await this.gamePlayerDataService.getAllForGame(
       game.gameId
     );
+    if (playerStates.some(x => x.userId == userId)) {
+      throw new ValidationError("Already joined game.");
+    }
     const nextPosition = Math.max(...playerStates.map((x) => x.position)) + 1;
     await this.gamePlayerDataService.create(gameId, userId, nextPosition);
     return await this.loadFullGame(userId, game);
@@ -188,11 +191,12 @@ export class YanivGameService implements IYanivGameService {
     playerStates.forEach((x) => (x.cardsInHand = []));
     await this.gameCompletedRoundDataService.createMany(completedRounds);
     await this.gamePlayerDataService.updateAll(playerStates);
+    const isGameComplete = this.isGameComplete(game.gameId, game.options.playTo);
     return await this.gameDataService.update(game.gameId, {
       actionToUserId: completedRounds.find(
         (x) => x.scoreType === RoundScoreType.YANIV
       ).userId,
-      state: GameState.ROUND_COMPLETE, // TODO set to complete if game over
+      state: isGameComplete ? GameState.COMPLETE : GameState.ROUND_COMPLETE,
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [],
       cardsInDeck: [],
@@ -233,7 +237,6 @@ export class YanivGameService implements IYanivGameService {
     ) {
       throw new ValidationError("Invalid pickup.");
     }
-    const updatedDeck = game.cardsInDeck;
     let discardsToBury = game.cardsOnTopOfDiscardPile;
     playerState.cardsInHand = _.differenceWith(
       playerState.cardsInHand,
@@ -246,8 +249,12 @@ export class YanivGameService implements IYanivGameService {
         areCardsEqual(x, action.cardPickedUp)
       );
     } else {
-      // TODO if cards in deck is empty, shuffle buried discards into deck
-      playerState.cardsInHand.push(updatedDeck.pop());
+      playerState.cardsInHand.push(game.cardsInDeck.pop());
+      if (game.cardsInDeck.length == 0) {
+        game.cardsInDeck = game.cardsBuriedInDiscardPile;
+        game.cardsBuriedInDiscardPile = []
+        shuffle(game.cardsInDeck)
+      }
     }
     await this.gamePlayerDataService.updateAll([playerState]);
     return await this.gameDataService.update(game.gameId, {
@@ -256,7 +263,7 @@ export class YanivGameService implements IYanivGameService {
         discardsToBury
       ),
       cardsOnTopOfDiscardPile: action.cardsDiscarded,
-      cardsInDeck: updatedDeck,
+      cardsInDeck: game.cardsInDeck,
     });
   }
 
@@ -318,5 +325,16 @@ export class YanivGameService implements IYanivGameService {
         return out;
       }
     );
+  }
+
+  private async isGameComplete(gameId: number, playTo: number): Promise<boolean> {
+    const completedRounds = await this.gameCompletedRoundDataService.getAllForGame(
+      gameId
+    );
+    return _.chain(completedRounds)
+      .groupBy((round) => round.userId)
+      .map(rounds => _.sumBy(rounds, (round) => round.score))
+      .some(playerTotal => playerTotal >= playTo)
+      .value();
   }
 }
