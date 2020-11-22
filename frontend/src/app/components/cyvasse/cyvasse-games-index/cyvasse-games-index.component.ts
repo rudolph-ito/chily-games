@@ -7,11 +7,11 @@ import { GameService } from "src/app/services/cyvasse/game.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 
 @Component({
-  selector: "app-games-index",
-  templateUrl: "./games-index.component.html",
-  styleUrls: ["./games-index.component.styl"],
+  selector: "app-cyvasse-games-index",
+  templateUrl: "./cyvasse-games-index.component.html",
+  styleUrls: ["./cyvasse-games-index.component.styl"],
 })
-export class GamesIndexComponent implements OnInit {
+export class CyvasseGamesIndexComponent implements OnInit {
   loading: boolean;
   pageIndex: number;
   pageSize: number = 100;

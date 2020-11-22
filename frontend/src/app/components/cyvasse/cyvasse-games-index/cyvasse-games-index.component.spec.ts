@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { GamesIndexComponent } from "./games-index.component";
+import { CyvasseGamesIndexComponent } from "./cyvasse-games-index.component";
 import { AppModule } from "src/app/app.module";
 import { GameService } from "src/app/services/cyvasse/game.service";
 import { of } from "rxjs";
 
-describe("GamesIndexComponent", () => {
-  let component: GamesIndexComponent;
-  let fixture: ComponentFixture<GamesIndexComponent>;
+describe("CyvasseGamesIndexComponent", () => {
+  let component: CyvasseGamesIndexComponent;
+  let fixture: ComponentFixture<CyvasseGamesIndexComponent>;
   let mockGameService: Partial<GameService>;
 
   beforeEach(async () => {
@@ -21,7 +21,7 @@ describe("GamesIndexComponent", () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(GamesIndexComponent);
+    fixture = TestBed.createComponent(CyvasseGamesIndexComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

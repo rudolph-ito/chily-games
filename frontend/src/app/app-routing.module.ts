@@ -8,8 +8,8 @@ import { VariantShowComponent } from "./components/cyvasse/variant-show/variant-
 import { PieceRuleFormComponent } from "./components/cyvasse/piece-rule-form/piece-rule-form.component";
 import { TerrainRuleFormComponent } from "./components/cyvasse/terrain-rule-form/terrain-rule-form.component";
 import { ChallengesIndexComponent } from "./components/cyvasse/challenges-index/challenges-index.component";
-import { GamesIndexComponent } from "./components/cyvasse/games-index/games-index.component";
-import { GameShowComponent } from "./components/cyvasse/game-show/game-show.component";
+import { CyvasseGamesIndexComponent } from "./components/cyvasse/cyvasse-games-index/cyvasse-games-index.component";
+import { CyvasseGameShowComponent } from './components/cyvasse/cyvasse-game-show/cyvasse-game-show.component';
 
 const routes: Routes = [
   {
@@ -56,11 +56,11 @@ const routes: Routes = [
   },
   {
     path: "cyvasse/games",
-    component: GamesIndexComponent,
+    component: CyvasseGamesIndexComponent,
   },
   {
     path: "cyvasse/games/:gameId",
-    component: GameShowComponent,
+    component: CyvasseGameShowComponent,
   },
   {
     path: "",

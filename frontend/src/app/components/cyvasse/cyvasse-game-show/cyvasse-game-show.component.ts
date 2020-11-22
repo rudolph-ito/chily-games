@@ -36,11 +36,11 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { Socket } from "ngx-socket-io";
 
 @Component({
-  selector: "app-game-show",
-  templateUrl: "./game-show.component.html",
-  styleUrls: ["./game-show.component.styl"],
+  selector: "app-cyvasse-game-show",
+  templateUrl: "./cyvasse-game-show.component.html",
+  styleUrls: ["./cyvasse-game-show.component.styl"],
 })
-export class GameShowComponent implements OnInit {
+export class CyvasseGameShowComponent implements OnInit {
   loading = false;
   game: IGame;
   gameRules: IGameRules;
