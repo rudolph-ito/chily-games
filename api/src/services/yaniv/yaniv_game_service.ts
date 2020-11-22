@@ -26,14 +26,11 @@ import {
   IYanivGamePlayerDataService,
   YanivGamePlayerDataService,
 } from "./data/yaniv_game_player_data_service";
-import {
-  areCardsEqual,
-  standardDeckWithTwoJokers,
-} from "./card_helpers";
+import { areCardsEqual, standardDeckWithTwoJokers } from "./card_helpers";
 import { isValidDiscard, isValidPickup } from "./discard_validator";
 import { ISerializedYanivGameCompletedRound } from "../../database/models/yaniv_game_completed_round";
 import { getCardsScore } from "./score_helpers";
-import shuffle from "knuth-shuffle-seeded";
+import { ISerializedYanivGamePlayer } from "src/database/models/yaniv_game_player";
 
 export interface IYanivGameService {
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
@@ -77,6 +74,7 @@ export class YanivGameService implements IYanivGameService {
     if (doesNotHaveValue(game)) {
       throwGameNotFoundError(gameId);
     }
+    // validate not already in game
     if (game.state !== GameState.PLAYERS_JOINING) {
       throw new ValidationError("Cannot join in-progress or completed game.");
     }
@@ -150,6 +148,13 @@ export class YanivGameService implements IYanivGameService {
     const playerStates = await this.gamePlayerDataService.getAllForGame(
       game.gameId
     );
+    this.orderPlayerStatesToStartWithUser(playerStates, userId);
+    const playerState = playerStates[0];
+    if (getCardsScore(playerState.cardsInHand) > 7) {
+      throw new ValidationError(
+        "Hand total must be less than or equal to 7 to call Yaniv."
+      );
+    }
     const currentRoundNumber = await this.gameCompletedRoundDataService.getNextRoundNumber(
       game.gameId
     );
@@ -184,7 +189,9 @@ export class YanivGameService implements IYanivGameService {
     await this.gameCompletedRoundDataService.createMany(completedRounds);
     await this.gamePlayerDataService.updateAll(playerStates);
     return await this.gameDataService.update(game.gameId, {
-      actionToUserId: null,
+      actionToUserId: completedRounds.find(
+        (x) => x.scoreType === RoundScoreType.YANIV
+      ).userId,
       state: GameState.ROUND_COMPLETE, // TODO set to complete if game over
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [],
@@ -206,7 +213,8 @@ export class YanivGameService implements IYanivGameService {
     const playerStates = await this.gamePlayerDataService.getAllForGame(
       game.gameId
     );
-    const playerState = playerStates.find((x) => x.userId === userId);
+    this.orderPlayerStatesToStartWithUser(playerStates, userId);
+    const playerState = playerStates[0];
     if (
       _.differenceWith(
         action.cardsDiscarded,
@@ -225,7 +233,6 @@ export class YanivGameService implements IYanivGameService {
     ) {
       throw new ValidationError("Invalid pickup.");
     }
-    const nextPosition = (playerState.position + 1) % playerStates.length;
     const updatedDeck = game.cardsInDeck;
     let discardsToBury = game.cardsOnTopOfDiscardPile;
     playerState.cardsInHand = _.differenceWith(
@@ -244,8 +251,7 @@ export class YanivGameService implements IYanivGameService {
     }
     await this.gamePlayerDataService.updateAll([playerState]);
     return await this.gameDataService.update(game.gameId, {
-      actionToUserId: playerStates.find((x) => x.position === nextPosition)
-        .userId,
+      actionToUserId: playerStates[1].userId,
       cardsBuriedInDiscardPile: game.cardsBuriedInDiscardPile.concat(
         discardsToBury
       ),
@@ -254,23 +260,30 @@ export class YanivGameService implements IYanivGameService {
     });
   }
 
+  private orderPlayerStatesToStartWithUser(
+    playerStates: ISerializedYanivGamePlayer[],
+    userId: number
+  ): void {
+    while (playerStates[0].userId !== userId) {
+      const playerState = playerStates.shift();
+      playerStates.push(playerState);
+    }
+  }
+
   private async loadFullGame(
     userId: number,
     game: ISerializedYanivGame
   ): Promise<IGame> {
-    const result: IGame = {
+    return {
       gameId: game.gameId,
       hostUserId: game.hostUserId,
       options: game.options,
       state: game.state,
+      actionToUserId: game.actionToUserId,
+      cardsOnTopOfDiscardPile: game.cardsOnTopOfDiscardPile,
       playerStates: await this.loadPlayerStates(userId, game),
       roundScores: await this.loadRoundScores(game.gameId),
     };
-    if (result.state === GameState.ROUND_ACTIVE) {
-      result.actionToUserId = game.actionToUserId;
-      result.cardsOnTopOfDiscardPile = game.cardsOnTopOfDiscardPile;
-    }
-    return result;
   }
 
   private async loadPlayerStates(

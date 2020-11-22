@@ -66,6 +66,8 @@ describe("YanivGameRoutes", () => {
         ],
         roundScores: [],
         state: GameState.PLAYERS_JOINING,
+        actionToUserId: user1Id,
+        cardsOnTopOfDiscardPile: [],
       });
     });
   });

@@ -14,6 +14,7 @@ import {
   GameState,
   IGame,
   IGameActionRequest,
+  RoundScoreType,
 } from "../../shared/dtos/yaniv/game";
 
 interface ITestGameOptions {
@@ -31,12 +32,15 @@ async function createTestGame(options: ITestGameOptions): Promise<ITestGame> {
   const gameService = new YanivGameService();
   const gameDataService = new YanivGameDataService();
   const gamePlayerDataService = new YanivGamePlayerDataService();
-  const userIds = await bluebird.map(options.playerCards, async (_, index) => {
-    const userCreds = createTestCredentials(`test${index}`);
-    return await createTestUser(userCreds);
-  });
+  const userIds = await bluebird.mapSeries(
+    options.playerCards,
+    async (_, index) => {
+      const userCreds = createTestCredentials(`test${index}`);
+      return await createTestUser(userCreds);
+    }
+  );
   const game = await gameService.create(userIds[0], { playTo: 100 });
-  await bluebird.map(
+  await bluebird.mapSeries(
     userIds.slice(1),
     async (userId) => await gameService.join(userId, game.gameId)
   );
@@ -355,14 +359,246 @@ describe("YanivGameService", () => {
     });
 
     describe("call yaniv", () => {
-      // it("records user score as YANIV if has lowest score", () => {
-      // })
-      // it("records user score as ASAF if tied for lowest score (two way tie)", () => {
-      // })
-      // it("records user score as ASAF if tied for lowest score (three way tie)", () => {
-      // })
-      // it("records user score as ASAF if does not have lowest score", () => {
-      // })
+      it("throws a validation error if total is above 7", async () => {
+        // arrange
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestGame({
+          playerCards: [
+            [
+              { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+              { rank: CardRank.SEVEN, suit: CardSuit.DIAMONDS },
+            ],
+            [{ rank: CardRank.TWO, suit: CardSuit.SPADES }],
+            [
+              { rank: CardRank.KING, suit: CardSuit.CLUBS },
+              { rank: CardRank.EIGHT, suit: CardSuit.HEARTS },
+            ],
+          ],
+          cardsInDeck: [],
+          cardsOnTopOfDiscardPile: [],
+        });
+        const action: IGameActionRequest = {
+          callYaniv: true,
+        };
+
+        // act
+        const { error } = await testPlay(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.instanceOf(ValidationError);
+        expect(error.message).to.eql(
+          'Validation errors: "Hand total must be less than or equal to 7 to call Yaniv."'
+        );
+      });
+
+      it("records user score as YANIV if has lowest score and marks them to start the next round", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id, user3Id],
+          gameId,
+        } = await createTestGame({
+          playerCards: [
+            [
+              { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+              { rank: CardRank.THREE, suit: CardSuit.DIAMONDS },
+            ],
+            [
+              { rank: CardRank.TWO, suit: CardSuit.SPADES },
+              { rank: CardRank.SEVEN, suit: CardSuit.HEARTS },
+            ],
+            [
+              { rank: CardRank.KING, suit: CardSuit.CLUBS },
+              { rank: CardRank.EIGHT, suit: CardSuit.HEARTS },
+            ],
+          ],
+          cardsInDeck: [],
+          cardsOnTopOfDiscardPile: [],
+        });
+        const action: IGameActionRequest = {
+          callYaniv: true,
+        };
+
+        // act
+        const { game, error } = await testPlay(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.undefined(error?.stack);
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user1Id);
+        expect(game.roundScores).to.eql([
+          {
+            [user1Id]: {
+              score: 0,
+              scoreType: RoundScoreType.YANIV,
+            },
+            [user2Id]: {
+              score: 9,
+              scoreType: RoundScoreType.DEFAULT,
+            },
+            [user3Id]: {
+              score: 18,
+              scoreType: RoundScoreType.DEFAULT,
+            },
+          },
+        ]);
+      });
+
+      it("records user score as ASAF if does not have lowest score", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id, user3Id],
+          gameId,
+        } = await createTestGame({
+          playerCards: [
+            [
+              { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+              { rank: CardRank.THREE, suit: CardSuit.DIAMONDS },
+            ],
+            [{ rank: CardRank.TWO, suit: CardSuit.SPADES }],
+            [
+              { rank: CardRank.KING, suit: CardSuit.CLUBS },
+              { rank: CardRank.EIGHT, suit: CardSuit.HEARTS },
+            ],
+          ],
+          cardsInDeck: [],
+          cardsOnTopOfDiscardPile: [],
+        });
+        const action: IGameActionRequest = {
+          callYaniv: true,
+        };
+
+        // act
+        const { game, error } = await testPlay(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.undefined(error?.stack);
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.roundScores).to.eql([
+          {
+            [user1Id]: {
+              score: 34,
+              scoreType: RoundScoreType.ASAF,
+            },
+            [user2Id]: {
+              score: 0,
+              scoreType: RoundScoreType.YANIV,
+            },
+            [user3Id]: {
+              score: 18,
+              scoreType: RoundScoreType.DEFAULT,
+            },
+          },
+        ]);
+      });
+
+      it("records user score as ASAF if tied for lowest score (two way tie)", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id, user3Id],
+          gameId,
+        } = await createTestGame({
+          playerCards: [
+            [
+              { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+              { rank: CardRank.THREE, suit: CardSuit.DIAMONDS },
+            ],
+            [{ rank: CardRank.FOUR, suit: CardSuit.SPADES }],
+            [
+              { rank: CardRank.KING, suit: CardSuit.CLUBS },
+              { rank: CardRank.EIGHT, suit: CardSuit.HEARTS },
+            ],
+          ],
+          cardsInDeck: [],
+          cardsOnTopOfDiscardPile: [],
+        });
+        const action: IGameActionRequest = {
+          callYaniv: true,
+        };
+
+        // act
+        const { game, error } = await testPlay(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.undefined(error?.stack);
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.roundScores).to.eql([
+          {
+            [user1Id]: {
+              score: 34,
+              scoreType: RoundScoreType.ASAF,
+            },
+            [user2Id]: {
+              score: 0,
+              scoreType: RoundScoreType.YANIV,
+            },
+            [user3Id]: {
+              score: 18,
+              scoreType: RoundScoreType.DEFAULT,
+            },
+          },
+        ]);
+      });
+
+      it("records user score as ASAF if tied for lowest score (three way tie)", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id, user3Id, user4Id],
+          gameId,
+        } = await createTestGame({
+          playerCards: [
+            [
+              { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+              { rank: CardRank.THREE, suit: CardSuit.DIAMONDS },
+            ],
+            [{ rank: CardRank.FOUR, suit: CardSuit.SPADES }],
+            [
+              { rank: CardRank.TWO, suit: CardSuit.HEARTS },
+              { rank: CardRank.TWO, suit: CardSuit.SPADES },
+            ],
+            [
+              { rank: CardRank.KING, suit: CardSuit.CLUBS },
+              { rank: CardRank.EIGHT, suit: CardSuit.HEARTS },
+            ],
+          ],
+          cardsInDeck: [],
+          cardsOnTopOfDiscardPile: [],
+        });
+        const action: IGameActionRequest = {
+          callYaniv: true,
+        };
+
+        // act
+        const { game, error } = await testPlay(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.undefined(error?.stack);
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.roundScores).to.eql([
+          {
+            [user1Id]: {
+              score: 34,
+              scoreType: RoundScoreType.ASAF,
+            },
+            [user2Id]: {
+              score: 0,
+              scoreType: RoundScoreType.YANIV,
+            },
+            [user3Id]: {
+              score: 0,
+              scoreType: RoundScoreType.YANIV,
+            },
+            [user4Id]: {
+              score: 18,
+              scoreType: RoundScoreType.DEFAULT,
+            },
+          },
+        ]);
+      });
     });
   });
 });

@@ -33,23 +33,20 @@ export class YanivGame extends Model {
   public cardsOnTopOfDiscardPile!: number[];
 
   serialize(): ISerializedYanivGame {
-    const out: ISerializedYanivGame = {
+    return {
       gameId: this.gameId,
       hostUserId: this.hostUserId,
       state: this.state,
       options: this.options,
+      actionToUserId: this.actionToUserId,
+      cardsInDeck: this.cardsInDeck.map(deserializeCard),
+      cardsBuriedInDiscardPile: this.cardsBuriedInDiscardPile.map(
+        deserializeCard
+      ),
+      cardsOnTopOfDiscardPile: this.cardsOnTopOfDiscardPile.map(
+        deserializeCard
+      ),
     };
-    if (this.state === GameState.ROUND_ACTIVE) {
-      out.actionToUserId = this.actionToUserId;
-      out.cardsInDeck = this.cardsInDeck.map(deserializeCard);
-      out.cardsBuriedInDiscardPile = this.cardsBuriedInDiscardPile.map(
-        deserializeCard
-      );
-      out.cardsOnTopOfDiscardPile = this.cardsOnTopOfDiscardPile.map(
-        deserializeCard
-      );
-    }
-    return out;
   }
 }
 YanivGame.init(

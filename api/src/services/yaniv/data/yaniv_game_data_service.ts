@@ -37,6 +37,9 @@ export class YanivGameDataService implements IYanivGameDataService {
       actionToUserId: options.hostUserId,
       options: options.options,
       state: GameState.PLAYERS_JOINING,
+      cardsInDeck: [],
+      cardsBuriedInDiscardPile: [],
+      cardsOnTopOfDiscardPile: [],
     });
     await game.save();
     return game.serialize();

@@ -67,6 +67,6 @@ export function standardDeckWithTwoJokers(): ICard[] {
   for (let i = 0; i < NUMBER_OF_STANDARD_CARDS + 2; i++) {
     deck.push(deserializeCard(i));
   }
-  shuffle(deck)
+  shuffle(deck);
   return deck;
 }
