@@ -1,7 +1,9 @@
+import { IPaginationRequest } from "../search";
 import { ICard } from "./card";
 
 export interface IPlayerState {
   userId: number;
+  username: string;
   numberOfCards?: number;
   cards?: ICard[];
 }
@@ -77,6 +79,16 @@ export interface IActionToNextPlayerEvent {
 
 export interface IRoundFinishedEvent {
   roundScore: IRoundScoreWithCards;
+}
+
+export interface ISearchedGame {
+  gameId: number;
+  hostUserId: number;
+  state: GameState;
+}
+
+export interface ISearchGamesRequest {
+  pagination: IPaginationRequest;
 }
 
 // endpoints

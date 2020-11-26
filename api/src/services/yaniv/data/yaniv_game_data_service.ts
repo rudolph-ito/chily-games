@@ -1,9 +1,19 @@
 import { ICard } from "../../../shared/dtos/yaniv/card";
-import { doesHaveValue } from "../../../shared/utilities/value_checker";
-import { YanivGame } from "../../../database/models";
-import { ISerializedYanivGame } from "../../../database/models/yaniv_game";
-import { GameState, IGameOptions } from "../../../shared/dtos/yaniv/game";
+import {
+  doesHaveValue,
+  doesNotHaveValue,
+} from "../../../shared/utilities/value_checker";
+import {
+  YanivGame,
+  ISerializedYanivGame,
+} from "../../../database/models/yaniv_game";
+import {
+  GameState,
+  IGameOptions,
+  ISearchGamesRequest,
+} from "../../../shared/dtos/yaniv/game";
 import { serializeCard } from "../card_helpers";
+import { IPaginatedResponse } from "src/shared/dtos/search";
 
 export interface IYanivGameCreateOptions {
   hostUserId: number;
@@ -26,6 +36,9 @@ export interface IYanivGameDataService {
     gameId: number,
     options: IYanivGameUpdateOptions
   ) => Promise<ISerializedYanivGame>;
+  search: (
+    request: ISearchGamesRequest
+  ) => Promise<IPaginatedResponse<ISerializedYanivGame>>;
 }
 
 export class YanivGameDataService implements IYanivGameDataService {
@@ -51,6 +64,22 @@ export class YanivGameDataService implements IYanivGameDataService {
       return game.serialize();
     }
     return null;
+  }
+
+  async search(
+    request: ISearchGamesRequest
+  ): Promise<IPaginatedResponse<ISerializedYanivGame>> {
+    if (doesNotHaveValue(request.pagination)) {
+      request.pagination = { pageIndex: 0, pageSize: 100 };
+    }
+    const result = await YanivGame.findAndCountAll({
+      offset: request.pagination.pageIndex * request.pagination.pageSize,
+      limit: request.pagination.pageSize,
+    });
+    return {
+      data: result.rows.map((r: YanivGame) => r.serialize()),
+      total: result.count,
+    };
   }
 
   async update(

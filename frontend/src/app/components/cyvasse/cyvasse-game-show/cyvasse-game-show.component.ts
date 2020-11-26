@@ -5,7 +5,7 @@ import {
   ViewChild,
   NgZone,
 } from "@angular/core";
-import { GameService } from "src/app/services/cyvasse/game.service";
+import { CyvasseGameService } from "src/app/services/cyvasse/cvasse-game.service";
 import {
   IGame,
   PlayerColor,
@@ -56,7 +56,7 @@ export class CyvasseGameShowComponent implements OnInit {
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly gameService: GameService,
+    private readonly gameService: CyvasseGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly variantService: VariantService,
     private readonly userService: UserService,

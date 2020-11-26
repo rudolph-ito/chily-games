@@ -12,6 +12,8 @@ import {
   IRoundScore,
   IGameActionRequest,
   RoundScoreType,
+  ISearchGamesRequest,
+  ISearchedGame,
 } from "../../shared/dtos/yaniv/game";
 import { throwGameNotFoundError, ValidationError } from "../shared/exceptions";
 import {
@@ -31,7 +33,12 @@ import { isValidDiscard, isValidPickup } from "./discard_validator";
 import { ISerializedYanivGameCompletedRound } from "../../database/models/yaniv_game_completed_round";
 import { getCardsScore } from "./score_helpers";
 import { ISerializedYanivGamePlayer } from "src/database/models/yaniv_game_player";
-import shuffle from 'knuth-shuffle-seeded';
+import shuffle from "knuth-shuffle-seeded";
+import { IPaginatedResponse } from "src/shared/dtos/search";
+import {
+  IUserDataService,
+  UserDataService,
+} from "../shared/data/user_data_service";
 
 export interface IYanivGameService {
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
@@ -43,13 +50,17 @@ export interface IYanivGameService {
     gameId: number,
     action: IGameActionRequest
   ) => Promise<IGame>;
+  search: (
+    request: ISearchGamesRequest
+  ) => Promise<IPaginatedResponse<ISearchedGame>>;
 }
 
 export class YanivGameService implements IYanivGameService {
   constructor(
     private readonly gameDataService: IYanivGameDataService = new YanivGameDataService(),
     private readonly gamePlayerDataService: IYanivGamePlayerDataService = new YanivGamePlayerDataService(),
-    private readonly gameCompletedRoundDataService: IYanivGameCompletedRoundDataService = new YanivGameCompletedRoundDataService()
+    private readonly gameCompletedRoundDataService: IYanivGameCompletedRoundDataService = new YanivGameCompletedRoundDataService(),
+    private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
 
   async create(userId: number, options: IGameOptions): Promise<IGame> {
@@ -81,7 +92,7 @@ export class YanivGameService implements IYanivGameService {
     const playerStates = await this.gamePlayerDataService.getAllForGame(
       game.gameId
     );
-    if (playerStates.some(x => x.userId == userId)) {
+    if (playerStates.some((x) => x.userId === userId)) {
       throw new ValidationError("Already joined game.");
     }
     const nextPosition = Math.max(...playerStates.map((x) => x.position)) + 1;
@@ -144,6 +155,20 @@ export class YanivGameService implements IYanivGameService {
     return await this.loadFullGame(userId, game);
   }
 
+  async search(
+    request: ISearchGamesRequest
+  ): Promise<IPaginatedResponse<ISearchedGame>> {
+    const result = await this.gameDataService.search(request);
+    return {
+      data: result.data.map((x) => ({
+        gameId: x.gameId,
+        hostUserId: x.hostUserId,
+        state: x.state,
+      })),
+      total: result.total,
+    };
+  }
+
   private async playCallYaniv(
     userId: number,
     game: ISerializedYanivGame
@@ -191,7 +216,10 @@ export class YanivGameService implements IYanivGameService {
     playerStates.forEach((x) => (x.cardsInHand = []));
     await this.gameCompletedRoundDataService.createMany(completedRounds);
     await this.gamePlayerDataService.updateAll(playerStates);
-    const isGameComplete = this.isGameComplete(game.gameId, game.options.playTo);
+    const isGameComplete = await this.isGameComplete(
+      game.gameId,
+      game.options.playTo
+    );
     return await this.gameDataService.update(game.gameId, {
       actionToUserId: completedRounds.find(
         (x) => x.scoreType === RoundScoreType.YANIV
@@ -250,10 +278,10 @@ export class YanivGameService implements IYanivGameService {
       );
     } else {
       playerState.cardsInHand.push(game.cardsInDeck.pop());
-      if (game.cardsInDeck.length == 0) {
+      if (game.cardsInDeck.length === 0) {
         game.cardsInDeck = game.cardsBuriedInDiscardPile;
-        game.cardsBuriedInDiscardPile = []
-        shuffle(game.cardsInDeck)
+        game.cardsBuriedInDiscardPile = [];
+        shuffle(game.cardsInDeck);
       }
     }
     await this.gamePlayerDataService.updateAll([playerState]);
@@ -300,8 +328,17 @@ export class YanivGameService implements IYanivGameService {
     const playerStates = await this.gamePlayerDataService.getAllForGame(
       game.gameId
     );
+    const users = await this.userDataService.getUsers(
+      playerStates.map((x) => x.userId)
+    );
+    const userIdToUsername = _.fromPairs(
+      users.map((u) => [u.userId, u.username])
+    );
     return playerStates.map((ps) => {
-      const out: IPlayerState = { userId: ps.userId };
+      const out: IPlayerState = {
+        userId: ps.userId,
+        username: userIdToUsername[ps.userId],
+      };
       if (game.state === GameState.ROUND_ACTIVE) {
         out.numberOfCards = ps.cardsInHand.length;
         if (userId === ps.userId) {
@@ -327,14 +364,17 @@ export class YanivGameService implements IYanivGameService {
     );
   }
 
-  private async isGameComplete(gameId: number, playTo: number): Promise<boolean> {
+  private async isGameComplete(
+    gameId: number,
+    playTo: number
+  ): Promise<boolean> {
     const completedRounds = await this.gameCompletedRoundDataService.getAllForGame(
       gameId
     );
     return _.chain(completedRounds)
       .groupBy((round) => round.userId)
-      .map(rounds => _.sumBy(rounds, (round) => round.score))
-      .some(playerTotal => playerTotal >= playTo)
+      .map((rounds) => _.sumBy(rounds, (round) => round.score))
+      .some((playerTotal) => playerTotal >= playTo)
       .value();
   }
 }

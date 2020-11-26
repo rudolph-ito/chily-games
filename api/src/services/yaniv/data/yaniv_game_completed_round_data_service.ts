@@ -1,5 +1,7 @@
-import { YanivGameCompletedRound } from "../../../database/models";
-import { ISerializedYanivGameCompletedRound } from "../../../database/models/yaniv_game_completed_round";
+import {
+  YanivGameCompletedRound,
+  ISerializedYanivGameCompletedRound,
+} from "../../../database/models/yaniv_game_completed_round";
 
 export interface IYanivGameCompletedRoundDataService {
   createMany: (

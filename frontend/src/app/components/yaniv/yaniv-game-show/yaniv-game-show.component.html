@@ -1,0 +1,15 @@
+<div (window:resize)="onResize()" class="wrapper">
+  <div class="left">
+    <div *ngIf="!loading && isWaitingForPlayers()">
+      <div>Players:</div>
+      <div *ngFor="let playerState of game.playerStates">
+        {{ playerState.username }} <span *ngIf="playerState.userId == game.hostUserId">(host)</span>
+      </div>
+      <button *ngIf="canStartRound()" mat-button mat-flat-button color="primary" (click)="startRound()">Start Round</button>
+    </div>
+    <div class="table-container" #tableContainer></div>
+  </div>
+  <div class="right">
+    <div class="scoreboard"></div>
+  </div>
+</div>

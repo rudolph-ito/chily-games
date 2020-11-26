@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { CyvasseGameShowComponent } from "./cyvasse-game-show.component";
 import { AppModule } from "src/app/app.module";
-import { GameService } from "src/app/services/cyvasse/game.service";
+import { CyvasseGameService } from "src/app/services/cyvasse/cvasse-game.service";
 import { of } from "rxjs";
 import { Action } from "../../../shared/dtos/cyvasse/game";
 import { UserService } from "src/app/services/user.service";
@@ -12,7 +12,7 @@ import { BoardType } from "src/app/shared/dtos/cyvasse/variant";
 describe("CyvasseGameShowComponent", () => {
   let component: CyvasseGameShowComponent;
   let fixture: ComponentFixture<CyvasseGameShowComponent>;
-  let mockGameService: Partial<GameService>;
+  let mockGameService: Partial<CyvasseGameService>;
   let mockUserService: Partial<UserService>;
   let mockVariantService: Partial<VariantService>;
 
@@ -58,7 +58,7 @@ describe("CyvasseGameShowComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
-        { provide: GameService, useValue: mockGameService },
+        { provide: CyvasseGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
         { provide: VariantService, useValue: mockVariantService },
       ],

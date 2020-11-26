@@ -9,7 +9,9 @@ import { PieceRuleFormComponent } from "./components/cyvasse/piece-rule-form/pie
 import { TerrainRuleFormComponent } from "./components/cyvasse/terrain-rule-form/terrain-rule-form.component";
 import { ChallengesIndexComponent } from "./components/cyvasse/challenges-index/challenges-index.component";
 import { CyvasseGamesIndexComponent } from "./components/cyvasse/cyvasse-games-index/cyvasse-games-index.component";
-import { CyvasseGameShowComponent } from './components/cyvasse/cyvasse-game-show/cyvasse-game-show.component';
+import { CyvasseGameShowComponent } from "./components/cyvasse/cyvasse-game-show/cyvasse-game-show.component";
+import { YanivGamesIndexComponent } from "./components/yaniv/yaniv-games-index/yaniv-games-index.component";
+import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv-game-show.component";
 
 const routes: Routes = [
   {
@@ -61,6 +63,14 @@ const routes: Routes = [
   {
     path: "cyvasse/games/:gameId",
     component: CyvasseGameShowComponent,
+  },
+  {
+    path: "yaniv/games",
+    component: YanivGamesIndexComponent,
+  },
+  {
+    path: "yaniv/games/:gameId",
+    component: YanivGameShowComponent,
   },
   {
     path: "",

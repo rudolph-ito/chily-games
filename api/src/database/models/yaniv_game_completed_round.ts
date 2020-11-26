@@ -1,6 +1,8 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
 import { RoundScoreType } from "../../shared/dtos/yaniv/game";
+import { YanivGame } from "./yaniv_game";
+import { User } from "./user";
 
 export interface ISerializedYanivGameCompletedRound {
   gameId: number;
@@ -35,9 +37,28 @@ export class YanivGameCompletedRound extends Model {
 }
 YanivGameCompletedRound.init(
   {
+    gameId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: {
+        model: YanivGame,
+        key: "gameId",
+      },
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: {
+        model: User,
+        key: "userId",
+      },
+    },
     roundNumber: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      primaryKey: true,
     },
     score: {
       type: DataTypes.INTEGER,
@@ -48,12 +69,12 @@ YanivGameCompletedRound.init(
       allowNull: false,
     },
     createdAt: {
-      allowNull: false,
       type: DataTypes.DATE,
+      allowNull: false,
     },
     updatedAt: {
-      allowNull: false,
       type: DataTypes.DATE,
+      allowNull: false,
     },
   },
   { sequelize }

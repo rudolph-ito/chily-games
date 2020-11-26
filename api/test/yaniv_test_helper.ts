@@ -3,7 +3,11 @@ import { YanivGamePlayerDataService } from "../src/services/yaniv/data/yaniv_gam
 import { YanivGameService } from "../src/services/yaniv/yaniv_game_service";
 import { ICard } from "../src/shared/dtos/yaniv/card";
 import { GameState, IGameOptions } from "../src/shared/dtos/yaniv/game";
-import { createTestCredentials, createTestUser, IUserCredentials } from "./test_helper";
+import {
+  createTestCredentials,
+  createTestUser,
+  IUserCredentials,
+} from "./test_helper";
 
 export async function createTestYanivGame(
   userId: number,
@@ -32,20 +36,22 @@ interface ITestGame {
   gameId: number;
 }
 
-export async function createTestYanivRoundActiveGame(options: ITestGameOptions): Promise<ITestGame> {
+export async function createTestYanivRoundActiveGame(
+  options: ITestGameOptions
+): Promise<ITestGame> {
   const gameService = new YanivGameService();
   const gameDataService = new YanivGameDataService();
   const gamePlayerDataService = new YanivGamePlayerDataService();
   const userCredentials: IUserCredentials[] = [];
   const userIds: number[] = [];
-  for (const index in options.playerCards) {
-    const creds = createTestCredentials(`test${index}`);
+  for (let i = 0; i < options.playerCards.length; i++) {
+    const creds = createTestCredentials(`test${i}`);
     userCredentials.push(creds);
     userIds.push(await createTestUser(creds));
   }
   const game = await gameService.create(userIds[0], { playTo: 100 });
   for (const userId of userIds.slice(1)) {
-    await gameService.join(userId, game.gameId)
+    await gameService.join(userId, game.gameId);
   }
   const playerStates = await gamePlayerDataService.getAllForGame(game.gameId);
   playerStates.forEach(

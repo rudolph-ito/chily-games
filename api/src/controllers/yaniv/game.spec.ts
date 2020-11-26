@@ -10,7 +10,11 @@ import {
 import { describe, it } from "mocha";
 import HttpStatus from "http-status-codes";
 import { expect } from "chai";
-import { GameState, IGame, IGameActionRequest } from "../../shared/dtos/yaniv/game";
+import {
+  GameState,
+  IGame,
+  IGameActionRequest,
+} from "../../shared/dtos/yaniv/game";
 import {
   createTestYanivGame,
   createTestYanivRoundActiveGame,
@@ -132,7 +136,7 @@ describe("YanivGameRoutes", () => {
       // Arrange
       const {
         userCredentials: [user1Credentials],
-        userIds: [user1Id, user2Id],
+        userIds: [, user2Id],
         gameId,
       } = await createTestYanivRoundActiveGame({
         playerCards: [
@@ -164,10 +168,12 @@ describe("YanivGameRoutes", () => {
       expect(game.gameId).to.eql(gameId);
       expect(game.state).to.eql(GameState.ROUND_ACTIVE);
       expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.cardsOnTopOfDiscardPile).to.eql([{ rank: CardRank.KING, suit: CardSuit.DIAMONDS }]);
+      expect(game.cardsOnTopOfDiscardPile).to.eql([
+        { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
+      ]);
       expect(game.playerStates[0].cards).to.eql([
         { rank: CardRank.ACE, suit: CardSuit.CLUBS },
-        { rank: CardRank.SEVEN, suit: CardSuit.HEARTS }
+        { rank: CardRank.SEVEN, suit: CardSuit.HEARTS },
       ]);
     });
   });

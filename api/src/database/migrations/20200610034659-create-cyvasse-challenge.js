@@ -4,7 +4,7 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     // Matches shared/dtos/cyvasse/game:PlayAs
     const playAsEnum = Sequelize.ENUM("alabaster", "onyx", "random");
-    return queryInterface.createTable("Challenges", {
+    return queryInterface.createTable("CyvasseChallenges", {
       challengeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -16,7 +16,7 @@ module.exports = {
         allowNull: false,
         references: {
           model: {
-            tableName: "Variants",
+            tableName: "CyvasseVariants",
           },
           key: "variantId",
         },
@@ -57,6 +57,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("Challenges");
+    return queryInterface.dropTable("CyvasseChallenges");
   },
 };

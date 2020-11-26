@@ -1,5 +1,8 @@
-import { YanivGamePlayer } from "../../../database/models";
-import { ISerializedYanivGamePlayer } from "../../../database/models/yaniv_game_player";
+import {
+  YanivGamePlayer,
+  ISerializedYanivGamePlayer,
+} from "../../../database/models/yaniv_game_player";
+
 import { serializeCard } from "../card_helpers";
 
 export interface IYanivGamePlayerDataService {
@@ -18,7 +21,7 @@ export class YanivGamePlayerDataService implements IYanivGamePlayerDataService {
       gameId,
       userId,
       position,
-      cards: [],
+      cardsInHand: [],
     });
     await gamePlayer.save();
   }

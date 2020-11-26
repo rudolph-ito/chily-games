@@ -15,7 +15,7 @@ import { IPaginatedResponse } from "../../shared/dtos/search";
 @Injectable({
   providedIn: "root",
 })
-export class GameService {
+export class CyvasseGameService {
   constructor(private readonly http: HttpClient) {}
 
   get(gameId: number): Observable<IGame> {

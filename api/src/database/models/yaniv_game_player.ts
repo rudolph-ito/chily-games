@@ -3,6 +3,8 @@ import { sequelize } from "./connection";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
+import { YanivGame } from "./yaniv_game";
+import { User } from "./user";
 
 export interface ISerializedYanivGamePlayer {
   gameId: number;
@@ -31,21 +33,39 @@ export class YanivGamePlayer extends Model {
 }
 YanivGamePlayer.init(
   {
+    gameId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: {
+        model: YanivGame,
+        key: "gameId",
+      },
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: {
+        model: User,
+        key: "userId",
+      },
+    },
     position: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
     cardsInHand: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: true,
+      allowNull: false,
     },
     createdAt: {
-      allowNull: false,
       type: DataTypes.DATE,
+      allowNull: false,
     },
     updatedAt: {
-      allowNull: false,
       type: DataTypes.DATE,
+      allowNull: false,
     },
   },
   { sequelize }

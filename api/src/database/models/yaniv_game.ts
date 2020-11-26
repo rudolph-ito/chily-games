@@ -3,6 +3,7 @@ import { sequelize } from "./connection";
 import { GameState, IGameOptions } from "../../shared/dtos/yaniv/game";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
+import { User } from "./user";
 
 export interface ISerializedYanivGame {
   gameId: number;
@@ -57,6 +58,14 @@ YanivGame.init(
       primaryKey: true,
       autoIncrement: true,
     },
+    hostUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "userId",
+      },
+    },
     state: {
       type: STATE_ENUM,
       allowNull: false,
@@ -65,25 +74,33 @@ YanivGame.init(
       type: DataTypes.JSONB,
       allowNull: false,
     },
+    actionToUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: User,
+        key: "userId",
+      },
+    },
     cardsInDeck: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: true,
+      allowNull: false,
     },
     cardsBuriedInDiscardPile: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: true,
+      allowNull: false,
     },
     cardsOnTopOfDiscardPile: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: true,
+      allowNull: false,
     },
     createdAt: {
-      allowNull: false,
       type: DataTypes.DATE,
+      allowNull: false,
     },
     updatedAt: {
-      allowNull: false,
       type: DataTypes.DATE,
+      allowNull: false,
     },
   },
   { sequelize }

@@ -22,7 +22,12 @@ export function getGameRouter(
       .catch(next);
   });
   router.post("/search", function (req, res, next) {
-    // search for games
+    gameService
+      .search(req.body)
+      .then((paginatedGames) => {
+        res.status(200).send(paginatedGames);
+      })
+      .catch(next);
   });
   router.get("/:gameId", function (req, res, next) {
     const userId = doesHaveValue(req.user) ? (req.user as IUser).userId : null;
