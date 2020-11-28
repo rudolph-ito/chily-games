@@ -133,7 +133,7 @@ export class YanivGameShowComponent implements OnInit {
           this.onPlay
         );
       }
-      await this.table.refreshState(this.game, this.user?.userId);
+      await this.table.initializeState(this.game, this.user?.userId);
     }
   }
 
@@ -167,7 +167,7 @@ export class YanivGameShowComponent implements OnInit {
     this.gameService.startRound(this.game.gameId).subscribe(
       async (game) => {
         this.updateGame(game);
-        await this.table.refreshState(this.game, this.user?.userId);
+        await this.table.initializeState(this.game, this.user?.userId);
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -183,7 +183,8 @@ export class YanivGameShowComponent implements OnInit {
     this.gameService.play(this.getGameId(), action).subscribe(
       async (game: IGame) => {
         this.updateGame(game);
-        await this.table.refreshState(this.game, this.user?.userId);
+        // TODO implement minor change
+        await this.table.initializeState(this.game, this.user?.userId);
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
