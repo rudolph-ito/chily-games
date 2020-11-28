@@ -14,7 +14,7 @@ export enum RoundScoreType {
   ASAF = "asaf",
 
   // Frontend only
-  TOTAL = "total"
+  TOTAL = "total",
 }
 
 export interface IRoundScore {

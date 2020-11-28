@@ -116,6 +116,17 @@ const isValidDiscardExamples: IIsValidDiscardExample[] = [
   },
   {
     cards: [
+      { rank: CardRank.TWO, suit: CardSuit.CLUBS },
+      { isJoker: true },
+      { rank: CardRank.KING, suit: CardSuit.CLUBS },
+      { rank: CardRank.QUEEN, suit: CardSuit.CLUBS },
+    ],
+    description:
+      "four consecutive ranks with the same suit (wrap-around, with joker at ace)",
+    expectedResult: true,
+  },
+  {
+    cards: [
       { rank: CardRank.KING, suit: CardSuit.CLUBS },
       { isJoker: true },
       { rank: CardRank.JACK, suit: CardSuit.CLUBS },

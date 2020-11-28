@@ -7,7 +7,7 @@ import {
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { YanivGameDataService } from "./data/yaniv_game_data_service";
-import { YanivGameService } from "./yaniv_game_service";
+import { IPlayResult, YanivGameService } from "./yaniv_game_service";
 import {
   GameState,
   IGame,
@@ -29,7 +29,8 @@ async function testPlay(
   let error: Error;
   let game: IGame;
   try {
-    game = await new YanivGameService().play(userId, gameId, action);
+    const result = await new YanivGameService().play(userId, gameId, action);
+    game = result.game;
   } catch (e) {
     error = e;
   }
@@ -250,10 +251,12 @@ describe("YanivGameService", () => {
             ],
             numberOfCards: 2,
             userId: user1Id,
+            username: "test1",
           },
           {
             numberOfCards: 0,
             userId: user2Id,
+            username: "test2",
           },
         ]);
       });
@@ -304,10 +307,12 @@ describe("YanivGameService", () => {
             ],
             numberOfCards: 2,
             userId: user1Id,
+            username: "test1",
           },
           {
             numberOfCards: 0,
             userId: user2Id,
+            username: "test2",
           },
         ]);
         const updatedGame = await new YanivGameDataService().get(game.gameId);

@@ -13,7 +13,9 @@ import {
   IGameActionRequest,
   RoundScoreType,
   ISearchGamesRequest,
-  ISearchedGame, IActionToNextPlayerEvent, IRoundFinishedEvent
+  ISearchedGame,
+  IActionToNextPlayerEvent,
+  IRoundFinishedEvent,
 } from "../../shared/dtos/yaniv/game";
 import { throwGameNotFoundError, ValidationError } from "../shared/exceptions";
 import {
@@ -39,7 +41,6 @@ import {
   IUserDataService,
   UserDataService,
 } from "../shared/data/user_data_service";
-
 
 export interface IPlayResult {
   game: IGame;
@@ -164,19 +165,23 @@ export class YanivGameService implements IYanivGameService {
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
-    let result: Partial<IPlayResult> = {}
+    const result: Partial<IPlayResult> = {};
     if (action.callYaniv) {
       const callYanivResult = await this.playCallYaniv(userId, game);
       game = callYanivResult.game;
-      result.roundFinishedEvent = callYanivResult.roundFinishedEvent
-
+      result.roundFinishedEvent = callYanivResult.roundFinishedEvent;
     } else {
-      const discardAndPickupResult = await this.playDiscardAndPickup(userId, action, game);
+      const discardAndPickupResult = await this.playDiscardAndPickup(
+        userId,
+        action,
+        game
+      );
       game = discardAndPickupResult.game;
-      result.actionToNextPlayerEvent = discardAndPickupResult.actionToNextPlayerEvent
+      result.actionToNextPlayerEvent =
+        discardAndPickupResult.actionToNextPlayerEvent;
     }
     result.game = await this.loadFullGame(userId, game);
-    return result as IPlayResult
+    return result as IPlayResult;
   }
 
   async search(
@@ -255,9 +260,9 @@ export class YanivGameService implements IYanivGameService {
     return {
       roundFinishedEvent: {
         playerStates: await this.loadPlayerStates(userId, updatedGame),
-        roundScore
+        roundScore,
       },
-      game: updatedGame
+      game: updatedGame,
     };
   }
 
@@ -320,7 +325,7 @@ export class YanivGameService implements IYanivGameService {
         lastAction: {
           userId,
           cardsDiscarded: action.cardsDiscarded,
-          cardPickedUp: action.cardPickedUp
+          cardPickedUp: action.cardPickedUp,
         },
         actionToUserId: playerStates[1].userId,
       },
@@ -331,7 +336,7 @@ export class YanivGameService implements IYanivGameService {
         ),
         cardsOnTopOfDiscardPile: action.cardsDiscarded,
         cardsInDeck: game.cardsInDeck,
-      })
+      }),
     };
   }
 
@@ -379,11 +384,13 @@ export class YanivGameService implements IYanivGameService {
         userId: ps.userId,
         username: userIdToUsername[ps.userId],
       };
-      if (game.state === GameState.ROUND_COMPLETE || game.state == GameState.COMPLETE) {
+      if (
+        game.state === GameState.ROUND_COMPLETE ||
+        game.state == GameState.COMPLETE
+      ) {
         out.numberOfCards = ps.cardsInHand.length;
         out.cards = ps.cardsInHand;
-      }
-      else if (game.state === GameState.ROUND_ACTIVE) {
+      } else if (game.state === GameState.ROUND_ACTIVE) {
         out.numberOfCards = ps.cardsInHand.length;
         if (userId === ps.userId) {
           out.cards = ps.cardsInHand;
@@ -393,7 +400,9 @@ export class YanivGameService implements IYanivGameService {
     });
   }
 
-  private buildRoundScore(completedRounds: ISerializedYanivGameCompletedRound[]): IRoundScore {
+  private buildRoundScore(
+    completedRounds: ISerializedYanivGameCompletedRound[]
+  ): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
       out[x.userId] = { score: x.score, scoreType: x.scoreType };
@@ -405,7 +414,9 @@ export class YanivGameService implements IYanivGameService {
     const completedRounds = await this.gameCompletedRoundDataService.getAllForGame(
       gameId
     );
-    return Object.values(_.groupBy(completedRounds, (x) => x.roundNumber)).map(this.buildRoundScore);
+    return Object.values(_.groupBy(completedRounds, (x) => x.roundNumber)).map(
+      this.buildRoundScore
+    );
   }
 
   private async isGameComplete(

@@ -45,7 +45,7 @@ export async function createTestYanivRoundActiveGame(
   const userCredentials: IUserCredentials[] = [];
   const userIds: number[] = [];
   for (let i = 0; i < options.playerCards.length; i++) {
-    const creds = createTestCredentials(`test${i}`);
+    const creds = createTestCredentials(`test${i + 1}`);
     userCredentials.push(creds);
     userIds.push(await createTestUser(creds));
   }

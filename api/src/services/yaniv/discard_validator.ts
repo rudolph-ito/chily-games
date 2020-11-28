@@ -69,7 +69,7 @@ function areCardsARun(cards: ICard[]): boolean {
       const isExpectedAscending =
         rankNumber === (lastRankNumber + expectedRankDiff) % 13;
       const isExpectedDescending =
-        rankNumber === (lastRankNumber - expectedRankDiff) % 13;
+        rankNumber === (lastRankNumber - expectedRankDiff + 13) % 13;
       if (direction === null) {
         if (isExpectedAscending) {
           direction = RunDirection.ascending;
