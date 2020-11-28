@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { ICard } from "src/app/shared/dtos/yaniv/card";
-import { IGame, IPlayerState } from "src/app/shared/dtos/yaniv/game";
+import { GameState, IGame, IGameActionRequest, IPlayerState } from "src/app/shared/dtos/yaniv/game";
 import { doesHaveValue } from "src/app/shared/utilities/value_checker";
 
 export interface ITableOptions {
@@ -12,6 +12,13 @@ interface IPosition {
   y: number;
 }
 
+export function areCardsEqual(a: ICard, b: ICard): boolean {
+  if (a.isJoker) {
+    return b.isJoker && a.jokerNumber === b.jokerNumber;
+  }
+  return a.rank === b.rank && a.suit === b.suit;
+}
+
 export class YanivTable {
   private readonly container: HTMLDivElement;
   private readonly stage: Konva.Stage;
@@ -20,9 +27,13 @@ export class YanivTable {
   private cardHeight: number;
   private cardWidth: number;
   private cardBack: Konva.Rect;
+  private currentUserGroup: Konva.Group;
+  private currentUserSelectedDiscards: ICard[] = [];
+  private onPlay: (request: IGameActionRequest) => void;
 
-  constructor(options: ITableOptions) {
+  constructor(options: ITableOptions, onPlay: (request: IGameActionRequest) => void) {
     this.container = options.element;
+    this.onPlay = onPlay;
     this.stage = new Konva.Stage({
       container: this.container,
       height: this.container.offsetHeight,
@@ -31,6 +42,25 @@ export class YanivTable {
     this.cardsLayer = new Konva.Layer();
     this.stage.add(this.cardsLayer);
     this.computeCardSize();
+  }
+
+  private currentUserClickCard(card: ICard) {
+    if (this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))) {
+      this.currentUserSelectedDiscards = this.currentUserSelectedDiscards.filter(x => !areCardsEqual(x, card))
+    } else {
+      this.currentUserSelectedDiscards.push(card)
+    }
+    this.refreshCurrentUser()
+    this.cardsLayer.draw()
+  }
+
+  private refreshCurrentUser(): void {
+    this.currentUserGroup.children.each((node) => {
+      const card = node.getAttr("yanivCard")
+      if (doesHaveValue(card)) { 
+        this.updateCurrentUserCardStroke(node as Konva.Rect, false)
+      }
+    })
   }
 
   private computeCardSize(): void {
@@ -44,16 +74,20 @@ export class YanivTable {
   }
 
   async refreshState(game: IGame, currentUserId: number): Promise<void> {
-    this.cardsLayer.clear();
-    await this.refreshPlayers(game.playerStates, currentUserId);
-    await this.refreshDeckAndDiscard(game.cardsOnTopOfDiscardPile);
+    this.currentUserGroup = null;
+    this.currentUserSelectedDiscards = []
+    this.cardsLayer.destroyChildren();
+    if (game.state == GameState.ROUND_ACTIVE) {
+      await this.refreshPlayers(game.playerStates, currentUserId);
+      await this.refreshDeckAndDiscard(game.cardsOnTopOfDiscardPile);
+    }
     this.cardsLayer.draw();
   }
 
   async refreshDeckAndDiscard(cardsOnTopOfDiscardPile: ICard[]): Promise<void> {
     const tableCenterX = this.container.offsetWidth / 2;
     const tableCenterY = this.container.offsetHeight / 2;
-    const partialCardHeight = this.cardHeight / 6;
+    const partialCardHeight = this.cardHeight / 4;
     const groupWidth = this.cardWidth * 2.2;
     const groupHeight = this.cardHeight + partialCardHeight * 4;
     const group = new Konva.Group({
@@ -65,16 +99,61 @@ export class YanivTable {
     const cardBack = await this.loadCardBack();
     cardBack.x(0);
     cardBack.y(2 * partialCardHeight);
+    cardBack.stroke('black')
+    cardBack.on("mouseover", (event) => {
+      const rect = event.target as Konva.Rect;
+      if (this.currentUserSelectedDiscards.length > 0) {
+        rect.strokeWidth(40)
+        this.cardsLayer.draw()
+      }
+    })
+    cardBack.on("mouseout", (event) => {
+      const rect = event.target as Konva.Rect;
+      rect.strokeWidth(2)
+      this.cardsLayer.draw()
+    })
+    cardBack.on("click", () => {
+      if (this.currentUserSelectedDiscards.length > 0) {
+        this.onPlay({
+          cardsDiscarded: this.currentUserSelectedDiscards
+        })
+      }
+    })
     group.add(cardBack);
     let nextCardY =
       2 * partialCardHeight -
       (cardsOnTopOfDiscardPile.length - 1) * 0.5 * partialCardHeight;
     for (const card of cardsOnTopOfDiscardPile) {
       const cardFront = await this.loadCardFace(card);
+      cardFront.setAttr("yanivCard", card)
       cardFront.x(this.cardWidth * 1.2);
       cardFront.y(nextCardY);
+      cardFront.stroke('black')
+      cardFront.strokeWidth(0)
+      cardFront.on("mouseover", (event) => {
+        const rect = event.target as Konva.Rect;
+        if (this.currentUserSelectedDiscards.length > 0) {
+          rect.strokeWidth(10)
+          this.cardsLayer.draw()
+        }
+      })
+      cardFront.on("mouseout", (event) => {
+        const rect = event.target as Konva.Rect;
+        rect.strokeWidth(0)
+        this.cardsLayer.draw()
+      })
+      cardFront.on("click", (event) => {
+        const rect = event.target as Konva.Rect;
+        if (this.currentUserSelectedDiscards.length > 0) {
+          this.onPlay({
+            cardPickedUp: rect.getAttr("yanivCard"),
+            cardsDiscarded: this.currentUserSelectedDiscards
+          })
+        }
+      })
+      cardBack
       group.add(cardFront);
-      nextCardY -= partialCardHeight;
+      nextCardY += partialCardHeight;
     }
     group.offsetX(groupWidth / 2);
     group.offsetY(groupHeight / 2);
@@ -99,7 +178,6 @@ export class YanivTable {
         (2 * Math.PI * positionIndex) / playerStates.length + Math.PI / 2;
       const x = (Math.cos(radians) + 1) * tableXRadius + this.playerOffset;
       const y = (Math.sin(radians) + 1) * tableYRadius + this.playerOffset;
-      console.log(positionIndex, x, y);
       const group = await this.addPlayer(playerStates[index], { x, y }, userId);
       this.cardsLayer.add(group);
     }
@@ -135,9 +213,22 @@ export class YanivTable {
       for (const card of playerState.cards) {
         const cardFace = await this.loadCardFace(card);
         cardFace.x(offset);
+        cardFace.setAttr("yanivCard", card)
+        cardFace.on("mouseover", () => {
+          this.updateCurrentUserCardStroke(cardFace, true)
+          this.cardsLayer.draw()
+        })
+        cardFace.on("mouseout", () => {
+          this.updateCurrentUserCardStroke(cardFace, false)
+          this.cardsLayer.draw()
+        })
+        cardFace.on("click", () => {
+          this.currentUserClickCard(cardFace.getAttr("yanivCard"))
+        })
         group.add(cardFace);
         offset += this.cardWidth * 1.2;
       }
+      this.currentUserGroup = group
     } else {
       const baseCardBack = await this.loadCardBack();
       for (let index = 0; index < playerState.numberOfCards; index++) {
@@ -152,14 +243,36 @@ export class YanivTable {
     return group;
   }
 
+  private updateCurrentUserCardStroke(rect: Konva.Rect, hover: boolean) {
+    if (hover) {
+      rect.stroke('black')
+      rect.strokeWidth(10)
+      return
+    }
+    const card = rect.getAttr("yanivCard")
+    if (doesHaveValue(card) && this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))) {
+      rect.stroke('blue')
+      rect.strokeWidth(5)
+      return
+    }
+    rect.strokeWidth(0)
+  }
+
   private async loadCardFace(card: ICard): Promise<Konva.Rect> {
     return await new Promise((resolve) => {
       const image = new Image();
-      (image.src = `/assets/yaniv/${card.rank}_of_${card.suit}.svg`),
-        (image.onload = () => {
-          resolve(this.getCardRectangle(image, false));
-        });
+      image.src = `/assets/yaniv/${this.getCardAssetPath(card)}`;
+      image.onload = () => {
+        resolve(this.getCardRectangle(image, false));
+      };
     });
+  }
+
+  private getCardAssetPath(card: ICard): string {
+    if (card.isJoker) {
+      return 'joker.svg'
+    }
+    return `${card.rank}_of_${card.suit}.svg`;
   }
 
   private async loadCardBack(): Promise<Konva.Rect> {
