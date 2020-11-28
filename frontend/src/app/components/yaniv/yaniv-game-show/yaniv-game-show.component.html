@@ -9,7 +9,7 @@
         {{ playerState.username }} <span *ngIf="playerState.userId == game.hostUserId">(host)</span>
       </div>
     </div>
-    <div class="actions" *ngIf="!loading">
+    <div class="actions" *ngIf="!loading && (canStartRound() || canCallYaniv())">
       <h2> Actions </h2>
       <button *ngIf="canStartRound()" mat-button mat-flat-button color="primary" (click)="startRound()">Start Round</button>
       <button *ngIf="canCallYaniv()" mat-button mat-flat-button color="primary" (click)="callYaniv()">Call Yaniv</button>
@@ -20,7 +20,7 @@
 
         <ng-container *ngFor="let playerState of game.playerStates" matColumnDef="player-{{ playerState.userId }}">
           <th mat-header-cell *matHeaderCellDef> {{ playerState.username }} </th>
-          <td mat-cell [class]="element[playerState.userId].scoreType" *matCellDef="let element"> 
+          <td mat-cell [ngClass]="element[playerState.userId].scoreType" *matCellDef="let element"> 
             {{ element[playerState.userId].score }} 
           </td>
         </ng-container>

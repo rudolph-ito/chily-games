@@ -12,14 +12,13 @@ export enum RoundScoreType {
   DEFAULT = "default",
   YANIV = "yaniv",
   ASAF = "asaf",
+
+  // Frontend only
+  TOTAL = "total"
 }
 
 export interface IRoundScore {
   [userId: number]: IRoundPlayerScore;
-}
-
-export interface IRoundScoreWithCards {
-  [userId: number]: IRoundPlayerScoreWithCards;
 }
 
 export interface IRoundPlayerScore {
@@ -65,20 +64,20 @@ export interface IPlayerJoinedEvent {
   playerStates: IPlayerState[];
 }
 
-export interface IRoundStartedEvent {
-  actionTo: number;
-  playerStates: IPlayerState[];
+export interface ILastAction {
+  userId: number;
+  cardsDiscarded?: ICard[];
+  cardPickedUp?: ICard;
 }
 
 export interface IActionToNextPlayerEvent {
-  actionTo: number;
-  playerStates: IPlayerState[];
-  cardsDiscarded: ICard[];
-  cardPickedUp: ICard; // null implies pickup from discard file
+  lastAction: ILastAction;
+  actionToUserId: number;
 }
 
 export interface IRoundFinishedEvent {
-  roundScore: IRoundScoreWithCards;
+  playerStates: IPlayerState[];
+  roundScore: IRoundScore;
 }
 
 export interface ISearchedGame {

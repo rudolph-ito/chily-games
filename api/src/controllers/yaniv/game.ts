@@ -6,6 +6,8 @@ import {
 } from "../../services/yaniv/yaniv_game_service";
 import { IUser } from "../../shared/dtos/authentication";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
+import newSocketIoEmitter from "socket.io-emitter";
+import { IPlayerJoinedEvent } from 'src/shared/dtos/yaniv/game';
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
@@ -43,10 +45,14 @@ export function getGameRouter(
     res,
     next
   ) {
+    const gameId = parseInt(req.params.gameId)
     gameService
-      .join((req.user as IUser).userId, parseInt(req.params.gameId))
+      .join((req.user as IUser).userId, gameId)
       .then((game) => {
         res.status(200).send(game);
+        newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("player-joined", { playerStates: game.playerStates } as IPlayerJoinedEvent);
       })
       .catch(next);
   });
@@ -55,10 +61,14 @@ export function getGameRouter(
     res,
     next
   ) {
+    const gameId = parseInt(req.params.gameId)
     gameService
-      .startRound((req.user as IUser).userId, parseInt(req.params.gameId))
+      .startRound((req.user as IUser).userId, gameId)
       .then((game) => {
         res.status(200).send(game);
+        newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("round-started");
       })
       .catch(next);
   });
@@ -67,10 +77,21 @@ export function getGameRouter(
     res,
     next
   ) {
+    const gameId = parseInt(req.params.gameId)
     gameService
-      .play((req.user as IUser).userId, parseInt(req.params.gameId), req.body)
-      .then((game) => {
+      .play((req.user as IUser).userId, gameId, req.body)
+      .then(({game, actionToNextPlayerEvent, roundFinishedEvent}) => {
         res.status(200).send(game);
+        if (actionToNextPlayerEvent) {
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("action-to-next-player", actionToNextPlayerEvent);
+        }
+        if (roundFinishedEvent) {
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("round-finished", roundFinishedEvent);
+        }
       })
       .catch(next);
   });

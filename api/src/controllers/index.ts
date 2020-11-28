@@ -121,6 +121,9 @@ export function startServer(options: IStartServerOptions): Server {
     socket.on("cyvasse-join-game", (gameId: number) => {
       socket.join(`cyvasse-game-${gameId}`);
     });
+    socket.on("yaniv-join-game", (gameId: number) => {
+      socket.join(`yaniv-game-${gameId}`);
+    });
   });
   server.listen(options.port, () => {
     if (options.shouldLog) {

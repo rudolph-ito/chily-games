@@ -70,7 +70,7 @@ export class YanivTable {
     );
     this.cardHeight = min / 7;
     this.cardWidth = (this.cardHeight * 2.5) / 3.5;
-    this.playerOffset = this.cardHeight;
+    this.playerOffset = this.cardHeight * 1.25;
   }
 
   async refreshState(game: IGame, currentUserId: number): Promise<void> {
@@ -78,8 +78,11 @@ export class YanivTable {
     this.currentUserSelectedDiscards = []
     this.cardsLayer.destroyChildren();
     if (game.state == GameState.ROUND_ACTIVE) {
-      await this.refreshPlayers(game.playerStates, currentUserId);
+      await this.refreshPlayers(game.playerStates, game.actionToUserId, currentUserId, false);
       await this.refreshDeckAndDiscard(game.cardsOnTopOfDiscardPile);
+    }
+    else if (game.state == GameState.ROUND_COMPLETE || game.state == GameState.COMPLETE) {
+      await this.refreshPlayers(game.playerStates, game.actionToUserId, currentUserId, true);
     }
     this.cardsLayer.draw();
   }
@@ -162,11 +165,13 @@ export class YanivTable {
 
   async refreshPlayers(
     playerStates: IPlayerState[],
-    userId: number
+    actionToUserId: number,
+    currentUserId: number,
+    displayRoundScore: boolean
   ): Promise<void> {
     let bottomIndex = 0;
     playerStates.forEach((playerState, index) => {
-      if (playerState.userId === userId) {
+      if (playerState.userId === currentUserId) {
         bottomIndex = index;
       }
     });
@@ -178,7 +183,7 @@ export class YanivTable {
         (2 * Math.PI * positionIndex) / playerStates.length + Math.PI / 2;
       const x = (Math.cos(radians) + 1) * tableXRadius + this.playerOffset;
       const y = (Math.sin(radians) + 1) * tableYRadius + this.playerOffset;
-      const group = await this.addPlayer(playerStates[index], { x, y }, userId);
+      const group = await this.addPlayer(playerStates[index], { x, y }, actionToUserId, currentUserId, displayRoundScore);
       this.cardsLayer.add(group);
     }
   }
@@ -186,7 +191,9 @@ export class YanivTable {
   private async addPlayer(
     playerState: IPlayerState,
     position: IPosition,
-    currentUserId: number
+    actionToUserId: number,
+    currentUserId: number,
+    displayRoundScore: boolean
   ): Promise<Konva.Group> {
     const group = new Konva.Group({
       x: position.x,
@@ -207,6 +214,9 @@ export class YanivTable {
       align: "center",
       fontSize: 16,
     });
+    if (actionToUserId == playerState.userId) {
+      name.textDecoration('underline')
+    }
     group.add(name);
     if (playerState.userId == currentUserId) {
       let offset = 0;
@@ -229,6 +239,15 @@ export class YanivTable {
         offset += this.cardWidth * 1.2;
       }
       this.currentUserGroup = group
+    } else if (displayRoundScore) {
+      let index = 0;
+      for (const card of playerState.cards) {
+        const cardFace = await this.loadCardFace(card);
+        cardFace.x((index * this.cardWidth) / 2);
+        this.rotateCard(cardFace, index, playerState.numberOfCards);
+        group.add(cardFace);
+        index++;    
+      }
     } else {
       const baseCardBack = await this.loadCardBack();
       for (let index = 0; index < playerState.numberOfCards; index++) {
