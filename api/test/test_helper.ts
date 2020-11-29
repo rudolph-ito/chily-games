@@ -4,22 +4,22 @@ import { beforeEach } from "mocha";
 import { sequelize } from "../src/database/models";
 import { shouldSequelizeLog } from "../src/shared/utilities/env";
 import supertest from "supertest";
-import { UserDataService } from "../src/services/data/user_data_service";
-import { BoardType, IVariantOptions } from "../src/shared/dtos/variant";
-import { VariantService } from "../src/services/variant_service";
+import { UserDataService } from "../src/services/shared/data/user_data_service";
+import { BoardType, IVariantOptions } from "../src/shared/dtos/cyvasse/variant";
+import { CyvasseVariantService } from "../src/services/cyvasse/cyvasse_variant_service";
 import {
   PieceType,
   PathType,
   CaptureType,
-} from "../src/shared/dtos/piece_rule";
-import { PieceRuleDataService } from "../src/services/data/piece_rule_data_service";
+} from "../src/shared/dtos/cyvasse/piece_rule";
+import { CyvassePieceRuleDataService } from "../src/services/cyvasse/data/cyvasse_piece_rule_data_service";
 import {
   TerrainType,
   PiecesEffectedType,
-} from "../src/shared/dtos/terrain_rule";
-import { TerrainRuleDataService } from "../src/services/data/terrain_rule_data_service";
-import { ChallengePlayAs } from "../src/shared/dtos/challenge";
-import { ChallengeDataService } from "../src/services/data/challenge_data_service";
+} from "../src/shared/dtos/cyvasse/terrain_rule";
+import { CyvasseTerrainRuleDataService } from "../src/services/cyvasse/data/cyvasse_terrain_rule_data_service";
+import { ChallengePlayAs } from "../src/shared/dtos/cyvasse/challenge";
+import { CyvasseChallengeDataService } from "../src/services/cyvasse/data/cyvasse_challenge_data_service";
 import HttpStatus from "http-status-codes";
 import { createExpressApp } from "../src/controllers";
 import express from "express";
@@ -43,7 +43,6 @@ export function createTestServer(): ITestServer {
     app: createExpressApp({
       corsOrigins: [],
       publishRedisClient,
-      sessionCookieSecure: false,
       sessionSecret: "test",
       sessionStoreRedisClient,
     }),
@@ -92,7 +91,7 @@ export async function createTestVariant(
   creatorId: number,
   options: Partial<IVariantOptions> = {}
 ): Promise<number> {
-  const variant = await new VariantService().createVariant(creatorId, {
+  const variant = await new CyvasseVariantService().createVariant(creatorId, {
     boardType: BoardType.HEXAGONAL,
     boardSize: 6,
     pieceRanks: false,
@@ -105,7 +104,7 @@ export async function createTestPieceRule(
   pieceTypeId: PieceType,
   variantId: number
 ): Promise<number> {
-  const pieceRule = await new PieceRuleDataService().createPieceRule(
+  const pieceRule = await new CyvassePieceRuleDataService().createPieceRule(
     {
       pieceTypeId,
       count: 1,
@@ -125,7 +124,7 @@ export async function createTestTerrainRule(
   terrainTypeId: TerrainType,
   variantId: number
 ): Promise<number> {
-  const terrainRule = await new TerrainRuleDataService().createTerrainRule(
+  const terrainRule = await new CyvasseTerrainRuleDataService().createTerrainRule(
     {
       terrainTypeId,
       count: 1,
@@ -156,7 +155,7 @@ export async function createTestChallenge(
   variantId: number,
   opponentUserId: number = null
 ): Promise<number> {
-  const challenge = await new ChallengeDataService().createChallenge(
+  const challenge = await new CyvasseChallengeDataService().createChallenge(
     {
       creatorPlayAs: ChallengePlayAs.ALABASTER,
       opponentUserId,

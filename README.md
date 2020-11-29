@@ -1,14 +1,11 @@
 Overview
 ========
 
-A web application that allows people to create and play their own variants of Cyvasse, a board game introduced by George RR Martin in his series of "Song of Fire and Ice".
-
 # Development
 
 ## One time setup
 
 * Run `make install` to install dependencies
-* Run `make generate-local-api-certificate` to generate HTTPS certificate for local development
 * Run `make copy-shared` to copy shared code to `api` / `frontend`
   * Rerun after any changes to shared code
 * Run `make create-databases` to create development and test databases and migrate the development database
@@ -26,4 +23,4 @@ A web application that allows people to create and play their own variants of Cy
 
 ## Debugging
 
-* Connect to the database with `docker-compose run --rm database psql -h database -p 5432 -U cyvasse-user` and enter password `test`
+* Connect to the database with `docker-compose run --rm postgres psql -h postgres -p 5432 -U chily-user` and enter password `test`

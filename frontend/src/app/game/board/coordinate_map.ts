@@ -1,4 +1,4 @@
-import { ICoordinate } from "../../shared/dtos/game";
+import { ICoordinate } from "../../shared/dtos/cyvasse/game";
 
 export class CoordinateMap<T> {
   private readonly data: Map<string, T>;

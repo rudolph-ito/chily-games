@@ -1,0 +1,40 @@
+.wrapper
+  height 100%
+  width 100%
+  display flex
+  justify-content space-between
+
+.left 
+  height 100%
+  width calc(100% - 300px)
+
+  .table-container
+    height 100%
+    width 100%
+
+.right
+  height 100%
+  width 300px
+  border-left 1px solid black
+  box-sizing border-box
+  padding 10px
+  overflow-y auto
+
+  .players, .actions, .scoreboard
+    margin-bottom 20px
+
+  .scoreboard table
+    width 100%
+
+    th, td
+      text-align center
+      padding 10px
+
+    td.yaniv
+      background-color #9dec79 
+
+    td.total
+      background-color #a2a0a0
+
+    td.asaf
+      background-color #fd7c7c

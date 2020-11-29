@@ -12,7 +12,7 @@ jobs:
       - image: circleci/postgres:12.4-ram
         <<: *DOCKER_BASE
         environment:
-          - POSTGRES_USER=cyvasse-user
+          - POSTGRES_USER=chily-user
           - POSTGRES_PASSWORD=test
       - image: circleci/redis:6.0.9-alpine
         <<: *DOCKER_BASE

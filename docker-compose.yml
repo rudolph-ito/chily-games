@@ -2,12 +2,12 @@ version: "3.7"
 
 services:
 
-  database:
+  postgres:
     image: postgres:12.4
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=cyvasse-user
+      - POSTGRES_USER=chily-user
       - POSTGRES_PASSWORD=test
     volumes:
       - "postgres-data:/var/lib/postgresql/data"

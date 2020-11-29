@@ -16,6 +16,7 @@
     "express": "4.17.1",
     "express-session": "1.17.1",
     "http-status-codes": "1.4.0",
+    "knuth-shuffle-seeded": "^1.0.6",
     "lodash.uniqby": "4.7.0",
     "passport": "0.4.1",
     "passport-json": "1.2.0",

@@ -4,7 +4,7 @@ import {
   PlayerColor,
   IGameRules,
   Action,
-} from "../../shared/dtos/game";
+} from "../../shared/dtos/cyvasse/game";
 import Konva from "konva";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 

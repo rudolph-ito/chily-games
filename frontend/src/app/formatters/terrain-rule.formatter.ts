@@ -3,7 +3,7 @@ import {
   IPiecesEffected,
   TerrainType,
   ISlowsMovement,
-} from "../shared/dtos/terrain_rule";
+} from "../shared/dtos/cyvasse/terrain_rule";
 import { TERRAIN_TYPE_OPTIONS } from "../models/terrain-rule";
 import { doesHaveValue } from "../shared/utilities/value_checker";
 

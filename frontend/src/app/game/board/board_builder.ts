@@ -1,8 +1,8 @@
-import { BoardType, IVariantOptions } from "../../shared/dtos/variant";
+import { BoardType, IVariantOptions } from "../../shared/dtos/cyvasse/variant";
 import { HexagonalBoard } from "./hexagonal_board";
 import { SquareBoard } from "./square_board";
 import { BaseBoard, IGameCallbacks } from "./base_board";
-import { PlayerColor, IGame, IGameRules } from "../../shared/dtos/game";
+import { PlayerColor, IGame, IGameRules } from "../../shared/dtos/cyvasse/game";
 
 export interface IBuildBoardOptions {
   element: HTMLDivElement;

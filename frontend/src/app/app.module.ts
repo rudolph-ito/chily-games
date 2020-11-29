@@ -27,14 +27,16 @@ import { HomeComponent } from "./components/home/home.component";
 import { NavigationBarComponent } from "./components/navigation-bar/navigation-bar.component";
 import { UserRegisterFormDialogComponent } from "./components/navigation-bar/user-register-form-dialog/user-register-form-dialog.component";
 import { UserLoginFormDialogComponent } from "./components/navigation-bar/user-login-form-dialog/user-login-form-dialog.component";
-import { VariantsIndexComponent } from "./components/variants-index/variants-index.component";
-import { VariantFormComponent } from "./components/variant-form/variant-form.component";
-import { VariantShowComponent } from "./components/variant-show/variant-show.component";
-import { PieceRuleFormComponent } from "./components/piece-rule-form/piece-rule-form.component";
-import { TerrainRuleFormComponent } from "./components/terrain-rule-form/terrain-rule-form.component";
-import { ChallengesIndexComponent } from "./components/challenges-index/challenges-index.component";
-import { GameShowComponent } from "./components/game-show/game-show.component";
-import { GamesIndexComponent } from "./components/games-index/games-index.component";
+import { VariantsIndexComponent } from "./components/cyvasse/variants-index/variants-index.component";
+import { VariantFormComponent } from "./components/cyvasse/variant-form/variant-form.component";
+import { VariantShowComponent } from "./components/cyvasse/variant-show/variant-show.component";
+import { PieceRuleFormComponent } from "./components/cyvasse/piece-rule-form/piece-rule-form.component";
+import { TerrainRuleFormComponent } from "./components/cyvasse/terrain-rule-form/terrain-rule-form.component";
+import { ChallengesIndexComponent } from "./components/cyvasse/challenges-index/challenges-index.component";
+import { CyvasseGameShowComponent } from "./components/cyvasse/cyvasse-game-show/cyvasse-game-show.component";
+import { CyvasseGamesIndexComponent } from "./components/cyvasse/cyvasse-games-index/cyvasse-games-index.component";
+import { YanivGamesIndexComponent } from "./components/yaniv/yaniv-games-index/yaniv-games-index.component";
+import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv-game-show.component";
 
 @NgModule({
   declarations: [
@@ -49,8 +51,10 @@ import { GamesIndexComponent } from "./components/games-index/games-index.compon
     PieceRuleFormComponent,
     TerrainRuleFormComponent,
     ChallengesIndexComponent,
-    GameShowComponent,
-    GamesIndexComponent,
+    CyvasseGameShowComponent,
+    CyvasseGamesIndexComponent,
+    YanivGamesIndexComponent,
+    YanivGameShowComponent,
   ],
   imports: [
     AppRoutingModule,

@@ -7,8 +7,8 @@ import {
   doesHaveValue,
 } from "../shared/utilities/value_checker";
 import { IUser } from "../shared/dtos/authentication";
-import { UserDataService } from "../services/data/user_data_service";
-import { RegistrationService } from "../services/registration_service";
+import { UserDataService } from "../services/shared/data/user_data_service";
+import { RegistrationService } from "../services/shared/registration_service";
 import HttpStatus from "http-status-codes";
 
 async function verifyLogin(
