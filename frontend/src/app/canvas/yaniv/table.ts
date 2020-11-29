@@ -236,13 +236,13 @@ export class YanivTable {
     cardBack.on("mouseover", (event) => {
       const rect = event.target as Konva.Rect;
       if (this.currentUserSelectedDiscards.length > 0) {
-        rect.strokeWidth(40);
+        rect.strokeWidth(5);
         this.cardsLayer.draw();
       }
     });
     cardBack.on("mouseout", (event) => {
       const rect = event.target as Konva.Rect;
-      rect.strokeWidth(2);
+      rect.strokeWidth(1);
       this.cardsLayer.draw();
     });
     cardBack.on("click", () => {
@@ -483,7 +483,7 @@ export class YanivTable {
   private updateCurrentUserCardStroke(rect: Konva.Rect, hover: boolean): void {
     if (hover) {
       rect.stroke("black");
-      rect.strokeWidth(10);
+      rect.strokeWidth(5);
       return;
     }
     const card = rect.getAttr("yanivCard");
@@ -492,7 +492,7 @@ export class YanivTable {
       this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))
     ) {
       rect.stroke("blue");
-      rect.strokeWidth(5);
+      rect.strokeWidth(3);
       return;
     }
     rect.strokeWidth(0);
@@ -503,7 +503,7 @@ export class YanivTable {
     rect.on("mouseover", (event) => {
       const rect = event.target as Konva.Rect;
       if (this.currentUserSelectedDiscards.length > 0) {
-        rect.strokeWidth(10);
+        rect.strokeWidth(5);
         this.cardsLayer.draw();
       }
     });
