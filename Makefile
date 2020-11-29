@@ -37,5 +37,5 @@ test-frontend: # Run frontend tests
 	cd frontend && yarn test
 
 .PHONY: start-local-production
-start-local-production: copy-shared
+start-local-production:
 	docker-compose -f docker-compose.production.yml up --build

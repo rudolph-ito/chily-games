@@ -7,9 +7,10 @@ COPY frontend/yarn.lock .
 RUN yarn install
 COPY frontend/angular.json .
 COPY frontend/src ./src
+COPY shared ./src/shared
 COPY frontend/tsconfig.app.json .
 COPY frontend/tsconfig.json .
-COPY frontend/tsconfig.shared.json .
+COPY tsconfig.json tsconfig.shared.json
 RUN yarn run build --prod
 
 FROM node:12 AS build-api
@@ -20,8 +21,9 @@ COPY api/package.json .
 COPY api/yarn.lock .
 RUN yarn install
 COPY api/src ./src
+COPY shared ./src/shared
 COPY api/tsconfig.json .
-COPY api/tsconfig.shared.json .
+COPY tsconfig.json tsconfig.shared.json
 RUN yarn build
 RUN cp -r ./src/assets ./dist/assets
 RUN cp ./src/database/config.js ./dist/database/config.js 
