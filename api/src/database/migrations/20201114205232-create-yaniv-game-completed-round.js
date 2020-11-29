@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Matches shared/dtos/yaniv/game:RoundScoreType
     const roundScoreTypeEnum = Sequelize.ENUM("default", "yaniv", "asaf");
-    queryInterface.createTable("YanivGameCompletedRounds", {
+    return queryInterface.createTable("YanivGameCompletedRounds", {
       gameId: {
         type: Sequelize.INTEGER,
         allowNull: false,
