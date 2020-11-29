@@ -12,12 +12,14 @@ import {
   GameState,
   IGame,
   IGameActionRequest,
+  IGameActionResponse,
   RoundScoreType,
 } from "../../shared/dtos/yaniv/game";
 import { createTestYanivRoundActiveGame } from "../../../test/yaniv_test_helper";
 
 interface ITestPlayResult {
   error: Error;
+  result: IGameActionResponse;
   game: IGame;
 }
 
@@ -28,13 +30,14 @@ async function testPlay(
 ): Promise<ITestPlayResult> {
   let error: Error;
   let game: IGame;
+  let result: IGameActionResponse;
   try {
-    const result = await new YanivGameService().play(userId, gameId, action);
-    game = result.game;
+    result = await new YanivGameService().play(userId, gameId, action);
+    game = await new YanivGameService().get(userId, gameId)
   } catch (e) {
     error = e;
   }
-  return { game, error };
+  return { result, game, error };
 }
 
 describe("YanivGameService", () => {

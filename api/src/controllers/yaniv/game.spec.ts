@@ -14,6 +14,7 @@ import {
   GameState,
   IGame,
   IGameActionRequest,
+  IGameActionResponse,
 } from "../../shared/dtos/yaniv/game";
 import {
   createTestYanivGame,
@@ -21,14 +22,12 @@ import {
   joinTestYanivGame,
 } from "../../../test/yaniv_test_helper";
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
+import { YanivGameDataService } from "../../services/yaniv/data/yaniv_game_data_service";
+import { YanivGameService } from "../../services/yaniv/yaniv_game_service";
 
 describe("YanivGameRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
-  let user1Credentials: IUserCredentials;
-  let user1Id: number;
-  let user2Credentials: IUserCredentials;
-  let user2Id: number;
 
   before(() => {
     testServer = createTestServer();
@@ -38,16 +37,11 @@ describe("YanivGameRoutes", () => {
     await testServer.quit();
   });
 
-  beforeEach(async () => {
-    user1Credentials = createTestCredentials("user1");
-    user1Id = await createTestUser(user1Credentials);
-    user2Credentials = createTestCredentials("user2");
-    user2Id = await createTestUser(user2Credentials);
-  });
-
   describe("create game (POST /api/yaniv/games)", () => {
     it("returns the created game", async () => {
       // Arrange
+      const user1Credentials = createTestCredentials("user1");
+      const user1Id = await createTestUser(user1Credentials);
       const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
@@ -68,6 +62,7 @@ describe("YanivGameRoutes", () => {
         playerStates: [
           {
             userId: user1Id,
+            username: 'user1'
           },
         ],
         roundScores: [],
@@ -81,6 +76,10 @@ describe("YanivGameRoutes", () => {
   describe("join game (PUT /api/yaniv/games/<game_id>/join", () => {
     it("returns the updated game", async () => {
       // Arrange
+      const user1Credentials = createTestCredentials("user1");
+      const user1Id = await createTestUser(user1Credentials);
+      const user2Credentials = createTestCredentials("user2");
+      const user2Id = await createTestUser(user2Credentials);
       const gameId = await createTestYanivGame(user1Id, { playTo: 200 });
       const agent = await loginTestUser(testServer.app, user2Credentials);
 
@@ -97,9 +96,11 @@ describe("YanivGameRoutes", () => {
       expect(game.playerStates).to.eql([
         {
           userId: user1Id,
+          username: 'user1'
         },
         {
           userId: user2Id,
+          username: 'user2'
         },
       ]);
     });
@@ -108,6 +109,10 @@ describe("YanivGameRoutes", () => {
   describe("start round (PUT /api/yaniv/games/<game_id>/start-round", () => {
     it("returns the updated game", async () => {
       // Arrange
+      const user1Credentials = createTestCredentials("user1");
+      const user1Id = await createTestUser(user1Credentials);
+      const user2Credentials = createTestCredentials("user2");
+      const user2Id = await createTestUser(user2Credentials);
       const gameId = await createTestYanivGame(user1Id, { playTo: 200 });
       await joinTestYanivGame(user2Id, gameId);
       const agent = await loginTestUser(testServer.app, user1Credentials);
@@ -136,7 +141,7 @@ describe("YanivGameRoutes", () => {
       // Arrange
       const {
         userCredentials: [user1Credentials],
-        userIds: [, user2Id],
+        userIds: [user1Id, user2Id],
         gameId,
       } = await createTestYanivRoundActiveGame({
         playerCards: [
@@ -164,17 +169,25 @@ describe("YanivGameRoutes", () => {
 
       // Assert
       expect(response.body).to.exist();
-      const game: IGame = response.body;
-      expect(game.gameId).to.eql(gameId);
-      expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-      expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.cardsOnTopOfDiscardPile).to.eql([
+      const gameResponse: IGameActionResponse = response.body;
+      expect(gameResponse.actionToNextPlayerEvent).to.eql({
+        lastAction: {
+          cardsDiscarded: [{ rank: CardRank.KING, suit: CardSuit.DIAMONDS }],
+          userId: user1Id
+        },
+        actionToUserId: user2Id
+      })
+      expect(gameResponse.cardPickedUpFromDeck).to.eql({ rank: CardRank.SEVEN, suit: CardSuit.HEARTS })
+      const updatedGame = await new YanivGameService().get(user1Id, gameId);
+      expect(updatedGame.state).to.eql(GameState.ROUND_ACTIVE);
+      expect(updatedGame.actionToUserId).to.eql(user2Id);
+      expect(updatedGame.cardsOnTopOfDiscardPile).to.eql([
         { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
-      ]);
-      expect(game.playerStates[0].cards).to.eql([
+      ])
+      expect(updatedGame.playerStates[0].cards).to.eql([
         { rank: CardRank.ACE, suit: CardSuit.CLUBS },
         { rank: CardRank.SEVEN, suit: CardSuit.HEARTS },
-      ]);
+      ])
     });
   });
 });
