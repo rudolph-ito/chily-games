@@ -33,7 +33,7 @@ async function testPlay(
   let result: IGameActionResponse;
   try {
     result = await new YanivGameService().play(userId, gameId, action);
-    game = await new YanivGameService().get(userId, gameId)
+    game = await new YanivGameService().get(userId, gameId);
   } catch (e) {
     error = e;
   }

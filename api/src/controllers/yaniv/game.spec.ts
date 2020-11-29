@@ -2,7 +2,6 @@ import {
   createTestUser,
   createTestCredentials,
   resetDatabaseBeforeEach,
-  IUserCredentials,
   loginTestUser,
   createTestServer,
   ITestServer,
@@ -22,7 +21,6 @@ import {
   joinTestYanivGame,
 } from "../../../test/yaniv_test_helper";
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
-import { YanivGameDataService } from "../../services/yaniv/data/yaniv_game_data_service";
 import { YanivGameService } from "../../services/yaniv/yaniv_game_service";
 
 describe("YanivGameRoutes", () => {
@@ -62,7 +60,7 @@ describe("YanivGameRoutes", () => {
         playerStates: [
           {
             userId: user1Id,
-            username: 'user1'
+            username: "user1",
           },
         ],
         roundScores: [],
@@ -96,11 +94,11 @@ describe("YanivGameRoutes", () => {
       expect(game.playerStates).to.eql([
         {
           userId: user1Id,
-          username: 'user1'
+          username: "user1",
         },
         {
           userId: user2Id,
-          username: 'user2'
+          username: "user2",
         },
       ]);
     });
@@ -173,21 +171,24 @@ describe("YanivGameRoutes", () => {
       expect(gameResponse.actionToNextPlayerEvent).to.eql({
         lastAction: {
           cardsDiscarded: [{ rank: CardRank.KING, suit: CardSuit.DIAMONDS }],
-          userId: user1Id
+          userId: user1Id,
         },
-        actionToUserId: user2Id
-      })
-      expect(gameResponse.cardPickedUpFromDeck).to.eql({ rank: CardRank.SEVEN, suit: CardSuit.HEARTS })
+        actionToUserId: user2Id,
+      });
+      expect(gameResponse.cardPickedUpFromDeck).to.eql({
+        rank: CardRank.SEVEN,
+        suit: CardSuit.HEARTS,
+      });
       const updatedGame = await new YanivGameService().get(user1Id, gameId);
       expect(updatedGame.state).to.eql(GameState.ROUND_ACTIVE);
       expect(updatedGame.actionToUserId).to.eql(user2Id);
       expect(updatedGame.cardsOnTopOfDiscardPile).to.eql([
         { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
-      ])
+      ]);
       expect(updatedGame.playerStates[0].cards).to.eql([
         { rank: CardRank.ACE, suit: CardSuit.CLUBS },
         { rank: CardRank.SEVEN, suit: CardSuit.HEARTS },
-      ])
+      ]);
     });
   });
 });
