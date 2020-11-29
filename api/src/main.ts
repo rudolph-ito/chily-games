@@ -6,11 +6,12 @@ const corsOrigins = valueOrDefault(process.env.CORS_ORIGINS, "").split(",");
 const port = parseInt(process.env.PORT, 10);
 const sessionCookieSecure = process.env.NODE_ENV === "production";
 const sessionSecret = process.env.SESSION_SECRET;
+const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379"
 
 startServer({
   corsOrigins,
   port,
-  redisClientBuilder: () => createClient({ host: "localhost", port: 6379 }),
+  redisClientBuilder: () => createClient({ url: redisUrl }),
   sessionCookieSecure,
   sessionSecret,
   shouldLog: true,

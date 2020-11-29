@@ -14,10 +14,6 @@ module.exports = {
     dialect: "postgres",
   },
   production: {
-    username: "cyvasse-user",
-    password: process.env.POSTGRES_PASSWORD,
-    database: "cyvasse_production",
-    host: process.env.POSTGRES_HOST,
-    dialect: "postgres",
+    use_env_variable: "DATABASE_URL"
   },
 };
