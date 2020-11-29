@@ -87,9 +87,9 @@ export function createExpressApp(
     "/api/yaniv",
     getYanivRouter(authenticationRequired, options.publishRedisClient)
   );
-  app.use(function(req, res) {
-    res.sendFile(pathJoin(__dirname, '..', 'frontend', 'index.html'));
-   });
+  app.use(function (req, res) {
+    res.sendFile(pathJoin(__dirname, "..", "frontend", "index.html"));
+  });
   app.use(errorHandler());
   return app;
 }
