@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { AppModule } from "src/app/app.module";
 import { YanivGameShowComponent } from "./yaniv-game-show.component";
 
 describe("YanivGameShowComponent", () => {
@@ -7,7 +8,7 @@ describe("YanivGameShowComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [YanivGameShowComponent],
+      imports: [AppModule],
     }).compileComponents();
   });
 

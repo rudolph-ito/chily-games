@@ -158,7 +158,7 @@ export class YanivGameShowComponent implements OnInit {
     return this.game.state === GameState.ROUND_ACTIVE;
   }
 
-  async callYaniv(): Promis<void> {
+  async callYaniv(): Promise<void> {
     await this.onPlay({ callYaniv: true });
   }
 
