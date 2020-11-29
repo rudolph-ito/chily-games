@@ -7,7 +7,7 @@ COPY frontend/yarn.lock .
 RUN yarn install
 COPY frontend/angular.json .
 COPY frontend/src ./src
-COPY shared ./src/shared
+COPY shared ./src/app/shared
 COPY frontend/tsconfig.app.json .
 COPY frontend/tsconfig.json .
 COPY tsconfig.json tsconfig.shared.json
