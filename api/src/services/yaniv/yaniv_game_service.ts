@@ -42,8 +42,7 @@ import {
   IUserDataService,
   UserDataService,
 } from "../shared/data/user_data_service";
-import { ICard } from 'src/shared/dtos/yaniv/card';
-
+import { ICard } from "src/shared/dtos/yaniv/card";
 
 interface IPlayDiscardAndPickupResult {
   cardPickedUpFromDeck: ICard;
@@ -154,7 +153,7 @@ export class YanivGameService implements IYanivGameService {
     gameId: number,
     action: IGameActionRequest
   ): Promise<IGameActionResponse> {
-    let game = await this.gameDataService.get(gameId);
+    const game = await this.gameDataService.get(gameId);
     if (doesNotHaveValue(game)) {
       throwGameNotFoundError(gameId);
     }
@@ -173,7 +172,7 @@ export class YanivGameService implements IYanivGameService {
       );
       result.actionToNextPlayerEvent =
         discardAndPickupResult.actionToNextPlayerEvent;
-      result.cardPickedUpFromDeck = discardAndPickupResult.cardPickedUpFromDeck
+      result.cardPickedUpFromDeck = discardAndPickupResult.cardPickedUpFromDeck;
     }
     return result;
   }
@@ -294,7 +293,7 @@ export class YanivGameService implements IYanivGameService {
       throw new ValidationError("Invalid pickup.");
     }
     let discardsToBury = game.cardsOnTopOfDiscardPile;
-    let cardPickedUpFromDeck: ICard = null
+    let cardPickedUpFromDeck: ICard = null;
     playerState.cardsInHand = _.differenceWith(
       playerState.cardsInHand,
       action.cardsDiscarded,
@@ -322,7 +321,7 @@ export class YanivGameService implements IYanivGameService {
       ),
       cardsOnTopOfDiscardPile: action.cardsDiscarded,
       cardsInDeck: game.cardsInDeck,
-    })
+    });
     return {
       cardPickedUpFromDeck,
       actionToNextPlayerEvent: {
@@ -382,7 +381,7 @@ export class YanivGameService implements IYanivGameService {
       };
       if (
         game.state === GameState.ROUND_COMPLETE ||
-        game.state == GameState.COMPLETE
+        game.state === GameState.COMPLETE
       ) {
         out.numberOfCards = ps.cardsInHand.length;
         out.cards = ps.cardsInHand;

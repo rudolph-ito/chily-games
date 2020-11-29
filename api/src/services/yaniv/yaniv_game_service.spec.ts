@@ -7,7 +7,7 @@ import {
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { YanivGameDataService } from "./data/yaniv_game_data_service";
-import { IPlayResult, YanivGameService } from "./yaniv_game_service";
+import { YanivGameService } from "./yaniv_game_service";
 import {
   GameState,
   IGame,

@@ -8,7 +8,7 @@ import { Subject } from "rxjs";
 import { YanivTable } from "src/app/canvas/yaniv/table";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
-import { IUser } from "src/app/shared/dtos/authentication";
+import { IUser } from "../../../shared/dtos/authentication";
 import {
   GameState,
   IActionToNextPlayerEvent,
@@ -19,11 +19,11 @@ import {
   IRoundFinishedEvent,
   IRoundScore,
   RoundScoreType,
-} from "src/app/shared/dtos/yaniv/game";
+} from "../../../shared/dtos/yaniv/game";
 import {
   doesHaveValue,
   doesNotHaveValue,
-} from "src/app/shared/utilities/value_checker";
+} from "../../../shared/utilities/value_checker";
 
 @Component({
   selector: "app-yaniv-game-show",
@@ -77,7 +77,11 @@ export class YanivGameShowComponent implements OnInit {
       .fromEvent<IActionToNextPlayerEvent>("action-to-next-player")
       .subscribe((event: IActionToNextPlayerEvent) => {
         if (event.lastAction.userId !== this.user?.userId) {
-          this.table.updateStateWithUserAction(event.lastAction, event.actionToUserId, this.user?.userId);
+          this.table.updateStateWithUserAction(
+            event.lastAction,
+            event.actionToUserId,
+            this.user?.userId
+          );
         }
       });
     this.socket
@@ -118,7 +122,7 @@ export class YanivGameShowComponent implements OnInit {
     this.initializeTable();
   }
 
-  async initializeTable(): Promise<void> {
+  initializeTable(): void {
     if (doesHaveValue(this.game) && doesHaveValue(this.tableContainer)) {
       if (doesNotHaveValue(this.table)) {
         this.table = new YanivTable(
@@ -129,7 +133,7 @@ export class YanivGameShowComponent implements OnInit {
         );
       }
       if (this.game.state !== GameState.PLAYERS_JOINING) {
-        await this.table.initializeState(this.game, this.user?.userId);
+        this.table.initializeState(this.game, this.user?.userId);
       }
     }
   }
@@ -142,13 +146,11 @@ export class YanivGameShowComponent implements OnInit {
     return this.game.state === GameState.PLAYERS_JOINING;
   }
 
-  onResize() {}
-
   canStartRound(): boolean {
     return (
-      (this.game.state == GameState.PLAYERS_JOINING ||
-        this.game.state == GameState.ROUND_COMPLETE) &&
-      this.game.hostUserId == this.user?.userId
+      (this.game.state === GameState.PLAYERS_JOINING ||
+        this.game.state === GameState.ROUND_COMPLETE) &&
+      this.game.hostUserId === this.user?.userId
     );
   }
 
@@ -156,8 +158,8 @@ export class YanivGameShowComponent implements OnInit {
     return this.game.state === GameState.ROUND_ACTIVE;
   }
 
-  callYaniv(): void {
-    this.onPlay({ callYaniv: true });
+  async callYaniv(): Promis<void> {
+    await this.onPlay({ callYaniv: true });
   }
 
   startRound(): void {
@@ -180,8 +182,13 @@ export class YanivGameShowComponent implements OnInit {
     this.gameService.play(this.getGameId(), action).subscribe(
       async (response: IGameActionResponse) => {
         if (doesHaveValue(response.actionToNextPlayerEvent)) {
-          const event = response.actionToNextPlayerEvent
-          this.table.updateStateWithUserAction(event.lastAction, event.actionToUserId, this.user?.userId, response.cardPickedUpFromDeck)
+          const event = response.actionToNextPlayerEvent;
+          this.table.updateStateWithUserAction(
+            event.lastAction,
+            event.actionToUserId,
+            this.user?.userId,
+            response.cardPickedUpFromDeck
+          );
         }
       },
       (errorResponse: HttpErrorResponse) => {

@@ -7,7 +7,7 @@ import {
 import { IUser } from "../../shared/dtos/authentication";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import newSocketIoEmitter from "socket.io-emitter";
-import { IPlayerJoinedEvent, IGameActionResponse } from "src/shared/dtos/yaniv/game";
+import { IPlayerJoinedEvent } from "src/shared/dtos/yaniv/game";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
@@ -50,11 +50,12 @@ export function getGameRouter(
       .join((req.user as IUser).userId, gameId)
       .then((game) => {
         res.status(200).send(game);
+        const playerJoinedEvent: IPlayerJoinedEvent = {
+          playerStates: game.playerStates,
+        };
         newSocketIoEmitter(publishRedisClient as any)
           .to(`yaniv-game-${gameId}`)
-          .emit("player-joined", {
-            playerStates: game.playerStates,
-          } as IPlayerJoinedEvent);
+          .emit("player-joined", playerJoinedEvent);
       })
       .catch(next);
   });
@@ -82,23 +83,29 @@ export function getGameRouter(
     const gameId = parseInt(req.params.gameId);
     gameService
       .play((req.user as IUser).userId, gameId, req.body)
-      .then(({ cardPickedUpFromDeck, actionToNextPlayerEvent, roundFinishedEvent }) => {
-        res.status(200).send({
+      .then(
+        ({
           cardPickedUpFromDeck,
           actionToNextPlayerEvent,
-          roundFinishedEvent 
-        });
-        if (actionToNextPlayerEvent) {
-          newSocketIoEmitter(publishRedisClient as any)
-            .to(`yaniv-game-${gameId}`)
-            .emit("action-to-next-player", actionToNextPlayerEvent);
+          roundFinishedEvent,
+        }) => {
+          res.status(200).send({
+            cardPickedUpFromDeck,
+            actionToNextPlayerEvent,
+            roundFinishedEvent,
+          });
+          if (doesHaveValue(actionToNextPlayerEvent)) {
+            newSocketIoEmitter(publishRedisClient as any)
+              .to(`yaniv-game-${gameId}`)
+              .emit("action-to-next-player", actionToNextPlayerEvent);
+          }
+          if (doesHaveValue(roundFinishedEvent)) {
+            newSocketIoEmitter(publishRedisClient as any)
+              .to(`yaniv-game-${gameId}`)
+              .emit("round-finished", roundFinishedEvent);
+          }
         }
-        if (roundFinishedEvent) {
-          newSocketIoEmitter(publishRedisClient as any)
-            .to(`yaniv-game-${gameId}`)
-            .emit("round-finished", roundFinishedEvent);
-        }
-      })
+      )
       .catch(next);
   });
   router.put("/:gameId/settings", authenticationRequired, function (

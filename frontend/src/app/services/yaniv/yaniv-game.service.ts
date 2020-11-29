@@ -42,8 +42,14 @@ export class YanivGameService {
     );
   }
 
-  play(gameId: number, action: IGameActionRequest): Observable<IGameActionResponse> {
-    return this.http.put<IGameActionResponse>(`${this.getRoutePrefix(gameId)}/play`, action);
+  play(
+    gameId: number,
+    action: IGameActionRequest
+  ): Observable<IGameActionResponse> {
+    return this.http.put<IGameActionResponse>(
+      `${this.getRoutePrefix(gameId)}/play`,
+      action
+    );
   }
 
   private getRoutePrefix(gameId: number): string {
