@@ -5,6 +5,7 @@ import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
   IGame,
   IGameActionRequest,
+  IGameActionResponse,
   IGameOptions,
   ISearchGamesRequest,
 } from "../../shared/dtos/yaniv/game";
@@ -41,8 +42,8 @@ export class YanivGameService {
     );
   }
 
-  play(gameId: number, action: IGameActionRequest): Observable<IGame> {
-    return this.http.put<IGame>(`${this.getRoutePrefix(gameId)}/play`, action);
+  play(gameId: number, action: IGameActionRequest): Observable<IGameActionResponse> {
+    return this.http.put<IGameActionResponse>(`${this.getRoutePrefix(gameId)}/play`, action);
   }
 
   private getRoutePrefix(gameId: number): string {

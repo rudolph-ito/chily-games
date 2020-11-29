@@ -14,6 +14,7 @@ import {
   IActionToNextPlayerEvent,
   IGame,
   IGameActionRequest,
+  IGameActionResponse,
   IPlayerJoinedEvent,
   IRoundFinishedEvent,
   IRoundScore,
@@ -66,23 +67,17 @@ export class YanivGameShowComponent implements OnInit {
       });
     this.socket.fromEvent("round-started").subscribe(() => {
       this.gameService.get(this.getGameId()).subscribe((game) => {
-        this.updateGame(game);
-        this.initializeTable();
+        if (game.hostUserId !== this.user?.userId) {
+          this.updateGame(game);
+          this.initializeTable();
+        }
       });
     });
     this.socket
       .fromEvent<IActionToNextPlayerEvent>("action-to-next-player")
       .subscribe((event: IActionToNextPlayerEvent) => {
         if (event.lastAction.userId !== this.user?.userId) {
-          this.game.actionToUserId = event.actionToUserId;
-          this.game.cardsOnTopOfDiscardPile = event.lastAction.cardsDiscarded;
-          this.game.playerStates.forEach((playerState) => {
-            if (playerState.userId == event.lastAction.userId) {
-              playerState.numberOfCards -=
-                event.lastAction.cardsDiscarded.length - 1;
-            }
-          });
-          this.initializeTable();
+          this.table.updateStateWithUserAction(event.lastAction, event.actionToUserId, this.user?.userId);
         }
       });
     this.socket
@@ -133,7 +128,9 @@ export class YanivGameShowComponent implements OnInit {
           this.onPlay
         );
       }
-      await this.table.initializeState(this.game, this.user?.userId);
+      if (this.game.state !== GameState.PLAYERS_JOINING) {
+        await this.table.initializeState(this.game, this.user?.userId);
+      }
     }
   }
 
@@ -181,10 +178,11 @@ export class YanivGameShowComponent implements OnInit {
 
   onPlay = async (action: IGameActionRequest): Promise<void> => {
     this.gameService.play(this.getGameId(), action).subscribe(
-      async (game: IGame) => {
-        this.updateGame(game);
-        // TODO implement minor change
-        await this.table.initializeState(this.game, this.user?.userId);
+      async (response: IGameActionResponse) => {
+        if (doesHaveValue(response.actionToNextPlayerEvent)) {
+          const event = response.actionToNextPlayerEvent
+          this.table.updateStateWithUserAction(event.lastAction, event.actionToUserId, this.user?.userId, response.cardPickedUpFromDeck)
+        }
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {

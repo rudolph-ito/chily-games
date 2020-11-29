@@ -60,6 +60,12 @@ export interface IGameActionRequest {
   cardPickedUp?: ICard;
 }
 
+export interface IGameActionResponse {
+  cardPickedUpFromDeck?: ICard;
+  actionToNextPlayerEvent?: IActionToNextPlayerEvent;
+  roundFinishedEvent?: IRoundFinishedEvent;
+}
+
 export interface IPlayerJoinedEvent {
   playerStates: IPlayerState[];
 }

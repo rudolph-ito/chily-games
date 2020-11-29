@@ -7,7 +7,7 @@ import {
 import { IUser } from "../../shared/dtos/authentication";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
 import newSocketIoEmitter from "socket.io-emitter";
-import { IPlayerJoinedEvent } from "src/shared/dtos/yaniv/game";
+import { IPlayerJoinedEvent, IGameActionResponse } from "src/shared/dtos/yaniv/game";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
@@ -82,8 +82,12 @@ export function getGameRouter(
     const gameId = parseInt(req.params.gameId);
     gameService
       .play((req.user as IUser).userId, gameId, req.body)
-      .then(({ game, actionToNextPlayerEvent, roundFinishedEvent }) => {
-        res.status(200).send(game);
+      .then(({ cardPickedUpFromDeck, actionToNextPlayerEvent, roundFinishedEvent }) => {
+        res.status(200).send({
+          cardPickedUpFromDeck,
+          actionToNextPlayerEvent,
+          roundFinishedEvent 
+        });
         if (actionToNextPlayerEvent) {
           newSocketIoEmitter(publishRedisClient as any)
             .to(`yaniv-game-${gameId}`)

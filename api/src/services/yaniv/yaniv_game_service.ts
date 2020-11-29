@@ -11,6 +11,7 @@ import {
   GameState,
   IRoundScore,
   IGameActionRequest,
+  IGameActionResponse,
   RoundScoreType,
   ISearchGamesRequest,
   ISearchedGame,
@@ -41,20 +42,15 @@ import {
   IUserDataService,
   UserDataService,
 } from "../shared/data/user_data_service";
+import { ICard } from 'src/shared/dtos/yaniv/card';
 
-export interface IPlayResult {
-  game: IGame;
-  actionToNextPlayerEvent?: IActionToNextPlayerEvent;
-  roundFinishedEvent?: IRoundFinishedEvent;
-}
 
 interface IPlayDiscardAndPickupResult {
-  game: ISerializedYanivGame;
+  cardPickedUpFromDeck: ICard;
   actionToNextPlayerEvent: IActionToNextPlayerEvent;
 }
 
 interface IPlayCallYanivResult {
-  game: ISerializedYanivGame;
   roundFinishedEvent: IRoundFinishedEvent;
 }
 
@@ -67,7 +63,7 @@ export interface IYanivGameService {
     userId: number,
     gameId: number,
     action: IGameActionRequest
-  ) => Promise<IPlayResult>;
+  ) => Promise<IGameActionResponse>;
   search: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<ISearchedGame>>;
@@ -157,7 +153,7 @@ export class YanivGameService implements IYanivGameService {
     userId: number,
     gameId: number,
     action: IGameActionRequest
-  ): Promise<IPlayResult> {
+  ): Promise<IGameActionResponse> {
     let game = await this.gameDataService.get(gameId);
     if (doesNotHaveValue(game)) {
       throwGameNotFoundError(gameId);
@@ -165,10 +161,9 @@ export class YanivGameService implements IYanivGameService {
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
-    const result: Partial<IPlayResult> = {};
+    const result: IGameActionResponse = {};
     if (action.callYaniv) {
       const callYanivResult = await this.playCallYaniv(userId, game);
-      game = callYanivResult.game;
       result.roundFinishedEvent = callYanivResult.roundFinishedEvent;
     } else {
       const discardAndPickupResult = await this.playDiscardAndPickup(
@@ -176,12 +171,11 @@ export class YanivGameService implements IYanivGameService {
         action,
         game
       );
-      game = discardAndPickupResult.game;
       result.actionToNextPlayerEvent =
         discardAndPickupResult.actionToNextPlayerEvent;
+      result.cardPickedUpFromDeck = discardAndPickupResult.cardPickedUpFromDeck
     }
-    result.game = await this.loadFullGame(userId, game);
-    return result as IPlayResult;
+    return result;
   }
 
   async search(
@@ -262,7 +256,6 @@ export class YanivGameService implements IYanivGameService {
         playerStates: await this.loadPlayerStates(userId, updatedGame),
         roundScore,
       },
-      game: updatedGame,
     };
   }
 
@@ -301,6 +294,7 @@ export class YanivGameService implements IYanivGameService {
       throw new ValidationError("Invalid pickup.");
     }
     let discardsToBury = game.cardsOnTopOfDiscardPile;
+    let cardPickedUpFromDeck: ICard = null
     playerState.cardsInHand = _.differenceWith(
       playerState.cardsInHand,
       action.cardsDiscarded,
@@ -312,7 +306,8 @@ export class YanivGameService implements IYanivGameService {
         areCardsEqual(x, action.cardPickedUp)
       );
     } else {
-      playerState.cardsInHand.push(game.cardsInDeck.pop());
+      cardPickedUpFromDeck = game.cardsInDeck.pop();
+      playerState.cardsInHand.push(cardPickedUpFromDeck);
       if (game.cardsInDeck.length === 0) {
         game.cardsInDeck = game.cardsBuriedInDiscardPile;
         game.cardsBuriedInDiscardPile = [];
@@ -320,23 +315,24 @@ export class YanivGameService implements IYanivGameService {
       }
     }
     await this.gamePlayerDataService.updateAll([playerState]);
+    const updatedGame = await this.gameDataService.update(game.gameId, {
+      actionToUserId: playerStates[1].userId,
+      cardsBuriedInDiscardPile: game.cardsBuriedInDiscardPile.concat(
+        discardsToBury
+      ),
+      cardsOnTopOfDiscardPile: action.cardsDiscarded,
+      cardsInDeck: game.cardsInDeck,
+    })
     return {
+      cardPickedUpFromDeck,
       actionToNextPlayerEvent: {
         lastAction: {
           userId,
           cardsDiscarded: action.cardsDiscarded,
           cardPickedUp: action.cardPickedUp,
         },
-        actionToUserId: playerStates[1].userId,
+        actionToUserId: updatedGame.actionToUserId,
       },
-      game: await this.gameDataService.update(game.gameId, {
-        actionToUserId: playerStates[1].userId,
-        cardsBuriedInDiscardPile: game.cardsBuriedInDiscardPile.concat(
-          discardsToBury
-        ),
-        cardsOnTopOfDiscardPile: action.cardsDiscarded,
-        cardsInDeck: game.cardsInDeck,
-      }),
     };
   }
 
