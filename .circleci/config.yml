@@ -14,7 +14,7 @@ jobs:
         environment:
           - POSTGRES_USER=cyvasse-user
           - POSTGRES_PASSWORD=test
-      - image: circleci/redis:6.0.8-alpine
+      - image: circleci/redis:6.0.9-alpine
         <<: *DOCKER_BASE
     steps:
       - checkout
