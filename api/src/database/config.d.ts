@@ -1,6 +1,7 @@
 import { Dialect } from "sequelize/types";
 
 export interface IConfig {
+  use_env_variable: string;
   username: string;
   password: string;
   database: string;

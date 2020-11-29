@@ -4,9 +4,8 @@ import expressCookieParser from "cookie-parser";
 import expressBodyParser from "body-parser";
 import expressCors from "cors";
 import { initAuthController } from "./auth";
-import { createServer, Server } from "https";
+import { createServer, Server } from "http";
 import { join as pathJoin } from "path";
-import { readFileSync } from "fs";
 import {
   AuthorizationError,
   NotFoundError,
@@ -21,13 +20,11 @@ import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
 
-const certsDir = pathJoin(__dirname, "..", "..", "certs");
 const RedisStore = connectRedis(expressSession);
 
 export interface ICreateExpressAppOptions {
   corsOrigins: string[];
   publishRedisClient: RedisClient;
-  sessionCookieSecure: boolean;
   sessionSecret: string;
   sessionStoreRedisClient: RedisClient;
 }
@@ -38,7 +35,6 @@ export interface IStartServerOptions {
   corsOrigins: string[];
   port: number;
   redisClientBuilder: RedisClientBuilder;
-  sessionCookieSecure: boolean;
   sessionSecret: string;
   shouldLog: boolean;
 }
@@ -62,12 +58,13 @@ export function createExpressApp(
   options: ICreateExpressAppOptions
 ): express.Express {
   const app = express();
+  app.use("/", express.static(pathJoin(__dirname, "..", "frontend")));
   app.use("/assets", express.static(pathJoin(__dirname, "..", "assets")));
   app.use(expressCookieParser());
   app.use(expressBodyParser.json());
   app.use(
     expressSession({
-      cookie: { secure: options.sessionCookieSecure },
+      cookie: { secure: false },
       resave: false,
       saveUninitialized: false,
       secret: options.sessionSecret,
@@ -90,6 +87,9 @@ export function createExpressApp(
     "/api/yaniv",
     getYanivRouter(authenticationRequired, options.publishRedisClient)
   );
+  app.use(function(req, res) {
+    res.sendFile(pathJoin(__dirname, '..', 'frontend', 'index.html'));
+   });
   app.use(errorHandler());
   return app;
 }
@@ -101,15 +101,10 @@ export function startServer(options: IStartServerOptions): Server {
   const app = createExpressApp({
     corsOrigins: options.corsOrigins,
     publishRedisClient,
-    sessionCookieSecure: options.sessionCookieSecure,
     sessionSecret: options.sessionSecret,
     sessionStoreRedisClient,
   });
-  const serverOptions = {
-    key: readFileSync(pathJoin(certsDir, "server.key")),
-    cert: readFileSync(pathJoin(certsDir, "server.cert")),
-  };
-  const server = createServer(serverOptions, app);
+  const server = createServer(app);
   const socketIoServer = newSocketIoServer(server);
   socketIoServer.adapter(
     newSocketIoRedisAdapter({

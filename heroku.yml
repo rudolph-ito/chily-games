@@ -1,9 +1,15 @@
 setup:
   addons:
   - plan: heroku-postgresql
-    as: POSTGRES
+    as: DATABASE
   - plan: heroku-redis
     as: REDIS
 build:
   docker:
     web: Dockerfile
+release:
+  command:
+    - node_modules/.bin/sequelize db:migrate
+  image: web
+run:
+  web: node dist/main.js

@@ -1,19 +1,20 @@
 module.exports = {
   development: {
-    username: "cyvasse-user",
+    username: "chily-user",
     password: "test",
-    database: "cyvasse_development",
+    database: "chily_development",
     host: "localhost",
     dialect: "postgres",
   },
   test: {
-    username: "cyvasse-user",
+    username: "chily-user",
     password: "test",
-    database: "cyvasse_test",
+    database: "chily_test",
     host: "localhost",
     dialect: "postgres",
   },
   production: {
-    use_env_variable: "DATABASE_URL"
+    use_env_variable: "DATABASE_URL",
+    dialect: "postgres",
   },
 };

@@ -4,10 +4,6 @@ setup: # Install dependencies
 	cd api && yarn install
 	cd frontend && yarn install
 
-.PHONY: generate-local-api-certificate
-generate-local-api-certificate: # Generates certificate for api to be able to serve HTTPS locally
-	mkdir -p api/certs && cd api/certs && openssl req -nodes -new -x509 -keyout server.key -out server.cert -subj "/C=US/ST=California/L=Los Angeles/O=Test/CN=localhost"
-
 .PHONY: copy-shared
 copy-shared: # Copy shared files to api / frontend directories
 	cp tsconfig.json api/tsconfig.shared.json
@@ -19,7 +15,7 @@ copy-shared: # Copy shared files to api / frontend directories
 
 .PHONY: create-databases
 create-databases: # Create development / test databases and migrate the development database
-	docker-compose up -d database
+	docker-compose up -d postgres
 	sleep 2
 	cd api && yarn create-databases && yarn sequelize db:migrate
 
@@ -39,3 +35,7 @@ test-api-unit: # Run api unit tests (without database)
 .PHONY: test-frontend
 test-frontend: # Run frontend tests
 	cd frontend && yarn test
+
+.PHONY: start-local-production
+start-local-production: copy-shared
+	docker-compose -f docker-compose.production.yml up --build
