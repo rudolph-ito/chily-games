@@ -25,7 +25,7 @@ build-api: # Build api
 
 .PHONY: test-api
 test-api: # Run api tests
-	docker-compose up -d database redis
+	docker-compose up -d postgres redis
 	cd api && yarn test --reporter spec
 
 .PHONY: test-api-unit
