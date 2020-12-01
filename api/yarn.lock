@@ -1528,7 +1528,7 @@ keyv@^3.0.0:
   dependencies:
     json-buffer "3.0.0"
 
-knuth-shuffle-seeded@^1.0.6:
+knuth-shuffle-seeded@1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/knuth-shuffle-seeded/-/knuth-shuffle-seeded-1.0.6.tgz#01f1b65733aa7540ee08d8b0174164d22081e4e1"
   integrity sha1-AfG2VzOqdUDuCNiwF0Fk0iCB5OE=
