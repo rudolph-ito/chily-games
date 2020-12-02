@@ -103,14 +103,10 @@ export class YanivTable {
     } else {
       this.currentUserSelectedDiscards.push(card);
     }
-    this.refreshCurrentUser();
-    this.cardsLayer.draw();
-  }
-
-  private refreshCurrentUser(): void {
     this.users.get(this.currentUserId).cards.forEach((rect) => {
-      this.updateCurrentUserCardStroke(rect, false);
+      this.updateCardFaceStroke(rect, false);
     });
+    this.cardsLayer.draw();
   }
 
   private computeCardSize(): void {
@@ -156,8 +152,7 @@ export class YanivTable {
         rect = userData.cards.find((x) =>
           areCardsEqual(x.getAttr("yanivCard"), card)
         );
-        rect.stroke('black');
-        rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);
+        this.updateCardFaceStroke(rect, false);
         userData.cards.splice(userData.cards.indexOf(rect), 1);
       } else {
         rect = userData.cards.shift();
@@ -493,7 +488,7 @@ export class YanivTable {
     };
   }
 
-  private updateCurrentUserCardStroke(rect: KonvaRect, hover: boolean): void {
+  private updateCardFaceStroke(rect: KonvaRect, hover: boolean): void {
     if (hover) {
       rect.stroke("black");
       rect.strokeWidth(CARD_FACE_HOVER_STORKE);
@@ -508,6 +503,7 @@ export class YanivTable {
       rect.strokeWidth(CARD_FACE_SELECTED_STROKE);
       return;
     }
+    rect.stroke("black");
     rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);
   }
 
@@ -516,13 +512,13 @@ export class YanivTable {
     rect.on("mouseover", (event) => {
       const rect = event.target as KonvaRect;
       if (this.currentUserSelectedDiscards.length > 0) {
-        rect.strokeWidth(CARD_FACE_HOVER_STORKE);
+        this.updateCardFaceStroke(rect, true);
         this.cardsLayer.draw();
       }
     });
     rect.on("mouseout", (event) => {
       const rect = event.target as KonvaRect;
-      rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);
+      this.updateCardFaceStroke(rect, false);
       this.cardsLayer.draw();
     });
     rect.on("click", (event) => {
@@ -546,12 +542,12 @@ export class YanivTable {
     this.removeCardEventHandlers(rect);
     rect.on("mouseover", (event) => {
       const rect = event.target as KonvaRect;
-      this.updateCurrentUserCardStroke(rect, true);
+      this.updateCardFaceStroke(rect, true);
       this.cardsLayer.draw();
     });
     rect.on("mouseout", (event) => {
       const rect = event.target as KonvaRect;
-      this.updateCurrentUserCardStroke(rect, false);
+      this.updateCardFaceStroke(rect, false);
       this.cardsLayer.draw();
     });
     rect.on("click", (event) => {
