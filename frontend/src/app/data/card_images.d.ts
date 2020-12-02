@@ -1,0 +1,61 @@
+export interface ICardImages {
+  club_ace: string;
+  club_2: string;
+  club_3: string;
+  club_4: string;
+  club_5: string;
+  club_6: string;
+  club_7: string;
+  club_8: string;
+  club_9: string;
+  club_10: string;
+  club_jack: string;
+  club_queen: string;
+  club_king: string;
+  diamond_ace: string;
+  diamond_2: string;
+  diamond_3: string;
+  diamond_4: string;
+  diamond_5: string;
+  diamond_6: string;
+  diamond_7: string;
+  diamond_8: string;
+  diamond_9: string;
+  diamond_10: string;
+  diamond_jack: string;
+  diamond_queen: string;
+  diamond_king: string;
+  heart_ace: string;
+  heart_2: string;
+  heart_3: string;
+  heart_4: string;
+  heart_5: string;
+  heart_6: string;
+  heart_7: string;
+  heart_8: string;
+  heart_9: string;
+  heart_10: string;
+  heart_jack: string;
+  heart_queen: string;
+  heart_king: string;
+  spade_ace: string;
+  spade_2: string;
+  spade_3: string;
+  spade_4: string;
+  spade_5: string;
+  spade_6: string;
+  spade_7: string;
+  spade_8: string;
+  spade_9: string;
+  spade_10: string;
+  spade_jack: string;
+  spade_queen: string;
+  spade_king: string;
+
+  joker: string;
+  back: string;
+}
+
+declare const cardImages: ICardImages;
+
+export default cardImages;
