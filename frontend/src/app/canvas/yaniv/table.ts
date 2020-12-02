@@ -9,6 +9,7 @@ import {
   IPlayerState,
 } from "../../shared/dtos/yaniv/game";
 import { doesHaveValue } from "../../shared/utilities/value_checker";
+import cardImages from "../../data/card_images";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -117,11 +118,13 @@ export class YanivTable {
     this.currentUserId = currentUserId;
     this.currentUserSelectedDiscards = [];
     this.cardsLayer.destroyChildren();
-    await this.initializePlayers(game, currentUserId);
+    const promises = [];
+    promises.push(this.initializePlayers(game, currentUserId));
     if (game.state === GameState.ROUND_ACTIVE) {
-      await this.initializeDeck();
-      await this.initializeDiscards(game.cardsOnTopOfDiscardPile);
+      promises.push(this.initializeDeck());
+      promises.push(this.initializeDiscards(game.cardsOnTopOfDiscardPile));
     }
+    await Promise.all(promises);
     this.updateActionTo(game.actionToUserId);
     this.cardsLayer.draw();
   }
@@ -281,21 +284,24 @@ export class YanivTable {
     });
     const tableXRadius = this.container.offsetWidth / 2 - this.playerOffset;
     const tableYRadius = this.container.offsetHeight / 2 - this.playerOffset;
+    const promises = [];
     for (let index = 0; index < game.playerStates.length; index++) {
       const positionIndex = (index - bottomIndex) % game.playerStates.length;
       const radians =
         (2 * Math.PI * positionIndex) / game.playerStates.length + Math.PI / 2;
       const x = (Math.cos(radians) + 1) * tableXRadius + this.playerOffset;
       const y = (Math.sin(radians) + 1) * tableYRadius + this.playerOffset;
-      const userData = await this.initializePlayer(
-        game.playerStates[index],
-        { x, y },
-        currentUserId,
-        game.state === GameState.ROUND_COMPLETE ||
-          game.state === GameState.COMPLETE
+      promises.push(
+        this.initializePlayer(
+          game.playerStates[index],
+          { x, y },
+          currentUserId,
+          game.state === GameState.ROUND_COMPLETE ||
+            game.state === GameState.COMPLETE
+        )
       );
-      this.users.set(game.playerStates[index].userId, userData);
     }
+    await Promise.all(promises);
   }
 
   private async initializePlayer(
@@ -303,7 +309,7 @@ export class YanivTable {
     position: IPosition,
     currentUserId: number,
     displayRoundScore: boolean
-  ): Promise<IUserData> {
+  ): Promise<void> {
     const {
       padding,
       currentSize: { width, offset },
@@ -357,7 +363,7 @@ export class YanivTable {
       }
     }
     this.updateUserCardPositions(userData, currentUserId);
-    return userData;
+    this.users.set(userData.userId, userData);
   }
 
   private updateUserCardPositions(
@@ -555,11 +561,11 @@ export class YanivTable {
     return rect;
   }
 
-  private getCardAssetPath(card: ICard): string {
+  private getCardImageBase64(card: ICard): string {
     if (card.isJoker) {
-      return "joker.svg";
+      return cardImages.joker;
     }
-    return `${card.rank}_of_${card.suit}.svg`;
+    return cardImages[`${card.suit.replace("s", "")}_${card.rank}`];
   }
 
   private async loadCardBack(): Promise<Konva.Rect> {
@@ -579,7 +585,7 @@ export class YanivTable {
     }
     return await new Promise((resolve) => {
       const image = new Image();
-      image.src = `/assets/yaniv/back.png`;
+      image.src = `data:image/png;base64,${cardImages.back}`;
       image.onload = () => {
         this.cardBackImage = image;
         this.updateRectWithImage(rect, image);
@@ -594,7 +600,7 @@ export class YanivTable {
   ): Promise<void> {
     return await new Promise((resolve) => {
       const image = new Image();
-      image.src = `/assets/yaniv/${this.getCardAssetPath(card)}`;
+      image.src = `data:image/png;base64,${this.getCardImageBase64(card)}`;
       image.onload = () => {
         rect.setAttr("yanivCard", card);
         this.updateRectWithImage(rect, image);
