@@ -156,6 +156,8 @@ export class YanivTable {
         rect = userData.cards.find((x) =>
           areCardsEqual(x.getAttr("yanivCard"), card)
         );
+        rect.stroke('black');
+        rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);
         userData.cards.splice(userData.cards.indexOf(rect), 1);
       } else {
         rect = userData.cards.shift();
@@ -178,6 +180,7 @@ export class YanivTable {
       const cardRect = this.discardedCards.find((x) =>
         areCardsEqual(x.getAttr("yanivCard"), lastAction.cardPickedUp)
       );
+      this.removeCardEventHandlers(cardRect);
       rectsToDestroy = rectsToDestroy.filter((x) => x !== cardRect);
       userData.cards.push(cardRect);
       const positionalData = this.getCardPositionalData(
