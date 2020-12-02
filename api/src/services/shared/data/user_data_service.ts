@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { User } from "../../../database/models";
 import { IUser } from "../../../shared/dtos/authentication";
 
@@ -25,7 +26,10 @@ export class UserDataService implements IUserDataService {
 
   async getUser(userId: number): Promise<IUser> {
     const user = await User.findByPk(userId);
-    return user.serialize();
+    if (doesHaveValue(user)) {
+      return user.serialize();
+    }
+    return null;
   }
 
   async getUsers(userIds: number[]): Promise<IUser[]> {
