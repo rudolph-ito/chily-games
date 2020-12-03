@@ -11,7 +11,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "../services/shared/exceptions";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import { getUserRouter } from "./user";
 import newSocketIoServer from "socket.io";
 import newSocketIoRedisAdapter from "socket.io-redis";
@@ -42,14 +42,14 @@ export interface IStartServerOptions {
 function errorHandler(): express.ErrorRequestHandler {
   return (err, req, res, next) => {
     if (err instanceof AuthorizationError) {
-      res.status(HttpStatus.FORBIDDEN).send(err.message);
+      res.status(StatusCodes.FORBIDDEN).send(err.message);
     } else if (err instanceof NotFoundError) {
-      res.status(HttpStatus.NOT_FOUND).send(err.message);
+      res.status(StatusCodes.NOT_FOUND).send(err.message);
     } else if (err instanceof ValidationError) {
-      res.status(HttpStatus.UNPROCESSABLE_ENTITY).json(err.errors);
+      res.status(StatusCodes.UNPROCESSABLE_ENTITY).json(err.errors);
     } else {
       console.error(err.stack);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: err.stack });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.stack });
     }
   };
 }

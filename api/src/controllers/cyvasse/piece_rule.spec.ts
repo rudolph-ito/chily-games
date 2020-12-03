@@ -21,7 +21,7 @@ import {
   IPieceRule,
 } from "../../shared/dtos/cyvasse/piece_rule";
 import { CyvassePieceRuleDataService } from "../../services/cyvasse/data/cyvasse_piece_rule_data_service";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 describe("CyvassePieceRuleRoutes", () => {
   resetDatabaseBeforeEach();
@@ -63,7 +63,7 @@ describe("CyvassePieceRuleRoutes", () => {
       await supertest(testServer.app)
         .post(`/api/cyvasse/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -76,7 +76,7 @@ describe("CyvassePieceRuleRoutes", () => {
       await agent
         .post(`/api/cyvasse/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -89,7 +89,7 @@ describe("CyvassePieceRuleRoutes", () => {
       const response = await agent
         .post(`/api/cyvasse/variants/${variantId}/pieceRules`)
         .send({})
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -111,7 +111,7 @@ describe("CyvassePieceRuleRoutes", () => {
       const response = await agent
         .post(`/api/cyvasse/variants/${variantId}/pieceRules`)
         .send(pieceRuleOptions)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -132,7 +132,7 @@ describe("CyvassePieceRuleRoutes", () => {
       // Act
       await supertest(testServer.app)
         .delete(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -144,7 +144,7 @@ describe("CyvassePieceRuleRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -156,7 +156,7 @@ describe("CyvassePieceRuleRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/variants/${variantId}/pieceRules/999`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -168,7 +168,7 @@ describe("CyvassePieceRuleRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       const pieceRules = await new CyvassePieceRuleDataService().getPieceRules(
@@ -186,7 +186,7 @@ describe("CyvassePieceRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/cyvasse/variants/${variantId}/pieceRules`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -203,7 +203,7 @@ describe("CyvassePieceRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/cyvasse/variants/${variantId}/pieceRules`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -241,7 +241,7 @@ describe("CyvassePieceRuleRoutes", () => {
       await supertest(testServer.app)
         .put(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -254,7 +254,7 @@ describe("CyvassePieceRuleRoutes", () => {
       await agent
         .put(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -267,7 +267,7 @@ describe("CyvassePieceRuleRoutes", () => {
       await agent
         .put(`/api/cyvasse/variants/${variantId}/pieceRules/999`)
         .send(updatedPieceRuleOptions)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -280,7 +280,7 @@ describe("CyvassePieceRuleRoutes", () => {
       const response = await agent
         .put(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send({})
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -302,7 +302,7 @@ describe("CyvassePieceRuleRoutes", () => {
       const response = await agent
         .put(`/api/cyvasse/variants/${variantId}/pieceRules/${pieceRuleId}`)
         .send(updatedPieceRuleOptions)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();

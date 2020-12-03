@@ -19,7 +19,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { CyvasseChallengeService } from "../../services/cyvasse/cyvasse_challenge_service";
 import { IGame } from "../../shared/dtos/cyvasse/game";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 describe("CyvasseChallengeRoutes", () => {
   resetDatabaseBeforeEach();
@@ -58,7 +58,7 @@ describe("CyvasseChallengeRoutes", () => {
       await supertest(testServer.app)
         .post(`/api/cyvasse/challenges`)
         .send(challengeOptions)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -71,7 +71,7 @@ describe("CyvasseChallengeRoutes", () => {
       const response = await agent
         .post(`/api/cyvasse/challenges`)
         .send(challengeOptions)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -91,7 +91,7 @@ describe("CyvasseChallengeRoutes", () => {
       // Act
       await supertest(testServer.app)
         .delete(`/api/cyvasse/challenges/${challengeId}`)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -103,7 +103,7 @@ describe("CyvasseChallengeRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/challenges/${challengeId}`)
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -115,7 +115,7 @@ describe("CyvasseChallengeRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/challenges/999`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -127,7 +127,7 @@ describe("CyvasseChallengeRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/challenges/${challengeId}`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
@@ -145,7 +145,7 @@ describe("CyvasseChallengeRoutes", () => {
       // Act
       await agent
         .post(`/api/cyvasse/challenges/999/accept`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -162,7 +162,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         await supertest(testServer.app)
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.UNAUTHORIZED);
+          .expect(StatusCodes.UNAUTHORIZED);
 
         // Assert
       });
@@ -174,7 +174,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         const response = await agent
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+          .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
         // Assert
         expect(response.body).to.eql({
@@ -191,7 +191,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         const response = await agent
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         expect(response.body).to.exist();
@@ -222,7 +222,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         await supertest(testServer.app)
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.UNAUTHORIZED);
+          .expect(StatusCodes.UNAUTHORIZED);
 
         // Assert
       });
@@ -234,7 +234,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         const response = await agent
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+          .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
         // Assert
         expect(response.body).to.eql({
@@ -249,7 +249,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         const response = await agent
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+          .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
         // Assert
         expect(response.body).to.eql({
@@ -264,7 +264,7 @@ describe("CyvasseChallengeRoutes", () => {
         // Act
         const response = await agent
           .post(`/api/cyvasse/challenges/${challengeId}/accept`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         expect(response.body).to.exist();

@@ -9,7 +9,7 @@ import {
 import { IUser } from "../shared/dtos/authentication";
 import { UserDataService } from "../services/shared/data/user_data_service";
 import { RegistrationService } from "../services/shared/registration_service";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 async function verifyLogin(
   username: string,
@@ -56,7 +56,7 @@ function getAuthRouter(
           if (doesHaveValue(err)) {
             next(err);
           } else {
-            res.status(HttpStatus.OK).json(user);
+            res.status(StatusCodes.OK).json(user);
           }
         });
       })
@@ -83,7 +83,7 @@ export function initAuthController(
     if (doesHaveValue(req.user)) {
       next();
     } else {
-      res.status(HttpStatus.UNAUTHORIZED).end();
+      res.status(StatusCodes.UNAUTHORIZED).end();
     }
   };
 

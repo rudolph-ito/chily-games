@@ -20,7 +20,7 @@ import {
   PiecesEffectedType,
 } from "../../shared/dtos/cyvasse/terrain_rule";
 import { CyvasseTerrainRuleDataService } from "../../services/cyvasse/data/cyvasse_terrain_rule_data_service";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 describe("CyvasseTerrainRuleRoutes", () => {
   resetDatabaseBeforeEach();
@@ -72,7 +72,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       await supertest(testServer.app)
         .post(`/api/cyvasse/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -85,7 +85,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       await agent
         .post(`/api/cyvasse/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -98,7 +98,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       const response = await agent
         .post(`/api/cyvasse/variants/${variantId}/terrainRules`)
         .send({})
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -131,7 +131,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       const response = await agent
         .post(`/api/cyvasse/variants/${variantId}/terrainRules`)
         .send(terrainRuleOptions)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -157,7 +157,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .delete(
           `/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`
         )
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -171,7 +171,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .delete(
           `/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`
         )
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -183,7 +183,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       // Act
       await agent
         .delete(`/api/cyvasse/variants/${variantId}/terrainRules/999`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -197,7 +197,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .delete(
           `/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`
         )
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       const terrainRules = await new CyvasseTerrainRuleDataService().getTerrainRules(
@@ -215,7 +215,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/cyvasse/variants/${variantId}/terrainRules`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -232,7 +232,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       // Act
       const response = await agent
         .get(`/api/cyvasse/variants/${variantId}/terrainRules`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -282,7 +282,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       await supertest(testServer.app)
         .put(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -295,7 +295,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       await agent
         .put(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
-        .expect(HttpStatus.FORBIDDEN);
+        .expect(StatusCodes.FORBIDDEN);
 
       // Assert
     });
@@ -308,7 +308,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       await agent
         .put(`/api/cyvasse/variants/${variantId}/terrainRules/999`)
         .send(updatedTerrainRuleOptions)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -321,7 +321,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       const response = await agent
         .put(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send({})
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -354,7 +354,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       const response = await agent
         .put(`/api/cyvasse/variants/${variantId}/terrainRules/${terrainRuleId}`)
         .send(updatedTerrainRuleOptions)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
