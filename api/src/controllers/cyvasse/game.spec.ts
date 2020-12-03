@@ -10,7 +10,7 @@ import {
   ITestServer,
 } from "../../../test/test_helper";
 import { describe, it } from "mocha";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import { CyvasseGameDataService } from "../../services/cyvasse/data/cyvasse_game_data_service";
 import { CyvasseGameService } from "../../services/cyvasse/cyvasse_game_service";
 import { PieceType } from "../../shared/dtos/cyvasse/piece_rule";
@@ -54,7 +54,7 @@ describe("CyvasseGameRoutes", () => {
       const agent = await loginTestUser(testServer.app, user1Credentials);
 
       // Act
-      await agent.get(`/api/cyvasse/games/999`).expect(HttpStatus.NOT_FOUND);
+      await agent.get(`/api/cyvasse/games/999`).expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -91,7 +91,7 @@ describe("CyvasseGameRoutes", () => {
         // Act
         const response = await agent
           .get(`/api/cyvasse/games/${gameId}`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         expect(response.body).to.exist();
@@ -117,7 +117,7 @@ describe("CyvasseGameRoutes", () => {
         // Act
         const response = await agent
           .get(`/api/cyvasse/games/${gameId}`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         expect(response.body).to.exist();
@@ -143,7 +143,7 @@ describe("CyvasseGameRoutes", () => {
         // Act
         const response = await agent
           .get(`/api/cyvasse/games/${gameId}`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         expect(response.body).to.exist();
@@ -162,7 +162,7 @@ describe("CyvasseGameRoutes", () => {
       // Act
       await agent
         .post(`/api/cyvasse/games/999/updateSetup`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -194,7 +194,7 @@ describe("CyvasseGameRoutes", () => {
         await agent
           .post(`/api/cyvasse/games/${gameId}/updateSetup`)
           .send(request)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
@@ -221,7 +221,7 @@ describe("CyvasseGameRoutes", () => {
       // Act
       await agent
         .post(`/api/cyvasse/games/999/completeSetup`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -252,7 +252,7 @@ describe("CyvasseGameRoutes", () => {
         // Act
         await agent
           .post(`/api/cyvasse/games/${gameId}/completeSetup`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
@@ -294,7 +294,7 @@ describe("CyvasseGameRoutes", () => {
         // Act
         await agent
           .post(`/api/cyvasse/games/${gameId}/completeSetup`)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
@@ -332,7 +332,7 @@ describe("CyvasseGameRoutes", () => {
       // Act
       await agent
         .post(`/api/cyvasse/games/999/createPly`)
-        .expect(HttpStatus.NOT_FOUND);
+        .expect(StatusCodes.NOT_FOUND);
 
       // Assert
     });
@@ -382,7 +382,7 @@ describe("CyvasseGameRoutes", () => {
         await agent
           .post(`/api/cyvasse/games/${gameId}/createPly`)
           .send(request)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
@@ -468,7 +468,7 @@ describe("CyvasseGameRoutes", () => {
         await agent
           .post(`/api/cyvasse/games/${gameId}/createPly`)
           .send(request)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);

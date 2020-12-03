@@ -7,7 +7,7 @@ import {
   ITestServer,
 } from "../../../test/test_helper";
 import { describe, it } from "mocha";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import { expect } from "chai";
 import {
   GameState,
@@ -46,7 +46,7 @@ describe("YanivGameRoutes", () => {
       const response = await agent
         .post(`/api/yaniv/games`)
         .send({ playTo: 200 })
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -84,7 +84,7 @@ describe("YanivGameRoutes", () => {
       // Act
       const response = await agent
         .put(`/api/yaniv/games/${gameId}/join`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -118,7 +118,7 @@ describe("YanivGameRoutes", () => {
       // Act
       const response = await agent
         .put(`/api/yaniv/games/${gameId}/start-round`)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();
@@ -163,7 +163,7 @@ describe("YanivGameRoutes", () => {
       const response = await agent
         .put(`/api/yaniv/games/${gameId}/play`)
         .send(action)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.exist();

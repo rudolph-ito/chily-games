@@ -7,7 +7,7 @@ import {
 } from "../../test/test_helper";
 import supertest from "supertest";
 import { User } from "../database/models";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 describe("AuthRoutes", () => {
   resetDatabaseBeforeEach();
@@ -28,7 +28,7 @@ describe("AuthRoutes", () => {
       // Act
       await supertest(testServer.app)
         .get("/api/auth/user")
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -39,7 +39,7 @@ describe("AuthRoutes", () => {
       // Act
       await supertest(testServer.app)
         .delete("/api/auth/logout")
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -58,7 +58,7 @@ describe("AuthRoutes", () => {
       await supertest(testServer.app)
         .post("/api/auth/login")
         .send({ username, password: "wrong" })
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -70,7 +70,7 @@ describe("AuthRoutes", () => {
       await supertest(testServer.app)
         .post("/api/auth/login")
         .send({ username: "non-existant", password: "wrong" })
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(StatusCodes.UNAUTHORIZED);
 
       // Assert
     });
@@ -90,7 +90,7 @@ describe("AuthRoutes", () => {
           .post("/api/auth/login")
           .send({ username, password })
           .expect("set-cookie", /connect\.sid/)
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
       });
 
       it("can fetch user data", async () => {
@@ -99,7 +99,7 @@ describe("AuthRoutes", () => {
         // Act
         const response = await agent
           .get("/api/auth/user")
-          .expect(HttpStatus.OK);
+          .expect(StatusCodes.OK);
 
         // Assert
         expect(response.body).to.eql({
@@ -112,10 +112,10 @@ describe("AuthRoutes", () => {
         // Arrange
 
         // Act
-        await agent.delete("/api/auth/logout").expect(HttpStatus.OK);
+        await agent.delete("/api/auth/logout").expect(StatusCodes.OK);
 
         // Assert
-        await agent.get("/api/auth/user").expect(HttpStatus.UNAUTHORIZED);
+        await agent.get("/api/auth/user").expect(StatusCodes.UNAUTHORIZED);
       });
     });
 
@@ -132,10 +132,10 @@ describe("AuthRoutes", () => {
         .post("/api/auth/login")
         .send({ username, password })
         .expect("set-cookie", /connect\.sid/)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Act
-      const response = await agent.get("/api/auth/user").expect(HttpStatus.OK);
+      const response = await agent.get("/api/auth/user").expect(StatusCodes.OK);
 
       // Assert
       expect(response.body).to.eql({
@@ -155,7 +155,7 @@ describe("AuthRoutes", () => {
         .send({ username: "", password: "", passwordConfirmation: "" })
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
       expect(response.body).to.eql({
@@ -176,10 +176,10 @@ describe("AuthRoutes", () => {
         .send({ username, password, passwordConfirmation: password })
         .set("Accept", "application/json")
         .expect("set-cookie", /connect\.sid/)
-        .expect(HttpStatus.OK);
+        .expect(StatusCodes.OK);
 
       // Assert
-      await agent.get("/api/auth/user").expect(HttpStatus.OK);
+      await agent.get("/api/auth/user").expect(StatusCodes.OK);
     });
   });
 });

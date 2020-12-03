@@ -4,7 +4,7 @@ import {
   CyvasseChallengeService,
 } from "../../services/cyvasse/cyvasse_challenge_service";
 import { IUser } from "../../shared/dtos/authentication";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 export function getChallengeRouter(
   authenticationRequired: express.Handler,
@@ -53,7 +53,7 @@ export function getChallengeRouter(
         parseInt(req.params.challengeId)
       )
       .then((game) => {
-        res.status(HttpStatus.OK).json(game);
+        res.status(StatusCodes.OK).json(game);
       })
       .catch(next);
   });

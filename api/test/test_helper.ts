@@ -20,7 +20,7 @@ import {
 import { CyvasseTerrainRuleDataService } from "../src/services/cyvasse/data/cyvasse_terrain_rule_data_service";
 import { ChallengePlayAs } from "../src/shared/dtos/cyvasse/challenge";
 import { CyvasseChallengeDataService } from "../src/services/cyvasse/data/cyvasse_challenge_data_service";
-import HttpStatus from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 import { createExpressApp } from "../src/controllers";
 import express from "express";
 import { createClient } from "redis";
@@ -175,7 +175,7 @@ export async function loginTestUser(
     .post("/api/auth/login")
     .send(credentials)
     .expect("set-cookie", /connect\.sid/)
-    .expect(HttpStatus.OK);
+    .expect(StatusCodes.OK);
   return agent;
 }
 
