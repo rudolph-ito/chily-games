@@ -23,7 +23,7 @@
     "konva": "7.2.0",
     "ngx-socket-io": "3.2.0",
     "rxjs": "6.6.3",
-    "tslib": "2.0.0",
+    "tslib": "2.0.3",
     "zone.js": "0.11.3"
   },
   "devDependencies": {
@@ -36,14 +36,14 @@
     "@types/node": "12.19.8",
     "codelyzer": "6.0.1",
     "jasmine-core": "3.6.0",
-    "jasmine-spec-reporter": "5.0.2",
+    "jasmine-spec-reporter": "6.0.0",
     "karma": "5.2.3",
     "karma-chrome-launcher": "3.1.0",
     "karma-coverage-istanbul-reporter": "3.0.3",
     "karma-jasmine": "3.3.1",
     "karma-spec-reporter": "0.0.32",
     "protractor": "7.0.0",
-    "ts-node": "8.10.2",
+    "ts-node": "9.0.0",
     "typescript": "3.9.7"
   }
 }
