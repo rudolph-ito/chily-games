@@ -149,7 +149,7 @@ export abstract class BaseBoard {
   }
 
   public async addSetup(): Promise<void> {
-    if (this.color !== null) {
+    if (this.color != null) {
       const setupCoordinateMap =
         this.color === PlayerColor.ALABASTER
           ? this.game.alabasterSetupCoordinateMap

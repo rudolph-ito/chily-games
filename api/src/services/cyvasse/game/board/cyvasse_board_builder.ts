@@ -8,10 +8,13 @@ import { CyvasseSquareBoard } from "./cyvasse_square_board";
 
 export function getBoardForVariant(variant: IVariantOptions): ICyvasseBoard {
   if (variant.boardType === BoardType.HEXAGONAL) {
-    return new CyvasseHexagonalBoard(variant.boardSize);
+    return new CyvasseHexagonalBoard(variant.boardSize as number);
   }
   if (variant.boardType === BoardType.SQUARE) {
-    return new CyvasseSquareBoard(variant.boardColumns, variant.boardRows);
+    return new CyvasseSquareBoard(
+      variant.boardColumns as number,
+      variant.boardRows as number
+    );
   }
   throw new Error("Unexpected board type");
 }

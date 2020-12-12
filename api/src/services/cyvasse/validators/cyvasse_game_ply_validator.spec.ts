@@ -65,11 +65,11 @@ function getBaseTestOptions(ply: IGamePly): IValidateGamePlyOptions {
 describe("Cyvasse - validateGamePly", () => {
   it("returns error if no piece", () => {
     // Arrange
-    const options = getBaseTestOptions({
-      piece: null,
+    const ply: Partial<IGamePly> = {
       from: { x: 0, y: -1 },
       movement: { to: { x: 0, y: 0 } },
-    });
+    };
+    const options = getBaseTestOptions(ply as IGamePly);
 
     // Act
     const error = validateGamePly(options);
@@ -80,14 +80,14 @@ describe("Cyvasse - validateGamePly", () => {
 
   it("returns error if no from", () => {
     // Arrange
-    const options = getBaseTestOptions({
+    const ply: Partial<IGamePly> = {
       piece: {
         pieceTypeId: PieceType.KING,
         playerColor: PlayerColor.ALABASTER,
       },
-      from: null,
       movement: { to: { x: 0, y: 0 } },
-    });
+    };
+    const options = getBaseTestOptions(ply as IGamePly);
 
     // Act
     const error = validateGamePly(options);

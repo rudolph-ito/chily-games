@@ -2,10 +2,6 @@ import express from "express";
 import passport from "passport";
 import { Strategy as JsonStrategy } from "passport-json";
 import { User } from "../database/models";
-import {
-  doesNotHaveValue,
-  doesHaveValue,
-} from "../shared/utilities/value_checker";
 import { IUser } from "../shared/dtos/authentication";
 import { UserDataService } from "../services/shared/data/user_data_service";
 import { RegistrationService } from "../services/shared/registration_service";
@@ -15,8 +11,8 @@ async function verifyLogin(
   username: string,
   password: string
 ): Promise<boolean | IUser> {
-  const user: User = await User.findOne({ where: { username } });
-  if (doesNotHaveValue(user)) {
+  const user = await User.findOne({ where: { username } });
+  if (user == null) {
     return false;
   }
   return user.isPasswordValid(password) ? user.serialize() : false;
@@ -37,8 +33,8 @@ function configurePassport(): void {
   });
   passport.deserializeUser(function (id: number, done) {
     new UserDataService()
-      .getUser(id)
-      .then((user: IUser) => done(null, user))
+      .getMaybeUser(id)
+      .then((user) => done(null, user))
       .catch((err: Error) => done(err));
   });
 }
@@ -53,7 +49,7 @@ function getAuthRouter(
       .register(req.body)
       .then((user) => {
         req.login(user, (err) => {
-          if (doesHaveValue(err)) {
+          if (err != null) {
             next(err);
           } else {
             res.status(StatusCodes.OK).json(user);
@@ -80,7 +76,7 @@ export function initAuthController(
   routePrefix: string
 ): express.Handler {
   const authenticationRequired: express.Handler = function (req, res, next) {
-    if (doesHaveValue(req.user)) {
+    if (req.user != null) {
       next();
     } else {
       res.status(StatusCodes.UNAUTHORIZED).end();

@@ -28,7 +28,6 @@ export function mockPieceRule(options: Partial<IPieceRuleOptions>): IPieceRule {
     movement: {
       type: PathType.ORTHOGONAL_LINE,
       minimum: 1,
-      maximum: null,
     },
     captureType: CaptureType.MOVEMENT,
     ...options,

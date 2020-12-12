@@ -12,8 +12,8 @@ export interface ICyvasseCoordinateMap {
   addTerrain: (coordinate: ICoordinate, terrain: ITerrain) => void;
   deletePiece: (coordinate: ICoordinate) => void;
   deleteTerrain: (coordinate: ICoordinate) => void;
-  getPiece: (coordinate: ICoordinate) => IPiece;
-  getTerrain: (coordinate: ICoordinate) => ITerrain;
+  getPiece: (coordinate: ICoordinate) => IPiece | undefined;
+  getTerrain: (coordinate: ICoordinate) => ITerrain | undefined;
   movePiece: (from: ICoordinate, to: ICoordinate) => void;
   moveTerrain: (from: ICoordinate, to: ICoordinate) => void;
   serialize: () => ICoordinateMapData[];
@@ -35,15 +35,15 @@ export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
   }
 
   deletePiece(coordinate: ICoordinate): void {
-    this.getCoorinateData(coordinate).piece = null;
+    this.getCoorinateData(coordinate).piece = undefined;
   }
 
-  getPiece(coordinate: ICoordinate): IPiece {
+  getPiece(coordinate: ICoordinate): IPiece | undefined {
     return this.getCoorinateData(coordinate).piece;
   }
 
   movePiece(from: ICoordinate, to: ICoordinate): void {
-    const piece = this.getCoorinateData(from).piece;
+    const piece = this.getCoorinateData(from).piece as IPiece;
     this.deletePiece(from);
     this.addPiece(to, piece);
   }
@@ -53,15 +53,15 @@ export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
   }
 
   deleteTerrain(coordinate: ICoordinate): void {
-    this.getCoorinateData(coordinate).terrain = null;
+    this.getCoorinateData(coordinate).terrain = undefined;
   }
 
-  getTerrain(coordinate: ICoordinate): ITerrain {
+  getTerrain(coordinate: ICoordinate): ITerrain | undefined {
     return this.getCoorinateData(coordinate).terrain;
   }
 
   moveTerrain(from: ICoordinate, to: ICoordinate): void {
-    const terrain = this.getCoorinateData(from).terrain;
+    const terrain = this.getCoorinateData(from).terrain as ITerrain;
     this.deleteTerrain(from);
     this.addTerrain(to, terrain);
   }
@@ -78,12 +78,18 @@ export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
   }
 
   deserialize(data: ICoordinateMapData[]): void {
-    data.forEach((datum) => this.addPiece(datum.key, datum.value.piece));
-    data.forEach((datum) => this.addTerrain(datum.key, datum.value.terrain));
+    data.forEach((datum) => {
+      if (doesHaveValue(datum.value.piece)) {
+        this.addPiece(datum.key, datum.value.piece as IPiece);
+      }
+      if (doesHaveValue(datum.value.terrain)) {
+        this.addTerrain(datum.key, datum.value.terrain as ITerrain);
+      }
+    });
   }
 
   private getCoorinateData(coordinate: ICoordinate): ICoordinateData {
-    return this.data.get(this.coordinateToKey(coordinate));
+    return this.data.get(this.coordinateToKey(coordinate)) as ICoordinateData;
   }
 
   private coordinateToKey(coordinate: ICoordinate): string {

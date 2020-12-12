@@ -3,10 +3,8 @@ import {
   IPieceRule,
 } from "../../../shared/dtos/cyvasse/piece_rule";
 import { CyvassePieceRule } from "../../../database/models";
-import {
-  doesHaveValue,
-  valueOrDefault,
-} from "../../../shared/utilities/value_checker";
+import { valueOrDefault } from "../../../shared/utilities/value_checker";
+import { NotFoundError } from "src/services/shared/exceptions";
 
 export interface ICyvassePieceRuleDataService {
   createPieceRule: (
@@ -43,7 +41,11 @@ export class CyvassePieceRuleDataService
 
   async getPieceRule(pieceRuleId: number): Promise<IPieceRule> {
     const pieceRule = await CyvassePieceRule.findByPk(pieceRuleId);
-    return pieceRule.serialize();
+    if (pieceRule == null) {
+      throw new NotFoundError("Piece rule not found");
+    } else {
+      return pieceRule.serialize();
+    }
   }
 
   async getPieceRules(variantId: number): Promise<IPieceRule[]> {
@@ -65,6 +67,9 @@ export class CyvassePieceRuleDataService
     options: IPieceRuleOptions
   ): Promise<IPieceRule> {
     const pieceRule = await CyvassePieceRule.findByPk(pieceRuleId);
+    if (pieceRule == null) {
+      throw new NotFoundError("Piece rule not found");
+    }
     this.assignPieceRule(pieceRule, options);
     await pieceRule.save();
     return pieceRule.serialize();
@@ -84,12 +89,12 @@ export class CyvassePieceRuleDataService
       options.moveAndRangeCapture,
       false
     );
-    if (doesHaveValue(options.range)) {
+    if (options.range != null) {
       obj.rangeType = options.range.type;
       obj.rangeMinimum = options.range.minimum;
       obj.rangeMaximum = options.range.maximum;
     }
-    if (doesHaveValue(options.ranks)) {
+    if (options.ranks != null) {
       obj.attackRank = options.ranks.attack;
       obj.defenseRank = options.ranks.defense;
     }

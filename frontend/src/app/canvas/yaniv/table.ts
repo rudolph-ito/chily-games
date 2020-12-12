@@ -7,7 +7,10 @@ import {
   ILastAction,
   IPlayerState,
 } from "../../shared/dtos/yaniv/game";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
+import {
+  doesHaveValue,
+  valueOrDefault,
+} from "../../shared/utilities/value_checker";
 import cardImages from "../../data/card_images";
 import { Stage as KonvaStage } from "konva/lib/Stage";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
@@ -52,8 +55,8 @@ interface IUserData {
 }
 
 export function areCardsEqual(a: ICard, b: ICard): boolean {
-  if (a.isJoker) {
-    return b.isJoker && a.jokerNumber === b.jokerNumber;
+  if (valueOrDefault(a.isJoker)) {
+    return valueOrDefault(b.isJoker) && a.jokerNumber === b.jokerNumber;
   }
   return a.rank === b.rank && a.suit === b.suit;
 }
@@ -565,8 +568,13 @@ export class YanivTable {
   }
 
   private getCardImageBase64(card: ICard): string {
-    if (card.isJoker) {
+    if (valueOrDefault(card.isJoker, false)) {
       return cardImages.joker;
+    }
+    if (card.suit == null || card.rank == null) {
+      throw new Error(
+        "Card missing rank and suit when attempting to load image"
+      );
     }
     return cardImages[`${card.suit.replace(/s$/, "")}_${card.rank}`];
   }

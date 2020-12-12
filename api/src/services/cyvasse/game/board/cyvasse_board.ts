@@ -15,6 +15,6 @@ export interface ICyvasseBoard {
     coordinate2: ICoordinate
   ) => number;
   getDirectionalFunctions: (direction: BoardDirection) => ICoordinateUpdater[];
-  getSetupTerritoryOwner: (coordinate: ICoordinate) => PlayerColor;
+  getSetupTerritoryOwner: (coordinate: ICoordinate) => PlayerColor | null;
   isCoordinateValid: (coordinate: ICoordinate) => boolean;
 }

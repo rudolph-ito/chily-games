@@ -1,3 +1,4 @@
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { CardRank, ICard } from "../../shared/dtos/yaniv/card";
 
 const rankToScore = {
@@ -19,7 +20,9 @@ const rankToScore = {
 export function getCardsScore(cards: ICard[]): number {
   return cards.reduce(
     (sum: number, card: ICard) =>
-      card.isJoker ? sum : sum + rankToScore[card.rank],
+      valueOrDefault(card.isJoker, false)
+        ? sum
+        : sum + rankToScore[card.rank as CardRank],
     0
   );
 }

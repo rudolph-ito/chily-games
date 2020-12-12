@@ -16,7 +16,7 @@ export class RegistrationService {
     private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
 
-  async validate(request: IRegisterRequest): Promise<IRegisterErrors> {
+  async validate(request: IRegisterRequest): Promise<IRegisterErrors | null> {
     const errors: IRegisterErrors = {};
     if (doesNotHaveValue(request.username) || request.username === "") {
       errors.username = "Username is required";

@@ -3,6 +3,7 @@ import {
   ITerrainRule,
 } from "../../../shared/dtos/cyvasse/terrain_rule";
 import { CyvasseTerrainRule } from "../../../database/models";
+import { NotFoundError } from "src/services/shared/exceptions";
 
 export interface ICyvasseTerrainRuleDataService {
   createTerrainRule: (
@@ -42,6 +43,9 @@ export class CyvasseTerrainRuleDataService
 
   async getTerrainRule(terrainRuleId: number): Promise<ITerrainRule> {
     const terrainRule = await CyvasseTerrainRule.findByPk(terrainRuleId);
+    if (terrainRule == null) {
+      throw new NotFoundError("Terrain rule not found");
+    }
     return terrainRule.serialize();
   }
 
@@ -69,6 +73,9 @@ export class CyvasseTerrainRuleDataService
     options: ITerrainRuleOptions
   ): Promise<ITerrainRule> {
     const terrainRule = await CyvasseTerrainRule.findByPk(terrainRuleId);
+    if (terrainRule == null) {
+      throw new NotFoundError("Terrain rule not found");
+    }
     this.assignTerrainRule(terrainRule, options);
     await terrainRule.save();
     return terrainRule.serialize();

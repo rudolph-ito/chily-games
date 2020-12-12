@@ -15,7 +15,7 @@ export interface IGameRules {
   pieceRanks: boolean;
   pieceRuleMap: Map<PieceType, IPieceRule>;
   terrainRuleMap: Map<TerrainType, ITerrainRule>;
-  supportType: SupportType;
+  supportType: SupportType | null;
 }
 
 export interface IPlyEvaluateOptions {

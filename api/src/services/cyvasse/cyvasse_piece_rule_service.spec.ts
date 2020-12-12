@@ -39,7 +39,6 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });
@@ -49,7 +48,7 @@ describe("CyvassePieceRuleService", () => {
 
       // Assert
       expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error.errors).to.eql({
         pieceTypeId: "A piece rule already exists for this piece type",
       });
     });
@@ -99,7 +98,6 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });
@@ -109,7 +107,7 @@ describe("CyvassePieceRuleService", () => {
 
       // Assert
       expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error.errors).to.eql({
         pieceTypeId:
           "Piece type is locked to 'King'. Every variant must have exactly one king.",
       });
@@ -132,7 +130,6 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });
@@ -167,7 +164,6 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });

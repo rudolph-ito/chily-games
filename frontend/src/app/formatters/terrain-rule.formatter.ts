@@ -5,7 +5,6 @@ import {
   ISlowsMovement,
 } from "../shared/dtos/cyvasse/terrain_rule";
 import { TERRAIN_TYPE_OPTIONS } from "../models/terrain-rule";
-import { doesHaveValue } from "../shared/utilities/value_checker";
 
 export function getPiecesEffectedDescription(
   piecesEffected: IPiecesEffected
@@ -29,14 +28,14 @@ export function getSlowsMovementDescription(
 ): string {
   let suffix = "";
   if (piecesEffectedBy.for !== PiecesEffectedType.NONE) {
-    suffix = ` by ${piecesEffectedBy.by}`;
+    suffix = ` by ${piecesEffectedBy.by as number}`;
   }
   return `${getPiecesEffectedDescription(piecesEffectedBy)}${suffix}`;
 }
 
 export function getTerrainTypeDescription(terrainTypeId: TerrainType): string {
   const option = TERRAIN_TYPE_OPTIONS.find((x) => x.value === terrainTypeId);
-  if (doesHaveValue(option)) {
+  if (option != null) {
     return option.label;
   }
   return "Unknown";

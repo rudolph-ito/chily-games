@@ -19,6 +19,14 @@ export function throwVariantNotFoundError(variantId: number): string {
   throw new NotFoundError(`Variant does not exist with id: ${variantId}`);
 }
 
+export function variantNotFoundError(variantId: number): string {
+  throw new NotFoundError(`Variant does not exist with id: ${variantId}`);
+}
+
 export function throwGameNotFoundError(gameId: number): string {
   throw new NotFoundError(`Game does not exist with id: ${gameId}`);
+}
+
+export function gameNotFoundError(gameId: number): Error {
+  return new NotFoundError(`Game does not exist with id: ${gameId}`);
 }

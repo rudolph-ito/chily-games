@@ -1,19 +1,20 @@
 import { Sequelize } from "sequelize";
 import configMap from "../config";
-import {
-  doesHaveValue,
-  valueOrDefault,
-} from "../../shared/utilities/value_checker";
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { shouldSequelizeLog } from "../../shared/utilities/env";
 
 function getSequelizeInstance(): Sequelize {
-  const env = valueOrDefault(process.env.NODE_ENV, "development");
+  const env: string = valueOrDefault(process.env.NODE_ENV, "development");
   if (!Object.keys(configMap).includes(env)) {
     throw new Error(`No database config for environment: ${env}`);
   }
   const config = configMap[env];
-  if (doesHaveValue(config.use_env_variable)) {
-    return new Sequelize(process.env[config.use_env_variable], {
+  if (config.use_env_variable != null) {
+    const url = process.env[config.use_env_variable];
+    if (url == null) {
+      throw new Error(`Missing env variable: ${config.use_env_variable}`);
+    }
+    return new Sequelize(url, {
       dialect: config.dialect,
       logging: shouldSequelizeLog(),
     });

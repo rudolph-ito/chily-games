@@ -18,9 +18,9 @@ import {
 import { createTestYanivRoundActiveGame } from "../../../test/yaniv_test_helper";
 
 interface ITestPlayResult {
-  error: Error;
-  result: IGameActionResponse;
-  game: IGame;
+  error?: Error;
+  result?: IGameActionResponse;
+  game?: IGame;
 }
 
 async function testPlay(
@@ -28,9 +28,9 @@ async function testPlay(
   gameId: number,
   action: IGameActionRequest
 ): Promise<ITestPlayResult> {
-  let error: Error;
-  let game: IGame;
-  let result: IGameActionResponse;
+  let error: Error | undefined;
+  let game: IGame | undefined;
+  let result: IGameActionResponse | undefined;
   try {
     result = await new YanivGameService().play(userId, gameId, action);
     game = await new YanivGameService().get(userId, gameId);
@@ -56,7 +56,7 @@ describe("YanivGameService", () => {
 
       // assert
       expect(error).to.be.instanceOf(NotFoundError);
-      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+      expect(error?.message).to.eql(`Game does not exist with id: ${gameId}`);
     });
 
     it("throws a validation error if action is not to user", async () => {
@@ -76,7 +76,7 @@ describe("YanivGameService", () => {
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error?.message).to.eql(
         'Validation errors: "Action is not to you."'
       );
     });
@@ -110,7 +110,7 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error?.message).to.eql(
           'Validation errors: "Discard cannot contain duplicates."'
         );
       });
@@ -140,7 +140,7 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error?.message).to.eql(
           'Validation errors: "Can only discard cards in your hand."'
         );
       });
@@ -173,7 +173,7 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql('Validation errors: "Invalid discard."');
+        expect(error?.message).to.eql('Validation errors: "Invalid discard."');
       });
 
       it("throws a validation error if invalid pickup", async () => {
@@ -204,7 +204,7 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql('Validation errors: "Invalid pickup."');
+        expect(error?.message).to.eql('Validation errors: "Invalid pickup."');
       });
 
       it("updates state appropriately when picking up from top of discard", async () => {
@@ -235,12 +235,12 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.cardsOnTopOfDiscardPile).to.eql([
+        expect(game?.actionToUserId).to.eql(user2Id);
+        expect(game?.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game?.cardsOnTopOfDiscardPile).to.eql([
           { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
         ]);
-        expect(game.playerStates).to.eql([
+        expect(game?.playerStates).to.eql([
           {
             cards: [
               {
@@ -291,12 +291,12 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.cardsOnTopOfDiscardPile).to.eql([
+        expect(game?.actionToUserId).to.eql(user2Id);
+        expect(game?.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game?.cardsOnTopOfDiscardPile).to.eql([
           { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
         ]);
-        expect(game.playerStates).to.eql([
+        expect(game?.playerStates).to.eql([
           {
             cards: [
               {
@@ -318,7 +318,7 @@ describe("YanivGameService", () => {
             username: "test2",
           },
         ]);
-        const updatedGame = await new YanivGameDataService().get(game.gameId);
+        const updatedGame = await new YanivGameDataService().get(game?.gameId);
         expect(updatedGame.cardsInDeck).to.eql([]);
       });
     });
@@ -353,7 +353,7 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error?.message).to.eql(
           'Validation errors: "Hand total must be less than or equal to 7 to call Yaniv."'
         );
       });
@@ -390,9 +390,9 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game.actionToUserId).to.eql(user1Id);
-        expect(game.roundScores).to.eql([
+        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game?.actionToUserId).to.eql(user1Id);
+        expect(game?.roundScores).to.eql([
           {
             [user1Id]: {
               score: 0,
@@ -439,9 +439,9 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.roundScores).to.eql([
+        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game?.actionToUserId).to.eql(user2Id);
+        expect(game?.roundScores).to.eql([
           {
             [user1Id]: {
               score: 34,
@@ -488,9 +488,9 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.roundScores).to.eql([
+        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game?.actionToUserId).to.eql(user2Id);
+        expect(game?.roundScores).to.eql([
           {
             [user1Id]: {
               score: 34,
@@ -541,9 +541,9 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.roundScores).to.eql([
+        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game?.actionToUserId).to.eql(user2Id);
+        expect(game?.roundScores).to.eql([
           {
             [user1Id]: {
               score: 34,

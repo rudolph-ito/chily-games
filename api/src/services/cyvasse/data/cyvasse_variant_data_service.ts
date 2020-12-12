@@ -7,6 +7,7 @@ import { CyvasseVariant } from "../../../database/models";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { doesNotHaveValue } from "../../../shared/utilities/value_checker";
 import { UserDataService } from "../../shared/data/user_data_service";
+import { variantNotFoundError } from "src/services/shared/exceptions";
 
 export interface ICyvasseVariantDataService {
   createVariant: (
@@ -69,6 +70,9 @@ export class CyvasseVariantDataService implements ICyvasseVariantDataService {
 
   async getVariant(variantId: number): Promise<IVariant> {
     const variant = await CyvasseVariant.findByPk(variantId);
+    if (variant == null) {
+      throw variantNotFoundError(variantId);
+    }
     return variant.serialize();
   }
 
@@ -82,6 +86,9 @@ export class CyvasseVariantDataService implements ICyvasseVariantDataService {
     options: IVariantOptions
   ): Promise<IVariant> {
     const variant = await CyvasseVariant.findByPk(variantId);
+    if (variant == null) {
+      throw variantNotFoundError(variantId);
+    }
     variant.boardType = options.boardType;
     variant.boardRows = options.boardRows;
     variant.boardColumns = options.boardColumns;

@@ -1,5 +1,6 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
 import shuffle from "knuth-shuffle-seeded";
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 
 const NUMBER_OF_STANDARD_CARDS = 52;
 
@@ -37,10 +38,13 @@ Object.keys(suitToNumber).forEach(
 );
 
 export function serializeCard(card: ICard): number {
-  if (card.isJoker) {
-    return NUMBER_OF_STANDARD_CARDS + card.jokerNumber;
+  if (valueOrDefault(card.isJoker, false)) {
+    return NUMBER_OF_STANDARD_CARDS + (card.jokerNumber as number);
   }
-  return rankToNumber[card.rank] + 13 * suitToNumber[card.suit];
+  return (
+    rankToNumber[card.rank as CardRank] +
+    13 * suitToNumber[card.suit as CardSuit]
+  );
 }
 
 export function deserializeCard(cardNumber: number): ICard {
@@ -56,8 +60,8 @@ export function deserializeCard(cardNumber: number): ICard {
 }
 
 export function areCardsEqual(a: ICard, b: ICard): boolean {
-  if (a.isJoker) {
-    return b.isJoker && a.jokerNumber === b.jokerNumber;
+  if (valueOrDefault(a.isJoker, false)) {
+    return valueOrDefault(b.isJoker, false) && a.jokerNumber === b.jokerNumber;
   }
   return a.rank === b.rank && a.suit === b.suit;
 }

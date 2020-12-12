@@ -36,7 +36,7 @@ export class CyvasseTerrainRule extends Model {
   public passableMovementPieceTypeIds!: PieceType[];
   public passableRangeFor!: PiecesEffectedType;
   public passableRangePieceTypeIds!: PieceType[];
-  public slowsMovementBy!: number;
+  public slowsMovementBy!: number | null;
   public slowsMovementFor!: PiecesEffectedType;
   public slowsMovementPieceTypeIds!: PieceType[];
   public stopsMovementFor!: PiecesEffectedType;

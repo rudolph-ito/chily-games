@@ -3,6 +3,7 @@ import {
   ICoordinate,
   PLY_EVALUATION_FLAGS,
   ValidPlies,
+  PlyEvaluationFlag,
 } from "../../../../shared/dtos/cyvasse/game";
 import {
   CaptureType,
@@ -12,7 +13,6 @@ import {
   PieceType,
 } from "../../../../shared/dtos/cyvasse/piece_rule";
 import { ICoordinateUpdater, BoardDirection } from "../board/cyvasse_board";
-import { doesHaveValue } from "../../../../shared/utilities/value_checker";
 import { IPlyEvaluateOptions } from "./types";
 import { CyvassePlyEvaluator } from "./cyvasse_ply_evaluator";
 import uniqBy from "lodash.uniqby";
@@ -63,13 +63,22 @@ export class CyvassePlyCalculator {
 
   getValidPlies(input: IGetValidPliesInput): ValidPlies {
     const piece = this.options.coordinateMap.getPiece(input.coordinate);
+    if (piece == null) {
+      throw new Error("Piece not found");
+    }
     const pieceRule = this.options.gameRules.pieceRuleMap.get(
       piece.pieceTypeId
     );
+    if (pieceRule == null) {
+      throw new Error("Piece rule not found");
+    }
     const pathConfiguration =
       input.evaluationType === CaptureType.MOVEMENT
         ? pieceRule.movement
         : pieceRule.range;
+    if (pathConfiguration == null) {
+      throw new Error("Path configuration unexpectedly null");
+    }
     const data = {
       directionalFunctions: this.getDirectionalFunctions(
         pathConfiguration.type
@@ -105,7 +114,7 @@ export class CyvassePlyCalculator {
           piece: data.piece,
         });
         if (plyEvaluation.valid) {
-          result[plyEvaluation.flag].push(to);
+          result[plyEvaluation.flag as PlyEvaluationFlag].push(to);
         }
         count += plyEvaluation.countModifier;
       }
@@ -164,7 +173,7 @@ export class CyvassePlyCalculator {
         piece: data.piece,
       });
       if (plyEvaluation.valid) {
-        result[plyEvaluation.flag].push(to);
+        result[plyEvaluation.flag as PlyEvaluationFlag].push(to);
       }
 
       // Recursive call
@@ -193,9 +202,11 @@ export class CyvassePlyCalculator {
   private getStopCondition(
     pathConfiguration: IPathConfiguration
   ): (count: number) => boolean {
-    return doesHaveValue(pathConfiguration.maximum)
-      ? (count: number) => count > pathConfiguration.maximum
-      : (count: number) => count === Infinity;
+    if (pathConfiguration.maximum != null) {
+      const max = pathConfiguration.maximum;
+      return (count: number) => count > max;
+    }
+    return (count: number) => count === Infinity;
   }
 
   private getDirectionalFunctions(pathType: PathType): ICoordinateUpdater[] {

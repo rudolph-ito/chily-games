@@ -5,7 +5,6 @@ import {
   YanivGameService,
 } from "../../services/yaniv/yaniv_game_service";
 import { IUser } from "../../shared/dtos/authentication";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
 import newSocketIoEmitter from "socket.io-emitter";
 import { IPlayerJoinedEvent } from "src/shared/dtos/yaniv/game";
 
@@ -32,7 +31,7 @@ export function getGameRouter(
       .catch(next);
   });
   router.get("/:gameId", function (req, res, next) {
-    const userId = doesHaveValue(req.user) ? (req.user as IUser).userId : null;
+    const userId = req.user != null ? (req.user as IUser).userId : null;
     gameService
       .get(userId, parseInt(req.params.gameId))
       .then((game) => {
@@ -94,12 +93,12 @@ export function getGameRouter(
             actionToNextPlayerEvent,
             roundFinishedEvent,
           });
-          if (doesHaveValue(actionToNextPlayerEvent)) {
+          if (actionToNextPlayerEvent != null) {
             newSocketIoEmitter(publishRedisClient as any)
               .to(`yaniv-game-${gameId}`)
               .emit("action-to-next-player", actionToNextPlayerEvent);
           }
-          if (doesHaveValue(roundFinishedEvent)) {
+          if (roundFinishedEvent != null) {
             newSocketIoEmitter(publishRedisClient as any)
               .to(`yaniv-game-${gameId}`)
               .emit("round-finished", roundFinishedEvent);

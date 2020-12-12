@@ -3,7 +3,6 @@ import {
   ICyvasseGameService,
   CyvasseGameService,
 } from "../../services/cyvasse/cyvasse_game_service";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { IUser } from "../../shared/dtos/authentication";
 import newSocketIoEmitter from "socket.io-emitter";
 import { RedisClient } from "redis";
@@ -23,7 +22,7 @@ export function getGameRouter(
       .catch(next);
   });
   router.get("/:gameId", function (req, res, next) {
-    const userId = doesHaveValue(req.user) ? (req.user as IUser).userId : null;
+    const userId = req.user != null ? (req.user as IUser).userId : null;
     gameService
       .getGame(userId, parseInt(req.params.gameId))
       .then((game) => {

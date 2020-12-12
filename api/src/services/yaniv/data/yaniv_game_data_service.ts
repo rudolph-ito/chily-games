@@ -32,6 +32,7 @@ export interface IYanivGameUpdateOptions {
 export interface IYanivGameDataService {
   create: (options: IYanivGameCreateOptions) => Promise<ISerializedYanivGame>;
   get: (gameId: number) => Promise<ISerializedYanivGame>;
+  has: (gameId: number) => Promise<boolean>;
   update: (
     gameId: number,
     options: IYanivGameUpdateOptions
@@ -59,11 +60,15 @@ export class YanivGameDataService implements IYanivGameDataService {
   }
 
   async get(gameId: number): Promise<ISerializedYanivGame> {
-    const game = await YanivGame.findByPk(gameId);
-    if (doesHaveValue(game)) {
-      return game.serialize();
-    }
-    return null;
+    const game = (await YanivGame.findByPk(gameId)) as YanivGame;
+    return game.serialize();
+  }
+
+  async has(gameId: number): Promise<boolean> {
+    const count = await YanivGame.count({
+      where: { gameId },
+    });
+    return count === 1;
   }
 
   async search(
@@ -86,7 +91,7 @@ export class YanivGameDataService implements IYanivGameDataService {
     gameId: number,
     options: IYanivGameUpdateOptions
   ): Promise<ISerializedYanivGame> {
-    const game = await YanivGame.findByPk(gameId);
+    const game = (await YanivGame.findByPk(gameId)) as YanivGame;
     for (let [key, value] of Object.entries(options)) {
       if (
         [

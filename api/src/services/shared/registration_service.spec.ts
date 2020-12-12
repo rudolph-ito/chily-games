@@ -19,7 +19,7 @@ describe("RegistrationService", () => {
   describe("register", () => {
     it("throws ValidationError if missing username", async () => {
       // Arrange
-      let err: ValidationError;
+      let err: ValidationError | null = null;
 
       // Act
       try {
@@ -33,14 +33,14 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err.errors).to.eql({
+      expect(err?.errors).to.eql({
         username: "Username is required",
       });
     });
 
     it("throws ValidationError if missing password", async () => {
       // Arrange
-      let err: ValidationError;
+      let err: ValidationError | null = null;
 
       // Act
       try {
@@ -54,14 +54,14 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err.errors).to.eql({
+      expect(err?.errors).to.eql({
         password: "Password is required",
       });
     });
 
     it("throws ValidationError if password not strong enough", async () => {
       // Arrange
-      let err: ValidationError;
+      let err: ValidationError | null = null;
 
       // Act
       try {
@@ -75,7 +75,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err.errors).to.eql({
+      expect(err?.errors).to.eql({
         password:
           "Password is not strong enough: Add another word or two. Uncommon words are better.",
       });
@@ -83,7 +83,7 @@ describe("RegistrationService", () => {
 
     it("throws ValidationError if password does not match password confirmation", async () => {
       // Arrange
-      let err: ValidationError;
+      let err: ValidationError | null = null;
 
       // Act
       try {
@@ -97,7 +97,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err.errors).to.eql({
+      expect(err?.errors).to.eql({
         passwordConfirmation: "Password confirmation does not match password",
       });
     });
@@ -105,7 +105,7 @@ describe("RegistrationService", () => {
     it("throws ValidationError if username already taken", async () => {
       // Arrange
       await createTestUser({ username: "me" });
-      let err: ValidationError;
+      let err: ValidationError | null = null;
 
       // Act
       try {
@@ -119,7 +119,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err.errors).to.eql({
+      expect(err?.errors).to.eql({
         username: "Username 'me' is already taken",
       });
     });
