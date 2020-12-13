@@ -13,7 +13,8 @@ import {
   ISearchGamesRequest,
 } from "../../../shared/dtos/yaniv/game";
 import { serializeCard } from "../card_helpers";
-import { IPaginatedResponse } from "src/shared/dtos/search";
+import { IPaginatedResponse } from "../../../shared/dtos/search";
+import { gameNotFoundError } from '../../shared/exceptions';
 
 export interface IYanivGameCreateOptions {
   hostUserId: number;
@@ -32,7 +33,6 @@ export interface IYanivGameUpdateOptions {
 export interface IYanivGameDataService {
   create: (options: IYanivGameCreateOptions) => Promise<ISerializedYanivGame>;
   get: (gameId: number) => Promise<ISerializedYanivGame>;
-  has: (gameId: number) => Promise<boolean>;
   update: (
     gameId: number,
     options: IYanivGameUpdateOptions
@@ -60,15 +60,11 @@ export class YanivGameDataService implements IYanivGameDataService {
   }
 
   async get(gameId: number): Promise<ISerializedYanivGame> {
-    const game = (await YanivGame.findByPk(gameId)) as YanivGame;
+    const game = await YanivGame.findByPk(gameId);
+    if (game == null) {
+      throw gameNotFoundError(gameId);
+    }
     return game.serialize();
-  }
-
-  async has(gameId: number): Promise<boolean> {
-    const count = await YanivGame.count({
-      where: { gameId },
-    });
-    return count === 1;
   }
 
   async search(

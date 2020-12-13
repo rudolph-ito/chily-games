@@ -18,7 +18,7 @@ function getMockVariant(data: Partial<IVariant>): IVariant {
   return {
     boardSize: 5,
     boardType: BoardType.HEXAGONAL,
-    boardRows: null, 
+    boardRows: null,
     boardColumns: null,
     pieceRanks: false,
     supportType: null,

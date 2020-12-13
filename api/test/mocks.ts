@@ -54,7 +54,7 @@ export function mockTerrainRule(
     slowsMovement: {
       for: PiecesEffectedType.NONE,
       pieceTypeIds: [],
-      by: null
+      by: null,
     },
     stopsMovement: {
       for: PiecesEffectedType.NONE,

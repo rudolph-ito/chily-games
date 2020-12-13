@@ -18,9 +18,8 @@ import {
 } from "../../shared/utilities/value_checker";
 import {
   ValidationError,
-  throwVariantAuthorizationError,
-  throwVariantNotFoundError,
   NotFoundError,
+  variantAuthorizationError,
 } from "../shared/exceptions";
 
 export interface ICyvasseTerrainRuleService {
@@ -58,12 +57,9 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     variantId: number,
     options: ITerrainRuleOptions
   ): Promise<ITerrainRule> {
-    if (!(await this.variantDataService.hasVariant(variantId))) {
-      throwVariantNotFoundError(variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("create terrain rules");
+      throw variantAuthorizationError("create terrain rules");
     }
     const existingTerrainTypeMap = await this.getTerrainTypeMap(variantId);
     const errors = validateTerrainRuleOptions(options, existingTerrainTypeMap);
@@ -87,7 +83,7 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("delete terrain rules");
+      throw variantAuthorizationError("delete terrain rules");
     }
     return await this.terrainRuleDataService.deleteTerrainRule(terrainRuleId);
   }
@@ -123,7 +119,7 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("delete terrain rules");
+      throw variantAuthorizationError("delete terrain rules");
     }
     const existingTerrainTypeMap = await this.getTerrainTypeMap(variantId);
     const errors = validateTerrainRuleOptions(

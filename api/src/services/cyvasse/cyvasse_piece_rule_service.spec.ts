@@ -39,7 +39,7 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null
+            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });
@@ -132,7 +132,7 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null
+            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });
@@ -167,7 +167,7 @@ describe("CyvassePieceRuleService", () => {
           movement: {
             type: PathType.ORTHOGONAL_LINE,
             minimum: 1,
-            maximum: null
+            maximum: null,
           },
           captureType: CaptureType.MOVEMENT,
         });

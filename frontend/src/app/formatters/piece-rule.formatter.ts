@@ -8,28 +8,24 @@ import {
   PATH_TYPE_OPTIONS,
   CAPTURE_TYPE_OPTIONS,
 } from "../models/piece-rule";
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../shared/utilities/value_checker";
 
 export function getPieceTypeDescription(pieceTypeId: PieceType): string {
   const option = PIECE_TYPE_OPTIONS.find((x) => x.value === pieceTypeId);
-  if (doesHaveValue(option)) {
-    return option.label;
+  if (option == null) {
+    return "Unknown";
   }
-  return "Unknown";
+  return option.label;
 }
 
 export function getPathConfigurationDescription(
   pathConfig: IPathConfiguration
 ): string {
   const option = PATH_TYPE_OPTIONS.find((x) => x.value === pathConfig.type);
-  if (doesNotHaveValue(option)) {
+  if (option == null) {
     return "Unknown";
   }
   let spacesDescription = pathConfig.minimum.toString();
-  if (doesHaveValue(pathConfig.maximum)) {
+  if (pathConfig.maximum != null) {
     if (pathConfig.maximum > pathConfig.minimum) {
       spacesDescription += ` to ${pathConfig.maximum}`;
     }
@@ -45,8 +41,8 @@ export function getPathConfigurationDescription(
 
 export function getCaptureTypeDescription(captureType: CaptureType): string {
   const option = CAPTURE_TYPE_OPTIONS.find((x) => x.value === captureType);
-  if (doesHaveValue(option)) {
-    return option.label;
+  if (option == null) {
+    return "Unknown";
   }
-  return "Unknown";
+  return option.label;
 }

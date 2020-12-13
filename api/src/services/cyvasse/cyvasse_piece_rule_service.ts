@@ -18,9 +18,8 @@ import {
 } from "../../shared/utilities/value_checker";
 import {
   ValidationError,
-  throwVariantAuthorizationError,
-  throwVariantNotFoundError,
   NotFoundError,
+  variantAuthorizationError,
 } from "../shared/exceptions";
 
 export interface ICyvassePieceRuleService {
@@ -55,12 +54,9 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
     variantId: number,
     options: IPieceRuleOptions
   ): Promise<IPieceRule> {
-    if (!(await this.variantDataService.hasVariant(variantId))) {
-      throwVariantNotFoundError(variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("create piece rules");
+      throw variantAuthorizationError("create piece rules");
     }
     const existingPieceTypeMap = await this.getPieceTypeMap(variantId);
     const errors = validatePieceRuleOptions(options, existingPieceTypeMap);
@@ -81,7 +77,7 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("delete piece rules");
+      throw variantAuthorizationError("delete piece rules");
     } else if (pieceRule.pieceTypeId === PieceType.KING) {
       throw new ValidationError({
         general:
@@ -119,7 +115,7 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
     }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("delete piece rules");
+      throw variantAuthorizationError("delete piece rules");
     }
     const existingPieceTypeMap = await this.getPieceTypeMap(variantId);
     const errors = validatePieceRuleOptions(

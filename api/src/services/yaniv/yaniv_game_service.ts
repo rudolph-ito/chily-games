@@ -15,7 +15,7 @@ import {
   IActionToNextPlayerEvent,
   IRoundFinishedEvent,
 } from "../../shared/dtos/yaniv/game";
-import { throwGameNotFoundError, ValidationError } from "../shared/exceptions";
+import { gameNotFoundError, ValidationError } from "../shared/exceptions";
 import {
   IYanivGameCompletedRoundDataService,
   YanivGameCompletedRoundDataService,
@@ -84,17 +84,11 @@ export class YanivGameService implements IYanivGameService {
   }
 
   async get(userId: number, gameId: number): Promise<IGame> {
-    if (!(await this.gameDataService.has(gameId))) {
-      throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.get(gameId);
     return await this.loadFullGame(userId, game);
   }
 
   async join(userId: number, gameId: number): Promise<IGame> {
-    if (!(await this.gameDataService.has(gameId))) {
-      throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.get(gameId);
     if (game.state !== GameState.PLAYERS_JOINING) {
       throw new ValidationError("Cannot join in-progress or completed game.");
@@ -111,9 +105,6 @@ export class YanivGameService implements IYanivGameService {
   }
 
   async startRound(userId: number, gameId: number): Promise<IGame> {
-    if (!(await this.gameDataService.has(gameId))) {
-      throwGameNotFoundError(gameId);
-    }
     let game = await this.gameDataService.get(gameId);
     if (game.hostUserId !== userId) {
       throw new ValidationError("Only the host can start rounds");
@@ -158,9 +149,6 @@ export class YanivGameService implements IYanivGameService {
     gameId: number,
     action: IGameActionRequest
   ): Promise<IGameActionResponse> {
-    if (!(await this.gameDataService.has(gameId))) {
-      throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");

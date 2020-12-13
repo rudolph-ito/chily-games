@@ -23,8 +23,8 @@ export class YanivGamePlayer extends Model {
       gameId: this.gameId,
       userId: this.userId,
       position: this.position,
-      cardsInHand: this.cardsInHand.map(deserializeCard)
-    }
+      cardsInHand: this.cardsInHand.map(deserializeCard),
+    };
   }
 }
 YanivGamePlayer.init(

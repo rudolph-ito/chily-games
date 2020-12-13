@@ -12,9 +12,8 @@ import {
 import { validateVariantOptions } from "./validators/cyvasse_variant_validator";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
-  throwVariantNotFoundError,
-  throwVariantAuthorizationError,
   ValidationError,
+  variantAuthorizationError,
 } from "../shared/exceptions";
 import {
   IPreviewPieceRuleRequest,
@@ -99,19 +98,13 @@ export class CyvasseVariantService implements ICyvasseVariantService {
   }
 
   async getVariant(variantId: number): Promise<IVariant> {
-    if (!(await this.variantDataService.hasVariant(variantId))) {
-      throwVariantNotFoundError(variantId);
-    }
     return await this.variantDataService.getVariant(variantId);
   }
 
   async deleteVariant(userId: number, variantId: number): Promise<void> {
-    if (!(await this.variantDataService.hasVariant(variantId))) {
-      throwVariantNotFoundError(variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("delete the variant");
+      throw variantAuthorizationError("delete the variant");
     }
     await this.variantDataService.deleteVariant(variantId);
   }
@@ -120,9 +113,6 @@ export class CyvasseVariantService implements ICyvasseVariantService {
     variantId: number,
     request: IPreviewPieceRuleRequest
   ): Promise<IPreviewPieceRuleResponse> {
-    if (!(await this.variantDataService.hasVariant(variantId))) {
-      throwVariantNotFoundError(variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     return previewPieceRule({
       evaluationType: request.evaluationType,
@@ -136,12 +126,9 @@ export class CyvasseVariantService implements ICyvasseVariantService {
     variantId: number,
     options: IVariantOptions
   ): Promise<IVariant> {
-    if (!(await this.variantDataService.hasVariant(variantId))) {
-      throwVariantNotFoundError(variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
-      throwVariantAuthorizationError("update the variant");
+      throw variantAuthorizationError("update the variant");
     }
     const validationErrors = validateVariantOptions(options);
     if (doesHaveValue(validationErrors)) {

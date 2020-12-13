@@ -351,10 +351,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     return await this.gameDataService.searchGames(request);
   }
 
-  private throwGameNotFoundError(gameId: number): void {
-    throw new NotFoundError(`Game does not exist with id: ${gameId}`);
-  }
-
   private async getPieceRuleMap(
     variantId: number
   ): Promise<Map<PieceType, IPieceRule>> {
