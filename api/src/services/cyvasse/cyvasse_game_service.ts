@@ -80,9 +80,6 @@ export class CyvasseGameService implements ICyvasseGameService {
   ) {}
 
   async getGame(userId: number, gameId: number): Promise<IGame> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     if (game.action === Action.SETUP) {
       if (userId !== game.alabasterUserId) {
@@ -96,9 +93,6 @@ export class CyvasseGameService implements ICyvasseGameService {
   }
 
   async getGameRules(gameId: number): Promise<IGameRules> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
@@ -142,9 +136,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     gameId: number,
     request: IGetGameValidPliesRequest
   ): Promise<ValidPlies> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
@@ -160,9 +151,6 @@ export class CyvasseGameService implements ICyvasseGameService {
   }
 
   async abortGame(userId: number, gameId: number): Promise<void> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
       throw new AuthorizationError("Only players may abort");
@@ -185,9 +173,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     gameId: number,
     change: IGameSetupChange
   ): Promise<void> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     await this.validateUserCanTakeSetupAction(game, userId);
     const playerColor =
@@ -256,13 +241,10 @@ export class CyvasseGameService implements ICyvasseGameService {
   }
 
   async completeGameSetup(userId: number, gameId: number): Promise<void> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     await this.validateUserCanTakeSetupAction(game, userId);
     await this.validateUserSetupIsComplete(game, userId);
-    if (game.actionTo != null) {
+    if (game.actionTo == null) {
       const actionTo =
         game.alabasterUserId === userId
           ? PlayerColor.ONYX
@@ -289,9 +271,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     gameId: number,
     ply: IGamePly
   ): Promise<IGamePlyEvent> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     await this.validateUserCanCreatePly(game, userId);
     const playerColor =
@@ -347,9 +326,6 @@ export class CyvasseGameService implements ICyvasseGameService {
   }
 
   async resignGame(userId: number, gameId: number): Promise<void> {
-    if (!(await this.gameDataService.hasGame(gameId))) {
-      this.throwGameNotFoundError(gameId);
-    }
     const game = await this.gameDataService.getGame(gameId);
     if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
       throw new AuthorizationError("Only players may resign");

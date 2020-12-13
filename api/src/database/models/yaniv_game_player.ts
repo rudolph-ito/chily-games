@@ -19,16 +19,12 @@ export class YanivGamePlayer extends Model {
   public cardsInHand!: number[];
 
   serialize(): ISerializedYanivGamePlayer {
-    const out: ISerializedYanivGamePlayer = {
+    return {
       gameId: this.gameId,
       userId: this.userId,
       position: this.position,
-      cardsInHand: [],
-    };
-    if (this.cardsInHand != null) {
-      out.cardsInHand = this.cardsInHand.map(deserializeCard);
+      cardsInHand: this.cardsInHand.map(deserializeCard)
     }
-    return out;
   }
 }
 YanivGamePlayer.init(

@@ -33,7 +33,7 @@ module.exports = {
       hostUserId: userConfig,
       state: {
         type: stateEnum,
-        allowNull: true,
+        allowNull: false,
       },
       options: {
         type: Sequelize.JSONB,

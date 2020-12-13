@@ -28,7 +28,6 @@ export interface IGameUpdateOptions {
 export interface ICyvasseGameDataService {
   createGame: (options: IGameOptions) => Promise<IGame>;
   getGame: (gameId: number) => Promise<IGame>;
-  hasGame: (gameId: number) => Promise<boolean>;
   searchGames: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<IGame>>;
@@ -58,13 +57,6 @@ export class CyvasseGameDataService implements ICyvasseGameDataService {
       throw gameNotFoundError(gameId);
     }
     return game.serialize();
-  }
-
-  async hasGame(gameId: number): Promise<boolean> {
-    const count = await CyvasseGame.count({
-      where: { gameId },
-    });
-    return count === 1;
   }
 
   async searchGames(
