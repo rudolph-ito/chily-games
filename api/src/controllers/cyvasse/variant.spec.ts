@@ -59,10 +59,7 @@ describe("CyvasseVariantRoutes", () => {
     const validRequest: IVariantOptions = {
       boardType: BoardType.HEXAGONAL,
       boardSize: 6,
-      boardColumns: null,
-      boardRows: null,
       pieceRanks: false,
-      supportType: null
     };
 
     it("if not logged in, returns Unauthorized", async () => {
@@ -115,11 +112,9 @@ describe("CyvasseVariantRoutes", () => {
     let variantId: number;
     const updatedOptions: IVariantOptions = {
       boardType: BoardType.SQUARE,
-      boardSize: null,
       boardColumns: 4,
       boardRows: 4,
       pieceRanks: false,
-      supportType: null,
     };
 
     beforeEach(async () => {
