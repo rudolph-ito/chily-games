@@ -28,6 +28,7 @@ export function mockPieceRule(options: Partial<IPieceRuleOptions>): IPieceRule {
     movement: {
       type: PathType.ORTHOGONAL_LINE,
       minimum: 1,
+      maximum: null,
     },
     captureType: CaptureType.MOVEMENT,
     ...options,
@@ -53,6 +54,7 @@ export function mockTerrainRule(
     slowsMovement: {
       for: PiecesEffectedType.NONE,
       pieceTypeIds: [],
+      by: null
     },
     stopsMovement: {
       for: PiecesEffectedType.NONE,
@@ -68,7 +70,10 @@ export function mockVariant(options: Partial<IVariantOptions> = {}): IVariant {
     userId: 0,
     boardType: BoardType.HEXAGONAL,
     boardSize: 6,
+    boardRows: null,
+    boardColumns: null,
     pieceRanks: false,
+    supportType: null,
     ...options,
   };
 }

@@ -291,12 +291,15 @@ describe("YanivGameService", () => {
 
         // assert
         expect(error).to.be.undefined(error?.stack);
-        expect(game?.actionToUserId).to.eql(user2Id);
-        expect(game?.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game?.cardsOnTopOfDiscardPile).to.eql([
+        if (game == null) {
+          throw Error("game should not be null");
+        }
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game.cardsOnTopOfDiscardPile).to.eql([
           { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
         ]);
-        expect(game?.playerStates).to.eql([
+        expect(game.playerStates).to.eql([
           {
             cards: [
               {
@@ -318,7 +321,7 @@ describe("YanivGameService", () => {
             username: "test2",
           },
         ]);
-        const updatedGame = await new YanivGameDataService().get(game?.gameId);
+        const updatedGame = await new YanivGameDataService().get(game.gameId);
         expect(updatedGame.cardsInDeck).to.eql([]);
       });
     });

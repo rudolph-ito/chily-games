@@ -5,7 +5,7 @@ import {
   IChallenge,
   ISearchChallengesRequest,
 } from "../../../shared/dtos/cyvasse/challenge";
-import { NotFoundError } from "src/services/shared/exceptions";
+import { NotFoundError } from "../../shared/exceptions";
 
 export interface ICyvasseChallengeDataService {
   createChallenge: (

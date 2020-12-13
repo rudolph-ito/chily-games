@@ -4,7 +4,7 @@ import {
 } from "../../../shared/dtos/cyvasse/piece_rule";
 import { CyvassePieceRule } from "../../../database/models";
 import { valueOrDefault } from "../../../shared/utilities/value_checker";
-import { NotFoundError } from "src/services/shared/exceptions";
+import { NotFoundError } from "../../shared/exceptions";
 
 export interface ICyvassePieceRuleDataService {
   createPieceRule: (
@@ -83,7 +83,7 @@ export class CyvassePieceRuleDataService
     obj.count = options.count;
     obj.movementType = options.movement.type;
     obj.movementMinimum = options.movement.minimum;
-    obj.movementMaximum = options.movement.maximum;
+    obj.movementMaximum = options.movement.maximum ?? null;
     obj.captureType = options.captureType;
     obj.moveAndRangeCapture = valueOrDefault(
       options.moveAndRangeCapture,
@@ -92,7 +92,7 @@ export class CyvassePieceRuleDataService
     if (options.range != null) {
       obj.rangeType = options.range.type;
       obj.rangeMinimum = options.range.minimum;
-      obj.rangeMaximum = options.range.maximum;
+      obj.rangeMaximum = options.range.maximum ?? null;
     }
     if (options.ranks != null) {
       obj.attackRank = options.ranks.attack;

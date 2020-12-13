@@ -16,7 +16,6 @@ import {
 } from "../../../shared/dtos/cyvasse/game";
 import { IVariant } from "../../../shared/dtos/cyvasse/variant";
 import { CyvassePlyCalculator } from "../game/ply_calculator/cyvasse_ply_calculator";
-import { NotFoundError } from "src/services/shared/exceptions";
 
 export interface IValidateGamePlyOptions {
   coordinateMap: CyvasseCoordinateMap;
@@ -66,7 +65,7 @@ export function validateGamePly(
     if (options.ply.movement.capturedPiece != null) {
       const pieceRule = options.pieceRuleMap.get(options.ply.piece.pieceTypeId);
       if (pieceRule == null) {
-        throw new NotFoundError(
+        throw new Error(
           `Piece rule not found for piece type: ${options.ply.piece.pieceTypeId}`
         );
       }
@@ -102,7 +101,7 @@ export function validateGamePly(
   if (options.ply.movement != null && options.ply.rangeCapture != null) {
     const pieceRule = options.pieceRuleMap.get(options.ply.piece.pieceTypeId);
     if (pieceRule == null) {
-      throw new NotFoundError(
+      throw new Error(
         `Piece rule not found for piece type: ${options.ply.piece.pieceTypeId}`
       );
     }

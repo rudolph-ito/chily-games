@@ -9,14 +9,14 @@ export function validateVariantOptions(
 ): IVariantValidationErrors | null {
   const errors: IVariantValidationErrors = {};
   if (options.boardType === BoardType.HEXAGONAL) {
-    if (options.boardSize != null) {
+    if (options.boardSize == null) {
       errors.boardSize = "Board size is required";
     }
   } else if (options.boardType === BoardType.SQUARE) {
-    if (options.boardColumns != null) {
+    if (options.boardColumns == null) {
       errors.boardColumns = "Board columns is required";
     }
-    if (options.boardRows != null) {
+    if (options.boardRows == null) {
       errors.boardRows = "Board rows is required";
     }
   } else {

@@ -50,8 +50,8 @@ export interface IGame {
   roundScores: IRoundScore[];
 
   // Fields populated with state == ROUND_ACTIVE
-  actionToUserId?: number;
-  cardsOnTopOfDiscardPile?: ICard[];
+  actionToUserId: number;
+  cardsOnTopOfDiscardPile: ICard[];
 }
 
 export interface IGameActionRequest {

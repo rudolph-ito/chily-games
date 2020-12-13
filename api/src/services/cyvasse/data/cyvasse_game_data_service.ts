@@ -8,7 +8,7 @@ import {
   IGamePly,
   PlayerColor,
 } from "../../../shared/dtos/cyvasse/game";
-import { gameNotFoundError } from "src/services/shared/exceptions";
+import { gameNotFoundError } from "../../shared/exceptions";
 
 export interface IGameOptions {
   variantId: number;

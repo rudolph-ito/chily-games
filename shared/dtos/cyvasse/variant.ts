@@ -13,11 +13,11 @@ export enum SupportType {
 
 export interface IVariantOptions {
   boardType: BoardType;
-  boardRows?: number;
-  boardColumns?: number;
-  boardSize?: number;
+  boardRows?: number | null;
+  boardColumns?: number | null;
+  boardSize?: number | null;
   pieceRanks: boolean;
-  supportType?: SupportType;
+  supportType?: SupportType | null;
 }
 
 export interface IVariant extends IVariantOptions {

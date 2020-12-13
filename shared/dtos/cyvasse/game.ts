@@ -110,7 +110,7 @@ export interface IGamePieceRule {
   pieceTypeId: PieceType;
   count: number;
   captureType: CaptureType;
-  moveAndRangeCapture: boolean;
+  moveAndRangeCapture?: boolean;
 }
 
 export interface IGameTerrainRule {

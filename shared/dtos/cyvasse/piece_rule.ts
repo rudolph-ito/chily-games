@@ -31,7 +31,7 @@ export enum CaptureType {
 export interface IPathConfiguration {
   type: PathType;
   minimum: number;
-  maximum: number;
+  maximum?: number | null;
 }
 
 export interface IPieceRanks {

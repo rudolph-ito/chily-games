@@ -7,7 +7,7 @@ import { CyvasseVariant } from "../../../database/models";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { doesNotHaveValue } from "../../../shared/utilities/value_checker";
 import { UserDataService } from "../../shared/data/user_data_service";
-import { variantNotFoundError } from "src/services/shared/exceptions";
+import { variantNotFoundError } from "../../shared/exceptions";
 
 export interface ICyvasseVariantDataService {
   createVariant: (
@@ -90,11 +90,11 @@ export class CyvasseVariantDataService implements ICyvasseVariantDataService {
       throw variantNotFoundError(variantId);
     }
     variant.boardType = options.boardType;
-    variant.boardRows = options.boardRows;
-    variant.boardColumns = options.boardColumns;
-    variant.boardSize = options.boardSize;
+    variant.boardRows = options.boardRows ?? null;
+    variant.boardColumns = options.boardColumns ?? null;
+    variant.boardSize = options.boardSize ?? null;
     variant.pieceRanks = options.pieceRanks;
-    variant.supportType = options.supportType;
+    variant.supportType = options.supportType ?? null;
     await variant.save();
     return variant.serialize();
   }

@@ -47,6 +47,7 @@ describe("CyvasseTerrainRuleService", () => {
           slowsMovement: {
             for: PiecesEffectedType.NONE,
             pieceTypeIds: [],
+            by: null,
           },
           stopsMovement: {
             for: PiecesEffectedType.NONE,
@@ -94,6 +95,7 @@ describe("CyvasseTerrainRuleService", () => {
           slowsMovement: {
             for: PiecesEffectedType.NONE,
             pieceTypeIds: [],
+            by: null
           },
           stopsMovement: {
             for: PiecesEffectedType.NONE,

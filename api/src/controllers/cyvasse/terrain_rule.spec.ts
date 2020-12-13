@@ -58,6 +58,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       slowsMovement: {
         for: PiecesEffectedType.NONE,
         pieceTypeIds: [],
+        by: null,
       },
       stopsMovement: {
         for: PiecesEffectedType.NONE,
@@ -261,6 +262,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       slowsMovement: {
         for: PiecesEffectedType.NONE,
         pieceTypeIds: [],
+        by: null
       },
       stopsMovement: {
         for: PiecesEffectedType.NONE,
