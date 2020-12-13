@@ -177,7 +177,7 @@ describe("CyvassePieceRuleService", () => {
 
       // Assert
       expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error.errors).to.eql({
         pieceTypeId: "A piece rule already exists for this piece type",
       });
     });
