@@ -55,7 +55,7 @@ interface IVariantBoardPreviewControls {
 })
 export class VariantFormComponent implements OnInit, AfterViewInit {
   loading = false;
-  generalError: string = null;
+  generalError?: string;
   boardTypeOptions = BOARD_TYPE_OPTIONS;
   supportTypeOptions = SUPPORT_TYPE_OPTIONS;
   controls: IVariantFormControls = {
@@ -72,7 +72,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
     viewpoint: new FormControl(PlayerColor.ALABASTER),
   };
 
-  board: BaseBoard;
+  board: BaseBoard | null;
 
   @ViewChild("boardContainer") boardContainer: ElementRef;
 
@@ -114,7 +114,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
   }
 
   drawPreview(): void {
-    if (doesHaveValue(this.board)) {
+    if (this.board != null) {
       this.board.destroy();
       this.board = null;
     }
@@ -132,7 +132,7 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
         },
       });
     }
-    if (doesHaveValue(this.board)) {
+    if (this.board != null) {
       this.board.addSpaces(this.boardPreviewControls.showCoordinates.value);
     }
   }

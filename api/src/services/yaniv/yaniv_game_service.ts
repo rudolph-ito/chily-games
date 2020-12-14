@@ -15,7 +15,7 @@ import {
   IActionToNextPlayerEvent,
   IRoundFinishedEvent,
 } from "../../shared/dtos/yaniv/game";
-import { gameNotFoundError, ValidationError } from "../shared/exceptions";
+import { ValidationError } from "../shared/exceptions";
 import {
   IYanivGameCompletedRoundDataService,
   YanivGameCompletedRoundDataService,
@@ -383,6 +383,8 @@ export class YanivGameService implements IYanivGameService {
       const out: IPlayerState = {
         userId: ps.userId,
         username: userIdToUsername[ps.userId],
+        numberOfCards: 0,
+        cards: [],
       };
       if (
         game.state === GameState.ROUND_COMPLETE ||

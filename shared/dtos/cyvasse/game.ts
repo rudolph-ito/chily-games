@@ -97,7 +97,7 @@ export interface IGame {
   gameId: number;
   variantId: number;
   action: Action;
-  actionTo: PlayerColor;
+  actionTo: PlayerColor | null;
   alabasterUserId: number;
   onyxUserId: number;
   alabasterSetupCoordinateMap: ICoordinateMapData[];
@@ -136,14 +136,14 @@ export interface ISearchGamesRequest {
 
 export interface IGameSetupPieceChange {
   pieceTypeId: PieceType;
-  from?: ICoordinate;
-  to?: ICoordinate;
+  from?: ICoordinate | null;
+  to?: ICoordinate | null;
 }
 
 export interface IGameSetupTerrainChange {
   terrainTypeId: TerrainType;
-  from?: ICoordinate;
-  to?: ICoordinate;
+  from?: ICoordinate | null;
+  to?: ICoordinate | null;
 }
 
 export interface IGameSetupChange {

@@ -4,8 +4,8 @@ import { ICard } from "./card";
 export interface IPlayerState {
   userId: number;
   username: string;
-  numberOfCards?: number;
-  cards?: ICard[];
+  numberOfCards: number;
+  cards: ICard[];
 }
 
 export enum RoundScoreType {
@@ -72,7 +72,7 @@ export interface IPlayerJoinedEvent {
 
 export interface ILastAction {
   userId: number;
-  cardsDiscarded?: ICard[];
+  cardsDiscarded: ICard[];
   cardPickedUp?: ICard;
 }
 

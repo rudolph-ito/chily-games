@@ -14,7 +14,7 @@ import {
 } from "../../../shared/dtos/yaniv/game";
 import { serializeCard } from "../card_helpers";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
-import { gameNotFoundError } from '../../shared/exceptions';
+import { gameNotFoundError } from "../../shared/exceptions";
 
 export interface IYanivGameCreateOptions {
   hostUserId: number;

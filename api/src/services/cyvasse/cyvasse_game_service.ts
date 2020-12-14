@@ -17,11 +17,7 @@ import {
   CyvasseGameDataService,
   IGameUpdateOptions,
 } from "./data/cyvasse_game_data_service";
-import {
-  AuthorizationError,
-  NotFoundError,
-  ValidationError,
-} from "../shared/exceptions";
+import { AuthorizationError, ValidationError } from "../shared/exceptions";
 import { CyvasseCoordinateMap } from "./game/storage/cyvasse_coordinate_map";
 import { getBoardForVariant } from "./game/board/cyvasse_board_builder";
 import {

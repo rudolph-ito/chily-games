@@ -22,7 +22,7 @@ export class CyvasseGame extends Model {
   public gameId!: number;
   public variantId!: number;
   public action!: Action;
-  public actionTo!: PlayerColor;
+  public actionTo!: PlayerColor | null;
   public alabasterUserId!: number;
   public onyxUserId!: number;
   public alabasterSetupCoordinateMap!: ICoordinateMapData[];

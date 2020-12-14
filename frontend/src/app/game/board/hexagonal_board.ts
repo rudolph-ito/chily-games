@@ -6,7 +6,6 @@ import {
   Action,
 } from "../../shared/dtos/cyvasse/game";
 import Konva from "konva";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
 
 export interface IHexagonalBoardLayoutOptions {
   boardSize: number;
@@ -113,13 +112,17 @@ export class HexagonalBoard extends BaseBoard {
     polygon.radius(this.spaceRadius);
   }
 
-  protected setupForContainer(gameRules: IGameRules): void {
+  protected setupForContainer(gameRules?: IGameRules): void {
     const verticalRadii = 3 * this.layout.boardSize + 2;
     const horizontalRadii =
       2 * (2 * this.layout.boardSize + 1) * Math.cos(Math.PI / 6);
 
     let setupHorizontalRadii = 0;
-    if (doesHaveValue(this.game) && this.game.action === Action.SETUP) {
+    if (
+      this.game != null &&
+      this.game.action === Action.SETUP &&
+      gameRules != null
+    ) {
       this.setupRows = Math.floor(verticalRadii / 2 / 1.1);
       this.setupColumns = Math.ceil(
         (gameRules.pieces.length + gameRules.terrains.length) / this.setupRows

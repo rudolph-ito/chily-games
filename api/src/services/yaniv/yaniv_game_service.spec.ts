@@ -257,6 +257,7 @@ describe("YanivGameService", () => {
             username: "test1",
           },
           {
+            cards: [],
             numberOfCards: 0,
             userId: user2Id,
             username: "test2",
@@ -316,6 +317,7 @@ describe("YanivGameService", () => {
             username: "test1",
           },
           {
+            cards: [],
             numberOfCards: 0,
             userId: user2Id,
             username: "test2",
