@@ -3,7 +3,6 @@ import {
   ICoordinate,
   PLY_EVALUATION_FLAGS,
   ValidPlies,
-  PlyEvaluationFlag,
 } from "../../../../shared/dtos/cyvasse/game";
 import {
   CaptureType,
@@ -113,8 +112,8 @@ export class CyvassePlyCalculator {
           evaluationType: input.evaluationType,
           piece: data.piece,
         });
-        if (plyEvaluation.valid) {
-          result[plyEvaluation.flag as PlyEvaluationFlag].push(to);
+        if (plyEvaluation.valid && plyEvaluation.flag != null) {
+          result[plyEvaluation.flag].push(to);
         }
         count += plyEvaluation.countModifier;
       }
@@ -172,8 +171,8 @@ export class CyvassePlyCalculator {
         evaluationType: input.evaluationType,
         piece: data.piece,
       });
-      if (plyEvaluation.valid) {
-        result[plyEvaluation.flag as PlyEvaluationFlag].push(to);
+      if (plyEvaluation.valid && plyEvaluation.flag != null) {
+        result[plyEvaluation.flag].push(to);
       }
 
       // Recursive call
