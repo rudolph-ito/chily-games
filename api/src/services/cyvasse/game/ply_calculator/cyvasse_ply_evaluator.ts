@@ -69,11 +69,13 @@ export class CyvassePlyEvaluator {
 
   // Load data about the piece / coordinate
   private getPlyEvaluateData(input: IPlyEvaluateInput): IPlyEvaluateData {
-    const result: IPlyEvaluateData = {
-      pieceRule: this.options.gameRules.pieceRuleMap.get(
-        input.piece.pieceTypeId
-      ) as IPieceRule,
-    };
+    const pieceRule = this.options.gameRules.pieceRuleMap.get(
+      input.piece.pieceTypeId
+    );
+    if (pieceRule == null) {
+      throw new Error("Piece rule not found");
+    }
+    const result: IPlyEvaluateData = { pieceRule };
     const piece = this.options.coordinateMap.getPiece(input.coordinate);
     if (piece != null) {
       const pieceRule = this.options.gameRules.pieceRuleMap.get(

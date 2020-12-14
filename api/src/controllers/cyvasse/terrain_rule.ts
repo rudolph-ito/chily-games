@@ -28,51 +28,51 @@ export function getTerrainRulesRouter(
       })
       .catch(next);
   });
-  router.get("/:terrainRuleId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    terrainRuleService
-      .getTerrainRule(
-        parseInt(req.params.variantId),
-        parseInt(req.params.terrainRuleId)
-      )
-      .then((terrainRule) => {
-        res.status(200).send(terrainRule);
-      })
-      .catch(next);
-  });
-  router.put("/:terrainRuleId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    terrainRuleService
-      .updateTerrainRule(
-        (req.user as IUser).userId,
-        parseInt(req.params.variantId),
-        parseInt(req.params.terrainRuleId),
-        req.body
-      )
-      .then((terrainRule) => {
-        res.status(200).send(terrainRule);
-      })
-      .catch(next);
-  });
-  router.delete("/:terrainRuleId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    terrainRuleService
-      .deleteTerrainRule(
-        (req.user as IUser).userId,
-        parseInt(req.params.variantId),
-        parseInt(req.params.terrainRuleId)
-      )
-      .then(() => res.status(200).end())
-      .catch(next);
-  });
+  router.get(
+    "/:terrainRuleId",
+    authenticationRequired,
+    function (req, res, next) {
+      terrainRuleService
+        .getTerrainRule(
+          parseInt(req.params.variantId),
+          parseInt(req.params.terrainRuleId)
+        )
+        .then((terrainRule) => {
+          res.status(200).send(terrainRule);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:terrainRuleId",
+    authenticationRequired,
+    function (req, res, next) {
+      terrainRuleService
+        .updateTerrainRule(
+          (req.user as IUser).userId,
+          parseInt(req.params.variantId),
+          parseInt(req.params.terrainRuleId),
+          req.body
+        )
+        .then((terrainRule) => {
+          res.status(200).send(terrainRule);
+        })
+        .catch(next);
+    }
+  );
+  router.delete(
+    "/:terrainRuleId",
+    authenticationRequired,
+    function (req, res, next) {
+      terrainRuleService
+        .deleteTerrainRule(
+          (req.user as IUser).userId,
+          parseInt(req.params.variantId),
+          parseInt(req.params.terrainRuleId)
+        )
+        .then(() => res.status(200).end())
+        .catch(next);
+    }
+  );
   return router;
 }

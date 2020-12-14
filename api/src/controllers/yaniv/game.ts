@@ -39,80 +39,80 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.put("/:gameId/join", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    const gameId = parseInt(req.params.gameId);
-    gameService
-      .join((req.user as IUser).userId, gameId)
-      .then((game) => {
-        res.status(200).send(game);
-        const playerJoinedEvent: IPlayerJoinedEvent = {
-          playerStates: game.playerStates,
-        };
-        newSocketIoEmitter(publishRedisClient as any)
-          .to(`yaniv-game-${gameId}`)
-          .emit("player-joined", playerJoinedEvent);
-      })
-      .catch(next);
-  });
-  router.put("/:gameId/start-round", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    const gameId = parseInt(req.params.gameId);
-    gameService
-      .startRound((req.user as IUser).userId, gameId)
-      .then((game) => {
-        res.status(200).send(game);
-        newSocketIoEmitter(publishRedisClient as any)
-          .to(`yaniv-game-${gameId}`)
-          .emit("round-started");
-      })
-      .catch(next);
-  });
-  router.put("/:gameId/play", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    const gameId = parseInt(req.params.gameId);
-    gameService
-      .play((req.user as IUser).userId, gameId, req.body)
-      .then(
-        ({
-          cardPickedUpFromDeck,
-          actionToNextPlayerEvent,
-          roundFinishedEvent,
-        }) => {
-          res.status(200).send({
+  router.put(
+    "/:gameId/join",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .join((req.user as IUser).userId, gameId)
+        .then((game) => {
+          res.status(200).send(game);
+          const playerJoinedEvent: IPlayerJoinedEvent = {
+            playerStates: game.playerStates,
+          };
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("player-joined", playerJoinedEvent);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:gameId/start-round",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .startRound((req.user as IUser).userId, gameId)
+        .then((game) => {
+          res.status(200).send(game);
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("round-started");
+        })
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:gameId/play",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .play((req.user as IUser).userId, gameId, req.body)
+        .then(
+          ({
             cardPickedUpFromDeck,
             actionToNextPlayerEvent,
             roundFinishedEvent,
-          });
-          if (actionToNextPlayerEvent != null) {
-            newSocketIoEmitter(publishRedisClient as any)
-              .to(`yaniv-game-${gameId}`)
-              .emit("action-to-next-player", actionToNextPlayerEvent);
+          }) => {
+            res.status(200).send({
+              cardPickedUpFromDeck,
+              actionToNextPlayerEvent,
+              roundFinishedEvent,
+            });
+            if (actionToNextPlayerEvent != null) {
+              newSocketIoEmitter(publishRedisClient as any)
+                .to(`yaniv-game-${gameId}`)
+                .emit("action-to-next-player", actionToNextPlayerEvent);
+            }
+            if (roundFinishedEvent != null) {
+              newSocketIoEmitter(publishRedisClient as any)
+                .to(`yaniv-game-${gameId}`)
+                .emit("round-finished", roundFinishedEvent);
+            }
           }
-          if (roundFinishedEvent != null) {
-            newSocketIoEmitter(publishRedisClient as any)
-              .to(`yaniv-game-${gameId}`)
-              .emit("round-finished", roundFinishedEvent);
-          }
-        }
-      )
-      .catch(next);
-  });
-  router.put("/:gameId/settings", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    // update settings in game
-  });
+        )
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:gameId/settings",
+    authenticationRequired,
+    function (req, res, next) {
+      // update settings in game
+    }
+  );
   return router;
 }

@@ -27,50 +27,50 @@ export function getChallengeRouter(
       })
       .catch(next);
   });
-  router.delete("/:challengeId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    challengeService
-      .deleteChallenge(
-        (req.user as IUser).userId,
-        parseInt(req.params.challengeId)
-      )
-      .then(() => {
-        res.end();
-      })
-      .catch(next);
-  });
-  router.post("/:challengeId/accept", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    challengeService
-      .acceptChallenge(
-        (req.user as IUser).userId,
-        parseInt(req.params.challengeId)
-      )
-      .then((game) => {
-        res.status(StatusCodes.OK).json(game);
-      })
-      .catch(next);
-  });
-  router.post("/:challengeId/decline", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    challengeService
-      .declineChallenge(
-        (req.user as IUser).userId,
-        parseInt(req.params.challengeId)
-      )
-      .then(() => {
-        res.end();
-      })
-      .catch(next);
-  });
+  router.delete(
+    "/:challengeId",
+    authenticationRequired,
+    function (req, res, next) {
+      challengeService
+        .deleteChallenge(
+          (req.user as IUser).userId,
+          parseInt(req.params.challengeId)
+        )
+        .then(() => {
+          res.end();
+        })
+        .catch(next);
+    }
+  );
+  router.post(
+    "/:challengeId/accept",
+    authenticationRequired,
+    function (req, res, next) {
+      challengeService
+        .acceptChallenge(
+          (req.user as IUser).userId,
+          parseInt(req.params.challengeId)
+        )
+        .then((game) => {
+          res.status(StatusCodes.OK).json(game);
+        })
+        .catch(next);
+    }
+  );
+  router.post(
+    "/:challengeId/decline",
+    authenticationRequired,
+    function (req, res, next) {
+      challengeService
+        .declineChallenge(
+          (req.user as IUser).userId,
+          parseInt(req.params.challengeId)
+        )
+        .then(() => {
+          res.end();
+        })
+        .catch(next);
+    }
+  );
   return router;
 }

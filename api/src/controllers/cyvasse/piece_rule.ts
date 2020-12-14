@@ -28,51 +28,51 @@ export function getPieceRulesRouter(
       })
       .catch(next);
   });
-  router.get("/:pieceRuleId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    pieceRuleService
-      .getPieceRule(
-        parseInt(req.params.variantId),
-        parseInt(req.params.pieceRuleId)
-      )
-      .then((pieceRule) => {
-        res.status(200).send(pieceRule);
-      })
-      .catch(next);
-  });
-  router.put("/:pieceRuleId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    pieceRuleService
-      .updatePieceRule(
-        (req.user as IUser).userId,
-        parseInt(req.params.variantId),
-        parseInt(req.params.pieceRuleId),
-        req.body
-      )
-      .then((pieceRule) => {
-        res.status(200).send(pieceRule);
-      })
-      .catch(next);
-  });
-  router.delete("/:pieceRuleId", authenticationRequired, function (
-    req,
-    res,
-    next
-  ) {
-    pieceRuleService
-      .deletePieceRule(
-        (req.user as IUser).userId,
-        parseInt(req.params.variantId),
-        parseInt(req.params.pieceRuleId)
-      )
-      .then(() => res.status(200).end())
-      .catch(next);
-  });
+  router.get(
+    "/:pieceRuleId",
+    authenticationRequired,
+    function (req, res, next) {
+      pieceRuleService
+        .getPieceRule(
+          parseInt(req.params.variantId),
+          parseInt(req.params.pieceRuleId)
+        )
+        .then((pieceRule) => {
+          res.status(200).send(pieceRule);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:pieceRuleId",
+    authenticationRequired,
+    function (req, res, next) {
+      pieceRuleService
+        .updatePieceRule(
+          (req.user as IUser).userId,
+          parseInt(req.params.variantId),
+          parseInt(req.params.pieceRuleId),
+          req.body
+        )
+        .then((pieceRule) => {
+          res.status(200).send(pieceRule);
+        })
+        .catch(next);
+    }
+  );
+  router.delete(
+    "/:pieceRuleId",
+    authenticationRequired,
+    function (req, res, next) {
+      pieceRuleService
+        .deletePieceRule(
+          (req.user as IUser).userId,
+          parseInt(req.params.variantId),
+          parseInt(req.params.pieceRuleId)
+        )
+        .then(() => res.status(200).end())
+        .catch(next);
+    }
+  );
   return router;
 }
