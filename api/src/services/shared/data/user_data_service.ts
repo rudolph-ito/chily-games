@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import { User } from "../../../database/models";
 import { IUser } from "../../../shared/dtos/authentication";
+import { NotFoundError } from '../exceptions';
 
 export interface ICreateUserOptions {
   username: string;
@@ -32,7 +33,10 @@ export class UserDataService implements IUserDataService {
   }
 
   async getUser(userId: number): Promise<IUser> {
-    const user = (await User.findByPk(userId)) as User;
+    const user = await User.findByPk(userId);
+    if (user == null) {
+      throw new NotFoundError(`User does not exist with id: ${userId}`);
+    }
     return user.serialize();
   }
 
