@@ -14,7 +14,6 @@ export interface ICyvasseChallengeDataService {
   ) => Promise<IChallenge>;
   deleteChallenge: (challengeId: number) => Promise<void>;
   getChallenge: (challengeId: number) => Promise<IChallenge>;
-  hasChallenge: (challengeId: number) => Promise<boolean>;
   searchChallenges: (
     request: ISearchChallengesRequest
   ) => Promise<IPaginatedResponse<IChallenge>>;
@@ -46,11 +45,6 @@ export class CyvasseChallengeDataService
       throw new NotFoundError("Challenge not found");
     }
     return challenge.serialize();
-  }
-
-  async hasChallenge(challengeId: number): Promise<boolean> {
-    const count = await CyvasseChallenge.count({ where: { challengeId } });
-    return count === 1;
   }
 
   async searchChallenges(

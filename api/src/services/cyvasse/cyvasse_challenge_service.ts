@@ -90,9 +90,6 @@ export class CyvasseChallengeService implements ICyvasseChallengeService {
   }
 
   async acceptChallenge(userId: number, challengeId: number): Promise<IGame> {
-    if (!(await this.challengeDataService.hasChallenge(challengeId))) {
-      this.throwChallengeNotFoundError(challengeId);
-    }
     const challenge = await this.challengeDataService.getChallenge(challengeId);
     if (challenge.creatorUserId === userId) {
       this.throwChallengeIdValidationError("Cannot accept your own challenge");
@@ -119,9 +116,6 @@ export class CyvasseChallengeService implements ICyvasseChallengeService {
   }
 
   async declineChallenge(userId: number, challengeId: number): Promise<void> {
-    if (!(await this.challengeDataService.hasChallenge(challengeId))) {
-      this.throwChallengeNotFoundError(challengeId);
-    }
     const challenge = await this.challengeDataService.getChallenge(challengeId);
     if (challenge.opponentUserId == null) {
       this.throwChallengeIdValidationError("Cannot decline open challenges");
@@ -135,9 +129,6 @@ export class CyvasseChallengeService implements ICyvasseChallengeService {
   }
 
   async deleteChallenge(userId: number, challengeId: number): Promise<void> {
-    if (!(await this.challengeDataService.hasChallenge(challengeId))) {
-      this.throwChallengeNotFoundError(challengeId);
-    }
     const challenge = await this.challengeDataService.getChallenge(challengeId);
     if (challenge.creatorUserId !== userId) {
       throw new AuthorizationError(
