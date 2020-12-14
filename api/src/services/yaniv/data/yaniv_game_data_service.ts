@@ -87,7 +87,10 @@ export class YanivGameDataService implements IYanivGameDataService {
     gameId: number,
     options: IYanivGameUpdateOptions
   ): Promise<ISerializedYanivGame> {
-    const game = (await YanivGame.findByPk(gameId)) as YanivGame;
+    const game = await YanivGame.findByPk(gameId);
+    if (game == null) {
+      throw gameNotFoundError(gameId);
+    }
     for (let [key, value] of Object.entries(options)) {
       if (
         [

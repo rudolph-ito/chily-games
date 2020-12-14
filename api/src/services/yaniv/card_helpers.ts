@@ -39,12 +39,15 @@ Object.keys(suitToNumber).forEach(
 
 export function serializeCard(card: ICard): number {
   if (valueOrDefault(card.isJoker, false)) {
-    return NUMBER_OF_STANDARD_CARDS + (card.jokerNumber as number);
+    if (card.jokerNumber == null) {
+      throw new Error("Card missing joker number");
+    }
+    return NUMBER_OF_STANDARD_CARDS + card.jokerNumber;
   }
-  return (
-    rankToNumber[card.rank as CardRank] +
-    13 * suitToNumber[card.suit as CardSuit]
-  );
+  if (card.rank == null || card.suit == null) {
+    throw new Error("Card missing suit or rank");
+  }
+  return rankToNumber[card.rank] + 13 * suitToNumber[card.suit];
 }
 
 export function deserializeCard(cardNumber: number): ICard {

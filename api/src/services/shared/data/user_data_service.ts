@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 import { User } from "../../../database/models";
 import { IUser } from "../../../shared/dtos/authentication";
-import { NotFoundError } from '../exceptions';
+import { NotFoundError } from "../exceptions";
 
 export interface ICreateUserOptions {
   username: string;
