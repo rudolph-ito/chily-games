@@ -13,10 +13,6 @@ import {
 } from "../../shared/dtos/cyvasse/piece_rule";
 import { validatePieceRuleOptions } from "./validators/cyvasse_piece_rule_validator";
 import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../shared/utilities/value_checker";
-import {
   ValidationError,
   NotFoundError,
   variantAuthorizationError,
@@ -60,7 +56,7 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
     }
     const existingPieceTypeMap = await this.getPieceTypeMap(variantId);
     const errors = validatePieceRuleOptions(options, existingPieceTypeMap);
-    if (doesHaveValue(errors)) {
+    if (errors != null) {
       throw new ValidationError(errors);
     }
     return await this.pieceRuleDataService.createPieceRule(options, variantId);
@@ -72,9 +68,6 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
     pieceRuleId: number
   ): Promise<void> {
     const pieceRule = await this.getPieceRule(variantId, pieceRuleId);
-    if (doesNotHaveValue(pieceRule)) {
-      this.throwPieceRuleNotFoundError(pieceRuleId, variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throw variantAuthorizationError("delete piece rules");
@@ -109,10 +102,7 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
     pieceRuleId: number,
     options: IPieceRuleOptions
   ): Promise<IPieceRule> {
-    const pieceRule = await this.getPieceRule(variantId, pieceRuleId);
-    if (doesNotHaveValue(pieceRule)) {
-      this.throwPieceRuleNotFoundError(pieceRuleId, variantId);
-    }
+    await this.getPieceRule(variantId, pieceRuleId);
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throw variantAuthorizationError("delete piece rules");
@@ -123,7 +113,7 @@ export class CyvassePieceRuleService implements ICyvassePieceRuleService {
       existingPieceTypeMap,
       pieceRuleId
     );
-    if (doesHaveValue(errors)) {
+    if (errors != null) {
       throw new ValidationError(errors);
     }
     return await this.pieceRuleDataService.updatePieceRule(

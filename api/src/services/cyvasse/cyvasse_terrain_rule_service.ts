@@ -13,10 +13,6 @@ import {
 } from "../../shared/dtos/cyvasse/terrain_rule";
 import { validateTerrainRuleOptions } from "./validators/cyvasse_terrain_rule_validator";
 import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../shared/utilities/value_checker";
-import {
   ValidationError,
   NotFoundError,
   variantAuthorizationError,
@@ -63,7 +59,7 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     }
     const existingTerrainTypeMap = await this.getTerrainTypeMap(variantId);
     const errors = validateTerrainRuleOptions(options, existingTerrainTypeMap);
-    if (doesHaveValue(errors)) {
+    if (errors != null) {
       throw new ValidationError(errors);
     }
     return await this.terrainRuleDataService.createTerrainRule(
@@ -78,9 +74,6 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     terrainRuleId: number
   ): Promise<void> {
     const terrainRule = await this.getTerrainRule(variantId, terrainRuleId);
-    if (doesNotHaveValue(terrainRule)) {
-      this.throwTerrainRuleNotFoundError(terrainRuleId, variantId);
-    }
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throw variantAuthorizationError("delete terrain rules");
@@ -113,10 +106,7 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     terrainRuleId: number,
     options: ITerrainRuleOptions
   ): Promise<ITerrainRule> {
-    const terrainRule = await this.getTerrainRule(variantId, terrainRuleId);
-    if (doesNotHaveValue(terrainRule)) {
-      this.throwTerrainRuleNotFoundError(terrainRuleId, variantId);
-    }
+    await this.getTerrainRule(variantId, terrainRuleId);
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throw variantAuthorizationError("delete terrain rules");
@@ -127,7 +117,7 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
       existingTerrainTypeMap,
       terrainRuleId
     );
-    if (doesHaveValue(errors)) {
+    if (errors != null) {
       throw new ValidationError(errors);
     }
     return await this.terrainRuleDataService.updateTerrainRule(

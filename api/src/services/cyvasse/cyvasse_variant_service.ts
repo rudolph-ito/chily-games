@@ -4,7 +4,6 @@ import {
   ISearchVariantsRequest,
   BoardType,
 } from "../../shared/dtos/cyvasse/variant";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
 import {
   ICyvasseVariantDataService,
   CyvasseVariantDataService,
@@ -63,7 +62,7 @@ export class CyvasseVariantService implements ICyvasseVariantService {
     options: IVariantOptions
   ): Promise<IVariant> {
     const validationErrors = validateVariantOptions(options);
-    if (doesHaveValue(validationErrors)) {
+    if (validationErrors != null) {
       throw new ValidationError(validationErrors);
     }
     const variant = await this.variantDataService.createVariant(
@@ -131,7 +130,7 @@ export class CyvasseVariantService implements ICyvasseVariantService {
       throw variantAuthorizationError("update the variant");
     }
     const validationErrors = validateVariantOptions(options);
-    if (doesHaveValue(validationErrors)) {
+    if (validationErrors != null) {
       throw new ValidationError(validationErrors);
     }
     return await this.variantDataService.updateVariant(variantId, options);
