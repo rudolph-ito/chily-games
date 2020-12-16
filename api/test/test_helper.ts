@@ -94,10 +94,7 @@ export async function createTestVariant(
   const variant = await new CyvasseVariantService().createVariant(creatorId, {
     boardType: BoardType.HEXAGONAL,
     boardSize: 6,
-    boardRows: null,
-    boardColumns: null,
     pieceRanks: false,
-    supportType: null,
     ...options,
   });
   return variant.variantId;
@@ -142,7 +139,6 @@ export async function createTestTerrainRule(
       slowsMovement: {
         for: PiecesEffectedType.NONE,
         pieceTypeIds: [],
-        by: null,
       },
       stopsMovement: {
         for: PiecesEffectedType.NONE,
