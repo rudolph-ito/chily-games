@@ -43,7 +43,10 @@ export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
   }
 
   movePiece(from: ICoordinate, to: ICoordinate): void {
-    const piece = this.getCoorinateData(from).piece as IPiece;
+    const piece = this.getCoorinateData(from).piece;
+    if (piece == null) {
+      throw new Error(`No piece found at coordinate: ${JSON.stringify(from)}`);
+    }
     this.deletePiece(from);
     this.addPiece(to, piece);
   }
@@ -61,7 +64,10 @@ export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
   }
 
   moveTerrain(from: ICoordinate, to: ICoordinate): void {
-    const terrain = this.getCoorinateData(from).terrain as ITerrain;
+    const terrain = this.getCoorinateData(from).terrain;
+    if (terrain == null) {
+      throw new Error(`No piece found at coordinate: ${JSON.stringify(from)}`);
+    }
     this.deleteTerrain(from);
     this.addTerrain(to, terrain);
   }
@@ -79,17 +85,23 @@ export class CyvasseCoordinateMap implements ICyvasseCoordinateMap {
 
   deserialize(data: ICoordinateMapData[]): void {
     data.forEach((datum) => {
-      if (doesHaveValue(datum.value.piece)) {
-        this.addPiece(datum.key, datum.value.piece as IPiece);
+      if (datum.value.piece != null) {
+        this.addPiece(datum.key, datum.value.piece);
       }
-      if (doesHaveValue(datum.value.terrain)) {
-        this.addTerrain(datum.key, datum.value.terrain as ITerrain);
+      if (datum.value.terrain != null) {
+        this.addTerrain(datum.key, datum.value.terrain);
       }
     });
   }
 
   private getCoorinateData(coordinate: ICoordinate): ICoordinateData {
-    return this.data.get(this.coordinateToKey(coordinate)) as ICoordinateData;
+    const coordinateData = this.data.get(this.coordinateToKey(coordinate));
+    if (coordinateData == null) {
+      throw new Error(
+        `Missing coordinate data at coordinate: ${JSON.stringify(coordinate)}`
+      );
+    }
+    return coordinateData;
   }
 
   private coordinateToKey(coordinate: ICoordinate): string {
