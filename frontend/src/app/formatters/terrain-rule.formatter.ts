@@ -28,7 +28,10 @@ export function getSlowsMovementDescription(
 ): string {
   let suffix = "";
   if (piecesEffectedBy.for !== PiecesEffectedType.NONE) {
-    suffix = ` by ${piecesEffectedBy.by as number}`;
+    if (piecesEffectedBy.by == null) {
+      throw new Error("Expected 'by' to be defined");
+    }
+    suffix = ` by ${piecesEffectedBy.by}`;
   }
   return `${getPiecesEffectedDescription(piecesEffectedBy)}${suffix}`;
 }
