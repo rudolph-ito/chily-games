@@ -31,7 +31,7 @@ module.exports = {
       },
       position: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
       cardsInHand: cardsConfig,
       createdAt: {

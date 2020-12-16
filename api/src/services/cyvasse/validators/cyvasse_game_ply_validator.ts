@@ -1,7 +1,3 @@
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../../shared/utilities/value_checker";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import {
   IPieceRule,
@@ -30,7 +26,9 @@ export interface IValidateGamePlyOptions {
   variant: IVariant;
 }
 
-export function validateGamePly(options: IValidateGamePlyOptions): string {
+export function validateGamePly(
+  options: IValidateGamePlyOptions
+): string | null {
   const plyCalculator = new CyvassePlyCalculator({
     coordinateMap: options.coordinateMap,
     pieceRuleMap: options.pieceRuleMap,
@@ -38,36 +36,39 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
     variant: options.variant,
   });
   // Top level validation
-  if (doesNotHaveValue(options.ply.piece)) {
+  if (options.ply.piece == null) {
     return "Piece is required";
   }
   if (options.ply.piece.playerColor !== options.playerColor) {
     return "Piece must belong to player";
   }
-  if (doesNotHaveValue(options.ply.from)) {
+  if (options.ply.from == null) {
     return "From is required";
   }
   const existingPiece = options.coordinateMap.getPiece(options.ply.from);
   if (
-    doesNotHaveValue(existingPiece) ||
+    existingPiece == null ||
     !arePiecesEqual(existingPiece, options.ply.piece)
   ) {
     return "Piece is not at from coordinate";
   }
-  if (
-    doesNotHaveValue(options.ply.movement) &&
-    doesNotHaveValue(options.ply.rangeCapture)
-  ) {
+  if (options.ply.movement == null && options.ply.rangeCapture == null) {
     return "Movement or range capture is required";
   }
   // Movement validation
-  if (doesHaveValue(options.ply.movement)) {
+  if (options.ply.movement != null) {
     const movementValidPlies = plyCalculator.getValidPlies({
       coordinate: options.ply.from,
       evaluationType: CaptureType.MOVEMENT,
     });
-    if (doesHaveValue(options.ply.movement.capturedPiece)) {
+    const to = options.ply.movement.to;
+    if (options.ply.movement.capturedPiece != null) {
       const pieceRule = options.pieceRuleMap.get(options.ply.piece.pieceTypeId);
+      if (pieceRule == null) {
+        throw new Error(
+          `Piece rule not found for piece type: ${options.ply.piece.pieceTypeId}`
+        );
+      }
       if (pieceRule.captureType !== CaptureType.MOVEMENT) {
         return "Movement - piece cannot capture by movement";
       }
@@ -75,20 +76,20 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
         options.ply.movement.to
       );
       if (
-        doesNotHaveValue(existingPiece) ||
+        existingPiece == null ||
         !arePiecesEqual(existingPiece, options.ply.movement.capturedPiece)
       ) {
         return "Movement - captured piece is not at to coordinate";
       }
       const isValid = movementValidPlies.capturable.some((c) =>
-        areCoordinatesEqual(c, options.ply.movement.to)
+        areCoordinatesEqual(c, to)
       );
       if (!isValid) {
         return "Movement - invalid (cannot capture)";
       }
     } else {
       const isValid = movementValidPlies.free.some((c) =>
-        areCoordinatesEqual(c, options.ply.movement.to)
+        areCoordinatesEqual(c, to)
       );
       if (!isValid) {
         return "Movement - invalid (not free)";
@@ -97,13 +98,15 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
   }
   // Movement and range capture
   let rangeCaptureFrom = options.ply.from;
-  if (
-    doesHaveValue(options.ply.movement) &&
-    doesHaveValue(options.ply.rangeCapture)
-  ) {
+  if (options.ply.movement != null && options.ply.rangeCapture != null) {
     const pieceRule = options.pieceRuleMap.get(options.ply.piece.pieceTypeId);
+    if (pieceRule == null) {
+      throw new Error(
+        `Piece rule not found for piece type: ${options.ply.piece.pieceTypeId}`
+      );
+    }
     if (
-      !doesNotHaveValue(pieceRule.moveAndRangeCapture) ||
+      pieceRule.moveAndRangeCapture == null ||
       !pieceRule.moveAndRangeCapture
     ) {
       return "Piece cannot move and range capture in the same turn";
@@ -111,7 +114,7 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
     rangeCaptureFrom = options.ply.movement.to;
   }
   // Range capture
-  if (doesHaveValue(options.ply.rangeCapture)) {
+  if (options.ply.rangeCapture != null) {
     const rangeValidPlies = plyCalculator.getValidPlies({
       coordinate: rangeCaptureFrom,
       evaluationType: CaptureType.RANGE,
@@ -120,13 +123,14 @@ export function validateGamePly(options: IValidateGamePlyOptions): string {
       options.ply.rangeCapture.to
     );
     if (
-      doesNotHaveValue(existingPiece) ||
+      existingPiece == null ||
       !arePiecesEqual(existingPiece, options.ply.rangeCapture.capturedPiece)
     ) {
       return "Range capture - captured piece is not at to coordinate";
     }
+    const to = options.ply.rangeCapture.to;
     const isValid = rangeValidPlies.capturable.some((c) =>
-      areCoordinatesEqual(c, options.ply.rangeCapture.to)
+      areCoordinatesEqual(c, to)
     );
     if (!isValid) {
       return "Range capture - invalid (cannot capture)";

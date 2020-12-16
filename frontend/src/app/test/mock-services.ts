@@ -3,12 +3,12 @@ import { AuthenticationService } from "../services/authentication.service";
 import { IUser } from "../shared/dtos/authentication";
 
 export interface IMockedAuthenticationService {
-  userSubject: ReplaySubject<IUser>;
+  userSubject: ReplaySubject<IUser | null>;
   service: Partial<AuthenticationService>;
 }
 
 export function getMockAuthenticationService(): IMockedAuthenticationService {
-  const userSubject = new ReplaySubject<IUser>(1);
+  const userSubject = new ReplaySubject<IUser | null>(1);
   userSubject.next(null);
   return {
     userSubject,

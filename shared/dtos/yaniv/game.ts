@@ -4,8 +4,8 @@ import { ICard } from "./card";
 export interface IPlayerState {
   userId: number;
   username: string;
-  numberOfCards?: number;
-  cards?: ICard[];
+  numberOfCards: number;
+  cards: ICard[];
 }
 
 export enum RoundScoreType {
@@ -50,8 +50,8 @@ export interface IGame {
   roundScores: IRoundScore[];
 
   // Fields populated with state == ROUND_ACTIVE
-  actionToUserId?: number;
-  cardsOnTopOfDiscardPile?: ICard[];
+  actionToUserId: number;
+  cardsOnTopOfDiscardPile: ICard[];
 }
 
 export interface IGameActionRequest {
@@ -72,7 +72,7 @@ export interface IPlayerJoinedEvent {
 
 export interface ILastAction {
   userId: number;
-  cardsDiscarded?: ICard[];
+  cardsDiscarded: ICard[];
   cardPickedUp?: ICard;
 }
 

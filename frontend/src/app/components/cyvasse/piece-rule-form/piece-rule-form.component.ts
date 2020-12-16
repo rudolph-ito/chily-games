@@ -69,7 +69,7 @@ export class PieceRuleFormComponent implements OnInit {
     evaluationType: new FormControl(CaptureType.MOVEMENT),
   };
 
-  generalError: string;
+  generalError?: string;
   board: BaseBoard;
 
   @ViewChild("boardContainer") boardContainer: ElementRef;
@@ -94,9 +94,11 @@ export class PieceRuleFormComponent implements OnInit {
           this.controls.movementMinimum.setValue(pieceRule.movement.minimum);
           this.controls.movementMaximum.setValue(pieceRule.movement.maximum);
           this.controls.captureType.setValue(pieceRule.captureType);
-          this.controls.rangeType.setValue(pieceRule.range.type);
-          this.controls.rangeMinimum.setValue(pieceRule.range.minimum);
-          this.controls.rangeMaximum.setValue(pieceRule.range.maximum);
+          if (pieceRule.range != null) {
+            this.controls.rangeType.setValue(pieceRule.range.type);
+            this.controls.rangeMinimum.setValue(pieceRule.range.minimum);
+            this.controls.rangeMaximum.setValue(pieceRule.range.maximum);
+          }
           this.controls.moveAndRangeCapture.setValue(
             pieceRule.moveAndRangeCapture
           );
@@ -222,13 +224,13 @@ export class PieceRuleFormComponent implements OnInit {
           const errors: IPieceRuleValidationErrors = errorResponse.error;
           setError(this.controls.pieceTypeId, errors.pieceTypeId);
           setError(this.controls.count, errors.count);
-          if (doesHaveValue(errors.movement)) {
+          if (errors.movement != null) {
             setError(this.controls.movementType, errors.movement.type);
             setError(this.controls.movementMinimum, errors.movement.minimum);
             setError(this.controls.movementMaximum, errors.movement.maximum);
           }
           setError(this.controls.captureType, errors.captureType);
-          if (doesHaveValue(errors.range)) {
+          if (errors.range != null) {
             setError(this.controls.rangeType, errors.range.type);
             setError(this.controls.rangeMinimum, errors.range.minimum);
             setError(this.controls.rangeMaximum, errors.range.maximum);

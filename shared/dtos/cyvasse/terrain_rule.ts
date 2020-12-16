@@ -23,7 +23,7 @@ export interface IPiecesEffected {
 }
 
 export interface ISlowsMovement extends IPiecesEffected {
-  by?: number;
+  by?: number | null;
 }
 
 export interface ITerrainRuleOptions {

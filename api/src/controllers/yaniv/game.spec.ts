@@ -59,6 +59,8 @@ describe("YanivGameRoutes", () => {
         },
         playerStates: [
           {
+            numberOfCards: 0,
+            cards: [],
             userId: user1Id,
             username: "user1",
           },
@@ -93,10 +95,14 @@ describe("YanivGameRoutes", () => {
       expect(game.state).to.eql(GameState.PLAYERS_JOINING);
       expect(game.playerStates).to.eql([
         {
+          numberOfCards: 0,
+          cards: [],
           userId: user1Id,
           username: "user1",
         },
         {
+          numberOfCards: 0,
+          cards: [],
           userId: user2Id,
           username: "user2",
         },

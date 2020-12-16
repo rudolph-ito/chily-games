@@ -1,5 +1,6 @@
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { ICard } from "../../shared/dtos/yaniv/card";
-import { areCardsEqual, rankToNumber } from "./card_helpers";
+import { areCardsEqual, getCardRankNumber } from "./card_helpers";
 
 export enum RunDirection {
   unknown = 0,
@@ -28,7 +29,7 @@ function areCardsASet(cards: ICard[]): boolean {
   if (cards.length < 2) {
     return false;
   }
-  const nonJokers = cards.filter((c) => !c.isJoker);
+  const nonJokers = cards.filter((c) => !valueOrDefault(c.isJoker, false));
   const firstCard = nonJokers[0];
   return nonJokers.every((c) => c.rank === firstCard.rank);
 }
@@ -38,39 +39,29 @@ function areCardsARun(cards: ICard[]): boolean {
     return false;
   }
 
-  const cardsWithoutLeadingTrailingJokers = cards.slice();
-  while (cardsWithoutLeadingTrailingJokers[0].isJoker) {
-    cardsWithoutLeadingTrailingJokers.shift();
-  }
-  while (
-    cardsWithoutLeadingTrailingJokers[
-      cardsWithoutLeadingTrailingJokers.length - 1
-    ].isJoker
-  ) {
-    cardsWithoutLeadingTrailingJokers.pop();
-  }
+  const normalizedCards = removeLeadingAndTrailingJokers(cards);
 
-  const firstCard = cardsWithoutLeadingTrailingJokers[0];
-  const isSameSuit = cardsWithoutLeadingTrailingJokers.every(
-    (c) => c.isJoker || c.suit === firstCard.suit
+  const firstCard = normalizedCards[0];
+  const isSameSuit = normalizedCards.every(
+    (c) => valueOrDefault(c.isJoker, false) || c.suit === firstCard.suit
   );
   if (!isSameSuit) {
     return false;
   }
 
-  let lastRankNumber = rankToNumber[firstCard.rank];
+  let lastRankNumber = getCardRankNumber(firstCard);
   let expectedRankDiff = 1;
-  let direction = null;
-  for (const card of cardsWithoutLeadingTrailingJokers.slice(1)) {
-    if (card.isJoker) {
+  let direction: RunDirection | null = null;
+  for (const card of normalizedCards.slice(1)) {
+    if (valueOrDefault(card.isJoker, false)) {
       expectedRankDiff += 1;
     } else {
-      const rankNumber = rankToNumber[card.rank];
+      const rankNumber = getCardRankNumber(card);
       const isExpectedAscending =
         rankNumber === (lastRankNumber + expectedRankDiff) % 13;
       const isExpectedDescending =
         rankNumber === (lastRankNumber - expectedRankDiff + 13) % 13;
-      if (direction === null) {
+      if (direction == null) {
         if (isExpectedAscending) {
           direction = RunDirection.ascending;
         } else if (isExpectedDescending) {
@@ -91,4 +82,18 @@ function areCardsARun(cards: ICard[]): boolean {
     }
   }
   return true;
+}
+
+function removeLeadingAndTrailingJokers(cards: ICard[]): ICard[] {
+  const newCards = cards.slice();
+  while (newCards.length > 0 && valueOrDefault(newCards[0].isJoker, false)) {
+    newCards.shift();
+  }
+  while (
+    newCards.length > 0 &&
+    valueOrDefault(newCards[newCards.length - 1].isJoker, false)
+  ) {
+    newCards.pop();
+  }
+  return newCards;
 }

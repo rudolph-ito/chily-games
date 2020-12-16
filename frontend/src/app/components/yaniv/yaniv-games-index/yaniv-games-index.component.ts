@@ -59,7 +59,7 @@ export class YanivGamesIndexComponent implements OnInit {
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
-          this.snackBar.open(errorResponse.error, null, {
+          this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
         }

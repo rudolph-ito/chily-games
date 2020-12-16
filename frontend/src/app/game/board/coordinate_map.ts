@@ -21,7 +21,7 @@ export class CoordinateMap<T> {
     });
   }
 
-  get(coordinate: ICoordinate): T {
+  get(coordinate: ICoordinate): T | undefined {
     return this.data.get(this.coordinateToKey(coordinate));
   }
 

@@ -45,10 +45,10 @@ export class CyvasseGameShowComponent implements OnInit {
   game: IGame;
   gameRules: IGameRules;
   variant: IVariant;
-  user: IUser;
+  user: IUser | null;
   alabasterUser: IUser;
   onyxUser: IUser;
-  userObservable: Observable<IUser> = of(null);
+  userObservable: Observable<IUser | null> = of(null);
   board: BaseBoard;
   resizeObservable = new Subject<boolean>();
 
@@ -144,9 +144,13 @@ export class CyvasseGameShowComponent implements OnInit {
                 (errorResponse: HttpErrorResponse) => {
                   if (errorResponse.status === 422) {
                     this.ngZone.run(() => {
-                      this.snackBar.open(errorResponse.error.general, null, {
-                        duration: 2500,
-                      });
+                      this.snackBar.open(
+                        errorResponse.error.general,
+                        undefined,
+                        {
+                          duration: 2500,
+                        }
+                      );
                     });
                     resolve(false);
                   } else {
@@ -163,7 +167,7 @@ export class CyvasseGameShowComponent implements OnInit {
               (errorResponse: HttpErrorResponse) => {
                 if (errorResponse.status === 422) {
                   this.ngZone.run(() => {
-                    this.snackBar.open(errorResponse.error.general, null, {
+                    this.snackBar.open(errorResponse.error.general, undefined, {
                       duration: 2500,
                     });
                   });
@@ -194,9 +198,9 @@ export class CyvasseGameShowComponent implements OnInit {
     this.updateBoard();
   }
 
-  getPlayerColor(): PlayerColor {
-    let color = null;
-    if (doesHaveValue(this.user)) {
+  getPlayerColor(): PlayerColor | null {
+    let color: PlayerColor | null = null;
+    if (this.user != null) {
       if (this.user.userId === this.game.alabasterUserId) {
         color = PlayerColor.ALABASTER;
       }
@@ -257,7 +261,7 @@ export class CyvasseGameShowComponent implements OnInit {
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
           this.ngZone.run(() => {
-            this.snackBar.open(errorResponse.error.general, null, {
+            this.snackBar.open(errorResponse.error.general, undefined, {
               duration: 2500,
             });
           });
@@ -268,14 +272,17 @@ export class CyvasseGameShowComponent implements OnInit {
 
   getGameStatus(): string {
     if (this.game.action === Action.SETUP) {
-      if (doesNotHaveValue(this.game.actionTo)) {
+      if (this.game.actionTo == null) {
         return "Both players setting up";
       } else {
         return `${this.game.actionTo} setting up`;
       }
-    } else if (this.game.action === Action.PLAY) {
+    } else if (this.game.action === Action.PLAY && this.game.actionTo != null) {
       return `${this.game.actionTo} to play`;
-    } else if (this.game.action === Action.COMPLETE) {
+    } else if (
+      this.game.action === Action.COMPLETE &&
+      this.game.actionTo != null
+    ) {
       return `${this.game.actionTo} has been defeated`;
     }
     return "TODO";

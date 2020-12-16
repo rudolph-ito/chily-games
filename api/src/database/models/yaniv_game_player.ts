@@ -2,7 +2,6 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
 import { YanivGame } from "./yaniv_game";
 import { User } from "./user";
 
@@ -10,7 +9,7 @@ export interface ISerializedYanivGamePlayer {
   gameId: number;
   userId: number;
   position: number;
-  cardsInHand?: ICard[];
+  cardsInHand: ICard[];
 }
 
 export class YanivGamePlayer extends Model {
@@ -20,15 +19,12 @@ export class YanivGamePlayer extends Model {
   public cardsInHand!: number[];
 
   serialize(): ISerializedYanivGamePlayer {
-    const out: ISerializedYanivGamePlayer = {
+    return {
       gameId: this.gameId,
       userId: this.userId,
       position: this.position,
+      cardsInHand: this.cardsInHand.map(deserializeCard),
     };
-    if (doesHaveValue(this.cardsInHand)) {
-      out.cardsInHand = this.cardsInHand.map(deserializeCard);
-    }
-    return out;
   }
 }
 YanivGamePlayer.init(

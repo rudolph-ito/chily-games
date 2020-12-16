@@ -1,10 +1,6 @@
 import { CyvasseGame } from "../../../database/models";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import {
-  doesNotHaveValue,
-  doesHaveValue,
-} from "../../../shared/utilities/value_checker";
-import {
   IGame,
   Action,
   ISearchGamesRequest,
@@ -12,6 +8,7 @@ import {
   IGamePly,
   PlayerColor,
 } from "../../../shared/dtos/cyvasse/game";
+import { gameNotFoundError } from "../../shared/exceptions";
 
 export interface IGameOptions {
   variantId: number;
@@ -56,16 +53,16 @@ export class CyvasseGameDataService implements ICyvasseGameDataService {
 
   async getGame(gameId: number): Promise<IGame> {
     const game = await CyvasseGame.findByPk(gameId);
-    if (doesHaveValue(game)) {
-      return game.serialize();
+    if (game == null) {
+      throw gameNotFoundError(gameId);
     }
-    return null;
+    return game.serialize();
   }
 
   async searchGames(
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<IGame>> {
-    if (doesNotHaveValue(request.pagination)) {
+    if (request.pagination == null) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
     const result = await CyvasseGame.findAndCountAll({
@@ -80,6 +77,9 @@ export class CyvasseGameDataService implements ICyvasseGameDataService {
 
   async updateGame(gameId: number, options: IGameUpdateOptions): Promise<void> {
     const game = await CyvasseGame.findByPk(gameId);
+    if (game == null) {
+      throw gameNotFoundError(gameId);
+    }
     for (const [key, value] of Object.entries(options)) {
       game[key] = value;
     }

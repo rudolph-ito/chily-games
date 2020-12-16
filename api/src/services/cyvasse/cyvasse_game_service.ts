@@ -17,15 +17,7 @@ import {
   CyvasseGameDataService,
   IGameUpdateOptions,
 } from "./data/cyvasse_game_data_service";
-import {
-  doesNotHaveValue,
-  doesHaveValue,
-} from "../../shared/utilities/value_checker";
-import {
-  AuthorizationError,
-  NotFoundError,
-  ValidationError,
-} from "../shared/exceptions";
+import { AuthorizationError, ValidationError } from "../shared/exceptions";
 import { CyvasseCoordinateMap } from "./game/storage/cyvasse_coordinate_map";
 import { getBoardForVariant } from "./game/board/cyvasse_board_builder";
 import {
@@ -52,7 +44,7 @@ import { CyvassePlyCalculator } from "./game/ply_calculator/cyvasse_ply_calculat
 
 export interface ICyvasseGameService {
   abortGame: (userId: number, gameId: number) => Promise<void>;
-  getGame: (userId: number, gameId: number) => Promise<IGame>;
+  getGame: (userId: number | null, gameId: number) => Promise<IGame>;
   getGameRules: (gameId: number) => Promise<IGameRules>;
   getValidPlies: (
     gameId: number,
@@ -85,9 +77,6 @@ export class CyvasseGameService implements ICyvasseGameService {
 
   async getGame(userId: number, gameId: number): Promise<IGame> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     if (game.action === Action.SETUP) {
       if (userId !== game.alabasterUserId) {
         game.alabasterSetupCoordinateMap = [];
@@ -101,9 +90,6 @@ export class CyvasseGameService implements ICyvasseGameService {
 
   async getGameRules(gameId: number): Promise<IGameRules> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
     const setupTerritories: IGameSetupTerritories = {
@@ -147,9 +133,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     request: IGetGameValidPliesRequest
   ): Promise<ValidPlies> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     const variant = await this.variantDataService.getVariant(game.variantId);
     const board = getBoardForVariant(variant);
     const coordinateMap = new CyvasseCoordinateMap(board.getAllCoordinates());
@@ -165,9 +148,6 @@ export class CyvasseGameService implements ICyvasseGameService {
 
   async abortGame(userId: number, gameId: number): Promise<void> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
       throw new AuthorizationError("Only players may abort");
     }
@@ -190,9 +170,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     change: IGameSetupChange
   ): Promise<void> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     await this.validateUserCanTakeSetupAction(game, userId);
     const playerColor =
       game.alabasterUserId === userId
@@ -214,12 +191,12 @@ export class CyvasseGameService implements ICyvasseGameService {
       playerColor,
       terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
     });
-    if (doesHaveValue(error)) {
+    if (error != null) {
       throw new ValidationError({ general: error });
     }
-    if (doesHaveValue(change.pieceChange)) {
-      if (doesHaveValue(change.pieceChange.from)) {
-        if (doesHaveValue(change.pieceChange.to)) {
+    if (change.pieceChange != null) {
+      if (change.pieceChange.from != null) {
+        if (change.pieceChange.to != null) {
           coordinateMap.movePiece(
             change.pieceChange.from,
             change.pieceChange.to
@@ -227,16 +204,16 @@ export class CyvasseGameService implements ICyvasseGameService {
         } else {
           coordinateMap.deletePiece(change.pieceChange.from);
         }
-      } else {
+      } else if (change.pieceChange.to != null) {
         coordinateMap.addPiece(change.pieceChange.to, {
           pieceTypeId: change.pieceChange.pieceTypeId,
           playerColor,
         });
       }
     } else {
-      if (doesHaveValue(change.terrainChange)) {
-        if (doesHaveValue(change.terrainChange.from)) {
-          if (doesHaveValue(change.terrainChange.to)) {
+      if (change.terrainChange != null) {
+        if (change.terrainChange.from != null) {
+          if (change.terrainChange.to != null) {
             coordinateMap.moveTerrain(
               change.terrainChange.from,
               change.terrainChange.to
@@ -244,7 +221,7 @@ export class CyvasseGameService implements ICyvasseGameService {
           } else {
             coordinateMap.deleteTerrain(change.terrainChange.from);
           }
-        } else {
+        } else if (change.terrainChange.to != null) {
           coordinateMap.addTerrain(change.terrainChange.to, {
             terrainTypeId: change.terrainChange.terrainTypeId,
             playerColor,
@@ -261,12 +238,9 @@ export class CyvasseGameService implements ICyvasseGameService {
 
   async completeGameSetup(userId: number, gameId: number): Promise<void> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     await this.validateUserCanTakeSetupAction(game, userId);
     await this.validateUserSetupIsComplete(game, userId);
-    if (doesNotHaveValue(game.actionTo)) {
+    if (game.actionTo == null) {
       const actionTo =
         game.alabasterUserId === userId
           ? PlayerColor.ONYX
@@ -294,9 +268,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     ply: IGamePly
   ): Promise<IGamePlyEvent> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     await this.validateUserCanCreatePly(game, userId);
     const playerColor =
       game.alabasterUserId === userId
@@ -314,13 +285,13 @@ export class CyvasseGameService implements ICyvasseGameService {
       terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
       variant,
     });
-    if (doesHaveValue(error)) {
+    if (error != null) {
       throw new ValidationError({ general: error });
     }
-    if (doesHaveValue(ply.movement)) {
+    if (ply.movement != null) {
       coordinateMap.movePiece(ply.from, ply.movement.to);
     }
-    if (doesHaveValue(ply.rangeCapture)) {
+    if (ply.rangeCapture != null) {
       coordinateMap.deletePiece(ply.rangeCapture.to);
     }
     const nextActionTo =
@@ -331,7 +302,7 @@ export class CyvasseGameService implements ICyvasseGameService {
       .serialize()
       .some(
         ({ value }) =>
-          doesHaveValue(value.piece) &&
+          value.piece != null &&
           value.piece.pieceTypeId === PieceType.KING &&
           value.piece.playerColor === nextActionTo
       );
@@ -352,9 +323,6 @@ export class CyvasseGameService implements ICyvasseGameService {
 
   async resignGame(userId: number, gameId: number): Promise<void> {
     const game = await this.gameDataService.getGame(gameId);
-    if (doesNotHaveValue(game)) {
-      this.throwGameNotFoundError(gameId);
-    }
     if (userId !== game.alabasterUserId && userId !== game.onyxUserId) {
       throw new AuthorizationError("Only players may resign");
     }
@@ -377,10 +345,6 @@ export class CyvasseGameService implements ICyvasseGameService {
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<IGame>> {
     return await this.gameDataService.searchGames(request);
-  }
-
-  private throwGameNotFoundError(gameId: number): void {
-    throw new NotFoundError(`Game does not exist with id: ${gameId}`);
   }
 
   private async getPieceRuleMap(
@@ -415,7 +379,7 @@ export class CyvasseGameService implements ICyvasseGameService {
         general: "Can only update game setup during setup",
       });
     }
-    if (doesHaveValue(game.actionTo)) {
+    if (game.actionTo != null) {
       const playerColor =
         game.alabasterUserId === userId
           ? PlayerColor.ALABASTER
@@ -468,7 +432,7 @@ export class CyvasseGameService implements ICyvasseGameService {
       pieceRuleMap: await this.getPieceRuleMap(game.variantId),
       terrainRuleMap: await this.getTerrainRuleMap(game.variantId),
     });
-    if (doesHaveValue(error)) {
+    if (error != null) {
       throw new ValidationError({ general: error });
     }
   }

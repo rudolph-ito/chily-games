@@ -1,14 +1,11 @@
 import { CyvasseChallenge } from "../../../database/models";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import {
-  doesNotHaveValue,
-  doesHaveValue,
-} from "../../../shared/utilities/value_checker";
-import {
   IChallengeOptions,
   IChallenge,
   ISearchChallengesRequest,
 } from "../../../shared/dtos/cyvasse/challenge";
+import { NotFoundError } from "../../shared/exceptions";
 
 export interface ICyvasseChallengeDataService {
   createChallenge: (
@@ -44,16 +41,16 @@ export class CyvasseChallengeDataService
 
   async getChallenge(challengeId: number): Promise<IChallenge> {
     const challenge = await CyvasseChallenge.findByPk(challengeId);
-    if (doesHaveValue(challenge)) {
-      return challenge.serialize();
+    if (challenge == null) {
+      throw new NotFoundError("Challenge not found");
     }
-    return null;
+    return challenge.serialize();
   }
 
   async searchChallenges(
     request: ISearchChallengesRequest
   ): Promise<IPaginatedResponse<IChallenge>> {
-    if (doesNotHaveValue(request.pagination)) {
+    if (request.pagination == null) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
     const result = await CyvasseChallenge.findAndCountAll({

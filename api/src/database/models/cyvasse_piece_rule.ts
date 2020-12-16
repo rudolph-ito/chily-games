@@ -22,11 +22,11 @@ export class CyvassePieceRule extends Model {
   public count!: number;
   public movementType!: PathType;
   public movementMinimum!: number;
-  public movementMaximum!: number;
+  public movementMaximum!: number | null;
   public captureType!: CaptureType;
   public rangeType!: PathType;
   public rangeMinimum!: number;
-  public rangeMaximum!: number;
+  public rangeMaximum!: number | null;
   public moveAndRangeCapture!: boolean;
   public attackRank!: number;
   public defenseRank!: number;

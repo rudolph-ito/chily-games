@@ -10,11 +10,11 @@ import { doesNotHaveValue } from "../../shared/utilities/value_checker";
 export class CyvasseVariant extends Model {
   public variantId!: number;
   public boardType!: BoardType;
-  public boardRows!: number;
-  public boardColumns!: number;
-  public boardSize!: number;
+  public boardRows!: number | null;
+  public boardColumns!: number | null;
+  public boardSize!: number | null;
   public pieceRanks!: boolean;
-  public supportType!: SupportType;
+  public supportType!: SupportType | null;
   public userId!: number;
 
   requiredForBoards(

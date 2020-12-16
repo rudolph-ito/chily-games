@@ -1,9 +1,10 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
 import shuffle from "knuth-shuffle-seeded";
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 
 const NUMBER_OF_STANDARD_CARDS = 52;
 
-export const rankToNumber = {
+const rankToNumber = {
   [CardRank.ACE]: 0,
   [CardRank.TWO]: 1,
   [CardRank.THREE]: 2,
@@ -19,6 +20,13 @@ export const rankToNumber = {
   [CardRank.KING]: 12,
 };
 
+export function getCardRankNumber(card: ICard): number {
+  if (card.rank == null) {
+    throw new Error("Expected card rank to be defined");
+  }
+  return rankToNumber[card.rank];
+}
+
 const numberToRank = {};
 Object.keys(rankToNumber).forEach(
   (key) => (numberToRank[rankToNumber[key]] = key)
@@ -31,16 +39,26 @@ const suitToNumber = {
   [CardSuit.SPADES]: 3,
 };
 
+export function getCardSuitNumber(card: ICard): number {
+  if (card.suit == null) {
+    throw new Error("Expected card suit to be defined");
+  }
+  return suitToNumber[card.suit];
+}
+
 const numberToSuit = {};
 Object.keys(suitToNumber).forEach(
   (key) => (numberToSuit[suitToNumber[key]] = key)
 );
 
 export function serializeCard(card: ICard): number {
-  if (card.isJoker) {
+  if (valueOrDefault(card.isJoker, false)) {
+    if (card.jokerNumber == null) {
+      throw new Error("Card missing joker number");
+    }
     return NUMBER_OF_STANDARD_CARDS + card.jokerNumber;
   }
-  return rankToNumber[card.rank] + 13 * suitToNumber[card.suit];
+  return getCardRankNumber(card) + 13 * getCardSuitNumber(card);
 }
 
 export function deserializeCard(cardNumber: number): ICard {
@@ -56,8 +74,8 @@ export function deserializeCard(cardNumber: number): ICard {
 }
 
 export function areCardsEqual(a: ICard, b: ICard): boolean {
-  if (a.isJoker) {
-    return b.isJoker && a.jokerNumber === b.jokerNumber;
+  if (valueOrDefault(a.isJoker, false)) {
+    return valueOrDefault(b.isJoker, false) && a.jokerNumber === b.jokerNumber;
   }
   return a.rank === b.rank && a.suit === b.suit;
 }

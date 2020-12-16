@@ -10,10 +10,10 @@ export interface ISerializedYanivGame {
   hostUserId: number;
   state: GameState;
   options: IGameOptions;
-  actionToUserId?: number;
-  cardsInDeck?: ICard[];
-  cardsBuriedInDiscardPile?: ICard[];
-  cardsOnTopOfDiscardPile?: ICard[];
+  actionToUserId: number;
+  cardsInDeck: ICard[];
+  cardsBuriedInDiscardPile: ICard[];
+  cardsOnTopOfDiscardPile: ICard[];
 }
 
 const STATE_ENUM = DataTypes.ENUM(

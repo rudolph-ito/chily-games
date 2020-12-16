@@ -18,9 +18,9 @@ import {
 import { createTestYanivRoundActiveGame } from "../../../test/yaniv_test_helper";
 
 interface ITestPlayResult {
-  error: Error;
-  result: IGameActionResponse;
-  game: IGame;
+  error?: Error;
+  result?: IGameActionResponse;
+  game?: IGame;
 }
 
 async function testPlay(
@@ -28,16 +28,47 @@ async function testPlay(
   gameId: number,
   action: IGameActionRequest
 ): Promise<ITestPlayResult> {
-  let error: Error;
-  let game: IGame;
-  let result: IGameActionResponse;
+  let error: Error | undefined;
+  let game: IGame | undefined;
+  let result: IGameActionResponse | undefined;
   try {
-    result = await new YanivGameService().play(userId, gameId, action);
+    await new YanivGameService().play(userId, gameId, action);
     game = await new YanivGameService().get(userId, gameId);
   } catch (e) {
     error = e;
   }
   return { result, game, error };
+}
+
+async function testPlayExpectError(
+  userId: number,
+  gameId: number,
+  action: IGameActionRequest
+): Promise<Error> {
+  const { result, error } = await testPlay(userId, gameId, action);
+  if (error == null) {
+    throw new Error(
+      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
+    );
+  }
+  return error;
+}
+
+async function testPlayExpectSuccess(
+  userId: number,
+  gameId: number,
+  action: IGameActionRequest
+): Promise<IGame> {
+  const { error, game } = await testPlay(userId, gameId, action);
+  if (error != null) {
+    throw new Error(
+      `Expected no error but got one, error: ${error.stack ?? error.message}`
+    );
+  }
+  if (game == null) {
+    throw new Error(`Expected game but is null`);
+  }
+  return game;
 }
 
 describe("YanivGameService", () => {
@@ -52,7 +83,7 @@ describe("YanivGameService", () => {
       const action: IGameActionRequest = { callYaniv: true };
 
       // act
-      const { error } = await testPlay(userId, gameId, action);
+      const error = await testPlayExpectError(userId, gameId, action);
 
       // assert
       expect(error).to.be.instanceOf(NotFoundError);
@@ -72,7 +103,7 @@ describe("YanivGameService", () => {
       const action: IGameActionRequest = { callYaniv: true };
 
       // act
-      const { error } = await testPlay(user2Id, gameId, action);
+      const error = await testPlayExpectError(user2Id, gameId, action);
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
@@ -106,11 +137,11 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error?.message).to.eql(
           'Validation errors: "Discard cannot contain duplicates."'
         );
       });
@@ -136,7 +167,7 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -169,7 +200,7 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -200,7 +231,7 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -231,10 +262,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.state).to.eql(GameState.ROUND_ACTIVE);
         expect(game.cardsOnTopOfDiscardPile).to.eql([
@@ -257,6 +287,7 @@ describe("YanivGameService", () => {
             username: "test1",
           },
           {
+            cards: [],
             numberOfCards: 0,
             userId: user2Id,
             username: "test2",
@@ -287,10 +318,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.state).to.eql(GameState.ROUND_ACTIVE);
         expect(game.cardsOnTopOfDiscardPile).to.eql([
@@ -313,6 +343,7 @@ describe("YanivGameService", () => {
             username: "test1",
           },
           {
+            cards: [],
             numberOfCards: 0,
             userId: user2Id,
             username: "test2",
@@ -349,7 +380,7 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -386,10 +417,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
         expect(game.state).to.eql(GameState.ROUND_COMPLETE);
         expect(game.actionToUserId).to.eql(user1Id);
         expect(game.roundScores).to.eql([
@@ -435,10 +465,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
         expect(game.state).to.eql(GameState.ROUND_COMPLETE);
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.roundScores).to.eql([
@@ -484,10 +513,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
         expect(game.state).to.eql(GameState.ROUND_COMPLETE);
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.roundScores).to.eql([
@@ -537,10 +565,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
         expect(game.state).to.eql(GameState.ROUND_COMPLETE);
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.roundScores).to.eql([

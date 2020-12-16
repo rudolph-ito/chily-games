@@ -3,21 +3,20 @@ import {
   IVariantValidationErrors,
   BoardType,
 } from "../../../shared/dtos/cyvasse/variant";
-import { doesNotHaveValue } from "../../../shared/utilities/value_checker";
 
 export function validateVariantOptions(
   options: IVariantOptions
-): IVariantValidationErrors {
+): IVariantValidationErrors | null {
   const errors: IVariantValidationErrors = {};
   if (options.boardType === BoardType.HEXAGONAL) {
-    if (doesNotHaveValue(options.boardSize)) {
+    if (options.boardSize == null) {
       errors.boardSize = "Board size is required";
     }
   } else if (options.boardType === BoardType.SQUARE) {
-    if (doesNotHaveValue(options.boardColumns)) {
+    if (options.boardColumns == null) {
       errors.boardColumns = "Board columns is required";
     }
-    if (doesNotHaveValue(options.boardRows)) {
+    if (options.boardRows == null) {
       errors.boardRows = "Board rows is required";
     }
   } else {

@@ -13,13 +13,13 @@ import { tap } from "rxjs/operators";
 })
 export class AuthenticationService {
   private readonly routePrefix = "/api/auth";
-  private readonly userSubscription: ReplaySubject<IUser>;
+  private readonly userSubscription: ReplaySubject<IUser | null>;
 
   constructor(private readonly http: HttpClient) {
-    this.userSubscription = new ReplaySubject<IUser>(1);
+    this.userSubscription = new ReplaySubject<IUser | null>(1);
   }
 
-  getUserSubject(): Subject<IUser> {
+  getUserSubject(): Subject<IUser | null> {
     return this.userSubscription;
   }
 

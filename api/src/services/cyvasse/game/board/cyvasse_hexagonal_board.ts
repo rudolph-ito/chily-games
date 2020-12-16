@@ -69,7 +69,7 @@ export class CyvasseHexagonalBoard implements ICyvasseBoard {
     throw Error("Unsupported board direction");
   }
 
-  getSetupTerritoryOwner(coordinate: ICoordinate): PlayerColor {
+  getSetupTerritoryOwner(coordinate: ICoordinate): PlayerColor | null {
     if (coordinate.y === 0) {
       return null;
     }

@@ -3,12 +3,15 @@ export function doesHaveValue(value: any): boolean {
 }
 
 export function doesNotHaveValue(value: any): boolean {
-  return value === null || value === undefined;
+  return value == null || value == null;
 }
 
-export function valueOrDefault<T>(value: T, defaultValue: T): T {
+export function valueOrDefault<T>(
+  value: T | null | undefined,
+  defaultValue: T
+): T {
   if (doesHaveValue(value)) {
-    return value;
+    return value as T;
   }
   return defaultValue;
 }

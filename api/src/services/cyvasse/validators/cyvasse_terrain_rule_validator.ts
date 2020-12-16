@@ -1,8 +1,4 @@
 import {
-  doesNotHaveValue,
-  doesHaveValue,
-} from "../../../shared/utilities/value_checker";
-import {
   ITerrainRuleOptions,
   ITerrainRuleValidationErrors,
   IPiecesEffectedValidationErrors,
@@ -17,18 +13,18 @@ export function validateTerrainRuleOptions(
   options: ITerrainRuleOptions,
   existingTerrainTypeMap: Map<TerrainType, number>,
   terrainRuleId?: number
-): ITerrainRuleValidationErrors {
+): ITerrainRuleValidationErrors | null {
   const errors: ITerrainRuleValidationErrors = {};
 
   // terrainTypeId
-  if (doesNotHaveValue(options.terrainTypeId)) {
+  if (options.terrainTypeId == null) {
     errors.terrainTypeId = "Terrain type is required";
   } else {
     const existingTerrainRuleId = existingTerrainTypeMap.get(
       options.terrainTypeId
     );
     if (
-      doesHaveValue(existingTerrainRuleId) &&
+      existingTerrainRuleId != null &&
       existingTerrainRuleId !== terrainRuleId
     ) {
       errors.terrainTypeId =
@@ -37,7 +33,7 @@ export function validateTerrainRuleOptions(
   }
 
   // count
-  if (doesNotHaveValue(options.count)) {
+  if (options.count == null) {
     errors.count = "Count is required";
   } else if (options.count < 1) {
     errors.count = "Count must be greater than or equal to 1";
@@ -48,14 +44,14 @@ export function validateTerrainRuleOptions(
     options.passableMovement,
     "Passable movement"
   );
-  if (doesHaveValue(passableMovementErrors)) {
+  if (passableMovementErrors != null) {
     errors.passableMovement = passableMovementErrors;
   }
   const passableRangeErrors = validatePiecesEffectedOptions(
     options.passableRange,
     "Passable range"
   );
-  if (doesHaveValue(passableRangeErrors)) {
+  if (passableRangeErrors != null) {
     errors.passableRange = passableRangeErrors;
   }
 
@@ -63,7 +59,7 @@ export function validateTerrainRuleOptions(
   const slowsMovementErrors = validateSlowsMovementByOptions(
     options.slowsMovement
   );
-  if (doesHaveValue(slowsMovementErrors)) {
+  if (slowsMovementErrors != null) {
     errors.slowsMovement = slowsMovementErrors;
   }
 
@@ -72,7 +68,7 @@ export function validateTerrainRuleOptions(
     options.stopsMovement,
     "Stops movement"
   );
-  if (doesHaveValue(stopsMovementErrors)) {
+  if (stopsMovementErrors != null) {
     errors.stopsMovement = stopsMovementErrors;
   }
 
@@ -85,17 +81,17 @@ export function validateTerrainRuleOptions(
 export function validatePiecesEffectedOptions(
   config: IPiecesEffected,
   prefix: string
-): IPiecesEffectedValidationErrors {
+): IPiecesEffectedValidationErrors | null {
   const errors: IPiecesEffectedValidationErrors = {};
 
-  if (doesNotHaveValue(config) || doesNotHaveValue(config.for)) {
+  if (config == null || config.for == null) {
     errors.for = `${prefix} for is required`;
   }
-  if (doesNotHaveValue(config) || doesNotHaveValue(config.pieceTypeIds)) {
+  if (config == null || config.pieceTypeIds == null) {
     errors.pieceTypeIds = `${prefix} piece types are required`;
   }
   if (
-    doesHaveValue(config) &&
+    config != null &&
     (config.for === PiecesEffectedType.ALL_EXCEPT ||
       config.for === PiecesEffectedType.ONLY)
   ) {
@@ -111,16 +107,16 @@ export function validatePiecesEffectedOptions(
 
 export function validateSlowsMovementByOptions(
   config: ISlowsMovement
-): ISlowsMovementValidationErrors {
-  let errors: ISlowsMovementValidationErrors = validatePiecesEffectedOptions(
+): ISlowsMovementValidationErrors | null {
+  let errors = validatePiecesEffectedOptions(
     config,
     "Slows movement"
-  );
-  if (doesNotHaveValue(errors)) {
+  ) as ISlowsMovementValidationErrors;
+  if (errors == null) {
     errors = {};
   }
-  if (doesHaveValue(config) && config.for !== PiecesEffectedType.NONE) {
-    if (doesNotHaveValue(config.by)) {
+  if (config != null && config.for !== PiecesEffectedType.NONE) {
+    if (config.by == null) {
       errors.by = "Slows movement by is required";
     } else if (config.by < 1) {
       errors.by = "Slows movement by must be greater than or equal to 1";

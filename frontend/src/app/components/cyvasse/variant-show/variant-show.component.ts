@@ -6,7 +6,6 @@ import { getBoardDescription } from "../../../formatters/variant.formatter";
 import { MatTableDataSource } from "@angular/material/table";
 import { Observable, of, forkJoin } from "rxjs";
 import { AuthenticationService } from "../../../services/authentication.service";
-import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { map } from "rxjs/operators";
 import {
   IPieceRule,
@@ -97,7 +96,7 @@ export class VariantShowComponent implements OnInit {
       this.updateFields();
       this.isLoggedInUserCreatorObservable = this.authenticationService
         .getUserSubject()
-        .pipe(map((x) => doesHaveValue(x) && x.userId === this.variant.userId));
+        .pipe(map((x) => x != null && x.userId === this.variant.userId));
     });
   }
 

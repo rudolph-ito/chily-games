@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
-import { doesHaveValue } from "../../../shared/utilities/value_checker";
 import { User } from "../../../database/models";
 import { IUser } from "../../../shared/dtos/authentication";
+import { NotFoundError } from "../exceptions";
 
 export interface ICreateUserOptions {
   username: string;
@@ -11,6 +11,7 @@ export interface ICreateUserOptions {
 export interface IUserDataService {
   createUser: (options: ICreateUserOptions) => Promise<IUser>;
   getUser: (userId: number) => Promise<IUser>;
+  getMaybeUser: (userId: number) => Promise<IUser | null>;
   getUsers: (userIds: number[]) => Promise<IUser[]>;
   hasUser: (userId: number) => Promise<boolean>;
   hasUserWithUsername: (username: string) => Promise<boolean>;
@@ -24,12 +25,19 @@ export class UserDataService implements IUserDataService {
     return user.serialize();
   }
 
-  async getUser(userId: number): Promise<IUser> {
-    const user = await User.findByPk(userId);
-    if (doesHaveValue(user)) {
-      return user.serialize();
+  async getMaybeUser(userId: number): Promise<IUser | null> {
+    if (await this.hasUser(userId)) {
+      return await this.getUser(userId);
     }
     return null;
+  }
+
+  async getUser(userId: number): Promise<IUser> {
+    const user = await User.findByPk(userId);
+    if (user == null) {
+      throw new NotFoundError(`User does not exist with id: ${userId}`);
+    }
+    return user.serialize();
   }
 
   async getUsers(userIds: number[]): Promise<IUser[]> {

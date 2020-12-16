@@ -24,7 +24,7 @@ export class CyvasseGamesIndexComponent implements OnInit {
     "actions",
   ];
 
-  userObservable: Observable<IUser> = of(null);
+  userObservable: Observable<IUser | null> = of(null);
 
   constructor(
     private readonly gameService: CyvasseGameService,

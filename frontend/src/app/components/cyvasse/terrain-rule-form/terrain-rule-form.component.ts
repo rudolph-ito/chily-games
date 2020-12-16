@@ -205,7 +205,7 @@ export class TerrainRuleFormComponent implements OnInit {
           const errors: ITerrainRuleValidationErrors = errorResponse.error;
           setError(this.controls.terrainTypeId, errors.terrainTypeId);
           setError(this.controls.count, errors.count);
-          if (doesHaveValue(errors.passableMovement)) {
+          if (errors.passableMovement != null) {
             setError(
               this.controls.passableMovement.for,
               errors.passableMovement.for
@@ -215,14 +215,14 @@ export class TerrainRuleFormComponent implements OnInit {
               errors.passableMovement.pieceTypeIds
             );
           }
-          if (doesHaveValue(errors.passableRange)) {
+          if (errors.passableRange != null) {
             setError(this.controls.passableRange.for, errors.passableRange.for);
             setError(
               this.controls.passableRange.pieceTypeIds,
               errors.passableRange.pieceTypeIds
             );
           }
-          if (doesHaveValue(errors.slowsMovement)) {
+          if (errors.slowsMovement != null) {
             setError(this.controls.slowsMovement.for, errors.slowsMovement.for);
             setError(
               this.controls.slowsMovement.pieceTypeIds,
@@ -230,7 +230,7 @@ export class TerrainRuleFormComponent implements OnInit {
             );
             setError(this.controls.slowsMovement.by, errors.slowsMovement.by);
           }
-          if (doesHaveValue(errors.stopsMovement)) {
+          if (errors.stopsMovement != null) {
             setError(this.controls.stopsMovement.for, errors.stopsMovement.for);
             setError(
               this.controls.stopsMovement.pieceTypeIds,

@@ -22,7 +22,7 @@ export class ChallengesIndexComponent implements OnInit {
   challengesDataSource = new MatTableDataSource<IChallenge>();
   total: number;
   displayedColumns: string[] = ["creatorId", "variantId", "actions"];
-  userObservable: Observable<IUser> = of(null);
+  userObservable: Observable<IUser | null> = of(null);
   userLoggedInObservable: Observable<boolean> = of(false);
 
   constructor(

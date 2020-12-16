@@ -33,7 +33,7 @@ import {
 export class YanivGameShowComponent implements OnInit {
   loading: boolean;
   game: IGame;
-  user: IUser;
+  user: IUser | null;
   resizeObservable = new Subject<boolean>();
   table: YanivTable;
   scoresDataSource = new MatTableDataSource<IRoundScore>();
@@ -79,8 +79,7 @@ export class YanivGameShowComponent implements OnInit {
         if (event.lastAction.userId !== this.user?.userId) {
           this.table.updateStateWithUserAction(
             event.lastAction,
-            event.actionToUserId,
-            this.user?.userId
+            event.actionToUserId
           );
         }
       });
@@ -170,7 +169,7 @@ export class YanivGameShowComponent implements OnInit {
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
-          this.snackBar.open(errorResponse.error, null, {
+          this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
         }
@@ -181,19 +180,18 @@ export class YanivGameShowComponent implements OnInit {
   onPlay = async (action: IGameActionRequest): Promise<void> => {
     this.gameService.play(this.getGameId(), action).subscribe(
       async (response: IGameActionResponse) => {
-        if (doesHaveValue(response.actionToNextPlayerEvent)) {
+        if (response.actionToNextPlayerEvent != null) {
           const event = response.actionToNextPlayerEvent;
           this.table.updateStateWithUserAction(
             event.lastAction,
             event.actionToUserId,
-            this.user?.userId,
             response.cardPickedUpFromDeck
           );
         }
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
-          this.snackBar.open(errorResponse.error, null, {
+          this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
         }

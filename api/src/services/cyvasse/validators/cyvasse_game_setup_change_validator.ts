@@ -1,8 +1,4 @@
 import {
-  doesNotHaveValue,
-  doesHaveValue,
-} from "../../../shared/utilities/value_checker";
-import {
   IGameSetupChange,
   PlayerColor,
 } from "../../../shared/dtos/cyvasse/game";
@@ -25,60 +21,59 @@ export interface IValidateGameSetupChangeOptions {
 
 export function validateGameSetupChange(
   options: IValidateGameSetupChangeOptions
-): string {
+): string | null {
   const { pieceChange, terrainChange } = options.change;
   if (
-    (doesNotHaveValue(pieceChange) && doesNotHaveValue(terrainChange)) ||
-    (doesHaveValue(pieceChange) && doesHaveValue(terrainChange))
+    (pieceChange == null && terrainChange == null) ||
+    (pieceChange != null && terrainChange != null)
   ) {
     return "Must have exactly one piece change or terrain change";
   }
-  if (doesHaveValue(pieceChange)) {
-    if (
-      doesNotHaveValue(pieceChange.from) &&
-      doesNotHaveValue(pieceChange.to)
-    ) {
+  if (pieceChange != null) {
+    if (pieceChange.from == null && pieceChange.to == null) {
       return "Piece change - must have either from or to";
     }
-    if (doesNotHaveValue(pieceChange.pieceTypeId)) {
+    if (pieceChange.pieceTypeId == null) {
       return "Piece change - must have piece type";
     }
     if (
-      doesHaveValue(pieceChange.from) &&
+      pieceChange.from != null &&
       options.board.getSetupTerritoryOwner(pieceChange.from) !==
         options.playerColor
     ) {
       return "Piece change - from coordinate is not in setup territory";
     }
     if (
-      doesHaveValue(pieceChange.to) &&
+      pieceChange.to != null &&
       options.board.getSetupTerritoryOwner(pieceChange.to) !==
         options.playerColor
     ) {
       return "Piece change - to coordinate is not in setup territory";
     }
-    if (doesHaveValue(pieceChange.from)) {
+    if (pieceChange.from != null) {
       const existingPiece = options.coordinateMap.getPiece(pieceChange.from);
       if (
-        doesNotHaveValue(existingPiece) ||
+        existingPiece == null ||
         existingPiece.pieceTypeId !== pieceChange.pieceTypeId
       ) {
         return "Piece change - from coordinate does contain piece type";
       }
     }
-    if (doesHaveValue(pieceChange.to)) {
+    if (pieceChange.to != null) {
       const existingPiece = options.coordinateMap.getPiece(pieceChange.to);
-      if (doesHaveValue(existingPiece)) {
+      if (existingPiece != null) {
         return "Piece change - to coordinate is not free";
       }
     }
-    if (doesNotHaveValue(pieceChange.from)) {
+    if (pieceChange.from == null) {
       if (!options.pieceRuleMap.has(pieceChange.pieceTypeId)) {
         return "Piece change - piece type not allowed";
       }
-      const maxPieceTypeCount = options.pieceRuleMap.get(
-        pieceChange.pieceTypeId
-      ).count;
+      const pieceRule = options.pieceRuleMap.get(pieceChange.pieceTypeId);
+      if (pieceRule == null) {
+        throw new Error("Piece rule not found");
+      }
+      const maxPieceTypeCount = pieceRule.count;
       const currentPieceTypeCount = options.coordinateMap
         .serialize()
         .filter((x) => x.value.piece?.pieceTypeId === pieceChange.pieceTypeId)
@@ -88,56 +83,57 @@ export function validateGameSetupChange(
       }
     }
   }
-  if (doesHaveValue(terrainChange)) {
-    if (
-      doesNotHaveValue(terrainChange.from) &&
-      doesNotHaveValue(terrainChange.to)
-    ) {
+  if (terrainChange != null) {
+    if (terrainChange.from == null && terrainChange.to == null) {
       return "Terrain change - must have either from or to";
     }
-    if (doesNotHaveValue(terrainChange.terrainTypeId)) {
+    if (terrainChange.terrainTypeId == null) {
       return "Terrain change - must have piece type";
     }
     if (
-      doesHaveValue(terrainChange.from) &&
+      terrainChange.from != null &&
       options.board.getSetupTerritoryOwner(terrainChange.from) !==
         options.playerColor
     ) {
       return "Terrain change - from coordinate is not in setup territory";
     }
     if (
-      doesHaveValue(terrainChange.to) &&
+      terrainChange.to != null &&
       options.board.getSetupTerritoryOwner(terrainChange.to) !==
         options.playerColor
     ) {
       return "Terrain change - to coordinate is not in setup territory";
     }
-    if (doesHaveValue(terrainChange.from)) {
+    if (terrainChange.from != null) {
       const existingTerrain = options.coordinateMap.getTerrain(
         terrainChange.from
       );
       if (
-        doesNotHaveValue(existingTerrain) ||
+        existingTerrain == null ||
         existingTerrain.terrainTypeId !== terrainChange.terrainTypeId
       ) {
         return "Terrain change - from coordinate does contain terrain type";
       }
     }
-    if (doesHaveValue(terrainChange.to)) {
+    if (terrainChange.to != null) {
       const existingTerrain = options.coordinateMap.getTerrain(
         terrainChange.to
       );
-      if (doesHaveValue(existingTerrain)) {
+      if (existingTerrain != null) {
         return "Terrain change - to coordinate is not free";
       }
     }
-    if (doesNotHaveValue(terrainChange.from)) {
+    if (terrainChange.from == null) {
       if (!options.terrainRuleMap.has(terrainChange.terrainTypeId)) {
         return "Terrain change - terrain type not allowed";
       }
-      const maxTerrainTypeCount = options.terrainRuleMap.get(
+      const terrainRule = options.terrainRuleMap.get(
         terrainChange.terrainTypeId
-      ).count;
+      );
+      if (terrainRule == null) {
+        throw new Error("Terrain rule not found");
+      }
+      const maxTerrainTypeCount = terrainRule.count;
       const currentTerrainTypeCount = options.coordinateMap
         .serialize()
         .filter(

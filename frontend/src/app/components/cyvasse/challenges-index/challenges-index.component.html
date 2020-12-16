@@ -16,7 +16,7 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <button mat-button *ngIf="(userObservable | async).userId !== element.creatorUserId" (click)="onAcceptChallenge(element)">
+        <button mat-button *ngIf="(userObservable | async)?.userId !== element.creatorUserId" (click)="onAcceptChallenge(element)">
           Accept
         </button>
       </td>

@@ -15,7 +15,7 @@ export function validatePieceRuleOptions(
   options: IPieceRuleOptions,
   existingPieceTypeMap: Map<PieceType, number>,
   pieceRuleId?: number
-): IPieceRuleValidationErrors {
+): IPieceRuleValidationErrors | null {
   const isKing = existingPieceTypeMap.get(PieceType.KING) === pieceRuleId;
   const errors: IPieceRuleValidationErrors = {};
 
@@ -51,17 +51,17 @@ export function validatePieceRuleOptions(
     options.movement,
     "Movement"
   );
-  if (doesHaveValue(movementErrors)) {
+  if (movementErrors != null) {
     errors.movement = movementErrors;
   }
 
   // capture type + range
-  if (options.captureType === CaptureType.RANGE) {
+  if (options.captureType === CaptureType.RANGE && options.range != null) {
     const rangeErrors = validatePathConfigurationOptions(
       options.range,
       "Range"
     );
-    if (doesHaveValue(rangeErrors)) {
+    if (rangeErrors != null) {
       errors.range = rangeErrors;
     }
   } else if (options.captureType !== CaptureType.MOVEMENT) {
@@ -77,7 +77,7 @@ export function validatePieceRuleOptions(
 export function validatePathConfigurationOptions(
   config: IPathConfiguration,
   prefix: string
-): IPathConfigurationValidationErrors {
+): IPathConfigurationValidationErrors | null {
   const errors: IPathConfigurationValidationErrors = {};
   if (doesNotHaveValue(config) || doesNotHaveValue(config.type)) {
     errors.type = `${prefix} type is required`;
@@ -86,10 +86,8 @@ export function validatePathConfigurationOptions(
     errors.minimum = `${prefix} minimum is required`;
   } else if (config.minimum < 1) {
     errors.minimum = `${prefix} minimum must be greater than or equal to 1`;
-  } else {
-    if (doesHaveValue(config.maximum) && config.maximum < config.minimum) {
-      errors.maximum = `${prefix} maximum must be greater than or equal to minimum`;
-    }
+  } else if (config.maximum != null && config.maximum < config.minimum) {
+    errors.maximum = `${prefix} maximum must be greater than or equal to minimum`;
   }
   if (Object.keys(errors).length > 0) {
     return errors;

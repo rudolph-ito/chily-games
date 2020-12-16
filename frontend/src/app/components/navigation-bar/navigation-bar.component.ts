@@ -12,7 +12,7 @@ import { IUser } from "../../shared/dtos/authentication";
 })
 export class NavigationBarComponent implements OnInit {
   loading: boolean = false;
-  user: IUser;
+  user: IUser | null;
 
   constructor(
     private readonly authenticationService: AuthenticationService,

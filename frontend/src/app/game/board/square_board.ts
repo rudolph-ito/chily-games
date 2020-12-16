@@ -6,7 +6,6 @@ import {
   Action,
 } from "../../shared/dtos/cyvasse/game";
 import Konva from "konva";
-import { doesHaveValue } from "../../shared/utilities/value_checker";
 
 export interface ISquareBoardLayoutOptions {
   boardColumns: number;
@@ -106,9 +105,13 @@ export class SquareBoard extends BaseBoard {
     space.height(this.spaceSize);
   }
 
-  protected setupForContainer(gameRules: IGameRules): void {
+  protected setupForContainer(gameRules?: IGameRules): void {
     let setupSpaces = 0;
-    if (doesHaveValue(this.game) && this.game.action === Action.SETUP) {
+    if (
+      this.game != null &&
+      this.game.action === Action.SETUP &&
+      gameRules != null
+    ) {
       this.setupRows = Math.floor(this.layout.boardRows / 1.1);
       this.setupColumns = Math.ceil(
         (gameRules.pieces.length + gameRules.terrains.length) / this.setupRows

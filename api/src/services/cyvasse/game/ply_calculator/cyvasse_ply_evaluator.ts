@@ -14,10 +14,6 @@ import {
   IPiecesEffected,
   PiecesEffectedType,
 } from "../../../../shared/dtos/cyvasse/terrain_rule";
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../../../shared/utilities/value_checker";
 import { IPlyEvaluateOptions } from "./types";
 
 interface IPlyEvaluation {
@@ -33,11 +29,19 @@ interface IPlyEvaluateInput {
   piece: IPiece;
 }
 
+interface IPieceWithRule {
+  piece: IPiece;
+  pieceRule: IPieceRule;
+}
+
+interface ITerrainWithRule {
+  terrain: ITerrain;
+  terrainRule: ITerrainRule;
+}
+
 interface IPlyEvaluateData {
-  occupyingPiece?: IPiece;
-  occupyingPieceRule?: IPieceRule;
-  occupyingTerrain?: ITerrain;
-  occupyingTerrainRule?: ITerrainRule;
+  occupyingPieceWithRule?: IPieceWithRule;
+  occupyingTerrainWithRule?: ITerrainWithRule;
   pieceRule: IPieceRule;
 }
 
@@ -65,22 +69,32 @@ export class CyvassePlyEvaluator {
 
   // Load data about the piece / coordinate
   private getPlyEvaluateData(input: IPlyEvaluateInput): IPlyEvaluateData {
-    const result: IPlyEvaluateData = {
-      pieceRule: this.options.gameRules.pieceRuleMap.get(
-        input.piece.pieceTypeId
-      ),
-      occupyingPiece: this.options.coordinateMap.getPiece(input.coordinate),
-      occupyingTerrain: this.options.coordinateMap.getTerrain(input.coordinate),
-    };
-    if (doesHaveValue(result.occupyingPiece)) {
-      result.occupyingPieceRule = this.options.gameRules.pieceRuleMap.get(
-        result.occupyingPiece.pieceTypeId
-      );
+    const pieceRule = this.options.gameRules.pieceRuleMap.get(
+      input.piece.pieceTypeId
+    );
+    if (pieceRule == null) {
+      throw new Error("Piece rule not found");
     }
-    if (doesHaveValue(result.occupyingTerrain)) {
-      result.occupyingTerrainRule = this.options.gameRules.terrainRuleMap.get(
-        result.occupyingTerrain.terrainTypeId
+    const result: IPlyEvaluateData = { pieceRule };
+    const piece = this.options.coordinateMap.getPiece(input.coordinate);
+    if (piece != null) {
+      const pieceRule = this.options.gameRules.pieceRuleMap.get(
+        piece.pieceTypeId
       );
+      if (pieceRule == null) {
+        throw new Error("Piece rule not found");
+      }
+      result.occupyingPieceWithRule = { piece, pieceRule };
+    }
+    const terrain = this.options.coordinateMap.getTerrain(input.coordinate);
+    if (terrain != null) {
+      const terrainRule = this.options.gameRules.terrainRuleMap.get(
+        terrain.terrainTypeId
+      );
+      if (terrainRule == null) {
+        throw new Error("Piece rule not found");
+      }
+      result.occupyingTerrainWithRule = { terrain, terrainRule };
     }
     return result;
   }
@@ -93,16 +107,24 @@ export class CyvassePlyEvaluator {
     if (input.count < data.pieceRule.movement.minimum) {
       return false;
     }
-    if (doesHaveValue(data.occupyingPiece)) {
-      if (data.occupyingPiece.playerColor === input.piece.playerColor) {
+    if (data.occupyingPieceWithRule != null) {
+      if (
+        data.occupyingPieceWithRule.piece.playerColor ===
+        input.piece.playerColor
+      ) {
         return false;
       }
       if (input.evaluationType !== data.pieceRule.captureType) {
         return false;
       }
     }
-    if (doesHaveValue(data.occupyingTerrain)) {
-      if (!this.canTerrainBeEntered(data.occupyingTerrainRule, input)) {
+    if (data.occupyingTerrainWithRule != null) {
+      if (
+        !this.canTerrainBeEntered(
+          data.occupyingTerrainWithRule.terrainRule,
+          input
+        )
+      ) {
         return false;
       }
     }
@@ -114,11 +136,11 @@ export class CyvassePlyEvaluator {
     input: IPlyEvaluateInput,
     data: IPlyEvaluateData
   ): PlyEvaluationFlag {
-    if (doesNotHaveValue(data.occupyingPiece)) {
+    if (data.occupyingPieceWithRule == null) {
       return PlyEvaluationFlag.FREE;
     }
     const isEnemyPiece =
-      data.occupyingPiece.playerColor !== input.piece.playerColor;
+      data.occupyingPieceWithRule.piece.playerColor !== input.piece.playerColor;
     if (isEnemyPiece) {
       const canCapture = !this.options.gameRules.pieceRanks || false; // TODO caluculate supported rank
       if (canCapture) {
@@ -136,13 +158,13 @@ export class CyvassePlyEvaluator {
     input: IPlyEvaluateInput,
     data: IPlyEvaluateData
   ): number {
-    if (doesHaveValue(data.occupyingPiece)) {
+    if (data.occupyingPieceWithRule != null) {
       return Infinity;
     }
-    if (doesHaveValue(data.occupyingTerrain)) {
+    if (data.occupyingTerrainWithRule != null) {
       if (
         this.doesEffectApplyToPieceType(
-          data.occupyingTerrainRule.stopsMovement,
+          data.occupyingTerrainWithRule.terrainRule.stopsMovement,
           input.piece.pieceTypeId
         )
       ) {
@@ -150,11 +172,16 @@ export class CyvassePlyEvaluator {
       }
       if (
         this.doesEffectApplyToPieceType(
-          data.occupyingTerrainRule.slowsMovement,
+          data.occupyingTerrainWithRule.terrainRule.slowsMovement,
           input.piece.pieceTypeId
         )
       ) {
-        return 1 + data.occupyingTerrainRule.slowsMovement.by;
+        if (
+          data.occupyingTerrainWithRule.terrainRule.slowsMovement.by == null
+        ) {
+          throw new Error("Terrain rule slows movement by is null");
+        }
+        return 1 + data.occupyingTerrainWithRule.terrainRule.slowsMovement.by;
       }
     }
     return 1;

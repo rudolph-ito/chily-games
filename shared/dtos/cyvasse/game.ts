@@ -97,7 +97,7 @@ export interface IGame {
   gameId: number;
   variantId: number;
   action: Action;
-  actionTo: PlayerColor;
+  actionTo: PlayerColor | null;
   alabasterUserId: number;
   onyxUserId: number;
   alabasterSetupCoordinateMap: ICoordinateMapData[];
@@ -110,7 +110,7 @@ export interface IGamePieceRule {
   pieceTypeId: PieceType;
   count: number;
   captureType: CaptureType;
-  moveAndRangeCapture: boolean;
+  moveAndRangeCapture?: boolean;
 }
 
 export interface IGameTerrainRule {
@@ -136,14 +136,14 @@ export interface ISearchGamesRequest {
 
 export interface IGameSetupPieceChange {
   pieceTypeId: PieceType;
-  from?: ICoordinate;
-  to?: ICoordinate;
+  from?: ICoordinate | null;
+  to?: ICoordinate | null;
 }
 
 export interface IGameSetupTerrainChange {
   terrainTypeId: TerrainType;
-  from?: ICoordinate;
-  to?: ICoordinate;
+  from?: ICoordinate | null;
+  to?: ICoordinate | null;
 }
 
 export interface IGameSetupChange {
