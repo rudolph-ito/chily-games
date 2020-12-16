@@ -209,7 +209,10 @@ export class YanivTable {
     } else {
       const cardRect = this.deckCard.clone();
       this.removeCardEventHandlers(cardRect);
-      if (lastAction.userId === this.currentUserId && cardPickedUpFromDeck != null) {
+      if (
+        lastAction.userId === this.currentUserId &&
+        cardPickedUpFromDeck != null
+      ) {
         await this.updateRectWithCardFace(cardRect, cardPickedUpFromDeck);
         this.initializeCurrentUserCardEventHandlers(cardRect);
       }

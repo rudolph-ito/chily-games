@@ -129,7 +129,7 @@ export class YanivGameService implements IYanivGameService {
         if (nextCard == null) {
           throw new Error("Unexpected empty deck (dealing to players)");
         }
-        x.cardsInHand.push(nextCard)
+        x.cardsInHand.push(nextCard);
       });
     }
     await this.gamePlayerDataService.updateAll(playerStates);

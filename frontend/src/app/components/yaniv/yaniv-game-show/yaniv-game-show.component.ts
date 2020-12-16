@@ -79,7 +79,7 @@ export class YanivGameShowComponent implements OnInit {
         if (event.lastAction.userId !== this.user?.userId) {
           this.table.updateStateWithUserAction(
             event.lastAction,
-            event.actionToUserId,
+            event.actionToUserId
           );
         }
       });
