@@ -18,11 +18,13 @@ const rankToScore = {
 };
 
 export function getCardsScore(cards: ICard[]): number {
-  return cards.reduce(
-    (sum: number, card: ICard) =>
-      valueOrDefault(card.isJoker, false)
-        ? sum
-        : sum + rankToScore[card.rank as CardRank],
-    0
-  );
+  return cards.reduce((sum: number, card: ICard) => {
+    if (valueOrDefault(card.isJoker, false)) {
+      return sum;
+    }
+    if (card.rank == null) {
+      throw new Error("Card missing rank");
+    }
+    return sum + rankToScore[card.rank];
+  }, 0);
 }
