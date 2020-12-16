@@ -124,11 +124,13 @@ export class YanivGameService implements IYanivGameService {
     const deck = standardDeckWithTwoJokers();
     playerStates.forEach((x) => (x.cardsInHand = []));
     for (let i = 0; i < 5; i++) {
-      const nextCard = deck.pop();
-      if (nextCard == null) {
-        throw new Error("Unexpected empty deck (dealing to players)");
-      }
-      playerStates.forEach((x) => x.cardsInHand.push(nextCard));
+      playerStates.forEach((x) => {
+        const nextCard = deck.pop();
+        if (nextCard == null) {
+          throw new Error("Unexpected empty deck (dealing to players)");
+        }
+        x.cardsInHand.push(nextCard)
+      });
     }
     await this.gamePlayerDataService.updateAll(playerStates);
     const initialDiscard = deck.pop();
