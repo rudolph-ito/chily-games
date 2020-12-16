@@ -54,7 +54,6 @@ export function mockTerrainRule(
     slowsMovement: {
       for: PiecesEffectedType.NONE,
       pieceTypeIds: [],
-      by: null,
     },
     stopsMovement: {
       for: PiecesEffectedType.NONE,
@@ -70,10 +69,7 @@ export function mockVariant(options: Partial<IVariantOptions> = {}): IVariant {
     userId: 0,
     boardType: BoardType.HEXAGONAL,
     boardSize: 6,
-    boardRows: null,
-    boardColumns: null,
     pieceRanks: false,
-    supportType: null,
     ...options,
   };
 }

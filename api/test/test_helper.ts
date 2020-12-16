@@ -157,7 +157,7 @@ export async function createTestTerrainRule(
 export async function createTestChallenge(
   userId: number,
   variantId: number,
-  opponentUserId: number | undefined = undefined
+  opponentUserId?: number
 ): Promise<number> {
   const challenge = await new CyvasseChallengeDataService().createChallenge(
     {

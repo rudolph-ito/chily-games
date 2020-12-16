@@ -32,12 +32,43 @@ async function testPlay(
   let game: IGame | undefined;
   let result: IGameActionResponse | undefined;
   try {
-    result = await new YanivGameService().play(userId, gameId, action);
+    await new YanivGameService().play(userId, gameId, action);
     game = await new YanivGameService().get(userId, gameId);
   } catch (e) {
     error = e;
   }
   return { result, game, error };
+}
+
+async function testPlayExpectError(
+  userId: number,
+  gameId: number,
+  action: IGameActionRequest
+): Promise<Error> {
+  const { result, error } = await testPlay(userId, gameId, action);
+  if (error == null) {
+    throw new Error(
+      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
+    );
+  }
+  return error;
+}
+
+async function testPlayExpectSuccess(
+  userId: number,
+  gameId: number,
+  action: IGameActionRequest
+): Promise<IGame> {
+  const { error, game } = await testPlay(userId, gameId, action);
+  if (error != null) {
+    throw new Error(
+      `Expected no error but got one, error: ${error.stack ?? error.message}`
+    );
+  }
+  if (game == null) {
+    throw new Error(`Expected game but is null`);
+  }
+  return game;
 }
 
 describe("YanivGameService", () => {
@@ -52,11 +83,11 @@ describe("YanivGameService", () => {
       const action: IGameActionRequest = { callYaniv: true };
 
       // act
-      const { error } = await testPlay(userId, gameId, action);
+      const error = await testPlayExpectError(userId, gameId, action);
 
       // assert
       expect(error).to.be.instanceOf(NotFoundError);
-      expect(error?.message).to.eql(`Game does not exist with id: ${gameId}`);
+      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
     });
 
     it("throws a validation error if action is not to user", async () => {
@@ -72,11 +103,11 @@ describe("YanivGameService", () => {
       const action: IGameActionRequest = { callYaniv: true };
 
       // act
-      const { error } = await testPlay(user2Id, gameId, action);
+      const error = await testPlayExpectError(user2Id, gameId, action);
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error.message).to.eql(
         'Validation errors: "Action is not to you."'
       );
     });
@@ -106,7 +137,7 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -136,11 +167,11 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error?.message).to.eql(
+        expect(error.message).to.eql(
           'Validation errors: "Can only discard cards in your hand."'
         );
       });
@@ -169,11 +200,11 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error?.message).to.eql('Validation errors: "Invalid discard."');
+        expect(error.message).to.eql('Validation errors: "Invalid discard."');
       });
 
       it("throws a validation error if invalid pickup", async () => {
@@ -200,11 +231,11 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error?.message).to.eql('Validation errors: "Invalid pickup."');
+        expect(error.message).to.eql('Validation errors: "Invalid pickup."');
       });
 
       it("updates state appropriately when picking up from top of discard", async () => {
@@ -231,16 +262,15 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
-        expect(game?.actionToUserId).to.eql(user2Id);
-        expect(game?.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game?.cardsOnTopOfDiscardPile).to.eql([
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game.cardsOnTopOfDiscardPile).to.eql([
           { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
         ]);
-        expect(game?.playerStates).to.eql([
+        expect(game.playerStates).to.eql([
           {
             cards: [
               {
@@ -288,13 +318,9 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
-        if (game == null) {
-          throw Error("game should not be null");
-        }
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.state).to.eql(GameState.ROUND_ACTIVE);
         expect(game.cardsOnTopOfDiscardPile).to.eql([
@@ -354,11 +380,11 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { error } = await testPlay(user1Id, gameId, action);
+        const error = await testPlayExpectError(user1Id, gameId, action);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
-        expect(error?.message).to.eql(
+        expect(error.message).to.eql(
           'Validation errors: "Hand total must be less than or equal to 7 to call Yaniv."'
         );
       });
@@ -391,13 +417,12 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
-        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game?.actionToUserId).to.eql(user1Id);
-        expect(game?.roundScores).to.eql([
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user1Id);
+        expect(game.roundScores).to.eql([
           {
             [user1Id]: {
               score: 0,
@@ -440,13 +465,12 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
-        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game?.actionToUserId).to.eql(user2Id);
-        expect(game?.roundScores).to.eql([
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.roundScores).to.eql([
           {
             [user1Id]: {
               score: 34,
@@ -489,13 +513,12 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
-        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game?.actionToUserId).to.eql(user2Id);
-        expect(game?.roundScores).to.eql([
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.roundScores).to.eql([
           {
             [user1Id]: {
               score: 34,
@@ -542,13 +565,12 @@ describe("YanivGameService", () => {
         };
 
         // act
-        const { game, error } = await testPlay(user1Id, gameId, action);
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
 
         // assert
-        expect(error).to.be.undefined(error?.stack);
-        expect(game?.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game?.actionToUserId).to.eql(user2Id);
-        expect(game?.roundScores).to.eql([
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.roundScores).to.eql([
           {
             [user1Id]: {
               score: 34,
