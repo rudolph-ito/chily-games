@@ -1,6 +1,6 @@
 import { valueOrDefault } from "../../shared/utilities/value_checker";
-import { CardRank, ICard } from "../../shared/dtos/yaniv/card";
-import { areCardsEqual, rankToNumber } from "./card_helpers";
+import { ICard } from "../../shared/dtos/yaniv/card";
+import { areCardsEqual, getCardRankNumber } from "./card_helpers";
 
 export enum RunDirection {
   unknown = 0,
@@ -49,14 +49,14 @@ function areCardsARun(cards: ICard[]): boolean {
     return false;
   }
 
-  let lastRankNumber = rankToNumber[firstCard.rank as CardRank];
+  let lastRankNumber = getCardRankNumber(firstCard);
   let expectedRankDiff = 1;
   let direction: RunDirection | null = null;
   for (const card of normalizedCards.slice(1)) {
     if (valueOrDefault(card.isJoker, false)) {
       expectedRankDiff += 1;
     } else {
-      const rankNumber = rankToNumber[card.rank as CardRank];
+      const rankNumber = getCardRankNumber(card);
       const isExpectedAscending =
         rankNumber === (lastRankNumber + expectedRankDiff) % 13;
       const isExpectedDescending =

@@ -73,7 +73,7 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     variantId: number,
     terrainRuleId: number
   ): Promise<void> {
-    const terrainRule = await this.getTerrainRule(variantId, terrainRuleId);
+    await this.getTerrainRule(variantId, terrainRuleId);
     const variant = await this.variantDataService.getVariant(variantId);
     if (userId !== variant.userId) {
       throw variantAuthorizationError("delete terrain rules");

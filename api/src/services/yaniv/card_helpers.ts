@@ -4,7 +4,7 @@ import { valueOrDefault } from "../../shared/utilities/value_checker";
 
 const NUMBER_OF_STANDARD_CARDS = 52;
 
-export const rankToNumber = {
+const rankToNumber = {
   [CardRank.ACE]: 0,
   [CardRank.TWO]: 1,
   [CardRank.THREE]: 2,
@@ -20,6 +20,13 @@ export const rankToNumber = {
   [CardRank.KING]: 12,
 };
 
+export function getCardRankNumber(card: ICard): number {
+  if (card.rank == null) {
+    throw new Error("Expected card rank to be defined");
+  }
+  return rankToNumber[card.rank];
+}
+
 const numberToRank = {};
 Object.keys(rankToNumber).forEach(
   (key) => (numberToRank[rankToNumber[key]] = key)
@@ -31,6 +38,13 @@ const suitToNumber = {
   [CardSuit.HEARTS]: 2,
   [CardSuit.SPADES]: 3,
 };
+
+export function getCardSuitNumber(card: ICard): number {
+  if (card.suit == null) {
+    throw new Error("Expected card suit to be defined");
+  }
+  return suitToNumber[card.suit];
+}
 
 const numberToSuit = {};
 Object.keys(suitToNumber).forEach(
@@ -44,10 +58,7 @@ export function serializeCard(card: ICard): number {
     }
     return NUMBER_OF_STANDARD_CARDS + card.jokerNumber;
   }
-  if (card.rank == null || card.suit == null) {
-    throw new Error("Card missing suit or rank");
-  }
-  return rankToNumber[card.rank] + 13 * suitToNumber[card.suit];
+  return getCardRankNumber(card) + 13 * getCardSuitNumber(card);
 }
 
 export function deserializeCard(cardNumber: number): ICard {
