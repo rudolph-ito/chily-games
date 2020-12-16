@@ -206,10 +206,10 @@ export class YanivTable {
         };
       }
       this.animateCardToPosition(cardRect, positionalData, onFinish);
-    } else if (cardPickedUpFromDeck != null) {
+    } else {
       const cardRect = this.deckCard.clone();
       this.removeCardEventHandlers(cardRect);
-      if (lastAction.userId === this.currentUserId) {
+      if (lastAction.userId === this.currentUserId && cardPickedUpFromDeck != null) {
         await this.updateRectWithCardFace(cardRect, cardPickedUpFromDeck);
         this.initializeCurrentUserCardEventHandlers(cardRect);
       }
