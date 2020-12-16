@@ -80,7 +80,6 @@ export class YanivGameShowComponent implements OnInit {
           this.table.updateStateWithUserAction(
             event.lastAction,
             event.actionToUserId,
-            this.user?.userId
           );
         }
       });
@@ -186,7 +185,6 @@ export class YanivGameShowComponent implements OnInit {
           this.table.updateStateWithUserAction(
             event.lastAction,
             event.actionToUserId,
-            this.user?.userId,
             response.cardPickedUpFromDeck
           );
         }
