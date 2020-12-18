@@ -10,7 +10,7 @@
     <div class="players" *ngIf="!loading && isWaitingForPlayers()">
       <h2>Players:</h2>
       <div class="player-list">
-        <div *ngFor="let playerState of game.playerStates">
+        <div *ngFor="let playerState of game?.playerStates">
           {{ playerState.username }} <span *ngIf="playerState.userId == game?.hostUserId">(host)</span>
         </div>
       </div>
@@ -21,7 +21,7 @@
       <button *ngIf="canStartRound()" mat-button mat-flat-button color="primary" (click)="startRound()">Start Round</button>
       <button *ngIf="canCallYaniv()" mat-button mat-flat-button color="primary" (click)="callYaniv()">Call Yaniv</button>
     </div>
-    <div class="scoreboard" *ngIf="!loading && game.roundScores.length > 0">
+    <div class="scoreboard" *ngIf="!loading && game?.roundScores.length > 0">
       <h2> Scores </h2>
       <table mat-table [dataSource]="scoresDataSource">
 
