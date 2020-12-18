@@ -14,6 +14,8 @@ export interface ISerializedYanivGame {
   cardsInDeck: ICard[];
   cardsBuriedInDiscardPile: ICard[];
   cardsOnTopOfDiscardPile: ICard[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const STATE_ENUM = DataTypes.ENUM(
@@ -32,6 +34,8 @@ export class YanivGame extends Model {
   public cardsInDeck!: number[];
   public cardsBuriedInDiscardPile!: number[];
   public cardsOnTopOfDiscardPile!: number[];
+  public createdAt!: Date;
+  public updatedAt!: Date;
 
   serialize(): ISerializedYanivGame {
     return {
@@ -47,6 +51,8 @@ export class YanivGame extends Model {
       cardsOnTopOfDiscardPile: this.cardsOnTopOfDiscardPile.map(
         deserializeCard
       ),
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
     };
   }
 }

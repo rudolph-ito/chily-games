@@ -87,29 +87,25 @@ export interface IRoundFinishedEvent {
   updatedGameState: GameState;
 }
 
+export interface ISearchedGameUser {
+  userId: number;
+  username: string;
+}
+
 export interface ISearchedGame {
   gameId: number;
   hostUserId: number;
   state: GameState;
+  players: ISearchedGameUser[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ISearchGamesFilterRequest {
+  includeCompleted: boolean;
 }
 
 export interface ISearchGamesRequest {
+  filter: ISearchGamesFilterRequest;
   pagination: IPaginationRequest;
 }
-
-// endpoints
-//   create game with options
-//   games/<game_id>/start-round
-//   games/<game_id>/play (request)
-// events
-//   player joined
-//   round started
-//   action to next player
-//   round completed
-// storage
-//   game
-//     game id, host id, options, state, actionTo, cardsInDeck, cardsBuriedInDiscardPile, cardsOnTopOfDiscardPile
-//   gamePlayer
-//     game id, player id, position, cardsInHand
-//   gameCompletedRound
-//     game id, player id, round number, score, score type

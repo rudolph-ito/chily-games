@@ -7,6 +7,7 @@ import {
   IGameActionRequest,
   IGameActionResponse,
   IGameOptions,
+  ISearchedGame,
   ISearchGamesRequest,
 } from "../../shared/dtos/yaniv/game";
 
@@ -20,8 +21,10 @@ export class YanivGameService {
     return this.http.post<IGame>("/api/yaniv/games", options);
   }
 
-  search(request: ISearchGamesRequest): Observable<IPaginatedResponse<IGame>> {
-    return this.http.post<IPaginatedResponse<IGame>>(
+  search(
+    request: ISearchGamesRequest
+  ): Observable<IPaginatedResponse<ISearchedGame>> {
+    return this.http.post<IPaginatedResponse<ISearchedGame>>(
       `/api/yaniv/games/search`,
       request
     );

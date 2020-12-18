@@ -182,11 +182,33 @@ export class YanivGameService implements IYanivGameService {
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<ISearchedGame>> {
     const result = await this.gameDataService.search(request);
+    const playerStates = await this.gamePlayerDataService.getAllForGames(
+      result.data.map((x) => x.gameId)
+    );
+    const playerStatesMap: Record<string, ISerializedYanivGamePlayer[]> = {};
+    playerStates.forEach((x) => {
+      if (playerStatesMap[x.gameId] == null) {
+        playerStatesMap[x.gameId] = [];
+      }
+      playerStatesMap[x.gameId].push(x);
+    });
+    const users = await this.userDataService.getUsers(
+      playerStates.map((x) => x.userId)
+    );
+    const userIdToUsername = _.fromPairs(
+      users.map((u) => [u.userId, u.username])
+    );
     return {
       data: result.data.map((x) => ({
         gameId: x.gameId,
         hostUserId: x.hostUserId,
+        players: playerStatesMap[x.gameId].map((x) => ({
+          userId: x.userId,
+          username: userIdToUsername[x.userId],
+        })),
         state: x.state,
+        createdAt: x.createdAt.toISOString(),
+        updatedAt: x.updatedAt.toISOString(),
       })),
       total: result.total,
     };

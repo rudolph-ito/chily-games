@@ -10,6 +10,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatMenuModule } from "@angular/material/menu";
+import { MatPaginatorModule } from "@angular/material/paginator";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatRadioModule } from "@angular/material/radio";
@@ -20,6 +21,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ReactiveFormsModule } from "@angular/forms";
 import { SocketIoModule } from "ngx-socket-io";
+import { TimeagoModule } from "ngx-timeago";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -68,6 +70,7 @@ import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv
     MatIconModule,
     MatInputModule,
     MatMenuModule,
+    MatPaginatorModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatRadioModule,
@@ -81,6 +84,7 @@ import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv
       url: "",
       options: {},
     }),
+    TimeagoModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

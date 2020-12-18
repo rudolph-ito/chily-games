@@ -15,6 +15,7 @@ import {
 import { serializeCard } from "../card_helpers";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { gameNotFoundError } from "../../shared/exceptions";
+import { FindAndCountOptions, Op } from "sequelize";
 
 export interface IYanivGameCreateOptions {
   hostUserId: number;
@@ -73,10 +74,15 @@ export class YanivGameDataService implements IYanivGameDataService {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
-    const result = await YanivGame.findAndCountAll({
+    const options: FindAndCountOptions<YanivGame> = {
       offset: request.pagination.pageIndex * request.pagination.pageSize,
+      order: [["createdAt", "DESC"]],
       limit: request.pagination.pageSize,
-    });
+    };
+    if (request.filter == null || !request.filter.includeCompleted) {
+      options.where = { state: { [Op.ne]: GameState.COMPLETE } };
+    }
+    const result = await YanivGame.findAndCountAll(options);
     return {
       data: result.rows.map((r: YanivGame) => r.serialize()),
       total: result.count,

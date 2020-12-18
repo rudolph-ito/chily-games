@@ -1,14 +1,14 @@
 import { HttpErrorResponse } from "@angular/common/http";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { FormControl } from "@angular/forms";
+import { MatPaginator } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
-import { Observable, of } from "rxjs";
-import { map } from "rxjs/operators";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
-import { ISearchedGame } from "../../../shared/dtos/yaniv/game";
-import { doesHaveValue } from "../../../shared/utilities/value_checker";
+import { IUser } from "src/app/shared/dtos/authentication";
+import { GameState, ISearchedGame } from "../../../shared/dtos/yaniv/game";
 
 @Component({
   selector: "app-yaniv-games-index",
@@ -17,13 +17,12 @@ import { doesHaveValue } from "../../../shared/utilities/value_checker";
 })
 export class YanivGamesIndexComponent implements OnInit {
   loading: boolean;
-  pageIndex: number;
-  pageSize: number = 100;
+  includeCompletedFormControl = new FormControl(false);
   gamesDataSource = new MatTableDataSource<ISearchedGame>();
-  total: number;
-  displayedColumns: string[] = ["hostUserId", "state", "actions"];
+  displayedColumns: string[] = ["hostUserId", "state", "created_at", "actions"];
+  user: IUser | null;
 
-  userLoggedInObservable: Observable<boolean> = of(false);
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private readonly gameService: YanivGameService,
@@ -33,17 +32,37 @@ export class YanivGamesIndexComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.authenticationService
+      .getUserSubject()
+      .subscribe((x) => (this.user = x));
+  }
+
+  ngAfterViewInit(): void {
+    this.refreshGames();
+    this.paginator.page.subscribe(() => {
+      this.refreshGames();
+    });
+    this.includeCompletedFormControl.valueChanges.subscribe(() => {
+      this.paginator.pageIndex = 0;
+      this.refreshGames();
+    });
+  }
+
+  refreshGames(): void {
     this.loading = true;
     this.gameService
-      .search({ pagination: { pageIndex: 0, pageSize: 100 } })
+      .search({
+        filter: { includeCompleted: this.includeCompletedFormControl.value },
+        pagination: {
+          pageIndex: this.paginator.pageIndex,
+          pageSize: this.paginator.pageSize,
+        },
+      })
       .subscribe((result) => {
         this.loading = false;
         this.gamesDataSource.data = result.data;
-        this.total = result.total;
+        this.paginator.length = result.total;
       });
-    this.userLoggedInObservable = this.authenticationService
-      .getUserSubject()
-      .pipe(map((x) => doesHaveValue(x)));
   }
 
   create(): void {
@@ -70,5 +89,34 @@ export class YanivGamesIndexComponent implements OnInit {
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([`yaniv/games/${gameId}`]);
+  }
+
+  getHostUsername(game: ISearchedGame): string {
+    const player = game.players.find((x) => x.userId === game.hostUserId);
+    if (player == null) {
+      throw new Error("Unable to find host");
+    }
+    return player.username;
+  }
+
+  getState(game: ISearchedGame): string {
+    if (game.state === GameState.PLAYERS_JOINING) {
+      return "Joinable";
+    }
+    if (game.state === GameState.COMPLETE) {
+      return "Complete";
+    }
+    return "Playing";
+  }
+
+  getCreatedTimestamp(game: ISearchedGame): number {
+    return new Date(game.createdAt).valueOf();
+  }
+
+  canJoin(game: ISearchedGame): boolean {
+    return (
+      this.user != null &&
+      game.players.every((x) => x.userId !== this.user?.userId)
+    );
   }
 }
