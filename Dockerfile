@@ -4,7 +4,7 @@ RUN mkdir -p /frontend
 WORKDIR /frontend
 COPY frontend/package.json .
 COPY frontend/yarn.lock .
-RUN yarn install
+RUN yarn install --frozen-lockfile
 COPY frontend/angular.json .
 COPY frontend/src ./src
 COPY shared ./src/app/shared
@@ -19,7 +19,7 @@ RUN mkdir -p /api
 WORKDIR /api
 COPY api/package.json .
 COPY api/yarn.lock .
-RUN yarn install
+RUN yarn install --frozen-lockfile
 COPY api/src ./src
 COPY shared ./src/shared
 COPY api/tsconfig.json .
