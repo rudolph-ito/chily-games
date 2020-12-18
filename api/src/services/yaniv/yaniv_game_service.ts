@@ -248,9 +248,12 @@ export class YanivGameService implements IYanivGameService {
     if (winner == null) {
       throw new Error("Unable to find winner");
     }
+    const updatedGameState = isGameComplete
+      ? GameState.COMPLETE
+      : GameState.ROUND_COMPLETE;
     const updatedGame = await this.gameDataService.update(game.gameId, {
       actionToUserId: winner.userId,
-      state: isGameComplete ? GameState.COMPLETE : GameState.ROUND_COMPLETE,
+      state: updatedGameState,
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [],
       cardsInDeck: [],
@@ -259,6 +262,7 @@ export class YanivGameService implements IYanivGameService {
       roundFinishedEvent: {
         playerStates: await this.loadPlayerStates(userId, updatedGame),
         roundScore,
+        updatedGameState,
       },
     };
   }

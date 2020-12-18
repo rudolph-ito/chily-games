@@ -17,13 +17,21 @@ import {
   IGameActionResponse,
   IPlayerJoinedEvent,
   IRoundFinishedEvent,
+  IRoundPlayerScore,
   IRoundScore,
   RoundScoreType,
 } from "../../../shared/dtos/yaniv/game";
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../../shared/utilities/value_checker";
+import { doesNotHaveValue } from "../../../shared/utilities/value_checker";
+
+interface RoundResult {
+  userId: string;
+  scoreType: RoundScoreType;
+}
+
+interface IFullRoundPlayerScore {
+  userId: string;
+  roundScore: IRoundPlayerScore;
+}
 
 @Component({
   selector: "app-yaniv-game-show",
@@ -32,7 +40,7 @@ import {
 })
 export class YanivGameShowComponent implements OnInit {
   loading: boolean;
-  game: IGame;
+  game: IGame | null;
   user: IUser | null;
   resizeObservable = new Subject<boolean>();
   table: YanivTable;
@@ -63,6 +71,9 @@ export class YanivGameShowComponent implements OnInit {
     this.socket
       .fromEvent("player-joined")
       .subscribe((event: IPlayerJoinedEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
         this.game.playerStates = event.playerStates;
       });
     this.socket.fromEvent("round-started").subscribe(() => {
@@ -86,7 +97,10 @@ export class YanivGameShowComponent implements OnInit {
     this.socket
       .fromEvent("round-finished")
       .subscribe((event: IRoundFinishedEvent) => {
-        this.game.state = GameState.ROUND_COMPLETE;
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
+        this.game.state = event.updatedGameState;
         this.game.playerStates = event.playerStates;
         this.game.roundScores.push(event.roundScore);
         this.updateGame(this.game);
@@ -122,8 +136,8 @@ export class YanivGameShowComponent implements OnInit {
   }
 
   initializeTable(): void {
-    if (doesHaveValue(this.game) && doesHaveValue(this.tableContainer)) {
-      if (doesNotHaveValue(this.table)) {
+    if (this.game != null && this.tableContainer != null) {
+      if (this.table == null) {
         this.table = new YanivTable(
           {
             element: this.tableContainer.nativeElement,
@@ -141,12 +155,36 @@ export class YanivGameShowComponent implements OnInit {
     return parseInt(this.route.snapshot.params.gameId);
   }
 
+  canJoin(): boolean {
+    if (this.user == null || this.game == null) {
+      return false;
+    }
+    const currentUserId = this.user.userId;
+    return this.game.playerStates.every((x) => x.userId !== currentUserId);
+  }
+
+  join(): void {
+    this.gameService.join(this.getGameId()).subscribe(
+      (updatedGame) => {
+        this.updateGame(updatedGame);
+      },
+      (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      }
+    );
+  }
+
   isWaitingForPlayers(): boolean {
-    return this.game.state === GameState.PLAYERS_JOINING;
+    return this.game != null && this.game.state === GameState.PLAYERS_JOINING;
   }
 
   canStartRound(): boolean {
     return (
+      this.game != null &&
       (this.game.state === GameState.PLAYERS_JOINING ||
         this.game.state === GameState.ROUND_COMPLETE) &&
       this.game.hostUserId === this.user?.userId
@@ -154,7 +192,7 @@ export class YanivGameShowComponent implements OnInit {
   }
 
   canCallYaniv(): boolean {
-    return this.game.state === GameState.ROUND_ACTIVE;
+    return this.game != null && this.game.state === GameState.ROUND_ACTIVE;
   }
 
   async callYaniv(): Promise<void> {
@@ -162,10 +200,13 @@ export class YanivGameShowComponent implements OnInit {
   }
 
   startRound(): void {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
     this.gameService.startRound(this.game.gameId).subscribe(
       async (game) => {
         this.updateGame(game);
-        await this.table.initializeState(this.game, this.user?.userId);
+        await this.table.initializeState(game, this.user?.userId);
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -198,4 +239,99 @@ export class YanivGameShowComponent implements OnInit {
       }
     );
   };
+
+  hasGameMessage(): boolean {
+    return this.game != null && this.game.state === GameState.COMPLETE;
+  }
+
+  getGameMessage(): string {
+    if (this.game != null) {
+      if (this.game.state === GameState.COMPLETE) {
+        const totalScoreMap = this.computeTotalScoreRow(this.game.roundScores);
+        const roundScores: IFullRoundPlayerScore[] = Object.keys(
+          totalScoreMap
+        ).map((userId) => ({
+          userId,
+          roundScore: totalScoreMap[userId],
+        }));
+        const minScore = Math.min(
+          ...roundScores.map((x) => x.roundScore.score)
+        );
+        const winners = roundScores.filter(
+          (x) => x.roundScore.score === minScore
+        );
+        const usernames = winners.map((x) => this.getUsername(x.userId));
+        if (usernames.length === 1) {
+          return `Game over. The winner is: ${usernames[0]}`;
+        }
+        return `Game over. The winners are: ${usernames.join(",")}`;
+      }
+    }
+    return "";
+  }
+
+  hasRoundMessage(): boolean {
+    return (
+      this.game != null &&
+      (this.game.state === GameState.ROUND_COMPLETE ||
+        this.game.state === GameState.COMPLETE)
+    );
+  }
+
+  getRoundMessage(): string {
+    if (this.hasRoundMessage()) {
+      const result = this.getLastRoundResult();
+      const username = this.getUsername(result.userId);
+      if (result.scoreType === RoundScoreType.ASAF) {
+        return `ASAF! ${username} called yaniv but did not have the lowest score`;
+      }
+      return `YANIV! ${username} called yaniv and had the lowest score`;
+    }
+    return "";
+  }
+
+  getRoundMessageClass(): any {
+    const out: any = { "round-message": true };
+    if (this.hasRoundMessage()) {
+      const result = this.getLastRoundResult();
+      if (result.scoreType === RoundScoreType.ASAF) {
+        out.asaf = true;
+      } else {
+        out.yaniv = true;
+      }
+    }
+    return out;
+  }
+
+  getLastRoundResult(): RoundResult {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
+    const lastRound = this.game.roundScores[this.game.roundScores.length - 1];
+    const roundScores: IFullRoundPlayerScore[] = Object.keys(lastRound).map(
+      (userId) => ({
+        userId,
+        roundScore: lastRound[userId],
+      })
+    );
+    const yanivScores = roundScores.filter(
+      (x) => x.roundScore.scoreType === RoundScoreType.YANIV
+    );
+    const asafScores = roundScores.filter(
+      (x) => x.roundScore.scoreType === RoundScoreType.ASAF
+    );
+    if (asafScores.length === 1) {
+      return { userId: asafScores[0].userId, scoreType: RoundScoreType.ASAF };
+    }
+    return { userId: yanivScores[0].userId, scoreType: RoundScoreType.YANIV };
+  }
+
+  getUsername(userId: string): string {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
+    return this.game.playerStates.filter(
+      (x) => x.userId.toString() === userId
+    )[0].username;
+  }
 }

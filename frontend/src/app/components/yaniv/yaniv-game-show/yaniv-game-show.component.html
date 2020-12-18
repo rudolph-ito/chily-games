@@ -1,13 +1,20 @@
 <div class="wrapper">
   <div class="left">
+    <div class="message-container">
+      <div *ngIf="hasGameMessage()" class="game-message"> {{ getGameMessage() }} </div>
+      <div *ngIf="hasRoundMessage()" [class]="getRoundMessageClass()"> {{ getRoundMessage() }} </div>
+    </div>
     <div class="table-container" #tableContainer></div>
   </div>
   <div class="right" >
     <div class="players" *ngIf="!loading && isWaitingForPlayers()">
       <h2>Players:</h2>
-      <div *ngFor="let playerState of game.playerStates">
-        {{ playerState.username }} <span *ngIf="playerState.userId == game.hostUserId">(host)</span>
+      <div class="player-list">
+        <div *ngFor="let playerState of game.playerStates">
+          {{ playerState.username }} <span *ngIf="playerState.userId == game?.hostUserId">(host)</span>
+        </div>
       </div>
+      <button *ngIf="canJoin()" mat-button mat-flat-button color="primary" (click)="join()">Join</button>
     </div>
     <div class="actions" *ngIf="!loading && (canStartRound() || canCallYaniv())">
       <h2> Actions </h2>
@@ -18,7 +25,7 @@
       <h2> Scores </h2>
       <table mat-table [dataSource]="scoresDataSource">
 
-        <ng-container *ngFor="let playerState of game.playerStates" matColumnDef="player-{{ playerState.userId }}">
+        <ng-container *ngFor="let playerState of game?.playerStates" matColumnDef="player-{{ playerState.userId }}">
           <th mat-header-cell *matHeaderCellDef> {{ playerState.username }} </th>
           <td mat-cell [ngClass]="element[playerState.userId].scoreType" *matCellDef="let element"> 
             {{ element[playerState.userId].score }} 

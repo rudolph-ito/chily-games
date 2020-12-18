@@ -142,7 +142,9 @@ export class YanivTable {
       promises.push(this.initializeDiscards(game.cardsOnTopOfDiscardPile));
     }
     await Promise.all(promises);
-    this.updateActionTo(game.actionToUserId);
+    if (game.state === GameState.ROUND_ACTIVE) {
+      this.updateActionTo(game.actionToUserId);
+    }
     this.cardsLayer.draw();
   }
 

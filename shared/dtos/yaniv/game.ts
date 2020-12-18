@@ -84,6 +84,7 @@ export interface IActionToNextPlayerEvent {
 export interface IRoundFinishedEvent {
   playerStates: IPlayerState[];
   roundScore: IRoundScore;
+  updatedGameState: GameState;
 }
 
 export interface ISearchedGame {
