@@ -1,4 +1,4 @@
-FROM node:12-alpine AS build-frontend
+FROM node:14-alpine AS build-frontend
 
 RUN mkdir -p /frontend
 WORKDIR /frontend
@@ -13,7 +13,7 @@ COPY frontend/tsconfig.json .
 COPY tsconfig.json tsconfig.shared.json
 RUN yarn run build --prod
 
-FROM node:12-alpine AS build-api
+FROM node:14-alpine AS build-api
 
 RUN mkdir -p /api
 WORKDIR /api
@@ -29,7 +29,7 @@ RUN cp -r ./src/assets ./dist/assets
 RUN cp ./src/database/config.js ./dist/database/config.js 
 RUN cp -r ./src/database/migrations ./dist/database/migrations
 
-FROM node:12-alpine as final
+FROM node:14-alpine as final
 
 RUN mkdir -p /web
 WORKDIR /web
