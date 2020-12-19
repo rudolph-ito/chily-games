@@ -584,25 +584,22 @@ export class YanivTable {
     rect.height(this.cardHeight);
     rect.width(this.cardWidth);
     await this.updateRectWithCardBack(rect);
-    rect.stroke("black");
-    rect.strokeWidth(CARD_BACK_DEFAULT_STROKE);
     return rect;
   }
 
   private async updateRectWithCardBack(rect: KonvaRect): Promise<void> {
-    if (doesHaveValue(this.cardBackImage)) {
-      this.updateRectWithImage(rect, this.cardBackImage);
-      return;
+    if (this.cardBackImage == null) {
+      this.cardBackImage = await new Promise<HTMLImageElement>((resolve) => {
+        const image = new Image();
+        image.src = `data:image/png;base64,${cardImages.back}`;
+        image.onload = () => {
+          resolve(image);
+        };
+      });
     }
-    return await new Promise((resolve) => {
-      const image = new Image();
-      image.src = `data:image/png;base64,${cardImages.back}`;
-      image.onload = () => {
-        this.cardBackImage = image;
-        this.updateRectWithImage(rect, image);
-        resolve();
-      };
-    });
+    this.updateRectWithImage(rect, this.cardBackImage);
+    rect.stroke("black");
+    rect.strokeWidth(CARD_BACK_DEFAULT_STROKE);
   }
 
   private async updateRectWithCardFace(
