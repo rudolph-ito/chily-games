@@ -1,6 +1,18 @@
 <mat-toolbar>
-  <div>
+  <div class="left">
     <a routerLink="/home" class="title">Chily Games</a>
+    <button mat-icon-button [matMenuTriggerFor]="rootMenu" aria-label="Example icon-button with a menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #rootMenu="matMenu">
+      <button mat-menu-item routerLink="/yaniv/games">Yaniv</button>
+      <button mat-menu-item [matMenuTriggerFor]="cyvasseMenu">Cyvasse</button>
+    </mat-menu>
+    <mat-menu #cyvasseMenu="matMenu">
+      <a mat-menu-item routerLink="/cyvasse/variants">Variants</a>
+      <a mat-menu-item routerLink="/cyvasse/challenges">Challenges</a>
+      <a mat-menu-item routerLink="/cyvasse/games">Games</a>
+    </mat-menu>
   </div>
 
   <div class="right">

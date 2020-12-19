@@ -1,12 +1,8 @@
 <h1>Yaniv Games</h1>
 
 <div class="header-row">
-  <div *ngIf="user" class="actions-container">
-    <button mat-button mat-flat-button color="primary" (click)="create()">Create</button>
-  </div>
-  <div class="right">
-    <mat-checkbox [formControl]="includeCompletedFormControl">Show completed</mat-checkbox>
-  </div>
+  <button mat-button mat-flat-button color="primary" *ngIf="user" (click)="create()">Create</button>
+  <mat-checkbox [formControl]="includeCompletedFormControl">Show completed</mat-checkbox>
 </div>
 
 <div class="mat-elevation-z8">
