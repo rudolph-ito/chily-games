@@ -25,9 +25,9 @@ export class AuthenticationService {
   }
 
   login(request: ILoginRequest): Observable<IUser> {
-    return this.http.post<IUser>(`${this.routePrefix}/login`, request).pipe(
-      tap((user) => this.userSubscription.next(user))
-    );
+    return this.http
+      .post<IUser>(`${this.routePrefix}/login`, request)
+      .pipe(tap((user) => this.userSubscription.next(user)));
   }
 
   logout(): Observable<Object> {
@@ -37,9 +37,9 @@ export class AuthenticationService {
   }
 
   register(request: IRegisterRequest): Observable<IUser> {
-    return this.http.post<IUser>(`${this.routePrefix}/register`, request).pipe(
-      tap((user) => this.userSubscription.next(user))
-    );
+    return this.http
+      .post<IUser>(`${this.routePrefix}/register`, request)
+      .pipe(tap((user) => this.userSubscription.next(user)));
   }
 
   initUser(): void {
