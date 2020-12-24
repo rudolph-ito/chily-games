@@ -163,6 +163,10 @@ export class YanivGameShowComponent implements OnInit {
     return this.game.playerStates.every((x) => x.userId !== currentUserId);
   }
 
+  couldJoinOrPlayIfLoggedIn(): boolean {
+    return this.user == null;
+  }
+
   join(): void {
     this.gameService.join(this.getGameId()).subscribe(
       (updatedGame) => {

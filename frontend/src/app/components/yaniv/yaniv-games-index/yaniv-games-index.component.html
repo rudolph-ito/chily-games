@@ -33,6 +33,8 @@
           <button mat-button mat-stroked-button *ngIf="canJoin(element)" (click)="join(element.gameId)">
             Join
           </button>
+          <span class="info" *ngIf="couldJoinIfLoggedIn(element)">Login/register to join</span>
+          <span class="info" *ngIf="isInGame(element)">You are in this game</span>
         </td>
       </ng-container>
 

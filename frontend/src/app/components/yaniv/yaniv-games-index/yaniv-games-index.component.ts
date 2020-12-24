@@ -5,6 +5,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
+import { Subscription, timer } from "rxjs";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
 import { IUser } from "src/app/shared/dtos/authentication";
@@ -21,6 +22,7 @@ export class YanivGamesIndexComponent implements OnInit {
   gamesDataSource = new MatTableDataSource<ISearchedGame>();
   displayedColumns: string[] = ["hostUserId", "state", "created_at", "actions"];
   user: IUser | null;
+  refreshSubscription: Subscription;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -38,7 +40,6 @@ export class YanivGamesIndexComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.refreshGames();
     this.paginator.page.subscribe(() => {
       this.refreshGames();
     });
@@ -46,6 +47,15 @@ export class YanivGamesIndexComponent implements OnInit {
       this.paginator.pageIndex = 0;
       this.refreshGames();
     });
+    this.refreshSubscription = timer(0, 5000).subscribe(() =>
+      this.refreshGames()
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshSubscription != null) {
+      this.refreshSubscription.unsubscribe();
+    }
   }
 
   refreshGames(): void {
@@ -116,7 +126,19 @@ export class YanivGamesIndexComponent implements OnInit {
   canJoin(game: ISearchedGame): boolean {
     return (
       this.user != null &&
+      game.state === GameState.PLAYERS_JOINING &&
       game.players.every((x) => x.userId !== this.user?.userId)
+    );
+  }
+
+  couldJoinIfLoggedIn(game: ISearchedGame): boolean {
+    return this.user == null && game.state === GameState.PLAYERS_JOINING;
+  }
+
+  isInGame(game: ISearchedGame): boolean {
+    return (
+      this.user != null &&
+      game.players.some((x) => x.userId === this.user?.userId)
     );
   }
 }
