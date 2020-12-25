@@ -1,11 +1,23 @@
 <div (window:resize)="onResize()" class="wrapper">
   <div class="left">
     <div class="header">
-      <div *ngIf="!loading" class="player-name" [class.action-to]="isActionTo(true)">{{ getPlayerName(true) }}</div>
+      <div
+        *ngIf="!loading"
+        class="player-name"
+        [class.action-to]="isActionTo(true)"
+      >
+        {{ getPlayerName(true) }}
+      </div>
     </div>
     <div class="board-container" #boardContainer></div>
     <div class="footer">
-      <div *ngIf="!loading" class="player-name" [class.action-to]="isActionTo(false)">{{ getPlayerName(false) }}</div>
+      <div
+        *ngIf="!loading"
+        class="player-name"
+        [class.action-to]="isActionTo(false)"
+      >
+        {{ getPlayerName(false) }}
+      </div>
     </div>
   </div>
   <div class="right">
@@ -14,7 +26,9 @@
         <div>{{ getGameStatus() }}</div>
       </div>
       <div class="actions">
-        <button *ngIf="canCompleteSetup()" (click)="onCompleteSetup()">Complete Setup</button>
+        <button *ngIf="canCompleteSetup()" (click)="onCompleteSetup()">
+          Complete Setup
+        </button>
       </div>
     </ng-container>
   </div>

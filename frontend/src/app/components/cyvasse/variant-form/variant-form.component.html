@@ -1,5 +1,5 @@
 <h1>
-  {{ isUpdatingExistingVariant() ? 'Edit Variant' : 'New Variant' }}
+  {{ isUpdatingExistingVariant() ? "Edit Variant" : "New Variant" }}
 </h1>
 
 <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
@@ -8,44 +8,55 @@
     <mat-form-field>
       <mat-label>Board Type</mat-label>
       <mat-select [formControl]="controls.boardType">
-        <mat-option *ngFor="let option of boardTypeOptions" [value]="option.value">
-          {{option.label}}
+        <mat-option
+          *ngFor="let option of boardTypeOptions"
+          [value]="option.value"
+        >
+          {{ option.label }}
         </mat-option>
       </mat-select>
-      <mat-error>{{ controls.boardType.getError('invalid') }}</mat-error>
+      <mat-error>{{ controls.boardType.getError("invalid") }}</mat-error>
     </mat-form-field>
-    <mat-form-field *ngIf="isBoardTypeHexagonal()"> 
+    <mat-form-field *ngIf="isBoardTypeHexagonal()">
       <mat-label>Board Size</mat-label>
-      <input matInput type="number" [formControl]="controls.boardSize">
-      <mat-error>{{ controls.boardSize.getError('invalid') }}</mat-error>
+      <input matInput type="number" [formControl]="controls.boardSize" />
+      <mat-error>{{ controls.boardSize.getError("invalid") }}</mat-error>
     </mat-form-field>
-    <mat-form-field *ngIf="isBoardTypeSquare()"> 
+    <mat-form-field *ngIf="isBoardTypeSquare()">
       <mat-label>Board Rows</mat-label>
-      <input matInput type="number" [formControl]="controls.boardRows">
-      <mat-error>{{ controls.boardRows.getError('invalid') }}</mat-error>
+      <input matInput type="number" [formControl]="controls.boardRows" />
+      <mat-error>{{ controls.boardRows.getError("invalid") }}</mat-error>
     </mat-form-field>
-    <mat-form-field *ngIf="isBoardTypeSquare()"> 
+    <mat-form-field *ngIf="isBoardTypeSquare()">
       <mat-label>Board Columns</mat-label>
-      <input matInput type="number" [formControl]="controls.boardColumns">
-      <mat-error>{{ controls.boardColumns.getError('invalid') }}</mat-error>
+      <input matInput type="number" [formControl]="controls.boardColumns" />
+      <mat-error>{{ controls.boardColumns.getError("invalid") }}</mat-error>
     </mat-form-field>
     <mat-checkbox [formControl]="controls.pieceRanks">Piece ranks</mat-checkbox>
-    <mat-form-field *ngIf="hasPieceRanks()"> 
+    <mat-form-field *ngIf="hasPieceRanks()">
       <mat-label>Support Type</mat-label>
       <mat-select [formControl]="controls.supportType">
-        <mat-option *ngFor="let option of supportTypeOptions" [value]="option.value">
-          {{option.label}}
+        <mat-option
+          *ngFor="let option of supportTypeOptions"
+          [value]="option.value"
+        >
+          {{ option.label }}
         </mat-option>
       </mat-select>
-      <mat-error>{{ controls.supportType.getError('invalid') }}</mat-error>
+      <mat-error>{{ controls.supportType.getError("invalid") }}</mat-error>
     </mat-form-field>
   </div>
   <div class="board-preview-wrapper">
     <div class="title">Board Preview</div>
     <div class="container" #boardContainer></div>
     <div class="board-preview-inputs">
-      <mat-checkbox [formControl]="boardPreviewControls.showCoordinates">Show Coordinates</mat-checkbox>
-      <mat-radio-group *ngIf="isBoardPreviewShowingCoordinates()" [formControl]="boardPreviewControls.viewpoint">
+      <mat-checkbox [formControl]="boardPreviewControls.showCoordinates"
+        >Show Coordinates</mat-checkbox
+      >
+      <mat-radio-group
+        *ngIf="isBoardPreviewShowingCoordinates()"
+        [formControl]="boardPreviewControls.viewpoint"
+      >
         <mat-radio-button value="alabaster">Alabaster</mat-radio-button>
         <mat-radio-button value="onyx">Onyx</mat-radio-button>
       </mat-radio-group>
@@ -54,6 +65,8 @@
 </div>
 
 <div class="button-container">
-  <button mat-button mat-flat-button color="primary" (click)="submit()">Submit</button>
+  <button mat-button mat-flat-button color="primary" (click)="submit()">
+    Submit
+  </button>
   <button mat-button mat-dialog-close (click)="goBack()">Cancel</button>
 </div>

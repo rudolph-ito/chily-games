@@ -1,19 +1,23 @@
-<div mat-dialog-title>
-  Register
-</div>
+<div mat-dialog-title>Register</div>
 <mat-dialog-content>
   <mat-form-field>
     <mat-label>Username</mat-label>
-    <input matInput type="text" [formControl]="controls.username">
-    <mat-error>{{ controls.username.getError('invalid') }}</mat-error>
+    <input matInput type="text" [formControl]="controls.username" />
+    <mat-error>{{ controls.username.getError("invalid") }}</mat-error>
   </mat-form-field>
   <div class="registration-type-field">
     <div>Registration Type</div>
-    <mat-radio-group [formControl]="controls.registrationType" class="registration-type-radio-group">
+    <mat-radio-group
+      [formControl]="controls.registrationType"
+      class="registration-type-radio-group"
+    >
       <mat-radio-button value="guest">
         <div class="registration-type-option">
           <span>Guest</span>
-          <mat-icon matTooltip="Password randomly generated, saved in your browser, and will automatically login until you logout">info</mat-icon>
+          <mat-icon
+            matTooltip="Password randomly generated, saved in your browser, and will automatically login until you logout"
+            >info</mat-icon
+          >
         </div>
       </mat-radio-button>
       <mat-radio-button value="full">
@@ -26,16 +30,30 @@
   </div>
   <mat-form-field *ngIf="controls.registrationType.value == 'full'">
     <mat-label>Password</mat-label>
-    <input matInput type="password" [formControl]="controls.password">
-    <mat-error>{{ controls.password.getError('invalid') }}</mat-error>
+    <input matInput type="password" [formControl]="controls.password" />
+    <mat-error>{{ controls.password.getError("invalid") }}</mat-error>
   </mat-form-field>
   <mat-form-field *ngIf="controls.registrationType.value == 'full'">
     <mat-label>Password Confirmation</mat-label>
-    <input matInput type="password" [formControl]="controls.passwordConfirmation">
-    <mat-error>{{ controls.passwordConfirmation.getError('invalid') }}</mat-error>
+    <input
+      matInput
+      type="password"
+      [formControl]="controls.passwordConfirmation"
+    />
+    <mat-error>{{
+      controls.passwordConfirmation.getError("invalid")
+    }}</mat-error>
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button mat-flat-button color="primary" (click)="submit()" cdkFocusInitial>Register</button>
+  <button
+    mat-button
+    mat-flat-button
+    color="primary"
+    (click)="submit()"
+    cdkFocusInitial
+  >
+    Register
+  </button>
 </mat-dialog-actions>
