@@ -1,18 +1,24 @@
-<div mat-dialog-title>
-  Login
-</div>
+<div mat-dialog-title>Login</div>
 <mat-dialog-content>
   <mat-form-field>
     <mat-label>Username</mat-label>
-    <input matInput type="text" [formControl]="controls.username">   
+    <input matInput type="text" [formControl]="controls.username" />
   </mat-form-field>
   <mat-form-field>
     <mat-label>Password</mat-label>
-    <input matInput type="password" [formControl]="controls.password">
-    <mat-error>{{ controls.password.getError('invalid') }}</mat-error>
+    <input matInput type="password" [formControl]="controls.password" />
+    <mat-error>{{ controls.password.getError("invalid") }}</mat-error>
   </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button mat-flat-button color="primary" (click)="submit()" cdkFocusInitial>Login</button>
+  <button
+    mat-button
+    mat-flat-button
+    color="primary"
+    (click)="submit()"
+    cdkFocusInitial
+  >
+    Login
+  </button>
 </mat-dialog-actions>

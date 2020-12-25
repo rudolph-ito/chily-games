@@ -1,27 +1,29 @@
 <h1>Cyvasse Games (Work in progress)</h1>
 
-<p>Create a challenge from the variants list. Accept a challenge from the challenges list</p>
+<p>
+  Create a challenge from the variants list. Accept a challenge from the
+  challenges list
+</p>
 
 <div class="mat-elevation-z8">
   <table mat-table [dataSource]="gamesDataSource">
-
     <ng-container matColumnDef="alabasterUserId">
-      <th mat-header-cell *matHeaderCellDef> Alabaster </th>
-      <td mat-cell *matCellDef="let element"> {{element.alabasterUserId}} </td>
+      <th mat-header-cell *matHeaderCellDef>Alabaster</th>
+      <td mat-cell *matCellDef="let element">{{ element.alabasterUserId }}</td>
     </ng-container>
-    
+
     <ng-container matColumnDef="onyxUserId">
-      <th mat-header-cell *matHeaderCellDef> Onyx </th>
-      <td mat-cell *matCellDef="let element"> {{element.onyxUserId}} </td>
+      <th mat-header-cell *matHeaderCellDef>Onyx</th>
+      <td mat-cell *matCellDef="let element">{{ element.onyxUserId }}</td>
     </ng-container>
 
     <ng-container matColumnDef="variantId">
-      <th mat-header-cell *matHeaderCellDef> Variant ID </th>
-      <td mat-cell *matCellDef="let element"> {{element.variantId}} </td>
+      <th mat-header-cell *matHeaderCellDef>Variant ID</th>
+      <td mat-cell *matCellDef="let element">{{ element.variantId }}</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let element">
         <button mat-button routerLink="/cyvasse/games/{{ element.gameId }}">
           Show
@@ -30,6 +32,6 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 </div>
