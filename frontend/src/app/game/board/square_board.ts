@@ -5,7 +5,7 @@ import {
   IGameRules,
   Action,
 } from "../../shared/dtos/cyvasse/game";
-import Konva from "konva";
+import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
 
 export interface ISquareBoardLayoutOptions {
   boardColumns: number;
@@ -43,8 +43,8 @@ export class SquareBoard extends BaseBoard {
     };
   }
 
-  protected createSpaceShape(): Konva.Rect {
-    return new Konva.Rect({
+  protected createSpaceShape(): KonvaRect {
+    return new KonvaRect({
       stroke: "#000",
       strokeWidth: 1,
     });
@@ -96,7 +96,7 @@ export class SquareBoard extends BaseBoard {
     return this.spaceSize;
   }
 
-  protected setSpaceSize(space: Konva.Rect): void {
+  protected setSpaceSize(space: KonvaRect): void {
     space.offset({
       x: this.spaceSize / 2,
       y: this.spaceSize / 2,

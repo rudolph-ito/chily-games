@@ -1,4 +1,8 @@
-import Konva from "konva";
+import { Stage as KonvaStage } from "konva/lib/Stage";
+import { Layer as KonvaLayer } from "konva/lib/Layer";
+import { Shape as KonvaShape } from "konva/lib/Shape";
+import { Image as KonvaImage } from "konva/lib/shapes/Image";
+import { Text as KonvaText } from "konva/lib/shapes/Text";
 import {
   ICoordinate,
   PlayerColor,
@@ -72,12 +76,12 @@ export abstract class BaseBoard {
   private readonly container: HTMLDivElement;
   private readonly gameCallbacks?: IGameCallbacks;
   private readonly gameRules?: IGameRules;
-  private readonly stage: Konva.Stage;
+  private readonly stage: KonvaStage;
   private readonly padding: number;
-  private readonly spaceLayer: Konva.Layer;
-  private readonly spaceCoordinateTextLayer: Konva.Layer;
-  private readonly pieceLayer: Konva.Layer;
-  private readonly terrainLayer: Konva.Layer;
+  private readonly spaceLayer: KonvaLayer;
+  private readonly spaceCoordinateTextLayer: KonvaLayer;
+  private readonly pieceLayer: KonvaLayer;
+  private readonly terrainLayer: KonvaLayer;
   private validPliesDetails: ValidPliesDetails | null;
   protected game?: IGame;
   protected color: PlayerColor | null;
@@ -93,18 +97,18 @@ export abstract class BaseBoard {
     this.gameRules = options.gameRules;
     this.color = options.color;
     this.padding = 10;
-    this.stage = new Konva.Stage({
+    this.stage = new KonvaStage({
       container: this.container,
       height: this.container.offsetHeight,
       width: this.container.offsetWidth,
     });
-    this.terrainLayer = new Konva.Layer();
+    this.terrainLayer = new KonvaLayer();
     this.stage.add(this.terrainLayer);
-    this.spaceLayer = new Konva.Layer();
+    this.spaceLayer = new KonvaLayer();
     this.stage.add(this.spaceLayer);
-    this.spaceCoordinateTextLayer = new Konva.Layer();
+    this.spaceCoordinateTextLayer = new KonvaLayer();
     this.stage.add(this.spaceCoordinateTextLayer);
-    this.pieceLayer = new Konva.Layer();
+    this.pieceLayer = new KonvaLayer();
     this.stage.add(this.pieceLayer);
   }
 
@@ -215,7 +219,7 @@ export abstract class BaseBoard {
   public applyPly(ply: IGamePly): void {
     if (ply.movement != null) {
       const movement = ply.movement;
-      this.pieceLayer.children.each((image: Konva.Image) => {
+      this.pieceLayer.children.each((image: KonvaImage) => {
         const coordinate = image.getAttr("cyvasseCoordinate");
         if (areCoordinatesEqual(coordinate, ply.from)) {
           image.setAttrs({ cyvasseCoordinate: movement.to });
@@ -234,7 +238,7 @@ export abstract class BaseBoard {
   }
 
   public clearHighlight(): void {
-    this.spaceLayer.children.each((shape: Konva.Shape) =>
+    this.spaceLayer.children.each((shape: KonvaShape) =>
       this.toggleSpaceHighlight(shape, SpaceHighlight.NONE)
     );
   }
@@ -269,7 +273,7 @@ export abstract class BaseBoard {
       coordinateToSpaceHighlight.set(c, freeHighlight);
     });
     // TODO reachable
-    this.spaceLayer.children.each((shape: Konva.Shape) => {
+    this.spaceLayer.children.each((shape: KonvaShape) => {
       const value = coordinateToSpaceHighlight.get(
         shape.getAttr("cyvasseCoordinate")
       );
@@ -293,18 +297,18 @@ export abstract class BaseBoard {
     this.setupForContainer(this.gameRules);
     this.stage.height(this.container.offsetHeight);
     this.stage.width(this.container.offsetWidth);
-    this.spaceLayer.children.each((shape: Konva.Shape) => {
+    this.spaceLayer.children.each((shape: KonvaShape) => {
       this.resetShapePosition(shape);
       this.setSpaceSize(shape);
     });
-    this.spaceCoordinateTextLayer.children.each((text: Konva.Text) => {
+    this.spaceCoordinateTextLayer.children.each((text: KonvaText) => {
       this.resetShapePosition(text);
     });
-    this.pieceLayer.children.each((image: Konva.Image) => {
+    this.pieceLayer.children.each((image: KonvaImage) => {
       this.resetShapePosition(image);
       this.setPieceSize(image);
     });
-    this.terrainLayer.children.each((shape: Konva.Shape) => {
+    this.terrainLayer.children.each((shape: KonvaShape) => {
       this.resetShapePosition(shape);
       this.setSpaceSize(shape);
       this.setTerrainFillPatternScale(shape);
@@ -324,7 +328,7 @@ export abstract class BaseBoard {
 
   protected abstract coordinateToPosition(coordinate: ICoordinate): ICoordinate;
 
-  protected abstract createSpaceShape(): Konva.Shape;
+  protected abstract createSpaceShape(): KonvaShape;
 
   protected abstract doesCoordinateContainPosition(
     coordinate: ICoordinate,
@@ -341,7 +345,7 @@ export abstract class BaseBoard {
 
   protected abstract getTerrainImageScaleReference(): number;
 
-  protected abstract setSpaceSize(space: Konva.Shape): void;
+  protected abstract setSpaceSize(space: KonvaShape): void;
 
   protected abstract setupForContainer(gameRules?: IGameRules): void;
 
@@ -364,7 +368,7 @@ export abstract class BaseBoard {
   // Private
 
   private addCoordinateText(coordinate: ICoordinate): void {
-    var text = new Konva.Text({
+    var text = new KonvaText({
       text: `${coordinate.x},${coordinate.y}`,
     });
     text.setAttrs({ cyvasseCoordinate: coordinate });
@@ -411,7 +415,7 @@ export abstract class BaseBoard {
     this.terrainLayer.draw();
   }
 
-  private async createTerrain(terrain: ITerrain): Promise<Konva.Shape> {
+  private async createTerrain(terrain: ITerrain): Promise<KonvaShape> {
     return await new Promise((resolve) => {
       const image = new Image();
       image.src = `/assets/cyvasse/terrain/default/${terrain.terrainTypeId}.svg`;
@@ -431,7 +435,7 @@ export abstract class BaseBoard {
   private getPieceAtCoordinate(coordinate: ICoordinate): IPiece | null {
     const image = this.pieceLayer.children
       .toArray()
-      .find((image: Konva.Image) => {
+      .find((image: KonvaImage) => {
         const pieceCoordinate = image.getAttr("cyvasseCoordinate");
         return areCoordinatesEqual(coordinate, pieceCoordinate);
       });
@@ -453,12 +457,12 @@ export abstract class BaseBoard {
 
   private getFirstOpenSetupIndex(): number {
     const existingIndices: number[] = [];
-    this.pieceLayer.children.each((image: Konva.Image) => {
+    this.pieceLayer.children.each((image: KonvaImage) => {
       if (doesHaveValue(image.getAttr("cyvasseSetupIndex"))) {
         existingIndices.push(image.getAttr("cyvasseSetupIndex"));
       }
     });
-    this.terrainLayer.children.each((shape: Konva.Shape) => {
+    this.terrainLayer.children.each((shape: KonvaShape) => {
       if (doesHaveValue(shape.getAttr("cyvasseSetupIndex"))) {
         existingIndices.push(shape.getAttr("cyvasseSetupIndex"));
       }
@@ -489,7 +493,7 @@ export abstract class BaseBoard {
     if (this.game.plies.length > 0) {
       const lastPly = this.game.plies[this.game.plies.length - 1];
       this.clearHighlight();
-      this.spaceLayer.children.each((shape: Konva.Shape) => {
+      this.spaceLayer.children.each((shape: KonvaShape) => {
         const coordinate = shape.getAttr("cyvasseCoordinate");
         if (areCoordinatesEqual(coordinate, lastPly.from)) {
           this.toggleSpaceHighlight(shape, SpaceHighlight.LAST_PLY_MOVEMENT);
@@ -514,11 +518,11 @@ export abstract class BaseBoard {
     }
   }
 
-  private async loadPieceImage(piece: IPiece): Promise<Konva.Image> {
+  private async loadPieceImage(piece: IPiece): Promise<KonvaImage> {
     return await new Promise((resolve) => {
-      Konva.Image.fromURL(
+      KonvaImage.fromURL(
         `/assets/cyvasse/piece/default/${piece.pieceTypeId}_${piece.playerColor}.svg`,
-        (image: Konva.Image) => {
+        (image: KonvaImage) => {
           resolve(image);
         }
       );
@@ -546,7 +550,7 @@ export abstract class BaseBoard {
         coordinateToSpaceHighlight.set(c, SpaceHighlight.TERRITORY_OPPONENT)
       );
     }
-    this.spaceLayer.children.each((shape: Konva.Shape) => {
+    this.spaceLayer.children.each((shape: KonvaShape) => {
       const coordinate = shape.getAttr("cyvasseCoordinate");
       const value = coordinateToSpaceHighlight.get(coordinate);
       if (value != null) {
@@ -568,7 +572,7 @@ export abstract class BaseBoard {
     throw Error(`Piece rule not found for piece type id: ${pieceTypeId}`);
   }
 
-  private async onPieceClick(image: Konva.Image): Promise<void> {
+  private async onPieceClick(image: KonvaImage): Promise<void> {
     if (this.game == null || this.gameCallbacks == null) {
       throw new Error("Game required");
     }
@@ -638,7 +642,7 @@ export abstract class BaseBoard {
     }
   }
 
-  private async onPieceDragEnd(image: Konva.Image): Promise<void> {
+  private async onPieceDragEnd(image: KonvaImage): Promise<void> {
     if (this.game == null || this.gameCallbacks == null) {
       throw new Error("Game required");
     }
@@ -699,7 +703,7 @@ export abstract class BaseBoard {
     this.pieceLayer.draw();
   }
 
-  private async onTerrainDragEnd(terrainSpace: Konva.Shape): Promise<void> {
+  private async onTerrainDragEnd(terrainSpace: KonvaShape): Promise<void> {
     if (this.game == null || this.gameCallbacks == null) {
       throw new Error("Game required");
     }
@@ -733,7 +737,7 @@ export abstract class BaseBoard {
     this.terrainLayer.draw();
   }
 
-  private resetShapePosition(shape: Konva.Shape): void {
+  private resetShapePosition(shape: KonvaShape): void {
     if (doesHaveValue(shape.getAttr("cyvasseCoordinate"))) {
       this.setSpacePositionFromCoordinate(
         shape,
@@ -747,7 +751,7 @@ export abstract class BaseBoard {
     }
   }
 
-  private setPieceSize(image: Konva.Image): void {
+  private setPieceSize(image: KonvaImage): void {
     const size = this.getPieceSize();
     image.offset({ x: size / 2, y: size / 2 });
     image.height(size);
@@ -755,7 +759,7 @@ export abstract class BaseBoard {
   }
 
   private setSpacePositionFromCoordinate(
-    shape: Konva.Shape,
+    shape: KonvaShape,
     coordinate: ICoordinate
   ): void {
     const position = this.coordinateToPosition(coordinate);
@@ -764,7 +768,7 @@ export abstract class BaseBoard {
   }
 
   private setSpacePositionFromSetupIndex(
-    shape: Konva.Shape,
+    shape: KonvaShape,
     index: number
   ): void {
     const position = this.getSetupPosition(index);
@@ -772,7 +776,7 @@ export abstract class BaseBoard {
     shape.y(position.y);
   }
 
-  private setTerrainFillPatternScale(shape: Konva.Shape): void {
+  private setTerrainFillPatternScale(shape: KonvaShape): void {
     const scaleReference = this.getTerrainImageScaleReference();
     const image = shape.fillPatternImage();
     shape.fillPatternScale({
@@ -781,10 +785,7 @@ export abstract class BaseBoard {
     });
   }
 
-  private toggleSpaceHighlight(
-    shape: Konva.Shape,
-    value: SpaceHighlight
-  ): void {
+  private toggleSpaceHighlight(shape: KonvaShape, value: SpaceHighlight): void {
     if (value === SpaceHighlight.NONE) {
       shape.fill("");
       shape.opacity(1);

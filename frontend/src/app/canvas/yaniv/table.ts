@@ -17,7 +17,6 @@ import { Layer as KonvaLayer } from "konva/lib/Layer";
 import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
 import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
-import Konva from "konva";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -157,7 +156,7 @@ export class YanivTable {
     if (userData == null) {
       throw new Error("User not found");
     }
-    const rectsToDiscard: Konva.Rect[] = [];
+    const rectsToDiscard: KonvaRect[] = [];
     let rectsToDestroy = this.discardedCards;
     for (let index = 0; index < lastAction.cardsDiscarded.length; index++) {
       const card = lastAction.cardsDiscarded[index];

@@ -5,7 +5,7 @@ import {
   IGameRules,
   Action,
 } from "../../shared/dtos/cyvasse/game";
-import Konva from "konva";
+import { RegularPolygon as KonvaRegularPolygon } from "konva/lib/shapes/RegularPolygon";
 
 export interface IHexagonalBoardLayoutOptions {
   boardSize: number;
@@ -49,8 +49,8 @@ export class HexagonalBoard extends BaseBoard {
     };
   }
 
-  protected createSpaceShape(): Konva.RegularPolygon {
-    return new Konva.RegularPolygon({
+  protected createSpaceShape(): KonvaRegularPolygon {
+    return new KonvaRegularPolygon({
       radius: 1,
       sides: 6,
       stroke: "#000",
@@ -108,7 +108,7 @@ export class HexagonalBoard extends BaseBoard {
     return this.spaceRadius * 2;
   }
 
-  protected setSpaceSize(polygon: Konva.RegularPolygon): void {
+  protected setSpaceSize(polygon: KonvaRegularPolygon): void {
     polygon.radius(this.spaceRadius);
   }
 
