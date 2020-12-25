@@ -41,6 +41,7 @@ jobs:
           key: dependencies-frontend-{{ checksum "frontend/yarn.lock" }}
       - run: make copy-shared
       - run: yarn lint
+      - run: yarn prettier-html --check
       - run: cd api && yarn build
       - run: cd api && yarn create-databases && yarn test
       - run: cd frontend && yarn test

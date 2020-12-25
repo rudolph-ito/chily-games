@@ -1,7 +1,11 @@
 <mat-toolbar>
   <div class="left">
     <a routerLink="/home" class="title">Chily Games</a>
-    <button mat-icon-button [matMenuTriggerFor]="rootMenu" aria-label="Example icon-button with a menu">
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="rootMenu"
+      aria-label="Example icon-button with a menu"
+    >
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #rootMenu="matMenu">
@@ -32,7 +36,7 @@
       <ng-template #noUser>
         <div class="no-user-actions">
           <a mat-button (click)="showUserLoginForm()">Login</a>
-          <a mat-button (click)="showUserRegisterForm()">Register</a> 
+          <a mat-button (click)="showUserRegisterForm()">Register</a>
         </div>
       </ng-template>
     </ng-template>
