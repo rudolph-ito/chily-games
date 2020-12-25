@@ -15,6 +15,7 @@
         </div>
       </div>
       <button *ngIf="canJoin()" mat-button mat-flat-button color="primary" (click)="join()">Join</button>
+      <div class="info" *ngIf="couldJoinOrPlayIfLoggedIn()">Login/register to join/play</div>
     </div>
     <div class="actions" *ngIf="!loading && (canStartRound() || canCallYaniv())">
       <h2> Actions </h2>

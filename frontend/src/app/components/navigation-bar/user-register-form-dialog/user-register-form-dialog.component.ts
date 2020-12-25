@@ -4,13 +4,16 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 import {
   IRegisterRequest,
   IRegisterErrors,
+  IUser,
 } from "src/app/shared/dtos/authentication";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatDialogRef } from "@angular/material/dialog";
 import { setError } from "src/app/utils/form-control-helpers";
+import { Observable } from "rxjs";
 
 interface IUserRegisterControls {
   username: FormControl;
+  registrationType: FormControl;
   password: FormControl;
   passwordConfirmation: FormControl;
 }
@@ -23,6 +26,7 @@ interface IUserRegisterControls {
 export class UserRegisterFormDialogComponent implements OnInit {
   controls: IUserRegisterControls = {
     username: new FormControl(),
+    registrationType: new FormControl("guest"),
     password: new FormControl(),
     passwordConfirmation: new FormControl(),
   };
@@ -35,12 +39,23 @@ export class UserRegisterFormDialogComponent implements OnInit {
   ngOnInit(): void {}
 
   submit(): void {
-    const request: IRegisterRequest = {
-      username: this.controls.username.value,
-      password: this.controls.password.value,
-      passwordConfirmation: this.controls.passwordConfirmation.value,
-    };
-    this.authenticationService.register(request).subscribe(
+    let observable: Observable<IUser> | null = null;
+    if (this.controls.registrationType.value === "guest") {
+      observable = this.authenticationService.registerAsGuest(
+        this.controls.username.value
+      );
+    } else if (this.controls.registrationType.value === "full") {
+      const request: IRegisterRequest = {
+        username: this.controls.username.value,
+        password: this.controls.password.value,
+        passwordConfirmation: this.controls.passwordConfirmation.value,
+      };
+      observable = this.authenticationService.register(request);
+    }
+    if (observable == null) {
+      throw new Error("Unexpected registrationType");
+    }
+    observable.subscribe(
       () => {
         this.matDialogRef.close(true);
       },
