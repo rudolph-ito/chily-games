@@ -120,10 +120,6 @@ export class YanivGameShowComponent implements OnInit {
   }
 
   getUniquePlayerShortName(playerState: IPlayerState): string {
-    if (this.game == null) {
-      throw new Error("Game is required");
-    }
-
     // First one / two / three letters
     for (let i = 0; i < 2; i++) {
       const fn: (x: IPlayerState) => string = (x) => x.username.slice(0, i + 1);
