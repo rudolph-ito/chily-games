@@ -27,7 +27,7 @@
       <table mat-table [dataSource]="scoresDataSource">
 
         <ng-container *ngFor="let playerState of game?.playerStates" matColumnDef="player-{{ playerState.userId }}">
-          <th mat-header-cell *matHeaderCellDef> {{ playerState.username }} </th>
+          <th mat-header-cell *matHeaderCellDef> <span [matTooltip]="playerState.username"> {{ getUniquePlayerShortName(playerState) }} </span> </th>
           <td mat-cell [ngClass]="element[playerState.userId].scoreType" *matCellDef="let element"> 
             {{ element[playerState.userId].score }} 
           </td>

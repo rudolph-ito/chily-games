@@ -16,6 +16,7 @@ import {
   IGameActionRequest,
   IGameActionResponse,
   IPlayerJoinedEvent,
+  IPlayerState,
   IRoundFinishedEvent,
   IRoundPlayerScore,
   IRoundScore,
@@ -115,6 +116,55 @@ export class YanivGameShowComponent implements OnInit {
     ]);
     this.scoresTableDisplayedColumns = game.playerStates.map(
       (x) => `player-${x.userId}`
+    );
+  }
+
+  getUniquePlayerShortName(playerState: IPlayerState): string {
+    if (this.game == null) {
+      throw new Error("Game is required");
+    }
+
+    // First one / two / three letters
+    for (let i = 0; i < 2; i++) {
+      const fn: (x: IPlayerState) => string = (x) => x.username.slice(0, i + 1);
+      if (this.isShortNameFunctionUnique(playerState, fn)) {
+        return fn(playerState);
+      }
+    }
+
+    // Combinations of three letters
+    for (let j = 1; j < playerState.username.length; j++) {
+      for (let k = j + 1; k < playerState.username.length; k++) {
+        const fn: (x: IPlayerState) => string = (x) => {
+          let value = x.username[0];
+          if (j < x.username.length) {
+            value += x.username[j];
+            if (k < x.username.length) {
+              value += x.username[k];
+            }
+          }
+          return value;
+        };
+        if (this.isShortNameFunctionUnique(playerState, fn)) {
+          return fn(playerState);
+        }
+      }
+    }
+
+    // Fall back to first three letters
+    return playerState.username.slice(0, 3);
+  }
+
+  private isShortNameFunctionUnique(
+    playerState: IPlayerState,
+    fn: (x: IPlayerState) => string
+  ): boolean {
+    if (this.game == null) {
+      throw new Error("Game is required");
+    }
+    const value = fn(playerState);
+    return this.game.playerStates.every(
+      (x) => x.userId === playerState.userId || fn(x) !== value
     );
   }
 
