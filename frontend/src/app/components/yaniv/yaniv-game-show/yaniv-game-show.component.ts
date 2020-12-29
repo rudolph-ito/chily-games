@@ -384,4 +384,10 @@ export class YanivGameShowComponent implements OnInit {
       (x) => x.userId.toString() === userId
     )[0].username;
   }
+
+  onResize(): void {
+    if (this.table !== null) {
+      this.table.resize();
+    }
+  }
 }

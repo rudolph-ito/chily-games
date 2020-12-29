@@ -1,4 +1,4 @@
-<div class="wrapper">
+<div (window:resize)="onResize()" class="wrapper">
   <div class="left">
     <div class="message-container">
       <div *ngIf="hasGameMessage()" class="game-message">
