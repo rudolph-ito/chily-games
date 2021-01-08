@@ -1,43 +1,23 @@
 <div (window:resize)="onResize()" class="wrapper">
-  <div class="left">
-    <div class="message-container">
-      <div *ngIf="hasGameMessage()" class="game-message">
-        {{ getGameMessage() }}
-      </div>
-      <div *ngIf="hasRoundMessage()" [class]="getRoundMessageClass()">
-        {{ getRoundMessage() }}
-      </div>
-    </div>
-    <div class="table-container" #tableContainer></div>
-  </div>
-  <div class="right">
-    <div class="players" *ngIf="!loading && isWaitingForPlayers()">
-      <h2>Players:</h2>
-      <div class="player-list">
-        <div *ngFor="let playerState of game?.playerStates">
-          {{ playerState.username }}
-          <span *ngIf="playerState.userId == game?.hostUserId">(host)</span>
-        </div>
-      </div>
-      <button
-        *ngIf="canJoin()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="join()"
-      >
-        Join
-      </button>
-      <div class="info" *ngIf="couldJoinOrPlayIfLoggedIn()">
-        Login/register to join/play
+  <div class="table-container" #tableContainer></div>
+  <div class="players-overlay" *ngIf="!loading && isWaitingForPlayers()">
+    <h2>Players:</h2>
+    <div class="player-list">
+      <div *ngFor="let playerState of game?.playerStates">
+        {{ playerState.username }}
+        <span *ngIf="playerState.userId == game?.hostUserId">(host)</span>
       </div>
     </div>
-    <div
-      class="actions"
-      *ngIf="!loading && (canStartRound() || canCallYaniv())"
+    <button
+      *ngIf="canJoin()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="join()"
     >
-      <h2>Actions</h2>
-      <button
+      Join
+    </button>
+    <button
         *ngIf="canStartRound()"
         mat-button
         mat-flat-button
@@ -46,43 +26,36 @@
       >
         Start Round
       </button>
-      <button
-        *ngIf="canCallYaniv()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="callYaniv()"
-      >
-        Call Yaniv
-      </button>
+    <div class="info" *ngIf="couldJoinOrPlayIfLoggedIn()">
+      Login/register to join/play
     </div>
-    <div class="scoreboard" *ngIf="!loading && game?.roundScores.length > 0">
-      <h2>Scores</h2>
-      <table mat-table [dataSource]="scoresDataSource">
-        <ng-container
-          *ngFor="let playerState of game?.playerStates"
-          matColumnDef="player-{{ playerState.userId }}"
-        >
-          <th mat-header-cell *matHeaderCellDef>
-            <span [matTooltip]="playerState.username">
-              {{ getUniquePlayerShortName(playerState) }}
-            </span>
-          </th>
-          <td
-            mat-cell
-            [ngClass]="element[playerState.userId].scoreType"
-            *matCellDef="let element"
-          >
-            {{ element[playerState.userId].score }}
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="scoresTableDisplayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: scoresTableDisplayedColumns"
-        ></tr>
-      </table>
-    </div>
+  </div>
+  <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
+    <button
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="viewScores()"
+    >
+      View Scores
+    </button>
+    <button
+      *ngIf="canCallYaniv()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="callYaniv()"
+    >
+      Call Yaniv
+    </button>
+    <button
+      *ngIf="canStartRound()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="startRound()"
+    >
+      Start Round
+    </button>
   </div>
 </div>
