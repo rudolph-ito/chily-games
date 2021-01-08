@@ -1,73 +1,26 @@
-message-height = 30px
-sidebar-width = 300px
-yaniv-color = #9dec79
-asaf-color = #fd7c7c
-total-color = #a2a0a0
-
 .wrapper
   height 100%
   width 100%
   display flex
   justify-content space-between
+  min-width 800px
+  min-height 600px
+  position relative
 
-.left 
+.table-container
   height 100%
-  width "calc(100% - 10px - %s)" % sidebar-width
-  margin-right 10px
+  width 100%
 
-  .table-container
-    height "calc(100% - 2 * %s)" % message-height
-    width 100%
-
-.right
-  height 100%
-  width sidebar-width
-  border-left 1px solid black
-  box-sizing border-box
+.players-overlay, .actions-overlay
+  position absolute
   padding 10px
-  overflow-y auto
 
-  .players, .actions, .scoreboard, .player-list
+  .players, .player-list
     margin-bottom 20px
 
-  .scoreboard table
-    width 100%
-
-    tr
-      height 30px
-
-    th, td
-      text-align center
-      padding 10px
-      font-size 16px
-
-    td.yaniv
-      background-color yaniv-color 
-
-    td.total
-      background-color total-color
-
-    td.asaf
-      background-color asaf-color
-
-.message-container
-  height 2 * message-height
-
-.round-message, .game-message
-  height message-height
-  line-height message-height
-  text-align center
-  font-size 16px
-
-.round-message
-  &.asaf
-    background-color asaf-color
-
-  &.yaniv
-    background-color yaniv-color
-
-.game-message
-  background-color total-color
+  button 
+    display block
+    margin-bottom 10px
 
 .info
   font-style italic

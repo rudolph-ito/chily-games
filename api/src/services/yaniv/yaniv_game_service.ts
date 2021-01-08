@@ -276,9 +276,6 @@ export class YanivGameService implements IYanivGameService {
     const updatedGame = await this.gameDataService.update(game.gameId, {
       actionToUserId: winner.userId,
       state: updatedGameState,
-      cardsBuriedInDiscardPile: [],
-      cardsOnTopOfDiscardPile: [],
-      cardsInDeck: [],
     });
     return {
       roundFinishedEvent: {

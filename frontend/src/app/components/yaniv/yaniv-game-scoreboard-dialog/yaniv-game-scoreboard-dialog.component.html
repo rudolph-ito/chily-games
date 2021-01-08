@@ -1,0 +1,24 @@
+<div mat-dialog-title>Scoreboard</div>
+<mat-dialog-content>
+  <table mat-table [dataSource]="scoresDataSource">
+    <ng-container
+      *ngFor="let playerState of data.game.playerStates"
+      matColumnDef="player-{{ playerState.userId }}"
+    >
+      <th mat-header-cell *matHeaderCellDef>{{ playerState.username }}</th>
+      <td
+        mat-cell
+        [ngClass]="element[playerState.userId].scoreType"
+        *matCellDef="let element"
+      >
+        {{ element[playerState.userId].score }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="scoresTableDisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: scoresTableDisplayedColumns"></tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>
