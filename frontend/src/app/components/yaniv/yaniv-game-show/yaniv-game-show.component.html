@@ -18,25 +18,20 @@
       Join
     </button>
     <button
-        *ngIf="canStartRound()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="startRound()"
-      >
-        Start Round
-      </button>
+      *ngIf="canStartRound()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="startRound()"
+    >
+      Start Round
+    </button>
     <div class="info" *ngIf="couldJoinOrPlayIfLoggedIn()">
       Login/register to join/play
     </div>
   </div>
   <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
-    <button
-      mat-button
-      mat-flat-button
-      color="primary"
-      (click)="viewScores()"
-    >
+    <button mat-button mat-flat-button color="primary" (click)="viewScores()">
       View Scores
     </button>
     <button
