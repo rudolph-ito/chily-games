@@ -1,10 +1,5 @@
 <div mat-dialog-title>Register</div>
 <mat-dialog-content>
-  <mat-form-field>
-    <mat-label>Username</mat-label>
-    <input matInput type="text" [formControl]="controls.username" />
-    <mat-error>{{ controls.username.getError("invalid") }}</mat-error>
-  </mat-form-field>
   <div class="registration-type-field">
     <div>Registration Type</div>
     <mat-radio-group
@@ -15,7 +10,7 @@
         <div class="registration-type-option">
           <span>Guest</span>
           <mat-icon
-            matTooltip="Password randomly generated, saved in your browser, and will automatically login until you logout"
+            matTooltip="All you need to play. Account lasts until you logout."
             >info</mat-icon
           >
         </div>
@@ -23,11 +18,23 @@
       <mat-radio-button value="full">
         <div class="registration-type-option">
           <span>Full</span>
-          <mat-icon matTooltip="Choose your password">info</mat-icon>
+          <mat-icon matTooltip="Select a username, display name, and password."
+            >info</mat-icon
+          >
         </div>
       </mat-radio-button>
     </mat-radio-group>
   </div>
+  <mat-form-field *ngIf="controls.registrationType.value == 'full'">
+    <mat-label>Username</mat-label>
+    <input matInput type="text" [formControl]="controls.username" />
+    <mat-error>{{ controls.username.getError("invalid") }}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Display Name</mat-label>
+    <input matInput type="text" [formControl]="controls.displayName" />
+    <mat-error>{{ controls.displayName.getError("invalid") }}</mat-error>
+  </mat-form-field>
   <mat-form-field *ngIf="controls.registrationType.value == 'full'">
     <mat-label>Password</mat-label>
     <input matInput type="password" [formControl]="controls.password" />

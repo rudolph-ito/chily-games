@@ -10,7 +10,8 @@ export interface ICreateUserOptions {
 export async function createTestUser(
   options: ICreateUserOptions = {}
 ): Promise<User> {
-  const user = User.build({ username: valueOrDefault(options.username, "me") });
+  const username = valueOrDefault(options.username, "me");
+  const user = User.build({ username, displayName: username });
   user.setPassword("strong enough");
   await user.save();
   return user;

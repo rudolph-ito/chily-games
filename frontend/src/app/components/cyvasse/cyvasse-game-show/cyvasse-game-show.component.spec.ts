@@ -43,7 +43,7 @@ describe("CyvasseGameShowComponent", () => {
         }),
     };
     mockUserService = {
-      get: () => of({ userId: 1, username: "test" }),
+      get: () => of({ userId: 1, username: "test", displayName: "test" }),
     };
     mockVariantService = {
       get: () =>

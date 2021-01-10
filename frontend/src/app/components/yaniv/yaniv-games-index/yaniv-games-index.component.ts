@@ -106,7 +106,7 @@ export class YanivGamesIndexComponent implements OnInit {
     if (player == null) {
       throw new Error("Unable to find host");
     }
-    return player.username;
+    return player.displayName;
   }
 
   getState(game: ISearchedGame): string {

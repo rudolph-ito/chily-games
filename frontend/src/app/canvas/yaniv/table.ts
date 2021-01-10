@@ -470,7 +470,7 @@ export class YanivTable {
     const name = new KonvaText({
       align: "center",
       fontSize: 16,
-      text: playerState.username,
+      text: playerState.displayName,
     });
     this.cardsLayer.add(name);
     const border = new KonvaRect({

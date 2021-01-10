@@ -5,12 +5,14 @@ export interface ILoginRequest {
 
 export interface IRegisterRequest {
   username: string;
+  displayName: string;
   password: string;
   passwordConfirmation: string;
 }
 
 export interface IRegisterErrors {
   username?: string;
+  displayName?: string;
   password?: string;
   passwordConfirmation?: string;
 }
@@ -18,4 +20,5 @@ export interface IRegisterErrors {
 export interface IUser {
   userId: number;
   username: string;
+  displayName: string;
 }

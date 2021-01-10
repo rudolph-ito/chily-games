@@ -25,7 +25,7 @@
     </div>
     <ng-template #actions>
       <div class="user-actions" *ngIf="user; else noUser">
-        <span>{{ user.username }}</span>
+        <span matTooltip="{{ user.username }}">{{ user.displayName }}</span>
         <button mat-icon-button [matMenuTriggerFor]="menu">
           <mat-icon>more_vert</mat-icon>
         </button>

@@ -62,7 +62,7 @@ describe("YanivGameRoutes", () => {
             numberOfCards: 0,
             cards: [],
             userId: user1Id,
-            username: "user1",
+            displayName: "user1",
           },
         ],
         roundScores: [],
@@ -98,13 +98,13 @@ describe("YanivGameRoutes", () => {
           numberOfCards: 0,
           cards: [],
           userId: user1Id,
-          username: "user1",
+          displayName: "user1",
         },
         {
           numberOfCards: 0,
           cards: [],
           userId: user2Id,
-          username: "user2",
+          displayName: "user2",
         },
       ]);
     });

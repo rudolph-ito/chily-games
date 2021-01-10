@@ -4,7 +4,7 @@
     <h2>Players:</h2>
     <div class="player-list">
       <div *ngFor="let playerState of game?.playerStates">
-        {{ playerState.username }}
+        {{ playerState.displayName }}
         <span *ngIf="playerState.userId == game?.hostUserId">(host)</span>
       </div>
     </div>

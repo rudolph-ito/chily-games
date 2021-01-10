@@ -284,13 +284,13 @@ describe("YanivGameService", () => {
             ],
             numberOfCards: 2,
             userId: user1Id,
-            username: "test1",
+            displayName: "test1",
           },
           {
             cards: [],
             numberOfCards: 0,
             userId: user2Id,
-            username: "test2",
+            displayName: "test2",
           },
         ]);
       });
@@ -340,13 +340,13 @@ describe("YanivGameService", () => {
             ],
             numberOfCards: 2,
             userId: user1Id,
-            username: "test1",
+            displayName: "test1",
           },
           {
             cards: [],
             numberOfCards: 0,
             userId: user2Id,
-            username: "test2",
+            displayName: "test2",
           },
         ]);
         const updatedGame = await new YanivGameDataService().get(game.gameId);

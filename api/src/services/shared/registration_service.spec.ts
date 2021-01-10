@@ -25,6 +25,7 @@ describe("RegistrationService", () => {
       try {
         await service.register({
           username: "",
+          displayName: "Me",
           password: strongPassword,
           passwordConfirmation: strongPassword,
         });
@@ -38,6 +39,28 @@ describe("RegistrationService", () => {
       });
     });
 
+    it("throws ValidationError if missing displayName", async () => {
+      // Arrange
+      let err: ValidationError | null = null;
+
+      // Act
+      try {
+        await service.register({
+          username: "me",
+          displayName: "",
+          password: strongPassword,
+          passwordConfirmation: strongPassword,
+        });
+      } catch (e) {
+        err = e;
+      }
+
+      // Assert
+      expect(err?.errors).to.eql({
+        displayName: "Display Name is required",
+      });
+    });
+
     it("throws ValidationError if missing password", async () => {
       // Arrange
       let err: ValidationError | null = null;
@@ -46,6 +69,7 @@ describe("RegistrationService", () => {
       try {
         await service.register({
           username: "me",
+          displayName: "Me",
           password: "",
           passwordConfirmation: "",
         });
@@ -67,6 +91,7 @@ describe("RegistrationService", () => {
       try {
         await service.register({
           username: "me",
+          displayName: "Me",
           password: weakPassword,
           passwordConfirmation: weakPassword,
         });
@@ -89,6 +114,7 @@ describe("RegistrationService", () => {
       try {
         await service.register({
           username: "me",
+          displayName: "Me",
           password: strongPassword,
           passwordConfirmation: weakPassword,
         });
@@ -111,6 +137,7 @@ describe("RegistrationService", () => {
       try {
         await service.register({
           username: "me",
+          displayName: "Me",
           password: strongPassword,
           passwordConfirmation: strongPassword,
         });
@@ -130,6 +157,7 @@ describe("RegistrationService", () => {
       // Act
       const user = await service.register({
         username: "user1",
+        displayName: "Me",
         password: strongPassword,
         passwordConfirmation: strongPassword,
       });
@@ -137,6 +165,42 @@ describe("RegistrationService", () => {
       // Assert
       expect(user.userId).not.to.be.undefined();
       expect(user.username).to.eql("user1");
+    });
+  });
+
+  describe("getNextGuestUsername", () => {
+    it("returns guest0 if no guests exist", async () => {
+      // Arrange
+
+      // Act
+      const username = await service.getNextGuestUsername();
+
+      // Assert
+      expect(username).to.eql("guest0");
+    });
+
+    it("returns guest1 if guest0 is the latest guest to exist", async () => {
+      // Arrange
+      await createTestUser({ username: "guest0" });
+
+      // Act
+      const username = await service.getNextGuestUsername();
+
+      // Assert
+      expect(username).to.eql("guest1");
+    });
+
+    it("returns guest10 if guest9 is the latest guest to exist", async () => {
+      // Arrange
+      await createTestUser({ username: "guest3" });
+      await createTestUser({ username: "guest6" });
+      await createTestUser({ username: "guest9" });
+
+      // Act
+      const username = await service.getNextGuestUsername();
+
+      // Assert
+      expect(username).to.eql("guest10");
     });
   });
 });
