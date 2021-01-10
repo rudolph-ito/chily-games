@@ -87,10 +87,9 @@ export class YanivGameService implements IYanivGameService {
     if (game.players.some((x) => x.userId === userId)) {
       throw new ValidationError("Already joined game.");
     }
-    const nextPosition = Math.max(...game.players.map((x) => x.position)) + 1;
     game = await this.gameDataService.update(game.gameId, game.version, {
       players: game.players.concat([
-        { userId, position: nextPosition, cardsInHand: [] },
+        { userId, cardsInHand: [] },
       ]),
     });
     return await this.loadFullGame(userId, game);

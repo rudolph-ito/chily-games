@@ -11,7 +11,6 @@ import { User } from "./user";
 
 export interface IYanivPlayer {
   userId: number;
-  position: number;
   cardsInHand: ICard[];
 }
 
