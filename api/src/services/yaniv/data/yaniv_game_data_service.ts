@@ -60,7 +60,7 @@ export class YanivGameDataService implements IYanivGameDataService {
       cardsInDeck: [],
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [],
-      players: [{ userId: options.hostUserId, position: 0, cardsInHand: [] }],
+      players: [{ userId: options.hostUserId, cardsInHand: [] }],
       completedRounds: [],
       version: 1,
     });
