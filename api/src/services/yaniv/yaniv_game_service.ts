@@ -173,17 +173,9 @@ export class YanivGameService implements IYanivGameService {
     result.data.forEach((game) => {
       game.players.forEach((player) => userIds.push(player.userId));
     });
-<<<<<<< HEAD
-    const users = await this.userDataService.getUsers(
-      playerStates.map((x) => x.userId)
-    );
+    const users = await this.userDataService.getUsers(userIds);
     const userIdToDisplayName = _.fromPairs(
       users.map((u) => [u.userId, u.displayName])
-=======
-    const users = await this.userDataService.getUsers(userIds);
-    const userIdToUsername = _.fromPairs(
-      users.map((u) => [u.userId, u.username])
->>>>>>> master
     );
     return {
       data: result.data.map((x) => ({

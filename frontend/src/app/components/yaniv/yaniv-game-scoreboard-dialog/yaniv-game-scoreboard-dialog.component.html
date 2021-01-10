@@ -5,7 +5,7 @@
       *ngFor="let playerState of data.game.playerStates"
       matColumnDef="player-{{ playerState.userId }}"
     >
-      <th mat-header-cell *matHeaderCellDef>{{ playerState.username }}</th>
+      <th mat-header-cell *matHeaderCellDef>{{ playerState.displayName }}</th>
       <td
         mat-cell
         [ngClass]="element[playerState.userId].scoreType"

@@ -12,8 +12,9 @@ import { setError } from "src/app/utils/form-control-helpers";
 import { Observable } from "rxjs";
 
 interface IUserRegisterControls {
-  username: FormControl;
   registrationType: FormControl;
+  username: FormControl;
+  displayName: FormControl;
   password: FormControl;
   passwordConfirmation: FormControl;
 }
@@ -25,8 +26,9 @@ interface IUserRegisterControls {
 })
 export class UserRegisterFormDialogComponent implements OnInit {
   controls: IUserRegisterControls = {
-    username: new FormControl(),
     registrationType: new FormControl("guest"),
+    username: new FormControl(),
+    displayName: new FormControl(),
     password: new FormControl(),
     passwordConfirmation: new FormControl(),
   };
@@ -42,11 +44,12 @@ export class UserRegisterFormDialogComponent implements OnInit {
     let observable: Observable<IUser> | null = null;
     if (this.controls.registrationType.value === "guest") {
       observable = this.authenticationService.registerAsGuest(
-        this.controls.username.value
+        this.controls.displayName.value
       );
     } else if (this.controls.registrationType.value === "full") {
       const request: IRegisterRequest = {
         username: this.controls.username.value,
+        displayName: this.controls.displayName.value,
         password: this.controls.password.value,
         passwordConfirmation: this.controls.passwordConfirmation.value,
       };
@@ -63,6 +66,7 @@ export class UserRegisterFormDialogComponent implements OnInit {
         if (errorResponse.status === 422) {
           const errors: IRegisterErrors = errorResponse.error;
           setError(this.controls.username, errors.username);
+          setError(this.controls.displayName, errors.displayName);
           setError(this.controls.password, errors.password);
           setError(
             this.controls.passwordConfirmation,
