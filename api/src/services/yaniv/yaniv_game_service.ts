@@ -1,6 +1,10 @@
 import _ from "lodash";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
-import { ISerializedYanivGame, IYanivCompletedRound, IYanivPlayer } from "../../database/models/yaniv_game";
+import {
+  ISerializedYanivGame,
+  IYanivCompletedRound,
+  IYanivPlayer,
+} from "../../database/models/yaniv_game";
 import {
   IGameOptions,
   IGame,
@@ -22,9 +26,7 @@ import {
 } from "./data/yaniv_game_data_service";
 import { areCardsEqual, standardDeckWithTwoJokers } from "./card_helpers";
 import { isValidDiscard, isValidPickup } from "./discard_validator";
-import { ISerializedYanivGameCompletedRound } from "../../database/models/yaniv_game_completed_round";
 import { getCardsScore } from "./score_helpers";
-import { ISerializedYanivGamePlayer } from "src/database/models/yaniv_game_player";
 import shuffle from "knuth-shuffle-seeded";
 import { IPaginatedResponse } from "src/shared/dtos/search";
 import {
@@ -87,7 +89,9 @@ export class YanivGameService implements IYanivGameService {
     }
     const nextPosition = Math.max(...game.players.map((x) => x.position)) + 1;
     game = await this.gameDataService.update(game.gameId, game.version, {
-      players: game.players.concat([{userId, position: nextPosition, cardsInHand: []}])
+      players: game.players.concat([
+        { userId, position: nextPosition, cardsInHand: [] },
+      ]),
     });
     return await this.loadFullGame(userId, game);
   }
@@ -107,7 +111,7 @@ export class YanivGameService implements IYanivGameService {
       throw new ValidationError("Must have at least two players to start");
     }
     const deck = standardDeckWithTwoJokers();
-    const updatedPlayers: IYanivPlayer[] = game.players.map(x => ({ ...x }))
+    const updatedPlayers: IYanivPlayer[] = game.players.map((x) => ({ ...x }));
     updatedPlayers.forEach((x) => (x.cardsInHand = []));
     for (let i = 0; i < 5; i++) {
       updatedPlayers.forEach((x) => {
@@ -127,7 +131,7 @@ export class YanivGameService implements IYanivGameService {
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [initialDiscard],
       cardsInDeck: deck,
-      players: updatedPlayers
+      players: updatedPlayers,
     });
     return await this.loadFullGame(userId, game);
   }
@@ -168,10 +172,10 @@ export class YanivGameService implements IYanivGameService {
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<ISearchedGame>> {
     const result = await this.gameDataService.search(request);
-    const userIds: number[] = []
-    result.data.forEach(game => {
-      game.players.forEach(player => userIds.push(player.userId))
-    })
+    const userIds: number[] = [];
+    result.data.forEach((game) => {
+      game.players.forEach((player) => userIds.push(player.userId));
+    });
     const users = await this.userDataService.getUsers(userIds);
     const userIdToUsername = _.fromPairs(
       users.map((u) => [u.userId, u.username])
@@ -196,7 +200,10 @@ export class YanivGameService implements IYanivGameService {
     userId: number,
     game: ISerializedYanivGame
   ): Promise<IPlayCallYanivResult> {
-    const orderedPlayers = this.getPlayersOrderedToStartWithUser(game.players, userId);
+    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+      game.players,
+      userId
+    );
     const playerState = orderedPlayers[0];
     if (getCardsScore(playerState.cardsInHand) > 7) {
       throw new ValidationError(
@@ -239,11 +246,15 @@ export class YanivGameService implements IYanivGameService {
     const updatedGameState = isGameComplete
       ? GameState.COMPLETE
       : GameState.ROUND_COMPLETE;
-    const updatedGame = await this.gameDataService.update(game.gameId, game.version, {
-      actionToUserId: winner.userId,
-      state: updatedGameState,
-      completedRounds: game.completedRounds.concat([completedRounds])
-    });
+    const updatedGame = await this.gameDataService.update(
+      game.gameId,
+      game.version,
+      {
+        actionToUserId: winner.userId,
+        state: updatedGameState,
+        completedRounds: game.completedRounds.concat([completedRounds]),
+      }
+    );
     return {
       roundFinishedEvent: {
         playerStates: await this.loadPlayerStates(userId, updatedGame),
@@ -264,7 +275,10 @@ export class YanivGameService implements IYanivGameService {
     ) {
       throw new ValidationError("Discard cannot contain duplicates.");
     }
-    const orderedPlayers = this.getPlayersOrderedToStartWithUser(game.players, userId);
+    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+      game.players,
+      userId
+    );
     const playerState = orderedPlayers[0];
     if (
       _.differenceWith(cardsDiscarded, playerState.cardsInHand, areCardsEqual)
@@ -305,15 +319,19 @@ export class YanivGameService implements IYanivGameService {
         shuffle(game.cardsInDeck);
       }
     }
-    const updatedGame = await this.gameDataService.update(game.gameId, game.version, {
-      actionToUserId: orderedPlayers[1].userId,
-      cardsBuriedInDiscardPile: game.cardsBuriedInDiscardPile.concat(
-        discardsToBury
-      ),
-      cardsOnTopOfDiscardPile: cardsDiscarded,
-      cardsInDeck: game.cardsInDeck,
-      players: game.players
-    });
+    const updatedGame = await this.gameDataService.update(
+      game.gameId,
+      game.version,
+      {
+        actionToUserId: orderedPlayers[1].userId,
+        cardsBuriedInDiscardPile: game.cardsBuriedInDiscardPile.concat(
+          discardsToBury
+        ),
+        cardsOnTopOfDiscardPile: cardsDiscarded,
+        cardsInDeck: game.cardsInDeck,
+        players: game.players,
+      }
+    );
     return {
       cardPickedUpFromDeck,
       actionToNextPlayerEvent: {
@@ -331,14 +349,14 @@ export class YanivGameService implements IYanivGameService {
     playerStates: IYanivPlayer[],
     userId: number
   ): IYanivPlayer[] {
-    const reorderedPlayers = playerStates.slice()
+    const reorderedPlayers = playerStates.slice();
     while (reorderedPlayers[0].userId !== userId) {
       const playerState = reorderedPlayers.shift();
       if (playerState != null) {
         reorderedPlayers.push(playerState);
       }
     }
-    return reorderedPlayers
+    return reorderedPlayers;
   }
 
   private async loadFullGame(
@@ -400,18 +418,18 @@ export class YanivGameService implements IYanivGameService {
     return out;
   }
 
-  private isGameComplete(
-    game: ISerializedYanivGame,
-  ): boolean {
-    const playerTotals: Record<number, number> = {}
+  private isGameComplete(game: ISerializedYanivGame): boolean {
+    const playerTotals: Record<number, number> = {};
     game.completedRounds.forEach((completedRound) => {
-      completedRound.forEach(playerScore => {
+      completedRound.forEach((playerScore) => {
         if (playerTotals[playerScore.userId] == null) {
-          playerTotals[playerScore.userId] = 0
+          playerTotals[playerScore.userId] = 0;
         }
-        playerTotals[playerScore.userId] += playerScore.score
-      })
+        playerTotals[playerScore.userId] += playerScore.score;
+      });
     });
-    return Object.values(playerTotals).some(playerTotal => playerTotal >= game.options.playTo)
+    return Object.values(playerTotals).some(
+      (playerTotal) => playerTotal >= game.options.playTo
+    );
   }
 }

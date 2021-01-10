@@ -1,6 +1,10 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { GameState, IGameOptions, RoundScoreType } from "../../shared/dtos/yaniv/game";
+import {
+  GameState,
+  IGameOptions,
+  RoundScoreType,
+} from "../../shared/dtos/yaniv/game";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
 import { User } from "./user";
@@ -123,7 +127,7 @@ YanivGame.init(
     },
     players: {
       type: DataTypes.JSONB,
-      allowNull: false
+      allowNull: false,
     },
     completedRounds: {
       type: DataTypes.JSONB,

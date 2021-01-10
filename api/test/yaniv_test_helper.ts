@@ -51,15 +51,15 @@ export async function createTestYanivRoundActiveGame(
   for (const userId of userIds.slice(1)) {
     await gameService.join(userId, createdGame.gameId);
   }
-  const game = await gameDataService.get(createdGame.gameId)
-  game.players.map((x, index) => x.cardsInHand = options.playerCards[index])
+  const game = await gameDataService.get(createdGame.gameId);
+  game.players.map((x, index) => (x.cardsInHand = options.playerCards[index]));
   await gameDataService.update(game.gameId, game.version, {
     state: GameState.ROUND_ACTIVE,
     actionToUserId: userIds[0],
     cardsBuriedInDiscardPile: [],
     cardsOnTopOfDiscardPile: options.cardsOnTopOfDiscardPile,
     cardsInDeck: options.cardsInDeck,
-    players: game.players
+    players: game.players,
   });
   return { userCredentials, userIds, gameId: game.gameId };
 }

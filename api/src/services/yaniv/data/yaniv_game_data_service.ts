@@ -60,11 +60,9 @@ export class YanivGameDataService implements IYanivGameDataService {
       cardsInDeck: [],
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [],
-      players: [
-        {userId: options.hostUserId, position: 0, cardsInHand: []}
-      ],
+      players: [{ userId: options.hostUserId, position: 0, cardsInHand: [] }],
       completedRounds: [],
-      version: 1
+      version: 1,
     });
     await game.save();
     return game.serialize();
@@ -104,7 +102,7 @@ export class YanivGameDataService implements IYanivGameDataService {
     version: number,
     options: IYanivGameUpdateOptions
   ): Promise<ISerializedYanivGame> {
-    const updates: any = {}
+    const updates: any = {};
     for (let [key, value] of Object.entries(options)) {
       if (
         [
@@ -118,17 +116,17 @@ export class YanivGameDataService implements IYanivGameDataService {
       }
       updates[key] = value;
     }
-    updates.version = version + 1
+    updates.version = version + 1;
     const result = await YanivGame.update(updates, {
       where: {
         gameId,
-        version
+        version,
       },
-      returning: true
-    })
+      returning: true,
+    });
     if (result[0] !== 1) {
-      throw new ValidationError('Game version out of date.')
+      throw new ValidationError("Game version out of date.");
     }
-    return result[1][0].serialize()
+    return result[1][0].serialize();
   }
 }

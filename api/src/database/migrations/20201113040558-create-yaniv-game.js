@@ -45,7 +45,7 @@ module.exports = {
       cardsBuriedInDiscardPile: cardsConfig,
       players: {
         type: Sequelize.JSONB,
-        allowNull: false
+        allowNull: false,
       },
       completedRounds: {
         type: Sequelize.JSONB,
