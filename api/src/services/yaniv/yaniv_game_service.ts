@@ -88,9 +88,7 @@ export class YanivGameService implements IYanivGameService {
       throw new ValidationError("Already joined game.");
     }
     game = await this.gameDataService.update(game.gameId, game.version, {
-      players: game.players.concat([
-        { userId, cardsInHand: [] },
-      ]),
+      players: game.players.concat([{ userId, cardsInHand: [] }]),
     });
     return await this.loadFullGame(userId, game);
   }
