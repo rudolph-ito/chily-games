@@ -23,7 +23,7 @@ import {
 import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
 import { YanivGameService } from "../../services/yaniv/yaniv_game_service";
 
-describe("YanivGameRoutes", () => {
+describe.only("YanivGameRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
 

@@ -123,7 +123,8 @@ export class YanivGameDataService implements IYanivGameDataService {
       where: {
         gameId,
         version
-      }
+      },
+      returning: true
     })
     if (result[0] !== 1) {
       throw new ValidationError('Game version out of date.')
