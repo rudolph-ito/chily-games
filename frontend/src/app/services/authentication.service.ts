@@ -6,7 +6,7 @@ import {
   IUser,
 } from "../shared/dtos/authentication";
 import { Observable, Subject, ReplaySubject, of } from "rxjs";
-import { tap } from "rxjs/operators";
+import { mergeMap, tap } from "rxjs/operators";
 
 @Injectable({
   providedIn: "root",
@@ -42,6 +42,10 @@ export class AuthenticationService {
       .pipe(tap((user) => this.userSubscription.next(user)));
   }
 
+  getNextGuestUsername(): Observable<string> {
+    return this.http.get<string>(`${this.routePrefix}/next_guest_username`);
+  }
+
   initUser(): void {
     this.http.get<IUser>(`${this.routePrefix}/user`).subscribe(
       (user) => this.userSubscription.next(user),
@@ -54,19 +58,24 @@ export class AuthenticationService {
     );
   }
 
-  registerAsGuest(username: string): Observable<IUser> {
-    const password = this.generateGuestPassword();
-    return this.register({
-      username,
-      password,
-      passwordConfirmation: password,
-    }).pipe(
-      tap((_) =>
-        localStorage.setItem(
-          this.guestCredentialsLocalStorageKey,
-          JSON.stringify({ username, password })
-        )
-      )
+  registerAsGuest(displayName: string): Observable<IUser> {
+    return this.getNextGuestUsername().pipe(
+      mergeMap((username) => {
+        const password = this.generateGuestPassword();
+        return this.register({
+          username,
+          displayName,
+          password,
+          passwordConfirmation: password,
+        }).pipe(
+          tap((_) =>
+            localStorage.setItem(
+              this.guestCredentialsLocalStorageKey,
+              JSON.stringify({ username, password })
+            )
+          )
+        );
+      })
     );
   }
 

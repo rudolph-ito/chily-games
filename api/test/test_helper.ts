@@ -82,6 +82,7 @@ export async function createTestUser(
 ): Promise<number> {
   const user = await new UserDataService().createUser({
     username: userCredentials.username,
+    displayName: userCredentials.username,
     password: userCredentials.password,
   });
   return user.userId;

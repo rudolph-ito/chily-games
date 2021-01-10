@@ -25,6 +25,9 @@ export class RegistrationService {
     ) {
       errors.username = `Username '${request.username}' is already taken`;
     }
+    if (doesNotHaveValue(request.displayName) || request.displayName === "") {
+      errors.displayName = "Display Name is required";
+    }
     if (doesNotHaveValue(request.password) || request.password === "") {
       errors.password = "Password is required";
     } else {
@@ -53,5 +56,9 @@ export class RegistrationService {
       throw new ValidationError(errors);
     }
     return await this.userDataService.createUser(request);
+  }
+
+  async getNextGuestUsername(): Promise<string> {
+    return await this.userDataService.getNextGuestUsername();
   }
 }

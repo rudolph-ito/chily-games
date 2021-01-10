@@ -6,12 +6,14 @@ import { NotFoundError } from "../exceptions";
 export interface ICreateUserOptions {
   username: string;
   password: string;
+  displayName: string;
 }
 
 export interface IUserDataService {
   createUser: (options: ICreateUserOptions) => Promise<IUser>;
   getUser: (userId: number) => Promise<IUser>;
   getMaybeUser: (userId: number) => Promise<IUser | null>;
+  getNextGuestUsername: () => Promise<string>;
   getUsers: (userIds: number[]) => Promise<IUser[]>;
   hasUser: (userId: number) => Promise<boolean>;
   hasUserWithUsername: (username: string) => Promise<boolean>;
@@ -19,7 +21,10 @@ export interface IUserDataService {
 
 export class UserDataService implements IUserDataService {
   async createUser(options: ICreateUserOptions): Promise<IUser> {
-    const user = User.build({ username: options.username });
+    const user = User.build({
+      username: options.username,
+      displayName: options.displayName,
+    });
     user.setPassword(options.password);
     await user.save();
     return user.serialize();
@@ -55,5 +60,21 @@ export class UserDataService implements IUserDataService {
   async hasUser(userId: number): Promise<boolean> {
     const count = await User.count({ where: { userId } });
     return count === 1;
+  }
+
+  async getNextGuestUsername(): Promise<string> {
+    const lastGuest = await User.findOne({
+      where: {
+        username: {
+          [Op.startsWith]: "guest",
+        },
+      },
+      order: [["userId", "DESC"]],
+    });
+    if (lastGuest !== null) {
+      const nextNumber = parseInt(lastGuest.username.replace("guest", "")) + 1;
+      return `guest${nextNumber}`;
+    }
+    return "guest0";
   }
 }

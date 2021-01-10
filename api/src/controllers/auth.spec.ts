@@ -50,7 +50,7 @@ describe("AuthRoutes", () => {
       // Arrange
       const username = "test";
       const password = "strong enough";
-      const user = User.build({ username: username });
+      const user = User.build({ username: username, displayName: username });
       user.setPassword(password);
       await user.save();
 
@@ -81,7 +81,7 @@ describe("AuthRoutes", () => {
 
       beforeEach(async () => {
         const password = "strong enough";
-        const user = User.build({ username: username });
+        const user = User.build({ username: username, displayName: username });
         user.setPassword(password);
         await user.save();
 
@@ -105,6 +105,7 @@ describe("AuthRoutes", () => {
         expect(response.body).to.eql({
           userId: 1,
           username,
+          displayName: username,
         });
       });
 
@@ -123,7 +124,7 @@ describe("AuthRoutes", () => {
       // Arrange
       const username = "test";
       const password = "strong enough";
-      const user = User.build({ username: username });
+      const user = User.build({ username: username, displayName: username });
       user.setPassword(password);
       await user.save();
 
@@ -141,6 +142,7 @@ describe("AuthRoutes", () => {
       expect(response.body).to.eql({
         userId: 1,
         username,
+        displayName: username,
       });
     });
   });
@@ -161,19 +163,26 @@ describe("AuthRoutes", () => {
       expect(response.body).to.eql({
         password: "Password is required",
         username: "Username is required",
+        displayName: "Display Name is required",
       });
     });
 
     it("on succees, sets a cookie allowing access to protected routes", async () => {
       // Arrange
       const username = "test";
+      const displayName = "Test";
       const password = "strong enough";
       const agent = supertest.agent(testServer.app);
 
       // Act
       await agent
         .post("/api/auth/register")
-        .send({ username, password, passwordConfirmation: password })
+        .send({
+          username,
+          displayName,
+          password,
+          passwordConfirmation: password,
+        })
         .set("Accept", "application/json")
         .expect("set-cookie", /connect\.sid/)
         .expect(StatusCodes.OK);

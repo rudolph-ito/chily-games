@@ -30,11 +30,11 @@ export function getGameMessage(game: IGame): string {
     );
     const minScore = Math.min(...roundScores.map((x) => x.roundScore.score));
     const winners = roundScores.filter((x) => x.roundScore.score === minScore);
-    const usernames = winners.map((x) => getUsername(game, x.userId));
-    if (usernames.length === 1) {
-      return `Game over. The winner is: ${usernames[0]}`;
+    const displayNames = winners.map((x) => getDisplayName(game, x.userId));
+    if (displayNames.length === 1) {
+      return `Game over. The winner is: ${displayNames[0]}`;
     }
-    return `Game over. The winners are: ${usernames.join(",")}`;
+    return `Game over. The winners are: ${displayNames.join(",")}`;
   }
   return "";
 }
@@ -42,11 +42,11 @@ export function getGameMessage(game: IGame): string {
 export function getRoundMessage(game: IGame): string {
   if (hasRoundMessage(game)) {
     const result = getLastRoundResult(game);
-    const username = getUsername(game, result.userId);
+    const displayName = getDisplayName(game, result.userId);
     if (result.scoreType === RoundScoreType.ASAF) {
-      return `ASAF! ${username} called yaniv but did not have the lowest score`;
+      return `ASAF! ${displayName} called yaniv but did not have the lowest score`;
     }
-    return `YANIV! ${username} called yaniv and had the lowest score`;
+    return `YANIV! ${displayName} called yaniv and had the lowest score`;
   }
   return "";
 }
@@ -71,9 +71,9 @@ export function getLastRoundResult(game: IGame): RoundResult {
   return { userId: yanivScores[0].userId, scoreType: RoundScoreType.YANIV };
 }
 
-export function getUsername(game: IGame, userId: string): string {
+export function getDisplayName(game: IGame, userId: string): string {
   return game.playerStates.filter((x) => x.userId.toString() === userId)[0]
-    .username;
+    .displayName;
 }
 
 function hasRoundMessage(game: IGame): boolean {
