@@ -42,7 +42,8 @@ import { Socket } from "ngx-socket-io";
   templateUrl: "./cyvasse-game-show.component.html",
   styleUrls: ["./cyvasse-game-show.component.styl"],
 })
-export class CyvasseGameShowComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CyvasseGameShowComponent
+  implements OnInit, AfterViewInit, OnDestroy {
   loading = false;
   game: IGame;
   gameRules: IGameRules;

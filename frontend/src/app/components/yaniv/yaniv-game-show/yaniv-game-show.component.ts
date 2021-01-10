@@ -1,5 +1,12 @@
 import { HttpErrorResponse } from "@angular/common/http";
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ActivatedRoute } from "@angular/router";
@@ -25,7 +32,8 @@ import { YanivGameScoreboardDialogComponent } from "../yaniv-game-scoreboard-dia
   templateUrl: "./yaniv-game-show.component.html",
   styleUrls: ["./yaniv-game-show.component.styl"],
 })
-export class YanivGameShowComponent implements OnInit, AfterViewInit, OnDestroy {
+export class YanivGameShowComponent
+  implements OnInit, AfterViewInit, OnDestroy {
   loading: boolean;
   game: IGame | null;
   user: IUser | null;
