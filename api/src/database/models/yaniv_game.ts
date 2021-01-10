@@ -1,9 +1,24 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { GameState, IGameOptions } from "../../shared/dtos/yaniv/game";
+import {
+  GameState,
+  IGameOptions,
+  RoundScoreType,
+} from "../../shared/dtos/yaniv/game";
 import { ICard } from "../../shared/dtos/yaniv/card";
 import { deserializeCard } from "../../services/yaniv/card_helpers";
 import { User } from "./user";
+
+export interface IYanivPlayer {
+  userId: number;
+  cardsInHand: ICard[];
+}
+
+export interface IYanivCompletedRound {
+  userId: number;
+  score: number;
+  scoreType: RoundScoreType;
+}
 
 export interface ISerializedYanivGame {
   gameId: number;
@@ -14,6 +29,9 @@ export interface ISerializedYanivGame {
   cardsInDeck: ICard[];
   cardsBuriedInDiscardPile: ICard[];
   cardsOnTopOfDiscardPile: ICard[];
+  players: IYanivPlayer[];
+  completedRounds: IYanivCompletedRound[][];
+  version: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +52,9 @@ export class YanivGame extends Model {
   public cardsInDeck!: number[];
   public cardsBuriedInDiscardPile!: number[];
   public cardsOnTopOfDiscardPile!: number[];
+  public players!: IYanivPlayer[];
+  public completedRounds!: IYanivCompletedRound[][];
+  public version!: number;
   public createdAt!: Date;
   public updatedAt!: Date;
 
@@ -51,6 +72,9 @@ export class YanivGame extends Model {
       cardsOnTopOfDiscardPile: this.cardsOnTopOfDiscardPile.map(
         deserializeCard
       ),
+      players: this.players,
+      completedRounds: this.completedRounds,
+      version: this.version,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
@@ -98,6 +122,18 @@ YanivGame.init(
     },
     cardsOnTopOfDiscardPile: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
+      allowNull: false,
+    },
+    players: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    completedRounds: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    version: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     createdAt: {

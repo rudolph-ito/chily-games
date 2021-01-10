@@ -6,6 +6,8 @@ import {
 import {
   YanivGame,
   ISerializedYanivGame,
+  IYanivPlayer,
+  IYanivCompletedRound,
 } from "../../../database/models/yaniv_game";
 import {
   GameState,
@@ -14,7 +16,7 @@ import {
 } from "../../../shared/dtos/yaniv/game";
 import { serializeCard } from "../card_helpers";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
-import { gameNotFoundError } from "../../shared/exceptions";
+import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
 import { FindAndCountOptions, Op } from "sequelize";
 
 export interface IYanivGameCreateOptions {
@@ -29,6 +31,8 @@ export interface IYanivGameUpdateOptions {
   cardsInDeck?: ICard[];
   cardsBuriedInDiscardPile?: ICard[];
   cardsOnTopOfDiscardPile?: ICard[];
+  players?: IYanivPlayer[];
+  completedRounds?: IYanivCompletedRound[][];
 }
 
 export interface IYanivGameDataService {
@@ -36,6 +40,7 @@ export interface IYanivGameDataService {
   get: (gameId: number) => Promise<ISerializedYanivGame>;
   update: (
     gameId: number,
+    version: number,
     options: IYanivGameUpdateOptions
   ) => Promise<ISerializedYanivGame>;
   search: (
@@ -55,6 +60,9 @@ export class YanivGameDataService implements IYanivGameDataService {
       cardsInDeck: [],
       cardsBuriedInDiscardPile: [],
       cardsOnTopOfDiscardPile: [],
+      players: [{ userId: options.hostUserId, cardsInHand: [] }],
+      completedRounds: [],
+      version: 1,
     });
     await game.save();
     return game.serialize();
@@ -91,12 +99,10 @@ export class YanivGameDataService implements IYanivGameDataService {
 
   async update(
     gameId: number,
+    version: number,
     options: IYanivGameUpdateOptions
   ): Promise<ISerializedYanivGame> {
-    const game = await YanivGame.findByPk(gameId);
-    if (game == null) {
-      throw gameNotFoundError(gameId);
-    }
+    const updates: any = {};
     for (let [key, value] of Object.entries(options)) {
       if (
         [
@@ -108,9 +114,19 @@ export class YanivGameDataService implements IYanivGameDataService {
       ) {
         value = (value as ICard[]).map(serializeCard);
       }
-      game[key] = value;
+      updates[key] = value;
     }
-    await game.save();
-    return game.serialize();
+    updates.version = version + 1;
+    const result = await YanivGame.update(updates, {
+      where: {
+        gameId,
+        version,
+      },
+      returning: true,
+    });
+    if (result[0] !== 1) {
+      throw new ValidationError("Game version out of date.");
+    }
+    return result[1][0].serialize();
   }
 }

@@ -43,6 +43,18 @@ module.exports = {
       cardsInDeck: cardsConfig,
       cardsOnTopOfDiscardPile: cardsConfig,
       cardsBuriedInDiscardPile: cardsConfig,
+      players: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      completedRounds: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      version: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
