@@ -236,7 +236,7 @@ export class YanivGameService implements IYanivGameService {
       }
     });
     const roundScore = this.buildRoundScore(completedRounds);
-    const isGameComplete = await this.isGameComplete(game);
+    const isGameComplete = this.isGameComplete(game);
     const winner = completedRounds.find(
       (x) => x.scoreType === RoundScoreType.YANIV
     );
