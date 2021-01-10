@@ -9,6 +9,7 @@ export const PASSWORD_HASH_SIZE = 256;
 export class User extends Model {
   public userId!: number;
   public username!: string;
+  public displayName!: string;
   private passwordSalt!: string;
   private passwordHash!: string;
 
@@ -23,7 +24,11 @@ export class User extends Model {
   }
 
   serialize(): IUser {
-    return { userId: this.userId, username: this.username };
+    return {
+      userId: this.userId,
+      username: this.username,
+      displayName: this.displayName,
+    };
   }
 
   static generatePasswordSalt(): string {
@@ -59,6 +64,10 @@ User.init(
     },
     passwordSalt: {
       type: DataTypes.STRING(PASSWORD_SALT_SIZE * 2),
+      allowNull: false,
+    },
+    displayName: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },

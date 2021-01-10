@@ -3,7 +3,7 @@ import { ICard } from "./card";
 
 export interface IPlayerState {
   userId: number;
-  username: string;
+  displayName: string;
   numberOfCards: number;
   cards: ICard[];
 }
@@ -89,7 +89,7 @@ export interface IRoundFinishedEvent {
 
 export interface ISearchedGameUser {
   userId: number;
-  username: string;
+  displayName: string;
 }
 
 export interface ISearchedGame {

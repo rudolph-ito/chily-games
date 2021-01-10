@@ -195,8 +195,8 @@ export class YanivGameService implements IYanivGameService {
     const users = await this.userDataService.getUsers(
       playerStates.map((x) => x.userId)
     );
-    const userIdToUsername = _.fromPairs(
-      users.map((u) => [u.userId, u.username])
+    const userIdToDisplayName = _.fromPairs(
+      users.map((u) => [u.userId, u.displayName])
     );
     return {
       data: result.data.map((x) => ({
@@ -204,7 +204,7 @@ export class YanivGameService implements IYanivGameService {
         hostUserId: x.hostUserId,
         players: playerStatesMap[x.gameId].map((x) => ({
           userId: x.userId,
-          username: userIdToUsername[x.userId],
+          displayName: userIdToDisplayName[x.userId],
         })),
         state: x.state,
         createdAt: x.createdAt.toISOString(),
@@ -401,13 +401,13 @@ export class YanivGameService implements IYanivGameService {
     const users = await this.userDataService.getUsers(
       playerStates.map((x) => x.userId)
     );
-    const userIdToUsername = _.fromPairs(
-      users.map((u) => [u.userId, u.username])
+    const userIdToDisplayName = _.fromPairs(
+      users.map((u) => [u.userId, u.displayName])
     );
     return playerStates.map((ps) => {
       const out: IPlayerState = {
         userId: ps.userId,
-        username: userIdToUsername[ps.userId],
+        displayName: userIdToDisplayName[ps.userId],
         numberOfCards: 0,
         cards: [],
       };

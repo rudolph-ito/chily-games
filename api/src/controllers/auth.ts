@@ -44,6 +44,14 @@ function getAuthRouter(
   registrationService: RegistrationService = new RegistrationService()
 ): express.Router {
   const router = express.Router();
+  router.get("/next_guest_username", function (req, res, next) {
+    registrationService
+      .getNextGuestUsername()
+      .then((username) => {
+        res.status(StatusCodes.OK).json(username);
+      })
+      .catch(next);
+  });
   router.post("/register", function (req, res, next) {
     registrationService
       .register(req.body)
