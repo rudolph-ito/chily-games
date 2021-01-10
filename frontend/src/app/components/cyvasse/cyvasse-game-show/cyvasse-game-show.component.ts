@@ -4,6 +4,8 @@ import {
   ElementRef,
   ViewChild,
   NgZone,
+  AfterViewInit,
+  OnDestroy,
 } from "@angular/core";
 import { CyvasseGameService } from "src/app/services/cyvasse/cvasse-game.service";
 import {
@@ -40,7 +42,8 @@ import { Socket } from "ngx-socket-io";
   templateUrl: "./cyvasse-game-show.component.html",
   styleUrls: ["./cyvasse-game-show.component.styl"],
 })
-export class CyvasseGameShowComponent implements OnInit {
+export class CyvasseGameShowComponent
+  implements OnInit, AfterViewInit, OnDestroy {
   loading = false;
   game: IGame;
   gameRules: IGameRules;
@@ -109,6 +112,10 @@ export class CyvasseGameShowComponent implements OnInit {
         this.updateBoard();
       });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.socket.emit("cyvasse-leave-game", this.getGameId());
   }
 
   ngAfterViewInit(): void {
