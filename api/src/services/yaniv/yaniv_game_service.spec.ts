@@ -592,7 +592,7 @@ describe("YanivGameService", () => {
         ]);
       });
 
-      it.only('marks the game complete if a players total score surpasses the play to amount', async () => {
+      it("marks the game complete if a players total score surpasses the play to amount", async () => {
         // arrange
         const {
           userIds: [user1Id, user2Id],
@@ -609,8 +609,8 @@ describe("YanivGameService", () => {
           cardsOnTopOfDiscardPile: [],
           playerRoundScores: [
             [0, 50],
-            [0, 45]
-          ]
+            [0, 45],
+          ],
         });
         const action: IGameActionRequest = {
           callYaniv: true,
@@ -631,7 +631,7 @@ describe("YanivGameService", () => {
             scoreType: RoundScoreType.DEFAULT,
           },
         });
-      })
+      });
     });
   });
 });
