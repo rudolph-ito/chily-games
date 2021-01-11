@@ -1,4 +1,4 @@
-import { IYanivCompletedRound } from "../src/database/models/yaniv_game";
+import { IYanivRoundPlayerScore } from "../src/database/models/yaniv_game";
 import { YanivGameDataService } from "../src/services/yaniv/data/yaniv_game_data_service";
 import { YanivGameService } from "../src/services/yaniv/yaniv_game_service";
 import { ICard } from "../src/shared/dtos/yaniv/card";
@@ -59,7 +59,7 @@ export async function createTestYanivRoundActiveGame(
   }
   const game = await gameDataService.get(createdGame.gameId);
   game.players.map((x, index) => (x.cardsInHand = options.playerCards[index]));
-  const completedRounds: IYanivCompletedRound[][] = (
+  const completedRounds: IYanivRoundPlayerScore[][] = (
     options.playerRoundScores ?? []
   ).map((roundScores) => {
     return roundScores.map((roundScore, index) => {

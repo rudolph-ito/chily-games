@@ -7,7 +7,7 @@ import {
   YanivGame,
   ISerializedYanivGame,
   IYanivPlayer,
-  IYanivCompletedRound,
+  IYanivRoundPlayerScore,
 } from "../../../database/models/yaniv_game";
 import {
   GameState,
@@ -32,7 +32,7 @@ export interface IYanivGameUpdateOptions {
   cardsBuriedInDiscardPile?: ICard[];
   cardsOnTopOfDiscardPile?: ICard[];
   players?: IYanivPlayer[];
-  completedRounds?: IYanivCompletedRound[][];
+  completedRounds?: IYanivRoundPlayerScore[][];
 }
 
 export interface IYanivGameDataService {

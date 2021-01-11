@@ -2,7 +2,7 @@ import _ from "lodash";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 import {
   ISerializedYanivGame,
-  IYanivCompletedRound,
+  IYanivRoundPlayerScore,
   IYanivPlayer,
 } from "../../database/models/yaniv_game";
 import {
@@ -207,7 +207,7 @@ export class YanivGameService implements IYanivGameService {
         "Hand total must be less than or equal to 7 to call Yaniv."
       );
     }
-    const completedRound: IYanivCompletedRound[] = game.players.map(
+    const completedRound: IYanivRoundPlayerScore[] = game.players.map(
       (playerState) => {
         return {
           userId: playerState.userId,
@@ -407,7 +407,7 @@ export class YanivGameService implements IYanivGameService {
   }
 
   private buildRoundScore(
-    completedRounds: IYanivCompletedRound[]
+    completedRounds: IYanivRoundPlayerScore[]
   ): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
@@ -416,7 +416,7 @@ export class YanivGameService implements IYanivGameService {
     return out;
   }
 
-  private isGameComplete(completedRounds: IYanivCompletedRound[][], playTo: number): boolean {
+  private isGameComplete(completedRounds: IYanivRoundPlayerScore[][], playTo: number): boolean {
     const playerTotals: Record<number, number> = {};
     completedRounds.forEach((completedRound) => {
       completedRound.forEach((playerScore) => {
