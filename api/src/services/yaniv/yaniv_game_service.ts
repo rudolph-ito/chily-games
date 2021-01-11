@@ -233,8 +233,13 @@ export class YanivGameService implements IYanivGameService {
       }
     });
     const roundScore = this.buildRoundScore(completedRound);
-    const updatedCompletedRounds = game.completedRounds.concat([completedRound]);
-    const isGameComplete = this.isGameComplete(updatedCompletedRounds, game.options.playTo);
+    const updatedCompletedRounds = game.completedRounds.concat([
+      completedRound,
+    ]);
+    const isGameComplete = this.isGameComplete(
+      updatedCompletedRounds,
+      game.options.playTo
+    );
     const winner = completedRound.find(
       (x) => x.scoreType === RoundScoreType.YANIV
     );
@@ -416,7 +421,10 @@ export class YanivGameService implements IYanivGameService {
     return out;
   }
 
-  private isGameComplete(completedRounds: IYanivRoundPlayerScore[][], playTo: number): boolean {
+  private isGameComplete(
+    completedRounds: IYanivRoundPlayerScore[][],
+    playTo: number
+  ): boolean {
     const playerTotals: Record<number, number> = {};
     completedRounds.forEach((completedRound) => {
       completedRound.forEach((playerScore) => {
