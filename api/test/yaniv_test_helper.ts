@@ -1,7 +1,8 @@
+import { IYanivCompletedRound } from "../src/database/models/yaniv_game";
 import { YanivGameDataService } from "../src/services/yaniv/data/yaniv_game_data_service";
 import { YanivGameService } from "../src/services/yaniv/yaniv_game_service";
 import { ICard } from "../src/shared/dtos/yaniv/card";
-import { GameState, IGameOptions } from "../src/shared/dtos/yaniv/game";
+import { GameState, IGameOptions, RoundScoreType } from "../src/shared/dtos/yaniv/game";
 import {
   createTestCredentials,
   createTestUser,
@@ -27,6 +28,7 @@ interface ITestGameOptions {
   playerCards: ICard[][];
   cardsOnTopOfDiscardPile: ICard[];
   cardsInDeck: ICard[];
+  playerRoundScores?: number[][]
 }
 
 interface ITestGame {
@@ -53,6 +55,15 @@ export async function createTestYanivRoundActiveGame(
   }
   const game = await gameDataService.get(createdGame.gameId);
   game.players.map((x, index) => (x.cardsInHand = options.playerCards[index]));
+  const completedRounds: IYanivCompletedRound[][] = (options.playerRoundScores ?? []).map(roundScores => {
+    return roundScores.map((roundScore, index) => {
+      return { 
+        userId: userIds[index],
+        score: roundScore,
+        scoreType: RoundScoreType.DEFAULT
+      }
+    })
+  })
   await gameDataService.update(game.gameId, game.version, {
     state: GameState.ROUND_ACTIVE,
     actionToUserId: userIds[0],
@@ -60,6 +71,7 @@ export async function createTestYanivRoundActiveGame(
     cardsOnTopOfDiscardPile: options.cardsOnTopOfDiscardPile,
     cardsInDeck: options.cardsInDeck,
     players: game.players,
+    completedRounds,
   });
   return { userCredentials, userIds, gameId: game.gameId };
 }
