@@ -2,7 +2,7 @@ import _ from "lodash";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 import {
   ISerializedYanivGame,
-  IYanivCompletedRound,
+  IYanivRoundPlayerScore,
   IYanivPlayer,
 } from "../../database/models/yaniv_game";
 import {
@@ -207,7 +207,7 @@ export class YanivGameService implements IYanivGameService {
         "Hand total must be less than or equal to 7 to call Yaniv."
       );
     }
-    const completedRounds: IYanivCompletedRound[] = game.players.map(
+    const completedRound: IYanivRoundPlayerScore[] = game.players.map(
       (playerState) => {
         return {
           userId: playerState.userId,
@@ -216,10 +216,10 @@ export class YanivGameService implements IYanivGameService {
         };
       }
     );
-    const minRoundScore = _.minBy(completedRounds, (x) => x.score)?.score ?? 0;
+    const minRoundScore = _.minBy(completedRound, (x) => x.score)?.score ?? 0;
     const hasMultipleWinners =
-      completedRounds.filter((x) => x.score === minRoundScore).length > 1;
-    completedRounds.forEach((x) => {
+      completedRound.filter((x) => x.score === minRoundScore).length > 1;
+    completedRound.forEach((x) => {
       if (
         x.userId === userId &&
         (x.score > minRoundScore ||
@@ -232,9 +232,15 @@ export class YanivGameService implements IYanivGameService {
         x.scoreType = RoundScoreType.YANIV;
       }
     });
-    const roundScore = this.buildRoundScore(completedRounds);
-    const isGameComplete = this.isGameComplete(game);
-    const winner = completedRounds.find(
+    const roundScore = this.buildRoundScore(completedRound);
+    const updatedCompletedRounds = game.completedRounds.concat([
+      completedRound,
+    ]);
+    const isGameComplete = this.isGameComplete(
+      updatedCompletedRounds,
+      game.options.playTo
+    );
+    const winner = completedRound.find(
       (x) => x.scoreType === RoundScoreType.YANIV
     );
     if (winner == null) {
@@ -249,7 +255,7 @@ export class YanivGameService implements IYanivGameService {
       {
         actionToUserId: winner.userId,
         state: updatedGameState,
-        completedRounds: game.completedRounds.concat([completedRounds]),
+        completedRounds: updatedCompletedRounds,
       }
     );
     return {
@@ -406,7 +412,7 @@ export class YanivGameService implements IYanivGameService {
   }
 
   private buildRoundScore(
-    completedRounds: IYanivCompletedRound[]
+    completedRounds: IYanivRoundPlayerScore[]
   ): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
@@ -415,9 +421,12 @@ export class YanivGameService implements IYanivGameService {
     return out;
   }
 
-  private isGameComplete(game: ISerializedYanivGame): boolean {
+  private isGameComplete(
+    completedRounds: IYanivRoundPlayerScore[][],
+    playTo: number
+  ): boolean {
     const playerTotals: Record<number, number> = {};
-    game.completedRounds.forEach((completedRound) => {
+    completedRounds.forEach((completedRound) => {
       completedRound.forEach((playerScore) => {
         if (playerTotals[playerScore.userId] == null) {
           playerTotals[playerScore.userId] = 0;
@@ -426,7 +435,7 @@ export class YanivGameService implements IYanivGameService {
       });
     });
     return Object.values(playerTotals).some(
-      (playerTotal) => playerTotal >= game.options.playTo
+      (playerTotal) => playerTotal >= playTo
     );
   }
 }

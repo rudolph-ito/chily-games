@@ -14,7 +14,7 @@ export interface IYanivPlayer {
   cardsInHand: ICard[];
 }
 
-export interface IYanivCompletedRound {
+export interface IYanivRoundPlayerScore {
   userId: number;
   score: number;
   scoreType: RoundScoreType;
@@ -30,7 +30,7 @@ export interface ISerializedYanivGame {
   cardsBuriedInDiscardPile: ICard[];
   cardsOnTopOfDiscardPile: ICard[];
   players: IYanivPlayer[];
-  completedRounds: IYanivCompletedRound[][];
+  completedRounds: IYanivRoundPlayerScore[][];
   version: number;
   createdAt: Date;
   updatedAt: Date;
@@ -53,7 +53,7 @@ export class YanivGame extends Model {
   public cardsBuriedInDiscardPile!: number[];
   public cardsOnTopOfDiscardPile!: number[];
   public players!: IYanivPlayer[];
-  public completedRounds!: IYanivCompletedRound[][];
+  public completedRounds!: IYanivRoundPlayerScore[][];
   public version!: number;
   public createdAt!: Date;
   public updatedAt!: Date;

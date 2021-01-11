@@ -591,6 +591,47 @@ describe("YanivGameService", () => {
           },
         ]);
       });
+
+      it("marks the game complete if a players total score surpasses the play to amount", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestYanivRoundActiveGame({
+          playerCards: [
+            [
+              { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+              { rank: CardRank.THREE, suit: CardSuit.DIAMONDS },
+            ],
+            [{ rank: CardRank.KING, suit: CardSuit.SPADES }],
+          ],
+          cardsInDeck: [],
+          cardsOnTopOfDiscardPile: [],
+          playerRoundScores: [
+            [0, 50],
+            [0, 45],
+          ],
+        });
+        const action: IGameActionRequest = {
+          callYaniv: true,
+        };
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.state).to.eql(GameState.COMPLETE);
+        expect(game.roundScores[2]).to.eql({
+          [user1Id]: {
+            score: 0,
+            scoreType: RoundScoreType.YANIV,
+          },
+          [user2Id]: {
+            score: 10,
+            scoreType: RoundScoreType.DEFAULT,
+          },
+        });
+      });
     });
   });
 });
