@@ -10,9 +10,9 @@ import {
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ActivatedRoute } from "@angular/router";
-import { Socket } from "ngx-socket-io";
 import { Subject } from "rxjs";
 import { YanivTable } from "src/app/canvas/yaniv/table";
+import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
 import { IUser } from "../../../shared/dtos/authentication";
@@ -47,7 +47,7 @@ export class YanivGameShowComponent
     private readonly gameService: YanivGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly snackBar: MatSnackBar,
-    private readonly socket: Socket,
+    private readonly socket: WrappedSocket,
     private readonly dialog: MatDialog
   ) {}
 

@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 
+import { AppRoutingModule } from "./app-routing.module";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
@@ -20,10 +21,9 @@ import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
 import { ReactiveFormsModule } from "@angular/forms";
-import { SocketIoModule } from "ngx-socket-io";
+import { SocketIoModule } from "./modules/socket.io/socket-io.module";
 import { TimeagoModule } from "ngx-timeago";
 
-import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { HomeComponent } from "./components/home/home.component";
 import { NavigationBarComponent } from "./components/navigation-bar/navigation-bar.component";
