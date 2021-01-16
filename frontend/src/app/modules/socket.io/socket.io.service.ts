@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
-import { io } from "socket.io-client";
+import io from "socket.io-client";
 
 export interface SocketIoConfig {
   url: string;
@@ -10,7 +10,7 @@ export interface SocketIoConfig {
 export class WrappedSocket {
   subscribersCounter: Record<string, number> = {};
   eventObservables$: Record<string, Observable<any>> = {};
-  ioSocket: io.Socket;
+  ioSocket: SocketIOClient.Socket;
   emptyConfig: SocketIoConfig = {
     url: "",
     options: {},
@@ -25,8 +25,8 @@ export class WrappedSocket {
     this.ioSocket = io(url, options);
   }
 
-  of(namespace: string): void {
-    this.ioSocket.of(namespace);
+  off(namespace: string): void {
+    this.ioSocket.off(namespace);
   }
 
   on(eventName: string, callback: Function): void {
@@ -37,23 +37,26 @@ export class WrappedSocket {
     this.ioSocket.once(eventName, callback);
   }
 
-  connect(): io.Socket {
+  connect(): SocketIOClient.Socket {
     return this.ioSocket.connect();
   }
 
-  disconnect(close?: any): io.Socket {
+  disconnect(close?: any): SocketIOClient.Socket {
     return this.ioSocket.disconnect.apply(this.ioSocket, arguments);
   }
 
-  emit(eventName: string, ...args: any[]): io.Socket {
+  emit(eventName: string, ...args: any[]): SocketIOClient.Socket {
     return this.ioSocket.emit.apply(this.ioSocket, arguments);
   }
 
-  removeListener(eventName: string, callback?: Function): io.Socket {
+  removeListener(
+    eventName: string,
+    callback?: Function
+  ): SocketIOClient.Socket {
     return this.ioSocket.removeListener.apply(this.ioSocket, arguments);
   }
 
-  removeAllListeners(eventName?: string): io.Socket {
+  removeAllListeners(eventName?: string): SocketIOClient.Socket {
     return this.ioSocket.removeAllListeners.apply(this.ioSocket, arguments);
   }
 
@@ -63,7 +66,7 @@ export class WrappedSocket {
     }
     this.subscribersCounter[eventName]++;
 
-    if (this.eventObservables$[eventName] != null) {
+    if (this.eventObservables$[eventName] == null) {
       this.eventObservables$[eventName] = new Observable((observer: any) => {
         const listener = (data: T): void => {
           observer.next(data);
