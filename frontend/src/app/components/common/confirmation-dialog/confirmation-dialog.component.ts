@@ -14,7 +14,7 @@ export interface IConfirmationDialogData {
 export class ConfirmationDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogComponent
+    @Inject(MAT_DIALOG_DATA) public data: IConfirmationDialogData
   ) {}
 
   onConfirm(): void {

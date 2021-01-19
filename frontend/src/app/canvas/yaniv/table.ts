@@ -166,6 +166,11 @@ export class YanivTable {
     this.resize();
   }
 
+  clear(): void {
+    this.cardsLayer.destroyChildren();
+    this.cardsLayer.draw();
+  }
+
   private initializeMessageText(game: IGame): void {
     const roundMessage = getRoundMessage(game);
     const gameMessage = getGameMessage(game);

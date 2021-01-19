@@ -88,6 +88,7 @@ export interface IRoundFinishedEvent {
 }
 
 export interface INewGameStartedEvent {
+  userId: number;
   gameId: number;
 }
 
