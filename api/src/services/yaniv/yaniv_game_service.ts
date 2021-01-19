@@ -375,6 +375,8 @@ export class YanivGameService implements IYanivGameService {
       cardsOnTopOfDiscardPile: game.cardsOnTopOfDiscardPile,
       playerStates: await this.loadPlayerStates(userId, game),
       roundScores: game.completedRounds.map(this.buildRoundScore),
+      createdAt: game.createdAt.toISOString(),
+      updatedAt: game.updatedAt.toISOString(),
     };
   }
 

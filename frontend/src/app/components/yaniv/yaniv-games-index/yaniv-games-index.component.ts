@@ -76,7 +76,8 @@ export class YanivGamesIndexComponent implements OnInit {
   }
 
   create(): void {
-    this.gameService.create({ playTo: 100 }).subscribe((game) => {
+    // TODO revert
+    this.gameService.create({ playTo: 10 }).subscribe((game) => {
       this.navigateToGame(game.gameId);
     });
   }

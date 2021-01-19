@@ -31,7 +31,7 @@
     </div>
   </div>
   <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
-    <button mat-button mat-flat-button color="primary" (click)="viewScores()">
+    <button mat-button mat-flat-button (click)="viewScores()">
       View Scores
     </button>
     <button
@@ -51,6 +51,24 @@
       (click)="startRound()"
     >
       Start Round
+    </button>
+    <button
+      *ngIf="canStartNewGame()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="startNewGame()"
+    >
+      Start new game
+    </button>
+    <button
+      *ngIf="canJoinNewGame()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="joinNewGame()"
+    >
+      Join new game
     </button>
   </div>
 </div>

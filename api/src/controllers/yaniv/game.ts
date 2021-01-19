@@ -107,11 +107,20 @@ export function getGameRouter(
         .catch(next);
     }
   );
-  router.put(
-    "/:gameId/settings",
+  router.post(
+    "/:gameId/rematch",
     authenticationRequired,
     function (req, res, next) {
-      // update settings in game
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .create((req.user as IUser).userId, req.body)
+        .then((game) => {
+          res.status(200).send(game);
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("new-game-started", { gameId: game.gameId });
+        })
+        .catch(next);
     }
   );
   return router;

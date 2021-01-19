@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Socket } from "ngx-socket-io";
 import { Subject } from "rxjs";
 import { YanivTable } from "src/app/canvas/yaniv/table";
@@ -22,10 +22,16 @@ import {
   IGame,
   IGameActionRequest,
   IGameActionResponse,
+  INewGameStartedEvent,
   IPlayerJoinedEvent,
   IRoundFinishedEvent,
 } from "../../../shared/dtos/yaniv/game";
 import { YanivGameScoreboardDialogComponent } from "../yaniv-game-scoreboard-dialog/yaniv-game-scoreboard-dialog.component";
+import moment from "moment";
+import {
+  ConfirmationDialogComponent,
+  IConfirmationDialogData,
+} from "../../common/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: "app-yaniv-game-show",
@@ -39,11 +45,13 @@ export class YanivGameShowComponent
   user: IUser | null;
   resizeObservable = new Subject<boolean>();
   table: YanivTable;
+  newGameId: number | null;
 
   @ViewChild("tableContainer") tableContainer: ElementRef;
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly gameService: YanivGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly snackBar: MatSnackBar,
@@ -98,6 +106,15 @@ export class YanivGameShowComponent
         this.game.playerStates = event.playerStates;
         this.game.roundScores.push(event.roundScore);
         this.initializeTable();
+      });
+    this.socket
+      .fromEvent("new-game-started")
+      .subscribe((event: INewGameStartedEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
+        this.newGameId = event.gameId;
+        this.confirmJoinNewGame();
       });
   }
 
@@ -175,6 +192,18 @@ export class YanivGameShowComponent
     );
   }
 
+  canStartNewGame(): boolean {
+    return (
+      this.game != null &&
+      this.game.state === GameState.COMPLETE &&
+      moment(this.game.updatedAt) < moment().add(1, "hour")
+    );
+  }
+
+  canJoinNewGame(): boolean {
+    return this.newGameId != null;
+  }
+
   canCallYaniv(): boolean {
     return (
       this.game != null &&
@@ -232,5 +261,60 @@ export class YanivGameShowComponent
     if (this.table !== null) {
       this.table.resize();
     }
+  }
+
+  startNewGame(): void {
+    // TODO revert
+    this.gameService.create({ playTo: 10 }).subscribe((game) => {
+      this.navigateToGame(game.gameId);
+    });
+  }
+
+  confirmJoinNewGame(): void {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
+    const hostUserId = this.game.hostUserId;
+    const hostPlayer = this.game.playerStates.find(
+      (x) => x.userId === hostUserId
+    );
+    if (hostPlayer == null) {
+      throw new Error("Unexpectedly unable to find host player");
+    }
+    const data: IConfirmationDialogData = {
+      title: "Join rematch?",
+      message: `${hostPlayer.displayName} has started a new game. Would you like to join?`,
+    };
+    this.dialog
+      .open(ConfirmationDialogComponent, { data })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.joinNewGame();
+        }
+      });
+  }
+
+  joinNewGame(): void {
+    if (this.newGameId == null) {
+      throw new Error("newGameId unexpectedly null");
+    }
+    this.gameService.join(this.newGameId).subscribe(
+      (game) => {
+        this.navigateToGame(game.gameId);
+      },
+      (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      }
+    );
+  }
+
+  navigateToGame(gameId: number): void {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate([`yaniv/games/${gameId}`]);
   }
 }

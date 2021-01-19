@@ -48,10 +48,10 @@ export interface IGame {
   state: GameState;
   playerStates: IPlayerState[];
   roundScores: IRoundScore[];
-
-  // Fields populated with state == ROUND_ACTIVE
   actionToUserId: number;
   cardsOnTopOfDiscardPile: ICard[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IGameActionRequest {
@@ -85,6 +85,10 @@ export interface IRoundFinishedEvent {
   playerStates: IPlayerState[];
   roundScore: IRoundScore;
   updatedGameState: GameState;
+}
+
+export interface INewGameStartedEvent {
+  gameId: number;
 }
 
 export interface ISearchedGameUser {
