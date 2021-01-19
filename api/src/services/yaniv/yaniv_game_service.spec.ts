@@ -634,4 +634,161 @@ describe("YanivGameService", () => {
       });
     });
   });
+
+  describe("rearrange cards", () => {
+    it("throws a validation error if player is not in game", async () => {
+      // arrange
+      const { gameId } = await createTestYanivRoundActiveGame({
+        playerCards: [
+          [
+            { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+            { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+          ],
+          [
+            { rank: CardRank.ACE, suit: CardSuit.HEARTS },
+            { rank: CardRank.ACE, suit: CardSuit.SPADES },
+          ],
+        ],
+        cardsInDeck: [],
+        cardsOnTopOfDiscardPile: [],
+      });
+      const user3Id = await createTestUser(createTestCredentials("user3"));
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new YanivGameService().rearrangeCards(user3Id, gameId, []);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "You are not a player in this game."'
+      );
+    });
+
+    it("throws a validation error if player attempts to add a card", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestYanivRoundActiveGame({
+        playerCards: [
+          [
+            { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+            { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+          ],
+          [
+            { rank: CardRank.ACE, suit: CardSuit.HEARTS },
+            { rank: CardRank.ACE, suit: CardSuit.SPADES },
+          ],
+        ],
+        cardsInDeck: [],
+        cardsOnTopOfDiscardPile: [],
+      });
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new YanivGameService().rearrangeCards(user1Id, gameId, [
+          { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+          { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+          { rank: CardRank.TWO, suit: CardSuit.CLUBS },
+        ]);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Rearranged cards are not eqivalent to cards in hand."'
+      );
+    });
+
+    it("throws a validation error if player attempts to remove a card", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestYanivRoundActiveGame({
+        playerCards: [
+          [
+            { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+            { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+          ],
+          [
+            { rank: CardRank.ACE, suit: CardSuit.HEARTS },
+            { rank: CardRank.ACE, suit: CardSuit.SPADES },
+          ],
+        ],
+        cardsInDeck: [],
+        cardsOnTopOfDiscardPile: [],
+      });
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new YanivGameService().rearrangeCards(user1Id, gameId, [
+          { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+        ]);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Rearranged cards are not eqivalent to cards in hand."'
+      );
+    });
+
+    it("succeeds if passed in cards are equivalent to existing cards", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestYanivRoundActiveGame({
+        playerCards: [
+          [
+            { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+            { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+          ],
+          [
+            { rank: CardRank.ACE, suit: CardSuit.HEARTS },
+            { rank: CardRank.ACE, suit: CardSuit.SPADES },
+          ],
+        ],
+        cardsInDeck: [],
+        cardsOnTopOfDiscardPile: [],
+      });
+
+      // act
+      await new YanivGameService().rearrangeCards(user1Id, gameId, [
+        { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+        { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+      ]);
+
+      // assert
+      const updatedGame = await new YanivGameDataService().get(gameId);
+      expect(updatedGame.players).to.eql([
+        {
+          userId: user1Id,
+          cardsInHand: [
+            { rank: CardRank.ACE, suit: CardSuit.DIAMONDS },
+            { rank: CardRank.ACE, suit: CardSuit.CLUBS },
+          ],
+        },
+        {
+          userId: user2Id,
+          cardsInHand: [
+            { rank: CardRank.ACE, suit: CardSuit.HEARTS },
+            { rank: CardRank.ACE, suit: CardSuit.SPADES },
+          ],
+        },
+      ]);
+    });
+  });
 });
