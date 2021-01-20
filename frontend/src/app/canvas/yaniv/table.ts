@@ -100,13 +100,16 @@ export class YanivTable {
   private discardedCards: KonvaRect[] = [];
   private messageText: KonvaText;
   private readonly onPlay: (request: IGameActionRequest) => void;
+  private readonly onRearrangeCards: (cards: ICard[]) => void;
 
   constructor(
     options: ITableOptions,
-    onPlay: (request: IGameActionRequest) => void
+    onPlay: (request: IGameActionRequest) => void,
+    onRearrangeCards: (cards: ICard[]) => void
   ) {
     this.container = options.element;
     this.onPlay = onPlay;
+    this.onRearrangeCards = onRearrangeCards;
     this.stage = new KonvaStage({
       container: this.container,
       height: this.container.offsetHeight,
@@ -154,6 +157,8 @@ export class YanivTable {
     const cardRect = userData.cards[index];
     const cardPosition = positionalData.cardPositions[index];
     this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+    const updatedCards: ICard[] = userData.cards.map(x => x.getAttr("yanivCard"))
+    this.onRearrangeCards(updatedCards);
   }
 
   private currentUserDragMoveCard(draggedCardRect: Konva.Rect): void {
