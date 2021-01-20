@@ -231,17 +231,16 @@ export class YanivGameShowComponent
   };
 
   onRearrangeCards = async (cards: ICard[]): Promise<void> => {
-    this.gameService.rearrangeCards(this.getGameId(), cards).subscribe(
-      null,
-      (errorResponse: HttpErrorResponse) => {
+    this.gameService
+      .rearrangeCards(this.getGameId(), cards)
+      .subscribe(null, (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
           this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
         }
-      }
-    );
-  }
+      });
+  };
 
   onResize(): void {
     if (this.table !== null) {

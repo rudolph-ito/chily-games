@@ -157,7 +157,9 @@ export class YanivTable {
     const cardRect = userData.cards[index];
     const cardPosition = positionalData.cardPositions[index];
     this.updateCardSizeAndPosition(cardRect, cardPosition, false);
-    const updatedCards: ICard[] = userData.cards.map(x => x.getAttr("yanivCard"))
+    const updatedCards: ICard[] = userData.cards.map((x) =>
+      x.getAttr("yanivCard")
+    );
     this.onRearrangeCards(updatedCards);
   }
 

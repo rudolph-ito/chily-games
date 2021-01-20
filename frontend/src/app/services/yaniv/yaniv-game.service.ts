@@ -56,13 +56,16 @@ export class YanivGameService {
     );
   }
 
-  rearrangeCards(gameId: number, cards: ICard[]): Observable<HttpResponse<Object>> {
+  rearrangeCards(
+    gameId: number,
+    cards: ICard[]
+  ): Observable<HttpResponse<Object>> {
     return this.http.put<HttpResponse<Object>>(
       `${this.getRoutePrefix(gameId)}/rearrange-cards`,
       cards,
-      { observe: 'response'}
-    );  
-  } 
+      { observe: "response" }
+    );
+  }
 
   private getRoutePrefix(gameId: number): string {
     return `/api/yaniv/games/${gameId}`;
