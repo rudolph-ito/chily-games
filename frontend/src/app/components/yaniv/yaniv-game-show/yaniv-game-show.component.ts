@@ -5,8 +5,6 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
-  SimpleChange,
-  SimpleChanges,
   ViewChild,
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
@@ -64,16 +62,16 @@ export class YanivGameShowComponent
   ngOnInit(): void {
     this.authenticationService.getUserSubject().subscribe((u) => {
       this.user = u;
-    })
+    });
     this.route.params.subscribe(() => {
       if (this.game != null) {
         this.socket.emit("yaniv-leave-game", this.game.gameId);
         if (this.table != null) {
-          this.table.clear()
+          this.table.clear();
         }
       }
-      this.loadGameAndListenForEvents()
-    })
+      this.loadGameAndListenForEvents();
+    });
   }
 
   loadGameAndListenForEvents(): void {
@@ -209,7 +207,7 @@ export class YanivGameShowComponent
     return (
       this.game != null &&
       this.game.state === GameState.COMPLETE &&
-      moment(this.game.updatedAt) < moment().add(1, "hour") && 
+      moment(this.game.updatedAt) < moment().add(1, "hour") &&
       this.newGameStartedEvent == null
     );
   }
@@ -281,9 +279,11 @@ export class YanivGameShowComponent
     if (this.game == null) {
       throw new Error("Game unexpectedly null");
     }
-    this.gameService.rematch(this.game.gameId, { playTo: 100 }).subscribe((game) => {
-      this.navigateToGame(game.gameId);
-    });
+    this.gameService
+      .rematch(this.game.gameId, { playTo: 100 })
+      .subscribe((game) => {
+        this.navigateToGame(game.gameId);
+      });
   }
 
   confirmJoinNewGame(): void {
@@ -294,9 +294,7 @@ export class YanivGameShowComponent
       throw new Error("newGameStartedEvent unexpectedly null");
     }
     const userId = this.newGameStartedEvent.userId;
-    const player = this.game.playerStates.find(
-      (x) => x.userId === userId
-    );
+    const player = this.game.playerStates.find((x) => x.userId === userId);
     if (player == null) {
       throw new Error("Unexpectedly unable to find host player");
     }
