@@ -186,7 +186,7 @@ export class YanivGameService implements IYanivGameService {
     }
     if (!areCardHandsEquivalent(cards, player.cardsInHand)) {
       throw new ValidationError(
-        "Rearranged cards are not eqivalent to cards in hand."
+        "Rearranged cards are not equivalent to cards in hand."
       );
     }
     player.cardsInHand = cards;

@@ -704,7 +704,7 @@ describe("YanivGameService", () => {
       // assert
       expect(error).to.be.instanceOf(ValidationError);
       expect(error?.message).to.eql(
-        'Validation errors: "Rearranged cards are not eqivalent to cards in hand."'
+        'Validation errors: "Rearranged cards are not equivalent to cards in hand."'
       );
     });
 
@@ -741,7 +741,7 @@ describe("YanivGameService", () => {
       // assert
       expect(error).to.be.instanceOf(ValidationError);
       expect(error?.message).to.eql(
-        'Validation errors: "Rearranged cards are not eqivalent to cards in hand."'
+        'Validation errors: "Rearranged cards are not equivalent to cards in hand."'
       );
     });
 
