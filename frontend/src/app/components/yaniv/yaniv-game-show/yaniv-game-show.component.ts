@@ -207,7 +207,7 @@ export class YanivGameShowComponent
     return (
       this.game != null &&
       this.game.state === GameState.COMPLETE &&
-      moment(this.game.updatedAt) < moment().add(1, "hour") &&
+      moment(this.game.updatedAt) > moment().subtract(1, "hour") &&
       this.newGameStartedEvent == null
     );
   }
