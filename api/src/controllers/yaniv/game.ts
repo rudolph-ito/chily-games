@@ -78,6 +78,19 @@ export function getGameRouter(
     }
   );
   router.put(
+    "/:gameId/rearrange-cards",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .rearrangeCards((req.user as IUser).userId, gameId, req.body)
+        .then(() => {
+          res.status(200).end();
+        })
+        .catch(next);
+    }
+  );
+  router.put(
     "/:gameId/play",
     authenticationRequired,
     function (req, res, next) {

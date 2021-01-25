@@ -15,6 +15,7 @@ import { Subject } from "rxjs";
 import { YanivTable } from "src/app/canvas/yaniv/table";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
+import { ICard } from "src/app/shared/dtos/yaniv/card";
 import { IUser } from "../../../shared/dtos/authentication";
 import {
   GameState,
@@ -144,7 +145,8 @@ export class YanivGameShowComponent
           {
             element: this.tableContainer.nativeElement,
           },
-          this.onPlay
+          this.onPlay,
+          this.onRearrangeCards
         );
       }
       if (this.game.state !== GameState.PLAYERS_JOINING) {
@@ -267,6 +269,18 @@ export class YanivGameShowComponent
         }
       }
     );
+  };
+
+  onRearrangeCards = async (cards: ICard[]): Promise<void> => {
+    this.gameService
+      .rearrangeCards(this.getGameId(), cards)
+      .subscribe(null, (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      });
   };
 
   onResize(): void {
