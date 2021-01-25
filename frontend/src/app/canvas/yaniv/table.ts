@@ -63,7 +63,7 @@ interface ICardDisplayData {
 interface IUserData {
   userId: number;
   positionIndex: number;
-  cards: KonvaRect[];
+  cards: Konva.Rect[];
   name: KonvaText;
   border: KonvaRect;
 }
@@ -100,13 +100,16 @@ export class YanivTable {
   private discardedCards: KonvaRect[] = [];
   private messageText: KonvaText;
   private readonly onPlay: (request: IGameActionRequest) => void;
+  private readonly onRearrangeCards: (cards: ICard[]) => void;
 
   constructor(
     options: ITableOptions,
-    onPlay: (request: IGameActionRequest) => void
+    onPlay: (request: IGameActionRequest) => void,
+    onRearrangeCards: (cards: ICard[]) => void
   ) {
     this.container = options.element;
     this.onPlay = onPlay;
+    this.onRearrangeCards = onRearrangeCards;
     this.stage = new KonvaStage({
       container: this.container,
       height: this.container.offsetHeight,
@@ -136,6 +139,72 @@ export class YanivTable {
       this.updateCardFaceStroke(rect, false);
     });
     this.cardsLayer.draw();
+  }
+
+  private currentUserDragEndCard(draggedCardRect: Konva.Rect): void {
+    if (this.currentUserId == null) {
+      throw new Error("Current user required");
+    }
+    const userData = this.users.get(this.currentUserId);
+    if (userData == null) {
+      throw new Error("User not found");
+    }
+    const index = userData.cards.findIndex((x) => x === draggedCardRect);
+    const positionalData = this.getPlayerPositionData(
+      userData,
+      this.users.size
+    );
+    const cardRect = userData.cards[index];
+    const cardPosition = positionalData.cardPositions[index];
+    this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+    const updatedCards: ICard[] = userData.cards.map((x) =>
+      x.getAttr("yanivCard")
+    );
+    this.onRearrangeCards(updatedCards);
+  }
+
+  private currentUserDragMoveCard(draggedCardRect: Konva.Rect): void {
+    if (this.currentUserId == null) {
+      throw new Error("Current user required");
+    }
+    const userData = this.users.get(this.currentUserId);
+    if (userData == null) {
+      throw new Error("User not found");
+    }
+    const draggedCardOldIndex = userData.cards.findIndex(
+      (x) => x === draggedCardRect
+    );
+    let draggedCardNewIndex = draggedCardOldIndex;
+    for (let index = 0; index < userData.cards.length; index++) {
+      const cardRect = userData.cards[index];
+      if (cardRect !== draggedCardRect) {
+        const cardCenter = draggedCardRect.x() + draggedCardRect.width() / 2;
+        if (
+          cardCenter > cardRect.x() &&
+          cardCenter <= cardRect.x() + cardRect.width()
+        ) {
+          draggedCardNewIndex = index;
+        }
+      }
+    }
+    if (draggedCardOldIndex !== draggedCardNewIndex) {
+      userData.cards.splice(
+        draggedCardNewIndex,
+        0,
+        userData.cards.splice(draggedCardOldIndex, 1)[0]
+      );
+      const positionalData = this.getPlayerPositionData(
+        userData,
+        this.users.size
+      );
+      for (let index = 0; index < userData.cards.length; index++) {
+        const cardRect = userData.cards[index];
+        if (cardRect !== draggedCardRect) {
+          const cardPosition = positionalData.cardPositions[index];
+          this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+        }
+      }
+    }
   }
 
   private computeCardSize(): void {
@@ -327,6 +396,22 @@ export class YanivTable {
         const cardRect = userData.cards[index];
         const cardPosition = positionalData.cardPositions[index];
         this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+
+        if (userData.userId === this.currentUserId) {
+          cardRect.dragBoundFunc(
+            (pos: IPosition): IPosition => {
+              const minX = positionalData.borderPosition.x;
+              const maxX =
+                minX +
+                positionalData.borderSize.width -
+                cardPosition.size.width;
+              return {
+                x: pos.x < minX ? minX : pos.x > maxX ? maxX : pos.x,
+                y: cardPosition.position.y,
+              };
+            }
+          );
+        }
       }
 
       userData.name.position(positionalData.textPosition);
@@ -675,6 +760,17 @@ export class YanivTable {
     rect.on("click", (event) => {
       const rect = event.target as KonvaRect;
       this.currentUserClickCard(rect.getAttr("yanivCard"));
+    });
+    rect.draggable(true);
+    rect.on("dragstart", () => {
+      rect.moveToTop();
+      this.cardsLayer.draw();
+    });
+    rect.on("dragmove", () => {
+      this.currentUserDragMoveCard(rect);
+    });
+    rect.on("dragend", () => {
+      this.currentUserDragEndCard(rect);
     });
   }
 

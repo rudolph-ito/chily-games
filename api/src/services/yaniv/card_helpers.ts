@@ -88,3 +88,28 @@ export function standardDeckWithTwoJokers(): ICard[] {
   shuffle(deck);
   return deck;
 }
+
+export function areCardHandsEquivalent(
+  cardsA: ICard[],
+  cardsB: ICard[]
+): boolean {
+  const setA: Set<number> = new Set<number>(
+    cardsA.map((x) => serializeCard(x))
+  );
+  const setB: Set<number> = new Set<number>(
+    cardsB.map((x) => serializeCard(x))
+  );
+  return setSymmetricDifference(setA, setB).size === 0;
+}
+
+function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
+  const difference = new Set<T>(setA);
+  for (const elem of setB) {
+    if (difference.has(elem)) {
+      difference.delete(elem);
+    } else {
+      difference.add(elem);
+    }
+  }
+  return difference;
+}
