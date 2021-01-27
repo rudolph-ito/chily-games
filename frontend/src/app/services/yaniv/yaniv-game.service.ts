@@ -56,6 +56,13 @@ export class YanivGameService {
     );
   }
 
+  rematch(gameId, options: IGameOptions): Observable<IGame> {
+    return this.http.post<IGame>(
+      `${this.getRoutePrefix(gameId)}/rematch`,
+      options
+    );
+  }
+
   rearrangeCards(
     gameId: number,
     cards: ICard[]
