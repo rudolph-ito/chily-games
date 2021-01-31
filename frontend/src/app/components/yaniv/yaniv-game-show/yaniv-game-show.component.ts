@@ -9,12 +9,13 @@ import {
 } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Subject } from "rxjs";
 import { YanivTable } from "src/app/canvas/yaniv/table";
 import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
+import { ICard } from "src/app/shared/dtos/yaniv/card";
 import { IUser } from "../../../shared/dtos/authentication";
 import {
   GameState,
@@ -22,10 +23,16 @@ import {
   IGame,
   IGameActionRequest,
   IGameActionResponse,
+  INewGameStartedEvent,
   IPlayerJoinedEvent,
   IRoundFinishedEvent,
 } from "../../../shared/dtos/yaniv/game";
 import { YanivGameScoreboardDialogComponent } from "../yaniv-game-scoreboard-dialog/yaniv-game-scoreboard-dialog.component";
+import moment from "moment";
+import {
+  ConfirmationDialogComponent,
+  IConfirmationDialogData,
+} from "../../common/confirmation-dialog/confirmation-dialog.component";
 
 @Component({
   selector: "app-yaniv-game-show",
@@ -39,11 +46,13 @@ export class YanivGameShowComponent
   user: IUser | null;
   resizeObservable = new Subject<boolean>();
   table: YanivTable;
+  newGameStartedEvent: INewGameStartedEvent | null;
 
   @ViewChild("tableContainer") tableContainer: ElementRef;
 
   constructor(
     private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly gameService: YanivGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly snackBar: MatSnackBar,
@@ -52,14 +61,26 @@ export class YanivGameShowComponent
   ) {}
 
   ngOnInit(): void {
-    this.loading = true;
     this.authenticationService.getUserSubject().subscribe((u) => {
       this.user = u;
-      this.gameService.get(this.getGameId()).subscribe((game) => {
-        this.game = game;
-        this.loading = false;
-        this.initializeTable();
-      });
+    });
+    this.route.params.subscribe(() => {
+      if (this.game != null) {
+        this.socket.emit("yaniv-leave-game", this.game.gameId);
+        if (this.table != null) {
+          this.table.clear();
+        }
+      }
+      this.loadGameAndListenForEvents();
+    });
+  }
+
+  loadGameAndListenForEvents(): void {
+    this.loading = true;
+    this.gameService.get(this.getGameId()).subscribe((game) => {
+      this.game = game;
+      this.loading = false;
+      this.initializeTable();
     });
     this.socket.emit("yaniv-join-game", this.getGameId());
     this.socket
@@ -99,6 +120,14 @@ export class YanivGameShowComponent
         this.game.roundScores.push(event.roundScore);
         this.initializeTable();
       });
+    this.socket
+      .fromEvent("new-game-started")
+      .subscribe((event: INewGameStartedEvent) => {
+        if (event.userId !== this.user?.userId) {
+          this.newGameStartedEvent = event;
+          this.confirmJoinNewGame();
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -116,7 +145,8 @@ export class YanivGameShowComponent
           {
             element: this.tableContainer.nativeElement,
           },
-          this.onPlay
+          this.onPlay,
+          this.onRearrangeCards
         );
       }
       if (this.game.state !== GameState.PLAYERS_JOINING) {
@@ -175,6 +205,19 @@ export class YanivGameShowComponent
     );
   }
 
+  canStartNewGame(): boolean {
+    return (
+      this.game != null &&
+      this.game.state === GameState.COMPLETE &&
+      moment(this.game.updatedAt) > moment().subtract(1, "hour") &&
+      this.newGameStartedEvent == null
+    );
+  }
+
+  canJoinNewGame(): boolean {
+    return this.newGameStartedEvent != null;
+  }
+
   canCallYaniv(): boolean {
     return (
       this.game != null &&
@@ -228,9 +271,81 @@ export class YanivGameShowComponent
     );
   };
 
+  onRearrangeCards = async (cards: ICard[]): Promise<void> => {
+    this.gameService
+      .rearrangeCards(this.getGameId(), cards)
+      .subscribe(null, (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      });
+  };
+
   onResize(): void {
     if (this.table !== null) {
       this.table.resize();
     }
+  }
+
+  startNewGame(): void {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
+    this.gameService
+      .rematch(this.game.gameId, { playTo: 100 })
+      .subscribe((game) => {
+        this.navigateToGame(game.gameId);
+      });
+  }
+
+  confirmJoinNewGame(): void {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
+    if (this.newGameStartedEvent == null) {
+      throw new Error("newGameStartedEvent unexpectedly null");
+    }
+    const userId = this.newGameStartedEvent.userId;
+    const player = this.game.playerStates.find((x) => x.userId === userId);
+    if (player == null) {
+      throw new Error("Unexpectedly unable to find host player");
+    }
+    const data: IConfirmationDialogData = {
+      title: "Join rematch?",
+      message: `${player.displayName} has started a new game. Would you like to join?`,
+    };
+    this.dialog
+      .open(ConfirmationDialogComponent, { data })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.joinNewGame();
+        }
+      });
+  }
+
+  joinNewGame(): void {
+    if (this.newGameStartedEvent == null) {
+      throw new Error("newGameStartedEvent unexpectedly null");
+    }
+    this.gameService.join(this.newGameStartedEvent.gameId).subscribe(
+      (game) => {
+        this.navigateToGame(game.gameId);
+      },
+      (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      }
+    );
+  }
+
+  navigateToGame(gameId: number): void {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate([`yaniv/games/${gameId}`]);
   }
 }

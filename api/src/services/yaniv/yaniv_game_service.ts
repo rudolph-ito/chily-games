@@ -24,7 +24,11 @@ import {
   IYanivGameDataService,
   YanivGameDataService,
 } from "./data/yaniv_game_data_service";
-import { areCardsEqual, standardDeckWithTwoJokers } from "./card_helpers";
+import {
+  areCardHandsEquivalent,
+  areCardsEqual,
+  standardDeckWithTwoJokers,
+} from "./card_helpers";
 import { isValidDiscard, isValidPickup } from "./discard_validator";
 import { getCardsScore } from "./score_helpers";
 import shuffle from "knuth-shuffle-seeded";
@@ -54,6 +58,11 @@ export interface IYanivGameService {
     gameId: number,
     action: IGameActionRequest
   ) => Promise<IGameActionResponse>;
+  rearrangeCards: (
+    userId: number,
+    gameId: number,
+    cards: ICard[]
+  ) => Promise<void>;
   search: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<ISearchedGame>>;
@@ -163,6 +172,27 @@ export class YanivGameService implements IYanivGameService {
       result.cardPickedUpFromDeck = discardAndPickupResult.cardPickedUpFromDeck;
     }
     return result;
+  }
+
+  async rearrangeCards(
+    userId: number,
+    gameId: number,
+    cards: ICard[]
+  ): Promise<void> {
+    const game = await this.gameDataService.get(gameId);
+    const player = game.players.find((x) => x.userId === userId);
+    if (player == null) {
+      throw new ValidationError("You are not a player in this game.");
+    }
+    if (!areCardHandsEquivalent(cards, player.cardsInHand)) {
+      throw new ValidationError(
+        "Rearranged cards are not equivalent to cards in hand."
+      );
+    }
+    player.cardsInHand = cards;
+    await this.gameDataService.update(gameId, game.version, {
+      players: game.players,
+    });
   }
 
   async search(
@@ -375,6 +405,8 @@ export class YanivGameService implements IYanivGameService {
       cardsOnTopOfDiscardPile: game.cardsOnTopOfDiscardPile,
       playerStates: await this.loadPlayerStates(userId, game),
       roundScores: game.completedRounds.map(this.buildRoundScore),
+      createdAt: game.createdAt.toISOString(),
+      updatedAt: game.updatedAt.toISOString(),
     };
   }
 

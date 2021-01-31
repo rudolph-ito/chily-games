@@ -69,6 +69,8 @@ describe("YanivGameRoutes", () => {
         state: GameState.PLAYERS_JOINING,
         actionToUserId: user1Id,
         cardsOnTopOfDiscardPile: [],
+        createdAt: game.createdAt,
+        updatedAt: game.updatedAt,
       });
     });
   });

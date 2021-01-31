@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
@@ -10,6 +10,7 @@ import {
   ISearchedGame,
   ISearchGamesRequest,
 } from "../../shared/dtos/yaniv/game";
+import { ICard } from "src/app/shared/dtos/yaniv/card";
 
 @Injectable({
   providedIn: "root",
@@ -52,6 +53,24 @@ export class YanivGameService {
     return this.http.put<IGameActionResponse>(
       `${this.getRoutePrefix(gameId)}/play`,
       action
+    );
+  }
+
+  rematch(gameId, options: IGameOptions): Observable<IGame> {
+    return this.http.post<IGame>(
+      `${this.getRoutePrefix(gameId)}/rematch`,
+      options
+    );
+  }
+
+  rearrangeCards(
+    gameId: number,
+    cards: ICard[]
+  ): Observable<HttpResponse<Object>> {
+    return this.http.put<HttpResponse<Object>>(
+      `${this.getRoutePrefix(gameId)}/rearrange-cards`,
+      cards,
+      { observe: "response" }
     );
   }
 

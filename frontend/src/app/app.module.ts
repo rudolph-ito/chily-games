@@ -40,6 +40,7 @@ import { CyvasseGamesIndexComponent } from "./components/cyvasse/cyvasse-games-i
 import { YanivGamesIndexComponent } from "./components/yaniv/yaniv-games-index/yaniv-games-index.component";
 import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv-game-show.component";
 import { YanivGameScoreboardDialogComponent } from "./components/yaniv/yaniv-game-scoreboard-dialog/yaniv-game-scoreboard-dialog.component";
+import { ConfirmationDialogComponent } from "./components/common/confirmation-dialog/confirmation-dialog.component";
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { YanivGameScoreboardDialogComponent } from "./components/yaniv/yaniv-gam
     YanivGamesIndexComponent,
     YanivGameShowComponent,
     YanivGameScoreboardDialogComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     AppRoutingModule,

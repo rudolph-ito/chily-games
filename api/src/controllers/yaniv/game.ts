@@ -6,7 +6,10 @@ import {
 } from "../../services/yaniv/yaniv_game_service";
 import { IUser } from "../../shared/dtos/authentication";
 import newSocketIoEmitter from "socket.io-emitter";
-import { IPlayerJoinedEvent } from "src/shared/dtos/yaniv/game";
+import {
+  INewGameStartedEvent,
+  IPlayerJoinedEvent,
+} from "src/shared/dtos/yaniv/game";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
@@ -75,6 +78,19 @@ export function getGameRouter(
     }
   );
   router.put(
+    "/:gameId/rearrange-cards",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .rearrangeCards((req.user as IUser).userId, gameId, req.body)
+        .then(() => {
+          res.status(200).end();
+        })
+        .catch(next);
+    }
+  );
+  router.put(
     "/:gameId/play",
     authenticationRequired,
     function (req, res, next) {
@@ -107,11 +123,25 @@ export function getGameRouter(
         .catch(next);
     }
   );
-  router.put(
-    "/:gameId/settings",
+  router.post(
+    "/:gameId/rematch",
     authenticationRequired,
     function (req, res, next) {
-      // update settings in game
+      const gameId = parseInt(req.params.gameId);
+      const userId = (req.user as IUser).userId;
+      gameService
+        .create(userId, req.body)
+        .then((game) => {
+          res.status(200).send(game);
+          const event: INewGameStartedEvent = {
+            gameId: game.gameId,
+            userId,
+          };
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("new-game-started", event);
+        })
+        .catch(next);
     }
   );
   return router;

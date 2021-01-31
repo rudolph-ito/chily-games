@@ -15,6 +15,8 @@ function buildTestGame(): IGame {
     roundScores: [],
     actionToUserId: 1,
     cardsOnTopOfDiscardPile: [],
+    createdAt: "2021-01-01T00:00:00Z",
+    updatedAt: "2021-01-01T00:00:00Z",
   };
 }
 
