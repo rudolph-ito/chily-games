@@ -221,7 +221,10 @@ export class YanivTable {
     this.currentUserId = currentUserId ?? null;
     this.currentUserSelectedDiscards = [];
     this.cardsLayer.destroyChildren();
-    const promises = [this.initializePlayers(game)];
+    const promises: Array<Promise<any>> = [];
+    if (game.playerStates[0].numberOfCards !== 0) {
+      promises.push(this.initializePlayers(game));
+    }
     if (game.state === GameState.ROUND_ACTIVE) {
       promises.push(this.initializeDeck());
       promises.push(this.initializeDiscards(game.cardsOnTopOfDiscardPile));

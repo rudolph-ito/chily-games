@@ -26,6 +26,15 @@
     >
       Start Round
     </button>
+    <button
+      *ngIf="canAbortGame()"
+      mat-button
+      mat-flat-button
+      color="warn"
+      (click)="confirmAbortGame()"
+    >
+      Abort game
+    </button>
     <div class="info" *ngIf="couldJoinOrPlayIfLoggedIn()">
       Login/register to join/play
     </div>
@@ -69,6 +78,15 @@
       (click)="joinNewGame()"
     >
       Join new game
+    </button>
+    <button
+      *ngIf="canAbortGame()"
+      mat-button
+      mat-flat-button
+      color="warn"
+      (click)="confirmAbortGame()"
+    >
+      Abort game
     </button>
   </div>
 </div>

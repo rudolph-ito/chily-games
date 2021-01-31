@@ -49,6 +49,8 @@ interface IPlayCallYanivResult {
 }
 
 export interface IYanivGameService {
+  abort: (userId: number, gameId: number) => Promise<IGame>;
+  abortUnfinishedGames: () => Promise<number>;
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
   get: (userId: number | null, gameId: number) => Promise<IGame>;
   join: (userId: number, gameId: number) => Promise<IGame>;
@@ -73,6 +75,24 @@ export class YanivGameService implements IYanivGameService {
     private readonly gameDataService: IYanivGameDataService = new YanivGameDataService(),
     private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
+
+  async abortUnfinishedGames(): Promise<number> {
+    return await this.gameDataService.abortUnfinishedGames(24);
+  }
+
+  async abort(userId: number, gameId: number): Promise<IGame> {
+    let game = await this.gameDataService.get(gameId);
+    if (game.hostUserId !== userId) {
+      throw new ValidationError("Only the host can abort the game");
+    }
+    if (game.state === GameState.COMPLETE) {
+      throw new ValidationError("Game is already complete");
+    }
+    game = await this.gameDataService.update(game.gameId, game.version, {
+      state: GameState.ABORTED,
+    });
+    return await this.loadFullGame(userId, game);
+  }
 
   async create(userId: number, options: IGameOptions): Promise<IGame> {
     // validate options
@@ -107,14 +127,14 @@ export class YanivGameService implements IYanivGameService {
     if (game.hostUserId !== userId) {
       throw new ValidationError("Only the host can start rounds");
     }
-    if (game.state === GameState.ROUND_ACTIVE) {
-      throw new ValidationError("Round already active");
-    }
-    if (game.state === GameState.COMPLETE) {
-      throw new ValidationError("Game is already complete");
-    }
     if (game.state === GameState.PLAYERS_JOINING && game.players.length === 1) {
       throw new ValidationError("Must have at least two players to start");
+    }
+    if (
+      game.state !== GameState.PLAYERS_JOINING &&
+      game.state !== GameState.ROUND_COMPLETE
+    ) {
+      throw new ValidationError("Invalid state to start round");
     }
     const deck = standardDeckWithTwoJokers();
     const updatedPlayers: IYanivPlayer[] = game.players.map((x) => ({ ...x }));
@@ -429,7 +449,8 @@ export class YanivGameService implements IYanivGameService {
       };
       if (
         game.state === GameState.ROUND_COMPLETE ||
-        game.state === GameState.COMPLETE
+        game.state === GameState.COMPLETE ||
+        game.state === GameState.ABORTED
       ) {
         out.numberOfCards = p.cardsInHand.length;
         out.cards = p.cardsInHand;

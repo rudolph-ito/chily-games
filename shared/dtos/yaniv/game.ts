@@ -39,7 +39,7 @@ export enum GameState {
   ROUND_ACTIVE = "round_active",
   ROUND_COMPLETE = "round_complete",
   COMPLETE = "complete",
-  ABORTED = "aborted"
+  ABORTED = "aborted",
 }
 
 export interface IGame {

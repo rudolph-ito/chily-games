@@ -128,6 +128,13 @@ export class YanivGameShowComponent
           this.confirmJoinNewGame();
         }
       });
+    this.socket.fromEvent("aborted").subscribe(() => {
+      if (this.game == null) {
+        throw new Error("Game unexpectedly null");
+      }
+      this.game.state = GameState.ABORTED;
+      this.initializeTable()
+    });
   }
 
   ngOnDestroy(): void {
@@ -194,6 +201,19 @@ export class YanivGameShowComponent
 
   isWaitingForPlayers(): boolean {
     return this.game != null && this.game.state === GameState.PLAYERS_JOINING;
+  }
+
+  isGameAborted(): boolean {
+    return this.game != null && this.game.state === GameState.ABORTED;
+  }
+
+  canAbortGame(): boolean {
+    return (
+      this.game !== null &&
+      this.game.state !== GameState.COMPLETE &&
+      this.game.state !== GameState.ABORTED &&
+      this.game.hostUserId === this.user?.userId
+    );
   }
 
   canStartRound(): boolean {
@@ -333,6 +353,37 @@ export class YanivGameShowComponent
     this.gameService.join(this.newGameStartedEvent.gameId).subscribe(
       (game) => {
         this.navigateToGame(game.gameId);
+      },
+      (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      }
+    );
+  }
+
+  confirmAbortGame(): void {
+    const data: IConfirmationDialogData = {
+      title: "Confirmation",
+      message: `Abort the game?`,
+    };
+    this.dialog
+      .open(ConfirmationDialogComponent, { data })
+      .afterClosed()
+      .subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.abortGame();
+        }
+      });
+  }
+
+  abortGame(): void {
+    this.gameService.abort(this.getGameId()).subscribe(
+      async (game) => {
+        this.game = game;
+        this.initializeTable();
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {

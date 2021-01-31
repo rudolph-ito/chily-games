@@ -116,6 +116,9 @@ export class YanivGamesIndexComponent implements OnInit {
     if (game.state === GameState.COMPLETE) {
       return "Complete";
     }
+    if (game.state === GameState.ABORTED) {
+      return "Aborted";
+    }
     return "Playing";
   }
 
