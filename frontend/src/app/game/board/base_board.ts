@@ -364,7 +364,7 @@ export abstract class BaseBoard {
   // Private
 
   private addCoordinateText(coordinate: ICoordinate): void {
-    var text = new Konva.Text({
+    const text = new Konva.Text({
       text: `${coordinate.x},${coordinate.y}`,
     });
     text.setAttrs({ cyvasseCoordinate: coordinate });
