@@ -35,7 +35,7 @@ import { debounceTime } from "rxjs/operators";
 import { UserService } from "src/app/services/user.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { Socket } from "ngx-socket-io";
+import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 
 @Component({
   selector: "app-cyvasse-game-show",
@@ -65,7 +65,7 @@ export class CyvasseGameShowComponent
     private readonly userService: UserService,
     private readonly snackBar: MatSnackBar,
     private readonly ngZone: NgZone,
-    private readonly socket: Socket
+    private readonly socket: WrappedSocket
   ) {
     this.resizeObservable
       .pipe(debounceTime(250))
