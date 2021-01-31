@@ -4,7 +4,7 @@ import expressCookieParser from "cookie-parser";
 import expressBodyParser from "body-parser";
 import expressCors from "cors";
 import { initAuthController } from "./auth";
-import { createServer, Server } from "http";
+import { createServer, Server as HttpServer } from "http";
 import { join as pathJoin } from "path";
 import {
   AuthorizationError,
@@ -13,8 +13,8 @@ import {
 } from "../services/shared/exceptions";
 import { StatusCodes } from "http-status-codes";
 import { getUserRouter } from "./user";
-import newSocketIoServer from "socket.io";
-import newSocketIoRedisAdapter from "socket.io-redis";
+import { Server as SocketIoServer } from "socket.io";
+import { createAdapter as createSocketIoRedisAdapter } from "socket.io-redis";
 import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
@@ -94,7 +94,7 @@ export function createExpressApp(
   return app;
 }
 
-export function startServer(options: IStartServerOptions): Server {
+export function startServer(options: IStartServerOptions): HttpServer {
   const publishRedisClient = options.redisClientBuilder();
   const subscribeRedisClient = options.redisClientBuilder();
   const sessionStoreRedisClient = options.redisClientBuilder();
@@ -105,9 +105,9 @@ export function startServer(options: IStartServerOptions): Server {
     sessionStoreRedisClient,
   });
   const server = createServer(app);
-  const socketIoServer = newSocketIoServer(server);
+  const socketIoServer = new SocketIoServer(server);
   socketIoServer.adapter(
-    newSocketIoRedisAdapter({
+    createSocketIoRedisAdapter({
       pubClient: publishRedisClient,
       subClient: subscribeRedisClient,
     })
