@@ -133,7 +133,7 @@ export class YanivGameShowComponent
         throw new Error("Game unexpectedly null");
       }
       this.game.state = GameState.ABORTED;
-      this.initializeTable()
+      this.initializeTable();
     });
   }
 
