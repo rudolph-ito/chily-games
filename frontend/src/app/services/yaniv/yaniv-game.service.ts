@@ -18,6 +18,10 @@ import { ICard } from "src/app/shared/dtos/yaniv/card";
 export class YanivGameService {
   constructor(private readonly http: HttpClient) {}
 
+  abort(gameId: number): Observable<IGame> {
+    return this.http.put<IGame>(`${this.getRoutePrefix(gameId)}/abort`, "");
+  }
+
   create(options: IGameOptions): Observable<IGame> {
     return this.http.post<IGame>("/api/yaniv/games", options);
   }

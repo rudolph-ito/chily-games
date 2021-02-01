@@ -199,4 +199,25 @@ describe("YanivGameRoutes", () => {
       ]);
     });
   });
+
+  describe("abort game (PUT /api/yaniv/games/<game_id>/abort", () => {
+    it("returns the updated game", async () => {
+      // Arrange
+      const user1Credentials = createTestCredentials("user1");
+      const user1Id = await createTestUser(user1Credentials);
+      const gameId = await createTestYanivGame(user1Id, { playTo: 200 });
+      const agent = await loginTestUser(testServer.app, user1Credentials);
+
+      // Act
+      const response = await agent
+        .put(`/api/yaniv/games/${gameId}/abort`)
+        .expect(StatusCodes.OK);
+
+      // Assert
+      expect(response.body).to.exist();
+      const game: IGame = response.body;
+      expect(game.gameId).to.eql(gameId);
+      expect(game.state).to.eql(GameState.ABORTED);
+    });
+  });
 });

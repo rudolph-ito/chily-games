@@ -25,6 +25,18 @@ export function getGameRouter(
       })
       .catch(next);
   });
+  router.get(
+    "/abort_unfinished_games",
+    authenticationRequired,
+    function (req, res, next) {
+      gameService
+        .abortUnfinishedGames()
+        .then((count) => {
+          res.status(200).send(`Aborted ${count} unfinished games`);
+        })
+        .catch(next);
+    }
+  );
   router.post("/search", function (req, res, next) {
     gameService
       .search(req.body)
@@ -140,6 +152,23 @@ export function getGameRouter(
           newSocketIoEmitter(publishRedisClient as any)
             .to(`yaniv-game-${gameId}`)
             .emit("new-game-started", event);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:gameId/abort",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      const userId = (req.user as IUser).userId;
+      gameService
+        .abort(userId, gameId)
+        .then((game) => {
+          res.status(200).send(game);
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`yaniv-game-${gameId}`)
+            .emit("aborted");
         })
         .catch(next);
     }

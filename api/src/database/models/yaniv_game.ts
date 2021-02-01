@@ -40,7 +40,8 @@ const STATE_ENUM = DataTypes.ENUM(
   GameState.PLAYERS_JOINING,
   GameState.ROUND_ACTIVE,
   GameState.ROUND_COMPLETE,
-  GameState.COMPLETE
+  GameState.COMPLETE,
+  GameState.ABORTED
 );
 
 export class YanivGame extends Model {

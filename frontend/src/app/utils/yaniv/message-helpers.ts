@@ -36,6 +36,9 @@ export function getGameMessage(game: IGame): string {
     }
     return `Game over. The winners are: ${displayNames.join(",")}`;
   }
+  if (game.state === GameState.ABORTED) {
+    return "Game aborted.";
+  }
   return "";
 }
 

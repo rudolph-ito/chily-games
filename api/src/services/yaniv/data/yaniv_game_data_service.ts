@@ -46,6 +46,7 @@ export interface IYanivGameDataService {
   search: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<ISerializedYanivGame>>;
+  abortUnfinishedGames: (ageInHoursThreshold: number) => Promise<any>;
 }
 
 export class YanivGameDataService implements IYanivGameDataService {
@@ -68,6 +69,27 @@ export class YanivGameDataService implements IYanivGameDataService {
     return game.serialize();
   }
 
+  async abortUnfinishedGames(ageInHoursThreshold: number): Promise<number> {
+    const result = await YanivGame.update(
+      {
+        state: GameState.ABORTED,
+      },
+      {
+        where: {
+          state: {
+            [Op.notIn]: [GameState.ABORTED, GameState.COMPLETE],
+          },
+          updatedAt: {
+            [Op.lt]: new Date(
+              new Date().valueOf() - ageInHoursThreshold * 60 * 60 * 1000
+            ),
+          },
+        },
+      }
+    );
+    return result[0];
+  }
+
   async get(gameId: number): Promise<ISerializedYanivGame> {
     const game = await YanivGame.findByPk(gameId);
     if (game == null) {
@@ -88,7 +110,9 @@ export class YanivGameDataService implements IYanivGameDataService {
       limit: request.pagination.pageSize,
     };
     if (request.filter == null || !request.filter.includeCompleted) {
-      options.where = { state: { [Op.ne]: GameState.COMPLETE } };
+      options.where = {
+        state: { [Op.notIn]: [GameState.COMPLETE, GameState.ABORTED] },
+      };
     }
     const result = await YanivGame.findAndCountAll(options);
     return {
