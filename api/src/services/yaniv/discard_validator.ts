@@ -1,6 +1,6 @@
 import { valueOrDefault } from "../../shared/utilities/value_checker";
-import { ICard } from "../../shared/dtos/yaniv/card";
-import { areCardsEqual, getCardRankNumber } from "./card_helpers";
+import { ICard } from "../../shared/dtos/card";
+import { areCardsEqual, getCardRankNumber } from "../shared/card_helpers";
 
 export enum RunDirection {
   unknown = 0,

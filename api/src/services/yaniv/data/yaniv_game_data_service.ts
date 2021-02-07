@@ -1,4 +1,4 @@
-import { ICard } from "../../../shared/dtos/yaniv/card";
+import { ICard } from "../../../shared/dtos/card";
 import {
   doesHaveValue,
   doesNotHaveValue,
@@ -14,7 +14,7 @@ import {
   IGameOptions,
   ISearchGamesRequest,
 } from "../../../shared/dtos/yaniv/game";
-import { serializeCard } from "../card_helpers";
+import { serializeCard } from "../../shared/card_helpers";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
 import { FindAndCountOptions, Op } from "sequelize";

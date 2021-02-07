@@ -1,4 +1,4 @@
-import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
+import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
 import shuffle from "knuth-shuffle-seeded";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 
@@ -104,12 +104,12 @@ export function areCardHandsEquivalent(
 
 function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
   const difference = new Set<T>(setA);
-  for (const elem of setB) {
+  setB.forEach(elem => {
     if (difference.has(elem)) {
       difference.delete(elem);
     } else {
       difference.add(elem);
     }
-  }
+  })
   return difference;
 }

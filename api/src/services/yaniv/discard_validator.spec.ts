@@ -1,4 +1,4 @@
-import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
+import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
 import { expect } from "chai";
 import { isValidDiscard, isValidPickup } from "./discard_validator";
 

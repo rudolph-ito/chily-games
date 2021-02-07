@@ -1,5 +1,5 @@
 .PHONY: install
-setup: # Install dependencies
+install: # Install dependencies
 	yarn install
 	cd api && yarn install
 	cd frontend && yarn install

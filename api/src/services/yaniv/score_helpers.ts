@@ -1,5 +1,5 @@
 import { valueOrDefault } from "../../shared/utilities/value_checker";
-import { CardRank, ICard } from "../../shared/dtos/yaniv/card";
+import { CardRank, ICard } from "../../shared/dtos/card";
 
 const rankToScore = {
   [CardRank.ACE]: 1,

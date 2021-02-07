@@ -5,8 +5,8 @@ import {
   IGameOptions,
   RoundScoreType,
 } from "../../shared/dtos/yaniv/game";
-import { ICard } from "../../shared/dtos/yaniv/card";
-import { deserializeCard } from "../../services/yaniv/card_helpers";
+import { ICard } from "../../shared/dtos/card";
+import { deserializeCard } from "../../services/shared/card_helpers";
 import { User } from "./user";
 
 export interface IYanivPlayer {

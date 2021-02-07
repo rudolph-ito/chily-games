@@ -28,16 +28,16 @@ import {
   areCardHandsEquivalent,
   areCardsEqual,
   standardDeckWithTwoJokers,
-} from "./card_helpers";
+} from "../shared/card_helpers";
 import { isValidDiscard, isValidPickup } from "./discard_validator";
 import { getCardsScore } from "./score_helpers";
 import shuffle from "knuth-shuffle-seeded";
-import { IPaginatedResponse } from "src/shared/dtos/search";
+import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
   IUserDataService,
   UserDataService,
 } from "../shared/data/user_data_service";
-import { ICard } from "src/shared/dtos/yaniv/card";
+import { ICard } from "../../shared/dtos/card";
 
 interface IPlayDiscardAndPickupResult {
   cardPickedUpFromDeck?: ICard;
