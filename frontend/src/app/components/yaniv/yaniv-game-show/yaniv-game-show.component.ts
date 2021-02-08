@@ -15,7 +15,7 @@ import { YanivTable } from "src/app/canvas/yaniv/table";
 import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
-import { ICard } from "src/app/shared/dtos/yaniv/card";
+import { ICard } from "src/app/shared/dtos/card";
 import { IUser } from "../../../shared/dtos/authentication";
 import {
   GameState,

@@ -10,7 +10,7 @@ import {
   ISearchedGame,
   ISearchGamesRequest,
 } from "../../shared/dtos/yaniv/game";
-import { ICard } from "src/app/shared/dtos/yaniv/card";
+import { ICard } from "src/app/shared/dtos/card";
 
 @Injectable({
   providedIn: "root",
