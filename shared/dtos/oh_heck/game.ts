@@ -74,7 +74,7 @@ export interface ICardPlayed {
 
 export interface ITrickEvent {
   cardPlayed: ICardPlayed;
-  trickTakenByUserId?:  number;
+  trickTakenByUserId?: number;
   roundScore?: IRoundScore;
   updatedGameState: GameState;
   actionToUserId: number;

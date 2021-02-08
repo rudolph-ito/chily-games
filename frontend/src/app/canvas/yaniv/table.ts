@@ -1,5 +1,5 @@
 import { Vector2d } from "konva/types/types";
-import { ICard } from "../../shared/dtos/yaniv/card";
+import { ICard } from "../../shared/dtos/card";
 import {
   GameState,
   IGame,

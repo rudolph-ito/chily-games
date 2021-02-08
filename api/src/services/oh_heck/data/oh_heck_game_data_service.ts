@@ -1,23 +1,29 @@
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../../shared/utilities/value_checker";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
 import { FindAndCountOptions, Op } from "sequelize";
-import { IOhHeckPlayer, IOhHeckRoundPlayerScore, ISerializedOhHeckGame, OhHeckGame } from "../../../database/models/oh_heck_game";
-import { GameState, IGameOptions, ISearchGamesRequest, ITrickPlayerCard } from "../../../shared/dtos/oh_heck/game";
+import {
+  IOhHeckPlayer,
+  IOhHeckRoundPlayerScore,
+  ISerializedOhHeckGame,
+  OhHeckGame,
+} from "../../../database/models/oh_heck_game";
+import {
+  GameState,
+  IGameOptions,
+  ISearchGamesRequest,
+  ITrickPlayerCard,
+} from "../../../shared/dtos/oh_heck/game";
 
 export interface IOhHeckGameCreateOptions {
   hostUserId: number;
-  options: IGameOptions
+  options: IGameOptions;
 }
 
 export interface IOhHeckGameUpdateOptions {
   state?: GameState;
   actionToUserId?: number;
   players?: IOhHeckPlayer[];
-  currentTrick?: ITrickPlayerCard;
+  currentTrick?: ITrickPlayerCard[];
   completedRounds?: IOhHeckRoundPlayerScore[][];
 }
 
@@ -44,7 +50,9 @@ export class OhHeckGameDataService implements IOhHeckGameDataService {
       actionToUserId: options.hostUserId,
       options: options.options,
       state: GameState.PLAYERS_JOINING,
-      players: [{ userId: options.hostUserId, cardsInHand: [], bet: 0, tricksTaken: 0 }],
+      players: [
+        { userId: options.hostUserId, cardsInHand: [], bet: 0, tricksTaken: 0 },
+      ],
       currentTrick: [],
       completedRounds: [],
       version: 1,
@@ -85,7 +93,7 @@ export class OhHeckGameDataService implements IOhHeckGameDataService {
   async search(
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<ISerializedOhHeckGame>> {
-    if (doesNotHaveValue(request.pagination)) {
+    if (request.pagination == null) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
     const options: FindAndCountOptions<OhHeckGame> = {
@@ -111,7 +119,7 @@ export class OhHeckGameDataService implements IOhHeckGameDataService {
     options: IOhHeckGameUpdateOptions
   ): Promise<ISerializedOhHeckGame> {
     const updates: any = {};
-    for (let [key, value] of Object.entries(options)) {
+    for (const [key, value] of Object.entries(options)) {
       updates[key] = value;
     }
     updates.version = version + 1;

@@ -10,7 +10,7 @@ import {
 } from "./test_helper";
 
 interface ITestGamePlayerOptions {
-  cardsInHand: ICard[];
+  cardsInHand?: ICard[];
   bet?: number;
   tricksTaken?: number;
 }
@@ -19,6 +19,7 @@ interface ITestGameOptions {
   players: ITestGamePlayerOptions[];
   gameState: GameState;
   currentTrick?: ITrickPlayerCard[];
+  completedRounds?: number[][];
 }
 
 interface ITestGame {
@@ -44,18 +45,29 @@ export async function createTestOhHeckGame(
     await gameService.join(userId, createdGame.gameId);
   }
   const game = await gameDataService.get(createdGame.gameId);
-  const players: IOhHeckPlayer[] = options.players.map((playerOptions, index) => {
-    return {
-      userId: userIds[index],
-      cardsInHand: playerOptions.cardsInHand,
-      bet: playerOptions.bet ?? null,
-      tricksTaken: playerOptions.tricksTaken ?? 0
+  const players: IOhHeckPlayer[] = options.players.map(
+    (playerOptions, index) => {
+      return {
+        userId: userIds[index],
+        cardsInHand: playerOptions.cardsInHand ?? [],
+        bet: playerOptions.bet ?? null,
+        tricksTaken: playerOptions.tricksTaken ?? 0,
+      };
     }
-  })
+  );
+  const completedRounds = (options.completedRounds ?? []).map((round) =>
+    round.map((score, index) => ({
+      score,
+      bet: 0,
+      betWasCorrect: true,
+      userId: userIds[index],
+    }))
+  );
   await gameDataService.update(game.gameId, game.version, {
     state: options.gameState,
     actionToUserId: userIds[0],
     players,
+    completedRounds,
   });
   return { userCredentials, userIds, gameId: game.gameId };
 }

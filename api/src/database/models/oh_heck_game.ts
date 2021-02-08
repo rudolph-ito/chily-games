@@ -2,7 +2,11 @@ import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
 import { ICard } from "../../shared/dtos/card";
 import { User } from "./user";
-import { GameState, ITrickPlayerCard, IGameOptions } from "../../shared/dtos/oh_heck/game";
+import {
+  GameState,
+  ITrickPlayerCard,
+  IGameOptions,
+} from "../../shared/dtos/oh_heck/game";
 
 export interface IOhHeckPlayer {
   userId: number;

@@ -1,5 +1,9 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
-import { createTestCredentials, createTestUser, resetDatabaseBeforeEach } from "../../../test/test_helper";
+import {
+  createTestCredentials,
+  createTestUser,
+  resetDatabaseBeforeEach,
+} from "../../../test/test_helper";
 import { GameState, IBetEvent, IGame } from "../../shared/dtos/oh_heck/game";
 import { OhHeckGameService } from "./oh_heck_game_service";
 import { expect } from "chai";
@@ -75,6 +79,51 @@ async function testBetExpectSuccess(
 describe.only("OhHeckGameService", () => {
   resetDatabaseBeforeEach();
 
+  describe("startRound", () => {
+    it("deals to all users and updates the game state (from players joining)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [{}, {}],
+        gameState: GameState.PLAYERS_JOINING,
+      });
+
+      // act
+      await new OhHeckGameService().startRound(user1Id, gameId);
+
+      // assert
+      const game = await new OhHeckGameService().get(user1Id, gameId);
+      expect(game.state).to.eql(GameState.BETTING);
+      expect(game.actionToUserId).to.eql(user1Id);
+      expect(game.playerStates[0].cards.length).to.eql(7);
+      expect(game.playerStates[1].numberOfCards).to.eql(7);
+    });
+
+    it("deals to all users and updates the game state (from completed round)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [{}, {}],
+        gameState: GameState.PLAYERS_JOINING,
+        completedRounds: [[0, 5]],
+      });
+
+      // act
+      await new OhHeckGameService().startRound(user1Id, gameId);
+
+      // assert
+      const game = await new OhHeckGameService().get(user1Id, gameId);
+      expect(game.state).to.eql(GameState.BETTING);
+      expect(game.actionToUserId).to.eql(user2Id);
+      expect(game.playerStates[0].cards.length).to.eql(6);
+      expect(game.playerStates[1].numberOfCards).to.eql(6);
+    });
+  });
+
   describe("placeBet", () => {
     it("throws a validation error if game not found", async () => {
       // arrange
@@ -97,11 +146,8 @@ describe.only("OhHeckGameService", () => {
         userIds: [, user2Id],
         gameId,
       } = await createTestOhHeckGame({
-        players: [
-          {cardsInHand: []},
-          {cardsInHand: []}
-        ],
-        gameState: GameState.BETTING
+        players: [{}, {}],
+        gameState: GameState.BETTING,
       });
 
       // act
@@ -120,11 +166,8 @@ describe.only("OhHeckGameService", () => {
         userIds: [user1Id],
         gameId,
       } = await createTestOhHeckGame({
-        players: [
-          {cardsInHand: []},
-          {cardsInHand: []}
-        ],
-        gameState: GameState.TRICK_ACTIVE
+        players: [{}, {}],
+        gameState: GameState.TRICK_ACTIVE,
       });
 
       // act
@@ -143,11 +186,8 @@ describe.only("OhHeckGameService", () => {
         userIds: [user1Id],
         gameId,
       } = await createTestOhHeckGame({
-        players: [
-          {cardsInHand: mockCards(4)},
-          {cardsInHand: mockCards(4)}
-        ],
-        gameState: GameState.BETTING
+        players: [{ cardsInHand: mockCards(4) }, { cardsInHand: mockCards(4) }],
+        gameState: GameState.BETTING,
       });
 
       // act
@@ -166,11 +206,8 @@ describe.only("OhHeckGameService", () => {
         userIds: [user1Id, user2Id],
         gameId,
       } = await createTestOhHeckGame({
-        players: [
-          {cardsInHand: mockCards(7)},
-          {cardsInHand: mockCards(7)}
-        ],
-        gameState: GameState.BETTING
+        players: [{ cardsInHand: mockCards(7) }, { cardsInHand: mockCards(7) }],
+        gameState: GameState.BETTING,
       });
       const bet = 1;
 
@@ -181,7 +218,7 @@ describe.only("OhHeckGameService", () => {
       expect(result).to.eql({
         betPlaced: { userId: user1Id, bet },
         updatedGameState: GameState.BETTING,
-        actionToUserId: user2Id
+        actionToUserId: user2Id,
       });
       expect(game.state).to.eql(GameState.BETTING);
       expect(game.actionToUserId).to.eql(user2Id);
@@ -196,10 +233,10 @@ describe.only("OhHeckGameService", () => {
         gameId,
       } = await createTestOhHeckGame({
         players: [
-          {cardsInHand: mockCards(7)},
-          {cardsInHand: mockCards(7), bet: 2}
+          { cardsInHand: mockCards(7) },
+          { cardsInHand: mockCards(7), bet: 2 },
         ],
-        gameState: GameState.BETTING
+        gameState: GameState.BETTING,
       });
       const bet = 3;
 
@@ -210,7 +247,7 @@ describe.only("OhHeckGameService", () => {
       expect(result).to.eql({
         betPlaced: { userId: user1Id, bet },
         updatedGameState: GameState.TRICK_ACTIVE,
-        actionToUserId: user2Id
+        actionToUserId: user2Id,
       });
       expect(game.state).to.eql(GameState.TRICK_ACTIVE);
       expect(game.actionToUserId).to.eql(user2Id);

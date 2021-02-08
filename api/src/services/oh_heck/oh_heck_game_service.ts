@@ -1,9 +1,7 @@
 import _ from "lodash";
-import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { ValidationError } from "../shared/exceptions";
 import {
   areCardHandsEquivalent,
-  areCardsEqual,
   standardDeckWithTwoJokers,
 } from "../shared/card_helpers";
 import { IPaginatedResponse } from "../../shared/dtos/search";
@@ -12,10 +10,28 @@ import {
   UserDataService,
 } from "../shared/data/user_data_service";
 import { ICard } from "../../shared/dtos/card";
-import { IOhHeckGameDataService, OhHeckGameDataService } from "./data/oh_heck_game_data_service";
-import { GameState, IBetEvent, IGame, IGameOptions, IPlayerState, IRoundScore, ISearchedGame, ISearchGamesRequest, ITrickEvent } from "../../shared/dtos/oh_heck/game";
-import { IOhHeckPlayer, IOhHeckRoundPlayerScore, ISerializedOhHeckGame } from "../../database/models/oh_heck_game";
-import { validateBet } from "./bet_validator"
+import {
+  IOhHeckGameDataService,
+  OhHeckGameDataService,
+} from "./data/oh_heck_game_data_service";
+import {
+  GameState,
+  IBetEvent,
+  IGame,
+  IGameOptions,
+  IPlayerState,
+  IRoundScore,
+  ISearchedGame,
+  ISearchGamesRequest,
+  ITrickEvent,
+} from "../../shared/dtos/oh_heck/game";
+import {
+  IOhHeckPlayer,
+  IOhHeckRoundPlayerScore,
+  ISerializedOhHeckGame,
+} from "../../database/models/oh_heck_game";
+import { validateBet } from "./bet_validator";
+import { getNumberOfCardsToDeal } from "./round_helpers";
 
 export interface IOhHeckGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
@@ -25,7 +41,11 @@ export interface IOhHeckGameService {
   join: (userId: number, gameId: number) => Promise<IGame>;
   startRound: (userId: number, gameId: number) => Promise<IGame>;
   placeBet: (userId: number, gameId: number, bet: number) => Promise<IBetEvent>;
-  playCard: (userId: number, gameId: number, action: ICard) => Promise<ITrickEvent>;
+  playCard: (
+    userId: number,
+    gameId: number,
+    action: ICard
+  ) => Promise<ITrickEvent>;
   rearrangeCards: (
     userId: number,
     gameId: number,
@@ -82,8 +102,11 @@ export class OhHeckGameService implements IOhHeckGameService {
     if (game.players.some((x) => x.userId === userId)) {
       throw new ValidationError("Already joined game.");
     }
+    // validate cannot have more than 7 players
     game = await this.gameDataService.update(game.gameId, game.version, {
-      players: game.players.concat([{ userId, cardsInHand: [], bet: null, tricksTaken: 0 }]),
+      players: game.players.concat([
+        { userId, cardsInHand: [], bet: null, tricksTaken: 0 },
+      ]),
     });
     return await this.loadFullGame(userId, game);
   }
@@ -103,34 +126,38 @@ export class OhHeckGameService implements IOhHeckGameService {
       throw new ValidationError("Invalid state to start round");
     }
     const deck = standardDeckWithTwoJokers();
-    const updatedPlayers: IOhHeckPlayer[] = game.players.map((x) => ({ userId: x.userId, cardsInHand: [], bet: null, tricksTaken: 0 }));
-    // for (let i = 0; i < 5; i++) {
-    //   updatedPlayers.forEach((x) => {
-    //     const nextCard = deck.pop();
-    //     if (nextCard == null) {
-    //       throw new Error("Unexpected empty deck (dealing to players)");
-    //     }
-    //     x.cardsInHand.push(nextCard);
-    //   });
-    // }
-    // const initialDiscard = deck.pop();
-    // if (initialDiscard == null) {
-    //   throw new Error("Unexpected empty deck (initial discard)");
-    // }
-    // game = await this.gameDataService.update(gameId, game.version, {
-    //   state: GameState.ROUND_ACTIVE,
-    //   cardsBuriedInDiscardPile: [],
-    //   cardsOnTopOfDiscardPile: [initialDiscard],
-    //   cardsInDeck: deck,
-    //   players: updatedPlayers,
-    // });
+    const roundNumber = game.completedRounds.length + 1;
+    const cardsToDeal = getNumberOfCardsToDeal(roundNumber);
+    const firstToActIndex = (roundNumber - 1) % game.players.length;
+    const updatedPlayers: IOhHeckPlayer[] = game.players.map(({ userId }) => {
+      const player: IOhHeckPlayer = {
+        userId,
+        cardsInHand: [],
+        bet: null,
+        tricksTaken: 0,
+      };
+      for (let i = 0; i < cardsToDeal; i++) {
+        const nextCard = deck.pop();
+        if (nextCard == null) {
+          throw new Error("Unexpected empty deck (dealing to players)");
+        }
+        player.cardsInHand.push(nextCard);
+      }
+      return player;
+    });
+    game = await this.gameDataService.update(gameId, game.version, {
+      players: updatedPlayers,
+      state: GameState.BETTING,
+      currentTrick: [],
+      actionToUserId: game.players[firstToActIndex].userId,
+    });
     return await this.loadFullGame(userId, game);
   }
 
   async placeBet(
     userId: number,
     gameId: number,
-    bet: number,
+    bet: number
   ): Promise<IBetEvent> {
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
@@ -140,28 +167,34 @@ export class OhHeckGameService implements IOhHeckGameService {
       throw new ValidationError("Invalid state to place bet.");
     }
     const betErrorMessage = validateBet(game.players, bet);
-    if (betErrorMessage !== null) {
+    if (betErrorMessage != null) {
       throw new ValidationError(betErrorMessage);
     }
-    const updatedPlayers = game.players.map(player => {
-      if (player.userId == userId) {
-        return { ...player, bet }
+    const updatedPlayers = game.players.map((player) => {
+      if (player.userId === userId) {
+        return { ...player, bet };
       }
       return player;
-    })
-    const allBetsPlaced = updatedPlayers.filter(player => player.bet == null).length == 0;
-    const updatedState = allBetsPlaced ? GameState.TRICK_ACTIVE : GameState.BETTING
-    const updatedActionToUserId = this.getNextPlayerUserId(game.players, userId);
+    });
+    const allBetsPlaced =
+      updatedPlayers.filter((player) => player.bet == null).length === 0;
+    const updatedState = allBetsPlaced
+      ? GameState.TRICK_ACTIVE
+      : GameState.BETTING;
+    const updatedActionToUserId = this.getNextPlayerUserId(
+      game.players,
+      userId
+    );
     await this.gameDataService.update(game.gameId, game.version, {
       players: updatedPlayers,
       state: updatedState,
-      actionToUserId: updatedActionToUserId
-    })
+      actionToUserId: updatedActionToUserId,
+    });
     const result: IBetEvent = {
       betPlaced: { userId, bet },
       updatedGameState: updatedState,
-      actionToUserId: updatedActionToUserId
-    }
+      actionToUserId: updatedActionToUserId,
+    };
     return result;
   }
 
@@ -182,8 +215,8 @@ export class OhHeckGameService implements IOhHeckGameService {
     const result: ITrickEvent = {
       cardPlayed: { userId, card },
       updatedGameState: GameState.TRICK_ACTIVE,
-      actionToUserId: userId
-    }
+      actionToUserId: userId,
+    };
     return result;
   }
 
@@ -236,7 +269,10 @@ export class OhHeckGameService implements IOhHeckGameService {
     };
   }
 
-  private getNextPlayerUserId(players: IOhHeckPlayer[], userId: number): number {
+  private getNextPlayerUserId(
+    players: IOhHeckPlayer[],
+    userId: number
+  ): number {
     const orderedPlayers = this.getPlayersOrderedToStartWithUser(
       players,
       userId
@@ -293,9 +329,13 @@ export class OhHeckGameService implements IOhHeckGameService {
         numberOfCards: 0,
         cards: [],
         bet: p.bet,
-        tricksTaken: p.tricksTaken
+        tricksTaken: p.tricksTaken,
       };
-      if (game.state === GameState.BETTING || game.state == GameState.TRICK_ACTIVE || game.state == GameState.TRICK_COMPLETE) {
+      if (
+        game.state === GameState.BETTING ||
+        game.state === GameState.TRICK_ACTIVE ||
+        game.state === GameState.TRICK_COMPLETE
+      ) {
         out.numberOfCards = p.cardsInHand.length;
         if (userId === p.userId) {
           out.cards = p.cardsInHand;
@@ -310,7 +350,11 @@ export class OhHeckGameService implements IOhHeckGameService {
   ): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
-      out[x.userId] = { score: x.score, bet: x.bet, betWasCorrect: x.betWasCorrect };
+      out[x.userId] = {
+        score: x.score,
+        bet: x.bet,
+        betWasCorrect: x.betWasCorrect,
+      };
     });
     return out;
   }
