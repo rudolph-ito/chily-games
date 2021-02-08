@@ -1,6 +1,7 @@
 import { IOhHeckPlayer } from "../../database/models/oh_heck_game";
 import { expect } from "chai";
 import { validateBet } from "./bet_validator";
+import { describe, it } from "mocha";
 
 function getMockPlayers(
   numberOfCards: number,
@@ -15,6 +16,7 @@ function getMockPlayers(
     };
   });
 }
+
 interface IBetExample {
   description: string;
   players: IOhHeckPlayer[];

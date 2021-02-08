@@ -4,50 +4,67 @@ import {
   createTestUser,
   resetDatabaseBeforeEach,
 } from "../../../test/test_helper";
-import { GameState, IBetEvent, IGame } from "../../shared/dtos/oh_heck/game";
+import {
+  GameState,
+  IBetEvent,
+  ITrickEvent,
+} from "../../shared/dtos/oh_heck/game";
 import { OhHeckGameService } from "./oh_heck_game_service";
 import { expect } from "chai";
 import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { createTestOhHeckGame } from "../../../test/oh_heck_test_helper";
+import { OhHeckGameDataService } from "./data/oh_heck_game_data_service";
+import { ISerializedOhHeckGame } from "../../database/models/oh_heck_game";
 
-interface ITestBetResult {
+interface ITestPlaceBetResult {
   error?: Error;
   result?: IBetEvent;
-  game?: IGame;
+  game?: ISerializedOhHeckGame;
 }
 
-interface ITestBetSuccessResult {
+interface ITestPlaceBetSuccessResult {
   result: IBetEvent;
-  game: IGame;
+  game: ISerializedOhHeckGame;
+}
+
+interface ITestPlayCardResult {
+  error?: Error;
+  result?: ITrickEvent;
+  game?: ISerializedOhHeckGame;
+}
+
+interface ITestPlayCardSuccessResult {
+  result: ITrickEvent;
+  game: ISerializedOhHeckGame;
 }
 
 function mockCards(count: number): ICard[] {
   return new Array(count).fill({ suit: CardSuit.CLUBS, rank: CardRank.ACE });
 }
 
-async function testBet(
+async function testPlaceBet(
   userId: number,
   gameId: number,
   bet: number
-): Promise<ITestBetResult> {
+): Promise<ITestPlaceBetResult> {
   let error: Error | undefined;
-  let game: IGame | undefined;
+  let game: ISerializedOhHeckGame | undefined;
   let result: IBetEvent | undefined;
   try {
     result = await new OhHeckGameService().placeBet(userId, gameId, bet);
-    game = await new OhHeckGameService().get(userId, gameId);
+    game = await new OhHeckGameDataService().get(gameId);
   } catch (e) {
     error = e;
   }
   return { result, game, error };
 }
 
-async function testBetExpectError(
+async function testPlaceBetExpectError(
   userId: number,
   gameId: number,
   bet: number
 ): Promise<Error> {
-  const { result, error } = await testBet(userId, gameId, bet);
+  const { result, error } = await testPlaceBet(userId, gameId, bet);
   if (error == null) {
     throw new Error(
       `Expected error but didn't get one, result: ${JSON.stringify(result)}`
@@ -56,12 +73,12 @@ async function testBetExpectError(
   return error;
 }
 
-async function testBetExpectSuccess(
+async function testPlaceBetExpectSuccess(
   userId: number,
   gameId: number,
   bet: number
-): Promise<ITestBetSuccessResult> {
-  const { result, error, game } = await testBet(userId, gameId, bet);
+): Promise<ITestPlaceBetSuccessResult> {
+  const { result, error, game } = await testPlaceBet(userId, gameId, bet);
   if (error != null) {
     throw new Error(
       `Expected no error but got one, error: ${error.stack ?? error.message}`
@@ -76,7 +93,58 @@ async function testBetExpectSuccess(
   return { game, result };
 }
 
-describe.only("OhHeckGameService", () => {
+async function testPlayCard(
+  userId: number,
+  gameId: number,
+  card: ICard
+): Promise<ITestPlayCardResult> {
+  let error: Error | undefined;
+  let game: ISerializedOhHeckGame | undefined;
+  let result: ITrickEvent | undefined;
+  try {
+    result = await new OhHeckGameService().playCard(userId, gameId, card);
+    game = await new OhHeckGameDataService().get(gameId);
+  } catch (e) {
+    error = e;
+  }
+  return { result, game, error };
+}
+
+async function testPlayCardExpectError(
+  userId: number,
+  gameId: number,
+  card: ICard
+): Promise<Error> {
+  const { result, error } = await testPlayCard(userId, gameId, card);
+  if (error == null) {
+    throw new Error(
+      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
+    );
+  }
+  return error;
+}
+
+async function testPlayCardExpectSuccess(
+  userId: number,
+  gameId: number,
+  card: ICard
+): Promise<ITestPlayCardSuccessResult> {
+  const { result, error, game } = await testPlayCard(userId, gameId, card);
+  if (error != null) {
+    throw new Error(
+      `Expected no error but got one, error: ${error.stack ?? error.message}`
+    );
+  }
+  if (game == null) {
+    throw new Error(`Expected game but it is null`);
+  }
+  if (result == null) {
+    throw new Error(`Expected result but it is null`);
+  }
+  return { game, result };
+}
+
+describe("OhHeckGameService", () => {
   resetDatabaseBeforeEach();
 
   describe("startRound", () => {
@@ -133,7 +201,7 @@ describe.only("OhHeckGameService", () => {
       const bet = 0;
 
       // act
-      const error = await testBetExpectError(userId, gameId, bet);
+      const error = await testPlaceBetExpectError(userId, gameId, bet);
 
       // assert
       expect(error).to.be.instanceOf(NotFoundError);
@@ -151,7 +219,7 @@ describe.only("OhHeckGameService", () => {
       });
 
       // act
-      const error = await testBetExpectError(user2Id, gameId, 1);
+      const error = await testPlaceBetExpectError(user2Id, gameId, 1);
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
@@ -171,7 +239,7 @@ describe.only("OhHeckGameService", () => {
       });
 
       // act
-      const error = await testBetExpectError(user1Id, gameId, 1);
+      const error = await testPlaceBetExpectError(user1Id, gameId, 1);
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
@@ -191,7 +259,7 @@ describe.only("OhHeckGameService", () => {
       });
 
       // act
-      const error = await testBetExpectError(user1Id, gameId, 5);
+      const error = await testPlaceBetExpectError(user1Id, gameId, 5);
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
@@ -212,7 +280,11 @@ describe.only("OhHeckGameService", () => {
       const bet = 1;
 
       // act
-      const { game, result } = await testBetExpectSuccess(user1Id, gameId, bet);
+      const { game, result } = await testPlaceBetExpectSuccess(
+        user1Id,
+        gameId,
+        bet
+      );
 
       // assert
       expect(result).to.eql({
@@ -222,8 +294,8 @@ describe.only("OhHeckGameService", () => {
       });
       expect(game.state).to.eql(GameState.BETTING);
       expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.playerStates[0].bet).to.eql(bet);
-      expect(game.playerStates[1].bet).to.eql(null);
+      expect(game.players[0].bet).to.eql(bet);
+      expect(game.players[1].bet).to.eql(null);
     });
 
     it("succeeds if action to user, game state is betting, and bet is valid (ready to start first trick)", async () => {
@@ -241,7 +313,11 @@ describe.only("OhHeckGameService", () => {
       const bet = 3;
 
       // act
-      const { game, result } = await testBetExpectSuccess(user1Id, gameId, bet);
+      const { game, result } = await testPlaceBetExpectSuccess(
+        user1Id,
+        gameId,
+        bet
+      );
 
       // assert
       expect(result).to.eql({
@@ -251,8 +327,253 @@ describe.only("OhHeckGameService", () => {
       });
       expect(game.state).to.eql(GameState.TRICK_ACTIVE);
       expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.playerStates[0].bet).to.eql(bet);
-      expect(game.playerStates[1].bet).to.eql(2);
+      expect(game.players[0].bet).to.eql(bet);
+      expect(game.players[1].bet).to.eql(2);
+    });
+  });
+
+  describe("playCard", () => {
+    it("throws a validation error if game not found", async () => {
+      // arrange
+      const userCreds = createTestCredentials("test");
+      const userId = await createTestUser(userCreds);
+      const gameId = 1;
+      const card: ICard = { suit: CardSuit.CLUBS, rank: CardRank.TWO };
+
+      // act
+      const error = await testPlayCardExpectError(userId, gameId, card);
+
+      // assert
+      expect(error).to.be.instanceOf(NotFoundError);
+      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+    });
+
+    it("throws a validation error if action is not to user", async () => {
+      // arrange
+      const {
+        userIds: [, user2Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [{}, {}],
+        gameState: GameState.TRICK_ACTIVE,
+      });
+      const card: ICard = { suit: CardSuit.CLUBS, rank: CardRank.TWO };
+
+      // act
+      const error = await testPlayCardExpectError(user2Id, gameId, card);
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Action is not to you."'
+      );
+    });
+
+    it("throws a validation error if state is not trick active or trick complete", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [{}, {}],
+        gameState: GameState.BETTING,
+      });
+      const card: ICard = { suit: CardSuit.CLUBS, rank: CardRank.TWO };
+
+      // act
+      const error = await testPlayCardExpectError(user1Id, gameId, card);
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Invalid state to play card."'
+      );
+    });
+
+    it("throws a validation error if card played is invalid", async () => {
+      // arrange
+      const {
+        userIds: [, user2Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [
+          { cardsInHand: [{ suit: CardSuit.CLUBS, rank: CardRank.FOUR }] },
+          {
+            cardsInHand: [
+              { suit: CardSuit.HEARTS, rank: CardRank.JACK },
+              { suit: CardSuit.DIAMONDS, rank: CardRank.TWO },
+            ],
+          },
+        ],
+        gameState: GameState.TRICK_ACTIVE,
+        currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
+        actionToIndex: 1,
+      });
+      const card = { suit: CardSuit.HEARTS, rank: CardRank.JACK };
+
+      // act
+      const error = await testPlayCardExpectError(user2Id, gameId, card);
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "You must follow suit of first card played if you can."'
+      );
+    });
+
+    it("suceeds if card played is valid (first play of round)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [
+          {
+            cardsInHand: [
+              { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+              { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
+            ],
+          },
+          {
+            cardsInHand: [
+              { suit: CardSuit.HEARTS, rank: CardRank.JACK },
+              { suit: CardSuit.DIAMONDS, rank: CardRank.TWO },
+            ],
+          },
+        ],
+        gameState: GameState.TRICK_ACTIVE,
+      });
+      const card = { suit: CardSuit.DIAMONDS, rank: CardRank.THREE };
+
+      // act
+      const { result, game } = await testPlayCardExpectSuccess(
+        user1Id,
+        gameId,
+        card
+      );
+
+      // assert
+      expect(result).to.eql({
+        cardPlayed: { userId: user1Id, card },
+        updatedGameState: GameState.TRICK_ACTIVE,
+        actionToUserId: user2Id,
+        roundScore: undefined,
+        trickTakenByUserId: undefined,
+      });
+      expect(game.players[0].cardsInHand).to.eql([
+        { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+      ]);
+      expect(game.currentTrick).to.eql([{ userId: user1Id, card }]);
+      expect(game.state).to.eql(GameState.TRICK_ACTIVE);
+      expect(game.actionToUserId).to.eql(user2Id);
+    });
+
+    it("suceeds if card played is valid (finishing a trick)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [
+          { cardsInHand: [{ suit: CardSuit.CLUBS, rank: CardRank.FOUR }] },
+          {
+            cardsInHand: [
+              { suit: CardSuit.HEARTS, rank: CardRank.JACK },
+              { suit: CardSuit.DIAMONDS, rank: CardRank.TWO },
+            ],
+          },
+        ],
+        gameState: GameState.TRICK_ACTIVE,
+        currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
+        actionToIndex: 1,
+      });
+      const card = { suit: CardSuit.DIAMONDS, rank: CardRank.TWO };
+
+      // act
+      const { result, game } = await testPlayCardExpectSuccess(
+        user2Id,
+        gameId,
+        card
+      );
+
+      // assert
+      expect(result).to.eql({
+        cardPlayed: { userId: user2Id, card },
+        updatedGameState: GameState.TRICK_COMPLETE,
+        actionToUserId: user1Id,
+        roundScore: undefined,
+        trickTakenByUserId: user1Id,
+      });
+      expect(game.players[0].cardsInHand).to.eql([
+        { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+      ]);
+      expect(game.players[0].tricksTaken).to.eql(1);
+      expect(game.players[1].cardsInHand).to.eql([
+        { suit: CardSuit.HEARTS, rank: CardRank.JACK },
+      ]);
+      expect(game.players[1].tricksTaken).to.eql(0);
+      expect(game.currentTrick).to.eql([
+        {
+          userId: user1Id,
+          card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
+        },
+        { userId: user2Id, card },
+      ]);
+      expect(game.state).to.eql(GameState.TRICK_COMPLETE);
+      expect(game.actionToUserId).to.eql(user1Id);
+    });
+
+    it("suceeds if card played is valid (finishing a round)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestOhHeckGame({
+        players: [
+          { cardsInHand: [], bet: 2, tricksTaken: 1 },
+          {
+            cardsInHand: [{ suit: CardSuit.DIAMONDS, rank: CardRank.TWO }],
+            bet: 3,
+            tricksTaken: 2,
+          },
+        ],
+        gameState: GameState.TRICK_ACTIVE,
+        currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
+        actionToIndex: 1,
+      });
+      const card = { suit: CardSuit.DIAMONDS, rank: CardRank.TWO };
+
+      // act
+      const { result, game } = await testPlayCardExpectSuccess(
+        user2Id,
+        gameId,
+        card
+      );
+
+      // assert
+      expect(result).to.eql({
+        cardPlayed: { userId: user2Id, card },
+        updatedGameState: GameState.ROUND_COMPLETE,
+        actionToUserId: user1Id,
+        roundScore: {
+          [user1Id]: { score: 7, bet: 2, tricksTaken: 2 },
+          [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
+        },
+        trickTakenByUserId: user1Id,
+      });
+      expect(game.players[0].cardsInHand).to.eql([]);
+      expect(game.players[0].tricksTaken).to.eql(2);
+      expect(game.players[1].cardsInHand).to.eql([]);
+      expect(game.players[1].tricksTaken).to.eql(2);
+      expect(game.currentTrick).to.eql([
+        {
+          userId: user1Id,
+          card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
+        },
+        { userId: user2Id, card },
+      ]);
+      expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+      expect(game.actionToUserId).to.eql(user1Id);
     });
   });
 });

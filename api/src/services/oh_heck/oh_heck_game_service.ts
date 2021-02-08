@@ -2,6 +2,7 @@ import _ from "lodash";
 import { ValidationError } from "../shared/exceptions";
 import {
   areCardHandsEquivalent,
+  areCardsEqual,
   standardDeckWithTwoJokers,
 } from "../shared/card_helpers";
 import { IPaginatedResponse } from "../../shared/dtos/search";
@@ -32,6 +33,7 @@ import {
 } from "../../database/models/oh_heck_game";
 import { validateBet } from "./bet_validator";
 import { getNumberOfCardsToDeal } from "./round_helpers";
+import { getTrickWinner, validatePlay } from "./trick_helper";
 
 export interface IOhHeckGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
@@ -166,9 +168,9 @@ export class OhHeckGameService implements IOhHeckGameService {
     if (game.state !== GameState.BETTING) {
       throw new ValidationError("Invalid state to place bet.");
     }
-    const betErrorMessage = validateBet(game.players, bet);
-    if (betErrorMessage != null) {
-      throw new ValidationError(betErrorMessage);
+    const errorMessage = validateBet(game.players, bet);
+    if (errorMessage != null) {
+      throw new ValidationError(errorMessage);
     }
     const updatedPlayers = game.players.map((player) => {
       if (player.userId === userId) {
@@ -207,15 +209,68 @@ export class OhHeckGameService implements IOhHeckGameService {
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
-    // validate play is valid
-    // remove card from player hand, update game current trick
-    // if trick over, update player tricks taken
-    // if round over, compute and save round score
-    // if game over, updated game state
+    if (
+      game.state !== GameState.TRICK_ACTIVE &&
+      game.state !== GameState.TRICK_COMPLETE
+    ) {
+      throw new ValidationError("Invalid state to play card.");
+    }
+    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+      game.players,
+      userId
+    );
+    const player = orderedPlayers[0];
+    const errorMessage = validatePlay(
+      player.cardsInHand,
+      game.currentTrick,
+      card
+    );
+    if (errorMessage != null) {
+      throw new ValidationError(errorMessage);
+    }
+    player.cardsInHand = player.cardsInHand.filter(
+      (x) => !areCardsEqual(x, card)
+    );
+    const updatedCurrentTrick = game.currentTrick.concat([{ userId, card }]);
+    const updatedCompletedRounds = game.completedRounds;
+    let updatedState = GameState.TRICK_ACTIVE;
+    let updatedActionToUserId = orderedPlayers[1].userId;
+    let roundScore: undefined | IRoundScore;
+    let trickTakenByUserId: undefined | number;
+    if (updatedCurrentTrick.length === game.players.length) {
+      trickTakenByUserId = getTrickWinner(game.currentTrick);
+      game.players.forEach((x) => {
+        if (x.userId === trickTakenByUserId) {
+          x.tricksTaken += 1;
+        }
+      });
+      updatedState = GameState.TRICK_COMPLETE;
+      updatedActionToUserId = trickTakenByUserId;
+      if (player.cardsInHand.length === 0) {
+        const newCompletedRound: IOhHeckRoundPlayerScore[] = this.determineScores(
+          game.players
+        );
+        roundScore = this.buildRoundScore(newCompletedRound);
+        updatedCompletedRounds.push(newCompletedRound);
+        updatedState =
+          updatedCompletedRounds.length === 14
+            ? GameState.COMPLETE
+            : GameState.ROUND_COMPLETE;
+      }
+    }
+    await this.gameDataService.update(game.gameId, game.version, {
+      players: game.players,
+      currentTrick: updatedCurrentTrick,
+      state: updatedState,
+      actionToUserId: updatedActionToUserId,
+      completedRounds: updatedCompletedRounds,
+    });
     const result: ITrickEvent = {
       cardPlayed: { userId, card },
-      updatedGameState: GameState.TRICK_ACTIVE,
-      actionToUserId: userId,
+      updatedGameState: updatedState,
+      actionToUserId: updatedActionToUserId,
+      trickTakenByUserId,
+      roundScore,
     };
     return result;
   }
@@ -353,27 +408,23 @@ export class OhHeckGameService implements IOhHeckGameService {
       out[x.userId] = {
         score: x.score,
         bet: x.bet,
-        betWasCorrect: x.betWasCorrect,
+        tricksTaken: x.tricksTaken,
       };
     });
     return out;
   }
 
-  private isGameComplete(
-    completedRounds: IOhHeckRoundPlayerScore[][],
-    playTo: number
-  ): boolean {
-    const playerTotals: Record<number, number> = {};
-    completedRounds.forEach((completedRound) => {
-      completedRound.forEach((playerScore) => {
-        if (playerTotals[playerScore.userId] == null) {
-          playerTotals[playerScore.userId] = 0;
-        }
-        playerTotals[playerScore.userId] += playerScore.score;
-      });
+  private determineScores(players: IOhHeckPlayer[]): IOhHeckRoundPlayerScore[] {
+    return players.map((player) => {
+      if (player.bet == null) {
+        throw Error("Bet unexpectedly null");
+      }
+      return {
+        userId: player.userId,
+        score: player.bet === player.tricksTaken ? player.bet + 5 : 0,
+        bet: player.bet,
+        tricksTaken: player.tricksTaken,
+      };
     });
-    return Object.values(playerTotals).some(
-      (playerTotal) => playerTotal >= playTo
-    );
   }
 }

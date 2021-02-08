@@ -18,7 +18,7 @@ export interface IOhHeckPlayer {
 export interface IOhHeckRoundPlayerScore {
   userId: number;
   bet: number;
-  betWasCorrect: boolean;
+  tricksTaken: number;
   score: number;
 }
 

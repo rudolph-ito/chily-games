@@ -12,7 +12,7 @@ export interface IPlayerState {
 
 export interface IRoundPlayerScore {
   bet: number;
-  betWasCorrect: boolean;
+  tricksTaken: number;
   score: number;
 }
 

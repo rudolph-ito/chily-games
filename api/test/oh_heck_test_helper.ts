@@ -1,7 +1,7 @@
 import { IOhHeckPlayer } from "../src/database/models/oh_heck_game";
 import { OhHeckGameDataService } from "../src/services/oh_heck/data/oh_heck_game_data_service";
 import { OhHeckGameService } from "../src/services/oh_heck/oh_heck_game_service";
-import { GameState, ITrickPlayerCard } from "../src/shared/dtos/oh_heck/game";
+import { GameState } from "../src/shared/dtos/oh_heck/game";
 import { ICard } from "../src/shared/dtos/card";
 import {
   createTestCredentials,
@@ -18,8 +18,9 @@ interface ITestGamePlayerOptions {
 interface ITestGameOptions {
   players: ITestGamePlayerOptions[];
   gameState: GameState;
-  currentTrick?: ITrickPlayerCard[];
+  currentTrick?: ICard[];
   completedRounds?: number[][];
+  actionToIndex?: number;
 }
 
 interface ITestGame {
@@ -55,18 +56,22 @@ export async function createTestOhHeckGame(
       };
     }
   );
+  const currentTrick = (options.currentTrick ?? []).map((card, index) => {
+    return { userId: userIds[index], card };
+  });
   const completedRounds = (options.completedRounds ?? []).map((round) =>
     round.map((score, index) => ({
       score,
       bet: 0,
-      betWasCorrect: true,
+      tricksTaken: 0,
       userId: userIds[index],
     }))
   );
   await gameDataService.update(game.gameId, game.version, {
     state: options.gameState,
-    actionToUserId: userIds[0],
+    actionToUserId: userIds[options.actionToIndex ?? 0],
     players,
+    currentTrick,
     completedRounds,
   });
   return { userCredentials, userIds, gameId: game.gameId };
