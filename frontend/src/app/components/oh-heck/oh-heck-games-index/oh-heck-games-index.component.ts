@@ -79,7 +79,7 @@ export class OhHeckGamesIndexComponent implements OnInit {
   }
 
   create(): void {
-    this.dialog.open(OhHeckNewGameDialogComponent)
+    this.dialog.open(OhHeckNewGameDialogComponent, { data: { rematchForGameId: null }})
       .afterClosed()
       .subscribe((game: IGame) => {
         if (game != null) {

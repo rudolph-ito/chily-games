@@ -290,6 +290,7 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
         this.table.updateStateWithBetPlaced(response)
         this.game.actionToUserId = response.actionToUserId;
         this.game.state = response.updatedGameState;
+        this.betControl.setValue(0)
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -323,8 +324,7 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
     if (this.game == null) {
       throw new Error("Game unexpectedly null");
     }
-    // TODO open with option to use rematch
-    this.dialog.open(OhHeckNewGameDialogComponent)
+    this.dialog.open(OhHeckNewGameDialogComponent, { data: { rematchForGameId: this.getGameId() }})
       .afterClosed()
       .subscribe((game: IGame) => {
         if (game != null) {
@@ -410,6 +410,6 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
 
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([`yaniv/games/${gameId}`]);
+    this.router.navigate([`oh-heck/games/${gameId}`]);
   }
 }

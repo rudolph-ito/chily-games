@@ -237,7 +237,8 @@ export class OhHeckTable {
       }
       userData.playedCard = rect;
       userData.cardsInHand.splice(userData.cardsInHand.indexOf(rect), 1);
-      // remove card event handlers
+      this.updateCardFaceStroke(rect, false);
+      this.removeCardEventHandlers(rect);
     } else {
       let rect = userData.cardsInHand.shift();
       if (rect == null) {
