@@ -60,7 +60,6 @@ export interface IPlaceBetInput {
   bet: number;
 }
 
-
 export interface IBetPlaced {
   userId: number;
   bet: number;

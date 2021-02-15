@@ -1,28 +1,46 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import moment from 'moment';
-import { Subject } from 'rxjs';
-import { OhHeckTable } from 'src/app/canvas/oh-heck/table';
-import { WrappedSocket } from 'src/app/modules/socket.io/socket.io.service';
-import { AuthenticationService } from 'src/app/services/authentication.service';
-import { OhHeckGameService } from 'src/app/services/oh-heck/oh-heck-game-service';
-import { IUser } from 'src/app/shared/dtos/authentication';
-import { ICard } from 'src/app/shared/dtos/card';
-import { GameState, IBetEvent, IGame, INewGameStartedEvent, IPlayerJoinedEvent, ITrickEvent } from 'src/app/shared/dtos/oh_heck/game';
-import { ConfirmationDialogComponent, IConfirmationDialogData } from '../../common/confirmation-dialog/confirmation-dialog.component';
-import { OhHeckGameScoreboardDialogComponent } from '../oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component';
-import { OhHeckNewGameDialogComponent } from '../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component';
+import { HttpErrorResponse } from "@angular/common/http";
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from "@angular/core";
+import { FormControl } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { ActivatedRoute, Router } from "@angular/router";
+import moment from "moment";
+import { Subject } from "rxjs";
+import { OhHeckTable } from "src/app/canvas/oh-heck/table";
+import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
+import { AuthenticationService } from "src/app/services/authentication.service";
+import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
+import { IUser } from "../../../shared/dtos/authentication";
+import { ICard } from "../../../shared/dtos/card";
+import {
+  GameState,
+  IBetEvent,
+  IGame,
+  INewGameStartedEvent,
+  IPlayerJoinedEvent,
+  ITrickEvent,
+} from "../../../shared/dtos/oh_heck/game";
+import {
+  ConfirmationDialogComponent,
+  IConfirmationDialogData,
+} from "../../common/confirmation-dialog/confirmation-dialog.component";
+import { OhHeckGameScoreboardDialogComponent } from "../oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component";
+import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
 
 @Component({
-  selector: 'app-oh-heck-game-show',
-  templateUrl: './oh-heck-game-show.component.html',
-  styleUrls: ['./oh-heck-game-show.component.styl']
+  selector: "app-oh-heck-game-show",
+  templateUrl: "./oh-heck-game-show.component.html",
+  styleUrls: ["./oh-heck-game-show.component.styl"],
 })
-export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy {
+export class OhHeckGameShowComponent
+  implements OnInit, AfterViewInit, OnDestroy {
   betControl = new FormControl(0);
   loading: boolean;
   game: IGame | null;
@@ -82,33 +100,29 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
         }
       });
     });
-    this.socket
-      .fromEvent("bet-placed")
-      .subscribe((event: IBetEvent) => {
-        if (this.game == null) {
-          throw new Error("Game unexpectedly null");
+    this.socket.fromEvent("bet-placed").subscribe((event: IBetEvent) => {
+      if (this.game == null) {
+        throw new Error("Game unexpectedly null");
+      }
+      if (event.betPlaced.userId !== this.user?.userId) {
+        this.table.updateStateWithBetPlaced(event);
+        this.game.actionToUserId = event.actionToUserId;
+        this.game.state = event.updatedGameState;
+      }
+    });
+    this.socket.fromEvent("card-played").subscribe((event: ITrickEvent) => {
+      if (this.game == null) {
+        throw new Error("Game unexpectedly null");
+      }
+      if (event.cardPlayed.userId !== this.user?.userId) {
+        this.table.updateStateWithCardPlayed(event);
+        this.game.actionToUserId = event.actionToUserId;
+        this.game.state = event.updatedGameState;
+        if (event.roundScore != null) {
+          this.game.roundScores.push(event.roundScore);
         }
-        if (event.betPlaced.userId !== this.user?.userId) {
-          this.table.updateStateWithBetPlaced(event)
-          this.game.actionToUserId = event.actionToUserId;
-          this.game.state = event.updatedGameState;
-        }
-      });
-    this.socket
-      .fromEvent("card-played")
-      .subscribe((event: ITrickEvent) => {
-        if (this.game == null) {
-          throw new Error("Game unexpectedly null");
-        }
-        if (event.cardPlayed.userId !== this.user?.userId) {
-          this.table.updateStateWithCardPlayed(event);
-          this.game.actionToUserId = event.actionToUserId;
-          this.game.state = event.updatedGameState;
-          if (event.roundScore != null) {
-            this.game.roundScores.push(event.roundScore)
-          }
-        }
-      });
+      }
+    });
     this.socket
       .fromEvent("new-game-started")
       .subscribe((event: INewGameStartedEvent) => {
@@ -197,7 +211,11 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   canBet(): boolean {
-    return this.game != null && this.game.state == GameState.BETTING && this.game.actionToUserId == this.user?.userId;
+    return (
+      this.game != null &&
+      this.game.state === GameState.BETTING &&
+      this.game.actionToUserId === this.user?.userId
+    );
   }
 
   getBetOptions(): number[] {
@@ -205,7 +223,7 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
       throw new Error("Game unexpectedly null");
     }
     const maxBet = this.game.playerStates[0].numberOfCards;
-    return Array.from({length: maxBet + 1}, (_, i) => i);
+    return Array.from({ length: maxBet + 1 }, (_, i) => i);
   }
 
   canAbortGame(): boolean {
@@ -268,7 +286,7 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
         this.game.actionToUserId = event.actionToUserId;
         this.game.state = event.updatedGameState;
         if (event.roundScore != null) {
-          this.game.roundScores.push(event.roundScore)
+          this.game.roundScores.push(event.roundScore);
         }
       },
       (errorResponse: HttpErrorResponse) => {
@@ -282,24 +300,26 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
   };
 
   placeBet = async (): Promise<void> => {
-    this.gameService.placeBet(this.getGameId(), { bet: this.betControl.value }).subscribe(
-      async (response: IBetEvent) => {
-        if (this.game == null) {
-          throw new Error("Game unexpectedly null");
+    this.gameService
+      .placeBet(this.getGameId(), { bet: this.betControl.value })
+      .subscribe(
+        async (response: IBetEvent) => {
+          if (this.game == null) {
+            throw new Error("Game unexpectedly null");
+          }
+          this.table.updateStateWithBetPlaced(response);
+          this.game.actionToUserId = response.actionToUserId;
+          this.game.state = response.updatedGameState;
+          this.betControl.setValue(0);
+        },
+        (errorResponse: HttpErrorResponse) => {
+          if (errorResponse.status === 422) {
+            this.snackBar.open(errorResponse.error, undefined, {
+              duration: 2500,
+            });
+          }
         }
-        this.table.updateStateWithBetPlaced(response)
-        this.game.actionToUserId = response.actionToUserId;
-        this.game.state = response.updatedGameState;
-        this.betControl.setValue(0)
-      },
-      (errorResponse: HttpErrorResponse) => {
-        if (errorResponse.status === 422) {
-          this.snackBar.open(errorResponse.error, undefined, {
-            duration: 2500,
-          });
-        }
-      }
-    );
+      );
   };
 
   onRearrangeCards = async (cards: ICard[]): Promise<void> => {
@@ -324,7 +344,10 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
     if (this.game == null) {
       throw new Error("Game unexpectedly null");
     }
-    this.dialog.open(OhHeckNewGameDialogComponent, { data: { rematchForGameId: this.getGameId() }})
+    this.dialog
+      .open(OhHeckNewGameDialogComponent, {
+        data: { rematchForGameId: this.getGameId() },
+      })
       .afterClosed()
       .subscribe((game: IGame) => {
         if (game != null) {

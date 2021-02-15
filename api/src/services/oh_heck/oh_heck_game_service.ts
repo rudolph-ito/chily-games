@@ -26,7 +26,7 @@ import {
   ISearchGamesRequest,
   ITrickEvent,
   IPlaceBetInput,
-  IPlayCardInput
+  IPlayCardInput,
 } from "../../shared/dtos/oh_heck/game";
 import {
   IOhHeckPlayer,
@@ -44,7 +44,11 @@ export interface IOhHeckGameService {
   get: (userId: number | null, gameId: number) => Promise<IGame>;
   join: (userId: number, gameId: number) => Promise<IGame>;
   startRound: (userId: number, gameId: number) => Promise<IGame>;
-  placeBet: (userId: number, gameId: number, input: IPlaceBetInput) => Promise<IBetEvent>;
+  placeBet: (
+    userId: number,
+    gameId: number,
+    input: IPlaceBetInput
+  ) => Promise<IBetEvent>;
   playCard: (
     userId: number,
     gameId: number,
@@ -224,7 +228,8 @@ export class OhHeckGameService implements IOhHeckGameService {
       userId
     );
     const player = orderedPlayers[0];
-    const updatedCurrentTrick = game.state == GameState.TRICK_COMPLETE ? [] : game.currentTrick;
+    const updatedCurrentTrick =
+      game.state === GameState.TRICK_COMPLETE ? [] : game.currentTrick;
     const errorMessage = validatePlay(
       player.cardsInHand,
       updatedCurrentTrick,

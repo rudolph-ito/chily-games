@@ -42,7 +42,9 @@ export async function createTestOhHeckGame(
     userCredentials.push(creds);
     userIds.push(await createTestUser(creds));
   }
-  const createdGame = await gameService.create(userIds[0], { halfGame: options.halfGame ?? false });
+  const createdGame = await gameService.create(userIds[0], {
+    halfGame: options.halfGame ?? false,
+  });
   for (const userId of userIds.slice(1)) {
     await gameService.join(userId, createdGame.gameId);
   }

@@ -1,8 +1,7 @@
-import { IPlayerState, IRoundScore } from "src/app/shared/dtos/oh_heck/game";
-
+import { IPlayerState, IRoundScore } from "../../shared/dtos/oh_heck/game";
 
 export interface ITotalPlayerScore {
-  score: number
+  score: number;
   isTotal: boolean;
 }
 

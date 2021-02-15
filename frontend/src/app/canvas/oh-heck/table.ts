@@ -1,9 +1,6 @@
 import { Vector2d } from "konva/types/types";
 import { ICard } from "../../shared/dtos/card";
-import {
-  doesHaveValue,
-  valueOrDefault,
-} from "../../shared/utilities/value_checker";
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 import cardImages from "../../data/card_images";
 import { Stage as KonvaStage } from "konva/lib/Stage";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
@@ -11,7 +8,13 @@ import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
 import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
 import Konva from "konva";
-import { GameState, IBetEvent, IGame, IPlayerState, ITrickEvent } from "src/app/shared/dtos/oh_heck/game";
+import {
+  GameState,
+  IBetEvent,
+  IGame,
+  IPlayerState,
+  ITrickEvent,
+} from "../../shared/dtos/oh_heck/game";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -85,7 +88,7 @@ export class OhHeckTable {
   private cardBackImage: HTMLImageElement;
   private users: Map<number, IUserData>;
   private currentUserId: number | null;
-  private messageText: KonvaText;
+  private readonly messageText: KonvaText;
   private readonly onPlayCard: (card: ICard) => void;
   private readonly onRearrangeCards: (cards: ICard[]) => void;
 
@@ -189,10 +192,17 @@ export class OhHeckTable {
     const promises: Array<Promise<any>> = [];
     promises.push(this.initializePlayers(game));
     await Promise.all(promises);
-    if (game.state === GameState.BETTING || game.state == GameState.TRICK_ACTIVE || game.state == GameState.TRICK_COMPLETE || game.state == GameState.ROUND_COMPLETE) {
+    if (
+      [
+        GameState.BETTING,
+        GameState.TRICK_ACTIVE,
+        GameState.TRICK_COMPLETE,
+        GameState.ROUND_COMPLETE,
+      ].includes(game.state)
+    ) {
       this.updateActionTo(game.actionToUserId);
     }
-    this.updateTrickWinnerIfNeeded(game.state, game.actionToUserId, false)
+    this.updateTrickWinnerIfNeeded(game.state, game.actionToUserId, false);
     this.resize();
   }
 
@@ -201,9 +211,7 @@ export class OhHeckTable {
     this.cardsLayer.draw();
   }
 
-  async updateStateWithBetPlaced(
-    betEvent: IBetEvent,
-  ): Promise<void> {
+  async updateStateWithBetPlaced(betEvent: IBetEvent): Promise<void> {
     const userData = this.users.get(betEvent.betPlaced.userId);
     if (userData == null) {
       throw new Error("User not found");
@@ -214,35 +222,33 @@ export class OhHeckTable {
     this.cardsLayer.draw();
   }
 
-  async updateStateWithCardPlayed(
-    trickEvent: ITrickEvent,
-  ): Promise<void> {
+  async updateStateWithCardPlayed(trickEvent: ITrickEvent): Promise<void> {
     const userData = this.users.get(trickEvent.cardPlayed.userId);
     if (userData == null) {
       throw new Error("User not found");
     }
     if (userData.playedCard !== null) {
-      this.users.forEach(user => {
-        user.playedCard?.remove()
+      this.users.forEach((user) => {
+        user.playedCard?.remove();
         user.playedCard = null;
-      })
+      });
     }
     const card = trickEvent.cardPlayed.card;
     if (trickEvent.cardPlayed.userId === this.currentUserId) {
-      let rect = userData.cardsInHand.find((x) =>
+      const rect = userData.cardsInHand.find((x) =>
         areCardsEqual(x.getAttr("yanivCard"), card)
       );
       if (rect == null) {
-        throw new Error("Unexpectedly unable to find user played card")
+        throw new Error("Unexpectedly unable to find user played card");
       }
       userData.playedCard = rect;
       userData.cardsInHand.splice(userData.cardsInHand.indexOf(rect), 1);
       this.updateCardFaceStroke(rect, false);
       this.removeCardEventHandlers(rect);
     } else {
-      let rect = userData.cardsInHand.shift();
+      const rect = userData.cardsInHand.shift();
       if (rect == null) {
-        throw new Error("Unexpectedly have no cards for user")
+        throw new Error("Unexpectedly have no cards for user");
       }
       await this.updateRectWithCardFace(rect, card);
       userData.playedCard = rect;
@@ -259,13 +265,13 @@ export class OhHeckTable {
     for (let index = 0; index < userData.cardsInHand.length; index++) {
       const cardRect = userData.cardsInHand[index];
       const cardPosition = positionalData.cardInHandPositions[index];
-      this.updateCardSizeAndPosition(
-        cardRect,
-        cardPosition,
-        true
-      );
+      this.updateCardSizeAndPosition(cardRect, cardPosition, true);
     }
-    this.updateTrickWinnerIfNeeded(trickEvent.updatedGameState, trickEvent.actionToUserId, true)
+    this.updateTrickWinnerIfNeeded(
+      trickEvent.updatedGameState,
+      trickEvent.actionToUserId,
+      true
+    );
     this.updateActionTo(trickEvent.actionToUserId);
     this.cardsLayer.draw();
   }
@@ -281,8 +287,18 @@ export class OhHeckTable {
     userData.border.strokeWidth(5);
   }
 
-  updateTrickWinnerIfNeeded(gameState: GameState, actionToUserId: number, incrementCount: boolean): void {
-    if (gameState == GameState.TRICK_COMPLETE || gameState == GameState.ROUND_COMPLETE || gameState == GameState.COMPLETE) {
+  updateTrickWinnerIfNeeded(
+    gameState: GameState,
+    actionToUserId: number,
+    incrementCount: boolean
+  ): void {
+    if (
+      [
+        GameState.TRICK_COMPLETE,
+        GameState.ROUND_COMPLETE,
+        GameState.COMPLETE,
+      ].includes(gameState)
+    ) {
       const userData = this.users.get(actionToUserId);
       if (userData == null) {
         throw new Error("User not found");
@@ -290,11 +306,11 @@ export class OhHeckTable {
       if (userData.playedCard == null) {
         throw new Error("User played card unexpectedly null");
       }
-      userData.playedCard.stroke("blue")
+      userData.playedCard.stroke("blue");
       userData.playedCard.strokeWidth(CARD_FACE_TRICK_WINNER_STROKE);
       if (incrementCount) {
-        userData.tricksTaken += 1
-        userData.name.text(this.getUserText(userData))
+        userData.tricksTaken += 1;
+        userData.name.text(this.getUserText(userData));
       }
     }
   }
@@ -322,8 +338,12 @@ export class OhHeckTable {
       );
 
       if (userData.playedCard !== null) {
-        this.updateCardSizeAndPosition(userData.playedCard, positionalData.playedCardPosition, false);
-        userData.playedCard.zIndex(userData.playedCardIndex)
+        this.updateCardSizeAndPosition(
+          userData.playedCard,
+          positionalData.playedCardPosition,
+          false
+        );
+        userData.playedCard.zIndex(userData.playedCardIndex);
       }
 
       for (let index = 0; index < userData.cardsInHand.length; index++) {
@@ -371,9 +391,11 @@ export class OhHeckTable {
         game.playerStates.length;
       const playerState = game.playerStates[index];
       let playedCard: ICard | null = null;
-      const playedCardIndex = game.currentTrick.findIndex(x => x.userId == playerState.userId);
-      if (playedCardIndex != -1) {
-        playedCard = game.currentTrick[playedCardIndex].card
+      const playedCardIndex = game.currentTrick.findIndex(
+        (x) => x.userId === playerState.userId
+      );
+      if (playedCardIndex !== -1) {
+        playedCard = game.currentTrick[playedCardIndex].card;
       }
       promises.push(
         this.initializePlayer(
@@ -435,7 +457,10 @@ export class OhHeckTable {
       },
       borderSize: sizingData.playerSize,
       cardInHandPositions: cardPositions,
-      playedCardPosition: this.getPlayedCardPositionalData(position, sizingData)
+      playedCardPosition: this.getPlayedCardPositionalData(
+        position,
+        sizingData
+      ),
     };
   }
 
@@ -490,7 +515,7 @@ export class OhHeckTable {
     if (playedCard != null) {
       const cardFace = await this.loadCardFace(playedCard);
       userData.playedCard = cardFace;
-      this.cardsLayer.add(cardFace)
+      this.cardsLayer.add(cardFace);
     }
     this.users.set(userData.userId, userData);
   }
@@ -517,7 +542,10 @@ export class OhHeckTable {
     };
   }
 
-  private getPlayedCardPositionalData(playerPosition: IPosition, sizingData: ICardDisplayInputs): ICardDisplayData {
+  private getPlayedCardPositionalData(
+    playerPosition: IPosition,
+    sizingData: ICardDisplayInputs
+  ): ICardDisplayData {
     const size = sizingData.cardSize;
     const position: IPosition = {
       x: this.container.offsetWidth / 2,
@@ -525,19 +553,19 @@ export class OhHeckTable {
     };
     const offset: Vector2d = {
       x: sizingData.cardSize.width / 2,
-      y: - sizingData.cardSize.height / 6,
+      y: -sizingData.cardSize.height / 6,
     };
     const centerOffset: Vector2d = {
       x: position.x - playerPosition.x,
-      y: position.y - playerPosition.y
-    }
-    let rotation = Math.atan(centerOffset.y / centerOffset.x) * 180 / Math.PI;
+      y: position.y - playerPosition.y,
+    };
+    let rotation = (Math.atan(centerOffset.y / centerOffset.x) * 180) / Math.PI;
     if (centerOffset.x < 0) {
-      rotation -= 90
+      rotation -= 90;
     } else if (centerOffset.x > 0) {
-      rotation += 90
+      rotation += 90;
     } else {
-      rotation = 0
+      rotation = 0;
     }
     return {
       size,
@@ -583,9 +611,11 @@ export class OhHeckTable {
       let rotateStart = 0;
       if (userData.cardsInHand.length % 2 === 0) {
         rotateStart =
-          ((-1 * userData.cardsInHand.length) / 2) * rotateStep + rotateStep / 2;
+          ((-1 * userData.cardsInHand.length) / 2) * rotateStep +
+          rotateStep / 2;
       } else {
-        rotateStart = ((-1 * (userData.cardsInHand.length - 1)) / 2) * rotateStep;
+        rotateStart =
+          ((-1 * (userData.cardsInHand.length - 1)) / 2) * rotateStep;
       }
       rotation = rotateStart + rotateStep * cardIndex;
 
@@ -765,9 +795,9 @@ export class OhHeckTable {
   }
 
   private getUserText(userData: IUserData): string {
-    let text = userData.displayName
+    let text = userData.displayName;
     if (userData.bet != null) {
-      text += `\nBet: ${userData.bet} / Taken: ${userData.tricksTaken}`
+      text += `\nBet: ${userData.bet} / Taken: ${userData.tricksTaken}`;
     }
     return text;
   }

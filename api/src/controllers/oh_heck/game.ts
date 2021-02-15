@@ -2,8 +2,14 @@ import express from "express";
 import { RedisClient } from "redis";
 import { IUser } from "../../shared/dtos/authentication";
 import newSocketIoEmitter from "socket.io-emitter";
-import { IOhHeckGameService, OhHeckGameService } from "../../services/oh_heck/oh_heck_game_service";
-import { INewGameStartedEvent, IPlayerJoinedEvent } from "src/shared/dtos/oh_heck/game";
+import {
+  IOhHeckGameService,
+  OhHeckGameService,
+} from "../../services/oh_heck/oh_heck_game_service";
+import {
+  INewGameStartedEvent,
+  IPlayerJoinedEvent,
+} from "src/shared/dtos/oh_heck/game";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
@@ -103,14 +109,12 @@ export function getGameRouter(
       const gameId = parseInt(req.params.gameId);
       gameService
         .placeBet((req.user as IUser).userId, gameId, req.body)
-        .then(
-          (event) => {
-            res.status(200).send(event);
-            newSocketIoEmitter(publishRedisClient as any)
-              .to(`oh-heck-game-${gameId}`)
-              .emit("bet-placed", event);
-          }
-        )
+        .then((event) => {
+          res.status(200).send(event);
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`oh-heck-game-${gameId}`)
+            .emit("bet-placed", event);
+        })
         .catch(next);
     }
   );
@@ -121,14 +125,12 @@ export function getGameRouter(
       const gameId = parseInt(req.params.gameId);
       gameService
         .playCard((req.user as IUser).userId, gameId, req.body)
-        .then(
-          (event) => {
-            res.status(200).send(event);
-            newSocketIoEmitter(publishRedisClient as any)
-              .to(`oh-heck-game-${gameId}`)
-              .emit("card-played", event);
-          }
-        )
+        .then((event) => {
+          res.status(200).send(event);
+          newSocketIoEmitter(publishRedisClient as any)
+            .to(`oh-heck-game-${gameId}`)
+            .emit("card-played", event);
+        })
         .catch(next);
     }
   );

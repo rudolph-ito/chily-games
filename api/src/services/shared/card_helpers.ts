@@ -89,7 +89,6 @@ export function standardDeck(): ICard[] {
   return deck;
 }
 
-
 export function standardDeckWithTwoJokers(): ICard[] {
   const deck: ICard[] = [];
   for (let i = 0; i < NUMBER_OF_STANDARD_CARDS + 2; i++) {

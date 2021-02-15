@@ -3,7 +3,16 @@ import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import { ICard } from "../../shared/dtos/card";
-import { IBetEvent, IGame, IGameOptions, IPlaceBetInput, IPlayCardInput, ISearchedGame, ISearchGamesRequest, ITrickEvent } from "../../shared/dtos/oh_heck/game";
+import {
+  IBetEvent,
+  IGame,
+  IGameOptions,
+  IPlaceBetInput,
+  IPlayCardInput,
+  ISearchedGame,
+  ISearchGamesRequest,
+  ITrickEvent,
+} from "../../shared/dtos/oh_heck/game";
 
 @Injectable({
   providedIn: "root",
@@ -43,20 +52,14 @@ export class OhHeckGameService {
     );
   }
 
-  placeBet(
-    gameId: number,
-    input: IPlaceBetInput
-  ): Observable<IBetEvent> {
+  placeBet(gameId: number, input: IPlaceBetInput): Observable<IBetEvent> {
     return this.http.put<IBetEvent>(
       `${this.getRoutePrefix(gameId)}/place-bet`,
       input
     );
   }
 
-  playCard(
-    gameId: number,
-    input: IPlayCardInput
-  ): Observable<ITrickEvent> {
+  playCard(gameId: number, input: IPlayCardInput): Observable<ITrickEvent> {
     return this.http.put<ITrickEvent>(
       `${this.getRoutePrefix(gameId)}/play-card`,
       input

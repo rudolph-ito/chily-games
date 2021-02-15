@@ -1,16 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { OhHeckGamesIndexComponent } from './oh-heck-games-index.component';
+import { OhHeckGamesIndexComponent } from "./oh-heck-games-index.component";
 
-describe('OhHeckGamesIndexComponent', () => {
+describe("OhHeckGamesIndexComponent", () => {
   let component: OhHeckGamesIndexComponent;
   let fixture: ComponentFixture<OhHeckGamesIndexComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ OhHeckGamesIndexComponent ]
-    })
-    .compileComponents();
+      declarations: [OhHeckGamesIndexComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe('OhHeckGamesIndexComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

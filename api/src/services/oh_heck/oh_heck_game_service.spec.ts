@@ -591,7 +591,14 @@ describe("OhHeckGameService", () => {
       ],
       gameState: GameState.TRICK_ACTIVE,
       currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
-      completedRounds: [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+      completedRounds: [
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+      ],
       actionToIndex: 1,
     });
     const card = { suit: CardSuit.DIAMONDS, rank: CardRank.TWO };
@@ -644,7 +651,21 @@ describe("OhHeckGameService", () => {
       ],
       gameState: GameState.TRICK_ACTIVE,
       currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
-      completedRounds: [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+      completedRounds: [
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+        [0, 0],
+      ],
       actionToIndex: 1,
     });
     const card = { suit: CardSuit.DIAMONDS, rank: CardRank.TWO };

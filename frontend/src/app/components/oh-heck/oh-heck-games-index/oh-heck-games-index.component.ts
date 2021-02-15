@@ -1,22 +1,26 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
-import { Router } from '@angular/router';
-import { Subscription, timer } from 'rxjs';
-import { AuthenticationService } from 'src/app/services/authentication.service';
-import { OhHeckGameService } from 'src/app/services/oh-heck/oh-heck-game-service';
-import { IUser } from 'src/app/shared/dtos/authentication';
-import { GameState, IGame, ISearchedGame } from '../../../shared/dtos/oh_heck/game';
-import { OhHeckNewGameDialogComponent } from '../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component';
+import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { FormControl } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatTableDataSource } from "@angular/material/table";
+import { Router } from "@angular/router";
+import { Subscription, timer } from "rxjs";
+import { AuthenticationService } from "src/app/services/authentication.service";
+import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
+import { IUser } from "src/app/shared/dtos/authentication";
+import {
+  GameState,
+  IGame,
+  ISearchedGame,
+} from "../../../shared/dtos/oh_heck/game";
+import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
 
 @Component({
-  selector: 'app-oh-heck-games-index',
-  templateUrl: './oh-heck-games-index.component.html',
-  styleUrls: ['./oh-heck-games-index.component.styl']
+  selector: "app-oh-heck-games-index",
+  templateUrl: "./oh-heck-games-index.component.html",
+  styleUrls: ["./oh-heck-games-index.component.styl"],
 })
 export class OhHeckGamesIndexComponent implements OnInit {
   loading: boolean;
@@ -79,7 +83,8 @@ export class OhHeckGamesIndexComponent implements OnInit {
   }
 
   create(): void {
-    this.dialog.open(OhHeckNewGameDialogComponent, { data: { rematchForGameId: null }})
+    this.dialog
+      .open(OhHeckNewGameDialogComponent, { data: { rematchForGameId: null } })
       .afterClosed()
       .subscribe((game: IGame) => {
         if (game != null) {

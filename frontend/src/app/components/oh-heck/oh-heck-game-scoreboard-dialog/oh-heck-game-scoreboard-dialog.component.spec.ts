@@ -1,16 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { OhHeckScoreboardDialogComponent } from './oh-heck-game-scoreboard-dialog.component';
+import { OhHeckScoreboardDialogComponent } from "./oh-heck-game-scoreboard-dialog.component";
 
-describe('OhHeckScoreboardDialogComponent', () => {
+describe("OhHeckScoreboardDialogComponent", () => {
   let component: OhHeckScoreboardDialogComponent;
   let fixture: ComponentFixture<OhHeckScoreboardDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ OhHeckScoreboardDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [OhHeckScoreboardDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe('OhHeckScoreboardDialogComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });
