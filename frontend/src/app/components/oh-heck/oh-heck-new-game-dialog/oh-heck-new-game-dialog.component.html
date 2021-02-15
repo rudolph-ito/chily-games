@@ -1,0 +1,40 @@
+<div mat-dialog-title>New "Oh Heck" Game</div>
+<mat-dialog-content>
+  <div class="game-rounds-field">
+    <div>Game Rounds</div>
+    <mat-radio-group
+      [formControl]="controls.gameRounds"
+      class="game-rounds-radio-group"
+    >
+      <mat-radio-button [value]="7">
+        <div class="game-rounds-option">
+          <span>7</span>
+          <mat-icon
+            matTooltip="Cards per round: 7,6,5,4,3,2,1."
+            >info</mat-icon
+          >
+        </div>
+      </mat-radio-button>
+      <mat-radio-button [value]="14">
+        <div class="game-rounds-option">
+          <span>14</span>
+          <mat-icon matTooltip="Cards per round: 7,6,5,4,3,2,1,1,2,3,4,5,6,7."
+            >info</mat-icon
+          >
+        </div>
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-button
+    mat-flat-button
+    color="primary"
+    (click)="create()"
+    cdkFocusInitial
+  >
+    Create
+  </button>
+</mat-dialog-actions>

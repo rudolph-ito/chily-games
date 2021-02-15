@@ -576,4 +576,113 @@ describe("OhHeckGameService", () => {
       expect(game.actionToUserId).to.eql(user1Id);
     });
   });
+
+  it("suceeds if card played is valid (finishing a half game)", async () => {
+    // arrange
+    const {
+      userIds: [user1Id, user2Id],
+      gameId,
+    } = await createTestOhHeckGame({
+      halfGame: true,
+      players: [
+        { cardsInHand: [], bet: 2, tricksTaken: 1 },
+        {
+          cardsInHand: [{ suit: CardSuit.DIAMONDS, rank: CardRank.TWO }],
+          bet: 3,
+          tricksTaken: 2,
+        },
+      ],
+      gameState: GameState.TRICK_ACTIVE,
+      currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
+      completedRounds: [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+      actionToIndex: 1,
+    });
+    const card = { suit: CardSuit.DIAMONDS, rank: CardRank.TWO };
+
+    // act
+    const { result, game } = await testPlayCardExpectSuccess(
+      user2Id,
+      gameId,
+      card
+    );
+
+    // assert
+    expect(result).to.eql({
+      cardPlayed: { userId: user2Id, card },
+      updatedGameState: GameState.COMPLETE,
+      actionToUserId: user1Id,
+      roundScore: {
+        [user1Id]: { score: 7, bet: 2, tricksTaken: 2 },
+        [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
+      },
+      trickTakenByUserId: user1Id,
+    });
+    expect(game.players[0].cardsInHand).to.eql([]);
+    expect(game.players[0].tricksTaken).to.eql(2);
+    expect(game.players[1].cardsInHand).to.eql([]);
+    expect(game.players[1].tricksTaken).to.eql(2);
+    expect(game.currentTrick).to.eql([
+      {
+        userId: user1Id,
+        card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
+      },
+      { userId: user2Id, card },
+    ]);
+    expect(game.state).to.eql(GameState.COMPLETE);
+    expect(game.actionToUserId).to.eql(user1Id);
+  });
+
+  it("suceeds if card played is valid (finishing a full game)", async () => {
+    // arrange
+    const {
+      userIds: [user1Id, user2Id],
+      gameId,
+    } = await createTestOhHeckGame({
+      players: [
+        { cardsInHand: [], bet: 2, tricksTaken: 1 },
+        {
+          cardsInHand: [{ suit: CardSuit.DIAMONDS, rank: CardRank.TWO }],
+          bet: 3,
+          tricksTaken: 2,
+        },
+      ],
+      gameState: GameState.TRICK_ACTIVE,
+      currentTrick: [{ suit: CardSuit.DIAMONDS, rank: CardRank.THREE }],
+      completedRounds: [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0]],
+      actionToIndex: 1,
+    });
+    const card = { suit: CardSuit.DIAMONDS, rank: CardRank.TWO };
+
+    // act
+    const { result, game } = await testPlayCardExpectSuccess(
+      user2Id,
+      gameId,
+      card
+    );
+
+    // assert
+    expect(result).to.eql({
+      cardPlayed: { userId: user2Id, card },
+      updatedGameState: GameState.COMPLETE,
+      actionToUserId: user1Id,
+      roundScore: {
+        [user1Id]: { score: 7, bet: 2, tricksTaken: 2 },
+        [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
+      },
+      trickTakenByUserId: user1Id,
+    });
+    expect(game.players[0].cardsInHand).to.eql([]);
+    expect(game.players[0].tricksTaken).to.eql(2);
+    expect(game.players[1].cardsInHand).to.eql([]);
+    expect(game.players[1].tricksTaken).to.eql(2);
+    expect(game.currentTrick).to.eql([
+      {
+        userId: user1Id,
+        card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
+      },
+      { userId: user2Id, card },
+    ]);
+    expect(game.state).to.eql(GameState.COMPLETE);
+    expect(game.actionToUserId).to.eql(user1Id);
+  });
 });

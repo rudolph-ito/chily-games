@@ -1,0 +1,35 @@
+.wrapper
+  height 100%
+  width 100%
+  display flex
+  justify-content space-between
+  min-width 800px
+  min-height 600px
+  position relative
+
+.table-container
+  height 100%
+  width 100%
+
+.players-overlay, .left-actions-overlay, .right-actions-overlay, .bet-overlay
+  position absolute
+
+  button
+    display block
+    margin-bottom 10px
+
+.players-overlay, .left-actions-overlay, .right-actions-overlay
+  top 20px
+
+.players-overlay, .left-actions-overlay
+  left 20px
+
+.right-actions-overlay
+  right 10px
+
+.bet-overlay
+  top calc(50% - 50px)
+  left calc(50% - 90px)
+
+.info
+  font-style italic

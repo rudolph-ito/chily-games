@@ -253,7 +253,7 @@ export class OhHeckGameService implements IOhHeckGameService {
         roundScore = this.buildRoundScore(newCompletedRound);
         updatedCompletedRounds.push(newCompletedRound);
         updatedState =
-          updatedCompletedRounds.length === 14
+          updatedCompletedRounds.length === (game.options.halfGame ? 7 : 14)
             ? GameState.COMPLETE
             : GameState.ROUND_COMPLETE;
       }
