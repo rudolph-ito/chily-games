@@ -192,7 +192,7 @@ export class OhHeckTable {
     if (game.state === GameState.BETTING || game.state == GameState.TRICK_ACTIVE || game.state == GameState.TRICK_COMPLETE || game.state == GameState.ROUND_COMPLETE) {
       this.updateActionTo(game.actionToUserId);
     }
-    this.updateTrickWinnerIfNeeded(game.state, game.actionToUserId)
+    this.updateTrickWinnerIfNeeded(game.state, game.actionToUserId, false)
     this.resize();
   }
 
@@ -264,7 +264,7 @@ export class OhHeckTable {
         true
       );
     }
-    this.updateTrickWinnerIfNeeded(trickEvent.updatedGameState, trickEvent.actionToUserId)
+    this.updateTrickWinnerIfNeeded(trickEvent.updatedGameState, trickEvent.actionToUserId, true)
     this.updateActionTo(trickEvent.actionToUserId);
     this.cardsLayer.draw();
   }
@@ -280,8 +280,8 @@ export class OhHeckTable {
     userData.border.strokeWidth(5);
   }
 
-  updateTrickWinnerIfNeeded(gameState: GameState, actionToUserId: number): void {
-    if (gameState == GameState.TRICK_COMPLETE) {
+  updateTrickWinnerIfNeeded(gameState: GameState, actionToUserId: number, incrementCount: boolean): void {
+    if (gameState == GameState.TRICK_COMPLETE || gameState == GameState.ROUND_COMPLETE || gameState == GameState.COMPLETE) {
       const userData = this.users.get(actionToUserId);
       if (userData == null) {
         throw new Error("User not found");
@@ -291,8 +291,10 @@ export class OhHeckTable {
       }
       userData.playedCard.stroke("blue")
       userData.playedCard.strokeWidth(CARD_FACE_TRICK_WINNER_STROKE);
-      userData.tricksTaken += 1
-      userData.name.text(this.getUserText(userData))
+      if (incrementCount) {
+        userData.tricksTaken += 1
+        userData.name.text(this.getUserText(userData))
+      }
     }
   }
 

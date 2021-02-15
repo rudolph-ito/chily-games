@@ -45,6 +45,7 @@ import { ConfirmationDialogComponent } from "./components/common/confirmation-di
 import { OhHeckGamesIndexComponent } from './components/oh-heck/oh-heck-games-index/oh-heck-games-index.component';
 import { OhHeckGameShowComponent } from './components/oh-heck/oh-heck-game-show/oh-heck-game-show.component';
 import { OhHeckNewGameDialogComponent } from './components/oh-heck/oh-heck-new-game-dialog/oh-heck-new-game-dialog.component';
+import { OhHeckGameScoreboardDialogComponent } from './components/oh-heck/oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { OhHeckNewGameDialogComponent } from './components/oh-heck/oh-heck-new-g
     OhHeckGamesIndexComponent,
     OhHeckGameShowComponent,
     OhHeckNewGameDialogComponent,
+    OhHeckGameScoreboardDialogComponent,
   ],
   imports: [
     AppRoutingModule,

@@ -14,6 +14,7 @@ import { IUser } from 'src/app/shared/dtos/authentication';
 import { ICard } from 'src/app/shared/dtos/card';
 import { GameState, IBetEvent, IGame, INewGameStartedEvent, IPlayerJoinedEvent, ITrickEvent } from 'src/app/shared/dtos/oh_heck/game';
 import { ConfirmationDialogComponent, IConfirmationDialogData } from '../../common/confirmation-dialog/confirmation-dialog.component';
+import { OhHeckGameScoreboardDialogComponent } from '../oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component';
 import { OhHeckNewGameDialogComponent } from '../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component';
 
 @Component({
@@ -151,9 +152,9 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   viewScores(): void {
-    // this.dialog.open(YanivGameScoreboardDialogComponent, {
-    //   data: { game: this.game },
-    // });
+    this.dialog.open(OhHeckGameScoreboardDialogComponent, {
+      data: { game: this.game },
+    });
   }
 
   getGameId(): number {
