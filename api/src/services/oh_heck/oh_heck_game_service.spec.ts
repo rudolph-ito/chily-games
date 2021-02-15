@@ -458,7 +458,6 @@ describe("OhHeckGameService", () => {
         updatedGameState: GameState.TRICK_ACTIVE,
         actionToUserId: user2Id,
         roundScore: undefined,
-        trickTakenByUserId: undefined,
       });
       expect(game.players[0].cardsInHand).to.eql([
         { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
@@ -502,7 +501,6 @@ describe("OhHeckGameService", () => {
         updatedGameState: GameState.TRICK_COMPLETE,
         actionToUserId: user1Id,
         roundScore: undefined,
-        trickTakenByUserId: user1Id,
       });
       expect(game.players[0].cardsInHand).to.eql([
         { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
@@ -559,7 +557,6 @@ describe("OhHeckGameService", () => {
           [user1Id]: { score: 7, bet: 2, tricksTaken: 2 },
           [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
         },
-        trickTakenByUserId: user1Id,
       });
       expect(game.players[0].cardsInHand).to.eql([]);
       expect(game.players[0].tricksTaken).to.eql(2);
@@ -615,7 +612,6 @@ describe("OhHeckGameService", () => {
         [user1Id]: { score: 7, bet: 2, tricksTaken: 2 },
         [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
       },
-      trickTakenByUserId: user1Id,
     });
     expect(game.players[0].cardsInHand).to.eql([]);
     expect(game.players[0].tricksTaken).to.eql(2);
@@ -669,7 +665,6 @@ describe("OhHeckGameService", () => {
         [user1Id]: { score: 7, bet: 2, tricksTaken: 2 },
         [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
       },
-      trickTakenByUserId: user1Id,
     });
     expect(game.players[0].cardsInHand).to.eql([]);
     expect(game.players[0].tricksTaken).to.eql(2);

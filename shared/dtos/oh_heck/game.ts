@@ -56,6 +56,11 @@ export interface IPlayerJoinedEvent {
   playerStates: IPlayerState[];
 }
 
+export interface IPlaceBetInput {
+  bet: number;
+}
+
+
 export interface IBetPlaced {
   userId: number;
   bet: number;
@@ -67,6 +72,10 @@ export interface IBetEvent {
   actionToUserId: number;
 }
 
+export interface IPlayCardInput {
+  card: ICard;
+}
+
 export interface ICardPlayed {
   userId: number;
   card: ICard;
@@ -74,7 +83,6 @@ export interface ICardPlayed {
 
 export interface ITrickEvent {
   cardPlayed: ICardPlayed;
-  trickTakenByUserId?: number;
   roundScore?: IRoundScore;
   updatedGameState: GameState;
   actionToUserId: number;

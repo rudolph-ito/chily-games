@@ -3,7 +3,7 @@ import { ValidationError } from "../shared/exceptions";
 import {
   areCardHandsEquivalent,
   areCardsEqual,
-  standardDeckWithTwoJokers,
+  standardDeck,
 } from "../shared/card_helpers";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
@@ -25,6 +25,8 @@ import {
   ISearchedGame,
   ISearchGamesRequest,
   ITrickEvent,
+  IPlaceBetInput,
+  IPlayCardInput
 } from "../../shared/dtos/oh_heck/game";
 import {
   IOhHeckPlayer,
@@ -42,11 +44,11 @@ export interface IOhHeckGameService {
   get: (userId: number | null, gameId: number) => Promise<IGame>;
   join: (userId: number, gameId: number) => Promise<IGame>;
   startRound: (userId: number, gameId: number) => Promise<IGame>;
-  placeBet: (userId: number, gameId: number, bet: number) => Promise<IBetEvent>;
+  placeBet: (userId: number, gameId: number, input: IPlaceBetInput) => Promise<IBetEvent>;
   playCard: (
     userId: number,
     gameId: number,
-    action: ICard
+    input: IPlayCardInput
   ) => Promise<ITrickEvent>;
   rearrangeCards: (
     userId: number,
@@ -127,7 +129,7 @@ export class OhHeckGameService implements IOhHeckGameService {
     ) {
       throw new ValidationError("Invalid state to start round");
     }
-    const deck = standardDeckWithTwoJokers();
+    const deck = standardDeck();
     const roundNumber = game.completedRounds.length + 1;
     const cardsToDeal = getNumberOfCardsToDeal(roundNumber);
     const firstToActIndex = (roundNumber - 1) % game.players.length;
@@ -159,8 +161,9 @@ export class OhHeckGameService implements IOhHeckGameService {
   async placeBet(
     userId: number,
     gameId: number,
-    bet: number
+    input: IPlaceBetInput
   ): Promise<IBetEvent> {
+    const bet = input.bet;
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
@@ -203,8 +206,9 @@ export class OhHeckGameService implements IOhHeckGameService {
   async playCard(
     userId: number,
     gameId: number,
-    card: ICard
+    input: IPlayCardInput
   ): Promise<ITrickEvent> {
+    const card = input.card;
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
@@ -220,9 +224,10 @@ export class OhHeckGameService implements IOhHeckGameService {
       userId
     );
     const player = orderedPlayers[0];
+    const updatedCurrentTrick = game.state == GameState.TRICK_COMPLETE ? [] : game.currentTrick;
     const errorMessage = validatePlay(
       player.cardsInHand,
-      game.currentTrick,
+      updatedCurrentTrick,
       card
     );
     if (errorMessage != null) {
@@ -231,14 +236,13 @@ export class OhHeckGameService implements IOhHeckGameService {
     player.cardsInHand = player.cardsInHand.filter(
       (x) => !areCardsEqual(x, card)
     );
-    const updatedCurrentTrick = game.currentTrick.concat([{ userId, card }]);
+    updatedCurrentTrick.push({ userId, card });
     const updatedCompletedRounds = game.completedRounds;
     let updatedState = GameState.TRICK_ACTIVE;
     let updatedActionToUserId = orderedPlayers[1].userId;
     let roundScore: undefined | IRoundScore;
-    let trickTakenByUserId: undefined | number;
     if (updatedCurrentTrick.length === game.players.length) {
-      trickTakenByUserId = getTrickWinner(game.currentTrick);
+      const trickTakenByUserId = getTrickWinner(game.currentTrick);
       game.players.forEach((x) => {
         if (x.userId === trickTakenByUserId) {
           x.tricksTaken += 1;
@@ -269,7 +273,6 @@ export class OhHeckGameService implements IOhHeckGameService {
       cardPlayed: { userId, card },
       updatedGameState: updatedState,
       actionToUserId: updatedActionToUserId,
-      trickTakenByUserId,
       roundScore,
     };
     return result;

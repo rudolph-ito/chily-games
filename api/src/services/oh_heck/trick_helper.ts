@@ -20,7 +20,7 @@ export function validatePlay(
       (card) => card.suit === initialCard.suit
     );
     if (canFollowSuit && cardPlayed.suit !== initialCard.suit) {
-      return "You must follow suit of first card played if you can.";
+      return `You must follow suit of first card played (${initialCard.suit}) if you can.`;
     }
   }
   return null;

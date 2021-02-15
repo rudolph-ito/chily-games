@@ -80,6 +80,16 @@ export function areCardsEqual(a: ICard, b: ICard): boolean {
   return a.rank === b.rank && a.suit === b.suit;
 }
 
+export function standardDeck(): ICard[] {
+  const deck: ICard[] = [];
+  for (let i = 0; i < NUMBER_OF_STANDARD_CARDS; i++) {
+    deck.push(deserializeCard(i));
+  }
+  shuffle(deck);
+  return deck;
+}
+
+
 export function standardDeckWithTwoJokers(): ICard[] {
   const deck: ICard[] = [];
   for (let i = 0; i < NUMBER_OF_STANDARD_CARDS + 2; i++) {

@@ -14,12 +14,12 @@
 .players-overlay, .left-actions-overlay, .right-actions-overlay, .bet-overlay
   position absolute
 
+.players-overlay, .left-actions-overlay, .right-actions-overlay
+  top 20px
+
   button
     display block
     margin-bottom 10px
-
-.players-overlay, .left-actions-overlay, .right-actions-overlay
-  top 20px
 
 .players-overlay, .left-actions-overlay
   left 20px
@@ -28,8 +28,12 @@
   right 10px
 
 .bet-overlay
-  top calc(50% - 50px)
-  left calc(50% - 90px)
+  top calc(50% - 20px)
+  left calc(50% - 70px)
+
+  .mat-form-field
+    width 50px
+    margin-right 10px
 
 .info
   font-style italic

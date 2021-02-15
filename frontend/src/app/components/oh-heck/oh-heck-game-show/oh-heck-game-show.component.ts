@@ -87,7 +87,11 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
         if (this.game == null) {
           throw new Error("Game unexpectedly null");
         }
-        // TODO
+        if (event.betPlaced.userId !== this.user?.userId) {
+          this.table.updateStateWithBetPlaced(event)
+          this.game.actionToUserId = event.actionToUserId;
+          this.game.state = event.updatedGameState;
+        }
       });
     this.socket
       .fromEvent("card-played")
@@ -95,7 +99,14 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
         if (this.game == null) {
           throw new Error("Game unexpectedly null");
         }
-        // TODO
+        if (event.cardPlayed.userId !== this.user?.userId) {
+          this.table.updateStateWithCardPlayed(event);
+          this.game.actionToUserId = event.actionToUserId;
+          this.game.state = event.updatedGameState;
+          if (event.roundScore != null) {
+            this.game.roundScores.push(event.roundScore)
+          }
+        }
       });
     this.socket
       .fromEvent("new-game-started")
@@ -247,16 +258,17 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   onPlayCard = async (card: ICard): Promise<void> => {
-    this.gameService.playCard(this.getGameId(), card).subscribe(
-      async (response: ITrickEvent) => {
-        // if (response.actionToNextPlayerEvent != null) {
-        //   const event = response.actionToNextPlayerEvent;
-        //   this.table.updateStateWithUserAction(
-        //     event.lastAction,
-        //     event.actionToUserId,
-        //     response.cardPickedUpFromDeck
-        //   );
-        // }
+    this.gameService.playCard(this.getGameId(), { card }).subscribe(
+      async (event: ITrickEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
+        this.table.updateStateWithCardPlayed(event);
+        this.game.actionToUserId = event.actionToUserId;
+        this.game.state = event.updatedGameState;
+        if (event.roundScore != null) {
+          this.game.roundScores.push(event.roundScore)
+        }
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -269,16 +281,14 @@ export class OhHeckGameShowComponent implements OnInit, AfterViewInit, OnDestroy
   };
 
   placeBet = async (): Promise<void> => {
-    this.gameService.placeBet(this.getGameId(), this.betControl.value).subscribe(
+    this.gameService.placeBet(this.getGameId(), { bet: this.betControl.value }).subscribe(
       async (response: IBetEvent) => {
-        // if (response.actionToNextPlayerEvent != null) {
-        //   const event = response.actionToNextPlayerEvent;
-        //   this.table.updateStateWithUserAction(
-        //     event.lastAction,
-        //     event.actionToUserId,
-        //     response.cardPickedUpFromDeck
-        //   );
-        // }
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
+        this.table.updateStateWithBetPlaced(response)
+        this.game.actionToUserId = response.actionToUserId;
+        this.game.state = response.updatedGameState;
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
