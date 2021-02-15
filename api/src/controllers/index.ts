@@ -2,7 +2,6 @@ import express from "express";
 import expressSession from "express-session";
 import expressCookieParser from "cookie-parser";
 import expressBodyParser from "body-parser";
-import expressCors from "cors";
 import { initAuthController } from "./auth";
 import { createServer, Server as HttpServer } from "http";
 import { join as pathJoin } from "path";
@@ -24,7 +23,6 @@ import { getOhHeckRouter } from "./oh_heck";
 const RedisStore = connectRedis(expressSession);
 
 export interface ICreateExpressAppOptions {
-  corsOrigins: string[];
   publishRedisClient: RedisClient;
   sessionSecret: string;
   sessionStoreRedisClient: RedisClient;
@@ -33,7 +31,6 @@ export interface ICreateExpressAppOptions {
 export type RedisClientBuilder = () => RedisClient;
 
 export interface IStartServerOptions {
-  corsOrigins: string[];
   port: number;
   redisClientBuilder: RedisClientBuilder;
   sessionSecret: string;
@@ -72,9 +69,6 @@ export function createExpressApp(
       store: new RedisStore({ client: options.sessionStoreRedisClient }),
     })
   );
-  if (options.corsOrigins.length > 0) {
-    app.use(expressCors({ origin: options.corsOrigins }));
-  }
   app.get("/api/health", function (req, res) {
     res.status(200).end();
   });
@@ -104,7 +98,6 @@ export function startServer(options: IStartServerOptions): HttpServer {
   const subscribeRedisClient = options.redisClientBuilder();
   const sessionStoreRedisClient = options.redisClientBuilder();
   const app = createExpressApp({
-    corsOrigins: options.corsOrigins,
     publishRedisClient,
     sessionSecret: options.sessionSecret,
     sessionStoreRedisClient,

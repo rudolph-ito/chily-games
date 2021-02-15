@@ -41,7 +41,6 @@ export function createTestServer(): ITestServer {
   });
   return {
     app: createExpressApp({
-      corsOrigins: [],
       publishRedisClient,
       sessionSecret: "test",
       sessionStoreRedisClient,
