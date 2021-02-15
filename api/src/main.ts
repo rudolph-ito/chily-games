@@ -1,5 +1,4 @@
 import { startServer } from "./controllers";
-import { valueOrDefault } from "./shared/utilities/value_checker";
 import { createClient } from "redis";
 
 if (process.env.PORT == null) {
