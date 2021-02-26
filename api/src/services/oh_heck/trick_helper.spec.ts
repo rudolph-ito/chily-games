@@ -48,7 +48,8 @@ describe("TrickHelper", () => {
         trick: [
           { userId: 1, card: { suit: CardSuit.CLUBS, rank: CardRank.TWO } },
         ],
-        expectedResult: "You must follow suit of first card played if you can.",
+        expectedResult:
+          "You must follow suit of first card played (clubs) if you can.",
       },
       {
         description: "returns no error if following suit of first card played",

@@ -51,7 +51,7 @@ async function testPlaceBet(
   let game: ISerializedOhHeckGame | undefined;
   let result: IBetEvent | undefined;
   try {
-    result = await new OhHeckGameService().placeBet(userId, gameId, bet);
+    result = await new OhHeckGameService().placeBet(userId, gameId, { bet });
     game = await new OhHeckGameDataService().get(gameId);
   } catch (e) {
     error = e;
@@ -102,7 +102,7 @@ async function testPlayCard(
   let game: ISerializedOhHeckGame | undefined;
   let result: ITrickEvent | undefined;
   try {
-    result = await new OhHeckGameService().playCard(userId, gameId, card);
+    result = await new OhHeckGameService().playCard(userId, gameId, { card });
     game = await new OhHeckGameDataService().get(gameId);
   } catch (e) {
     error = e;
@@ -417,7 +417,7 @@ describe("OhHeckGameService", () => {
       // assert
       expect(error).to.be.instanceOf(ValidationError);
       expect(error.message).to.eql(
-        'Validation errors: "You must follow suit of first card played if you can."'
+        'Validation errors: "You must follow suit of first card played (diamonds) if you can."'
       );
     });
 
