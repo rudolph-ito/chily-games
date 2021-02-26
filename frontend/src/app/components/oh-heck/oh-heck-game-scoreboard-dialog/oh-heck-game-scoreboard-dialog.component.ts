@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
 import { IGame, IRoundScore } from "../../../shared/dtos/oh_heck/game";
@@ -19,6 +20,7 @@ export interface IOhHeckGameScoreboardDialogData {
 export class OhHeckGameScoreboardDialogComponent implements OnInit {
   scoresDataSource = new MatTableDataSource<IRoundScore | ITotalScore>();
   scoresTableDisplayedColumns: string[] = [];
+  showBetsControl = new FormControl(false);
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: IOhHeckGameScoreboardDialogData

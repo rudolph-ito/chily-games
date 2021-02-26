@@ -553,7 +553,7 @@ export class OhHeckTable {
     };
     const offset: Vector2d = {
       x: sizingData.cardSize.width / 2,
-      y: sizingData.cardSize.height / 6,
+      y: -sizingData.cardSize.height / 3,
     };
     const centerOffset: Vector2d = {
       x: position.x - playerPosition.x,

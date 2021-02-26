@@ -1,5 +1,8 @@
 <div mat-dialog-title>Scoreboard</div>
-<div class="info">Format: score (bet / taken)</div>
+<mat-checkbox [formControl]="showBetsControl"
+  >Show Bets</mat-checkbox
+>
+<div *ngIf="showBetsControl.value" class="info">Format: score (bet / taken)</div>
 <mat-dialog-content>
   <table mat-table [dataSource]="scoresDataSource">
     <ng-container
@@ -13,7 +16,7 @@
         *matCellDef="let element"
       >
         {{ element[playerState.userId].score }}
-        <span *ngIf="element[playerState.userId].bet != null">
+        <span *ngIf="showBetsControl.value && element[playerState.userId].bet != null">
           ({{ element[playerState.userId].bet }}/{{ element[playerState.userId].tricksTaken }})
         </span>
       </td>
