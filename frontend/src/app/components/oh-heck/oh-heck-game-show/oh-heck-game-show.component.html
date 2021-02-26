@@ -85,15 +85,14 @@
   <div class="bet-overlay" *ngIf="!loading && canBet()">
     <mat-form-field>
       <mat-select [formControl]="betControl">
-        <mat-option *ngFor="let betOption of getBetOptions()" [value]="betOption">{{ betOption }}</mat-option>
+        <mat-option
+          *ngFor="let betOption of getBetOptions()"
+          [value]="betOption"
+          >{{ betOption }}</mat-option
+        >
       </mat-select>
     </mat-form-field>
-    <button
-      mat-button
-      mat-flat-button
-      color="primary"
-      (click)="placeBet()"
-    >
+    <button mat-button mat-flat-button color="primary" (click)="placeBet()">
       Bet
     </button>
   </div>
