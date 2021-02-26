@@ -98,6 +98,7 @@ export class OhHeckGameShowComponent
           this.game = game;
           this.initializeTable();
         }
+        this.alertOnRoundStart();
       });
     });
     this.socket.fromEvent("bet-placed").subscribe((event: IBetEvent) => {
@@ -108,6 +109,9 @@ export class OhHeckGameShowComponent
         this.table.updateStateWithBetPlaced(event);
         this.game.actionToUserId = event.actionToUserId;
         this.game.state = event.updatedGameState;
+      }
+      if (event.updatedGameState === GameState.TRICK_ACTIVE) {
+        this.alertOnBettingComplete();
       }
     });
     this.socket.fromEvent("card-played").subscribe((event: ITrickEvent) => {
@@ -121,6 +125,9 @@ export class OhHeckGameShowComponent
         if (event.roundScore != null) {
           this.game.roundScores.push(event.roundScore);
         }
+      }
+      if (event.updatedGameState !== GameState.TRICK_ACTIVE) {
+        this.alertOnTrickEnd(event);
       }
     });
     this.socket
@@ -434,5 +441,73 @@ export class OhHeckGameShowComponent
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([`oh-heck/games/${gameId}`]);
+  }
+
+  alertOnRoundStart(): void {
+    if (this.game == null) {
+      throw new Error("game unexpectedly null");
+    }
+    const playerToStart = this.game.playerStates.find(
+      (x) => x.userId === this.game?.actionToUserId
+    );
+    if (playerToStart == null) {
+      throw new Error("playerToStart unexpectedly null");
+    }
+    const message = `${playerToStart.displayName} bets first this round and will lead the first trick.`;
+    this.snackBar.open(message, "X", {
+      panelClass: ["snackbar-notification"],
+      duration: 10000,
+    });
+  }
+
+  alertOnBettingComplete(): void {
+    if (this.game == null) {
+      throw new Error("game unexpectedly null");
+    }
+    const playerToStart = this.game.playerStates.find(
+      (x) => x.userId === this.game?.actionToUserId
+    );
+    if (playerToStart == null) {
+      throw new Error("playerToStart unexpectedly null");
+    }
+    const message = `All bets are in. ${playerToStart.displayName} leads the first trick.`;
+    this.snackBar.open(message, "X", {
+      panelClass: ["snackbar-notification"],
+      duration: 10000,
+    });
+  }
+
+  alertOnTrickEnd(event: ITrickEvent): void {
+    if (this.game == null) {
+      throw new Error("game unexpectedly null");
+    }
+    const trickWinner = this.game.playerStates.find(
+      (x) => x.userId === event.actionToUserId
+    );
+    if (trickWinner == null) {
+      throw new Error("trickWinner unexpectedly null");
+    }
+    const isCurrentUserTrickWinner = trickWinner.userId === this.user?.userId;
+    let message = ``;
+    if (isCurrentUserTrickWinner) {
+      message += "You win the trick";
+    } else {
+      message += `${trickWinner.displayName} wins the trick`;
+    }
+    if (event.updatedGameState === GameState.TRICK_COMPLETE) {
+      if (isCurrentUserTrickWinner) {
+        message += " and lead the next trick.";
+      } else {
+        message += ` and leads the next trick`;
+      }
+    } else if (event.updatedGameState === GameState.ROUND_COMPLETE) {
+      message += ". The round is over.";
+    } else if (event.updatedGameState === GameState.COMPLETE) {
+      message += ". The game is over.";
+    }
+    this.snackBar.open(message, "X", {
+      panelClass: ["snackbar-notification"],
+      duration: 10000,
+    });
   }
 }
