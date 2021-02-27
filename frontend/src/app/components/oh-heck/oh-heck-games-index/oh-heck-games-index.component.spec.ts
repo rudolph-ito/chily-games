@@ -1,14 +1,22 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { of } from "rxjs";
+import { AppModule } from "src/app/app.module";
+import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
 
 import { OhHeckGamesIndexComponent } from "./oh-heck-games-index.component";
 
 describe("OhHeckGamesIndexComponent", () => {
   let component: OhHeckGamesIndexComponent;
   let fixture: ComponentFixture<OhHeckGamesIndexComponent>;
+  let mockGameService: Partial<OhHeckGameService>;
 
   beforeEach(async () => {
+    mockGameService = {
+      search: () => of({ data: [], total: 0 }),
+    };
     await TestBed.configureTestingModule({
-      declarations: [OhHeckGamesIndexComponent],
+      imports: [AppModule],
+      providers: [{ provide: OhHeckGameService, useValue: mockGameService }],
     }).compileComponents();
   });
 
