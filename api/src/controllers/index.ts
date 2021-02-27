@@ -18,6 +18,7 @@ import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
+import { getOhHeckRouter } from "./oh_heck";
 
 const RedisStore = connectRedis(expressSession);
 
@@ -76,6 +77,10 @@ export function createExpressApp(
     "/api/cyvasse",
     getCyvasseRouter(authenticationRequired, options.publishRedisClient)
   );
+  app.use(
+    "/api/oh-heck",
+    getOhHeckRouter(authenticationRequired, options.publishRedisClient)
+  );
   app.use("/api/users", getUserRouter());
   app.use(
     "/api/yaniv",
@@ -111,6 +116,12 @@ export function startServer(options: IStartServerOptions): HttpServer {
     });
     socket.on("cyvasse-leav-game", (gameId: number) => {
       socket.leave(`cyvasse-game-${gameId}`);
+    });
+    socket.on("oh-heck-join-game", (gameId: number) => {
+      socket.join(`oh-heck-game-${gameId}`);
+    });
+    socket.on("oh-heck-leave-game", (gameId: number) => {
+      socket.leave(`oh-heck-game-${gameId}`);
     });
     socket.on("yaniv-join-game", (gameId: number) => {
       socket.join(`yaniv-game-${gameId}`);

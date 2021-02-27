@@ -1,0 +1,72 @@
+<h1>Oh Heck Games</h1>
+
+<div class="header-row">
+  <button
+    mat-button
+    mat-flat-button
+    color="primary"
+    *ngIf="user"
+    (click)="create()"
+  >
+    Create
+  </button>
+  <mat-checkbox [formControl]="includeCompletedFormControl"
+    >Show completed</mat-checkbox
+  >
+</div>
+
+<div class="mat-elevation-z8">
+  <div class="table-container">
+    <table mat-table [dataSource]="gamesDataSource">
+      <ng-container matColumnDef="hostUserId">
+        <th mat-header-cell *matHeaderCellDef>Host</th>
+        <td mat-cell *matCellDef="let element">
+          {{ getHostUsername(element) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef>State</th>
+        <td mat-cell *matCellDef="let element">{{ getState(element) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="created_at">
+        <th mat-header-cell *matHeaderCellDef>Created At</th>
+        <td mat-cell *matCellDef="let element">
+          {{ getCreatedTimestamp(element) | timeago: true }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-button
+            mat-stroked-button
+            routerLink="/oh-heck/games/{{ element.gameId }}"
+          >
+            Show
+          </button>
+          <button
+            mat-button
+            mat-stroked-button
+            *ngIf="canJoin(element)"
+            (click)="join(element.gameId)"
+          >
+            Join
+          </button>
+          <span class="info" *ngIf="couldJoinIfLoggedIn(element)"
+            >Login/register to join</span
+          >
+          <span class="info" *ngIf="isInGame(element)"
+            >You are in this game</span
+          >
+        </td>
+      </ng-container>
+
+      <tr mat-header-row sticky *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+  <mat-paginator [pageSizeOptions]="[100]"></mat-paginator>
+</div>

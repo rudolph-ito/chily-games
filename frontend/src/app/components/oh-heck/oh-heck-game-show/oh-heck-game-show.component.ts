@@ -7,45 +7,46 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { FormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ActivatedRoute, Router } from "@angular/router";
+import moment from "moment";
 import { Subject } from "rxjs";
-import { YanivTable } from "src/app/canvas/yaniv/table";
+import { OhHeckTable } from "src/app/canvas/oh-heck/table";
 import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
-import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
-import { ICard } from "src/app/shared/dtos/card";
+import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
 import { IUser } from "../../../shared/dtos/authentication";
+import { ICard } from "../../../shared/dtos/card";
 import {
   GameState,
-  IActionToNextPlayerEvent,
+  IBetEvent,
   IGame,
-  IGameActionRequest,
-  IGameActionResponse,
   INewGameStartedEvent,
   IPlayerJoinedEvent,
-  IRoundFinishedEvent,
-} from "../../../shared/dtos/yaniv/game";
-import { YanivGameScoreboardDialogComponent } from "../yaniv-game-scoreboard-dialog/yaniv-game-scoreboard-dialog.component";
-import moment from "moment";
+  ITrickEvent,
+} from "../../../shared/dtos/oh_heck/game";
 import {
   ConfirmationDialogComponent,
   IConfirmationDialogData,
 } from "../../common/confirmation-dialog/confirmation-dialog.component";
+import { OhHeckGameScoreboardDialogComponent } from "../oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component";
+import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
 
 @Component({
-  selector: "app-yaniv-game-show",
-  templateUrl: "./yaniv-game-show.component.html",
-  styleUrls: ["./yaniv-game-show.component.styl"],
+  selector: "app-oh-heck-game-show",
+  templateUrl: "./oh-heck-game-show.component.html",
+  styleUrls: ["./oh-heck-game-show.component.styl"],
 })
-export class YanivGameShowComponent
+export class OhHeckGameShowComponent
   implements OnInit, AfterViewInit, OnDestroy {
+  betControl = new FormControl(0);
   loading: boolean;
   game: IGame | null;
   user: IUser | null;
   resizeObservable = new Subject<boolean>();
-  table: YanivTable;
+  table: OhHeckTable;
   newGameStartedEvent: INewGameStartedEvent | null;
 
   @ViewChild("tableContainer") tableContainer: ElementRef;
@@ -53,7 +54,7 @@ export class YanivGameShowComponent
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly gameService: YanivGameService,
+    private readonly gameService: OhHeckGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly snackBar: MatSnackBar,
     private readonly socket: WrappedSocket,
@@ -66,7 +67,7 @@ export class YanivGameShowComponent
     });
     this.route.params.subscribe(() => {
       if (this.game != null) {
-        this.socket.emit("yaniv-leave-game", this.game.gameId);
+        this.socket.emit("oh-heck-leave-game", this.game.gameId);
         if (this.table != null) {
           this.table.clear();
         }
@@ -82,7 +83,7 @@ export class YanivGameShowComponent
       this.loading = false;
       this.initializeTable();
     });
-    this.socket.emit("yaniv-join-game", this.getGameId());
+    this.socket.emit("oh-heck-join-game", this.getGameId());
     this.socket
       .fromEvent("player-joined")
       .subscribe((event: IPlayerJoinedEvent) => {
@@ -97,29 +98,38 @@ export class YanivGameShowComponent
           this.game = game;
           this.initializeTable();
         }
+        this.alertOnRoundStart();
       });
     });
-    this.socket
-      .fromEvent<IActionToNextPlayerEvent>("action-to-next-player")
-      .subscribe((event: IActionToNextPlayerEvent) => {
-        if (event.lastAction.userId !== this.user?.userId) {
-          this.table.updateStateWithUserAction(
-            event.lastAction,
-            event.actionToUserId
-          );
-        }
-      });
-    this.socket
-      .fromEvent("round-finished")
-      .subscribe((event: IRoundFinishedEvent) => {
-        if (this.game == null) {
-          throw new Error("Game unexpectedly null");
-        }
+    this.socket.fromEvent("bet-placed").subscribe((event: IBetEvent) => {
+      if (this.game == null) {
+        throw new Error("Game unexpectedly null");
+      }
+      if (event.betPlaced.userId !== this.user?.userId) {
+        this.table.updateStateWithBetPlaced(event);
+        this.game.actionToUserId = event.actionToUserId;
         this.game.state = event.updatedGameState;
-        this.game.playerStates = event.playerStates;
-        this.game.roundScores.push(event.roundScore);
-        this.initializeTable();
-      });
+      }
+      if (event.updatedGameState === GameState.TRICK_ACTIVE) {
+        this.alertOnBettingComplete();
+      }
+    });
+    this.socket.fromEvent("card-played").subscribe((event: ITrickEvent) => {
+      if (this.game == null) {
+        throw new Error("Game unexpectedly null");
+      }
+      if (event.cardPlayed.userId !== this.user?.userId) {
+        this.table.updateStateWithCardPlayed(event);
+        this.game.actionToUserId = event.actionToUserId;
+        this.game.state = event.updatedGameState;
+        if (event.roundScore != null) {
+          this.game.roundScores.push(event.roundScore);
+        }
+      }
+      if (event.updatedGameState !== GameState.TRICK_ACTIVE) {
+        this.alertOnTrickEnd(event);
+      }
+    });
     this.socket
       .fromEvent("new-game-started")
       .subscribe((event: INewGameStartedEvent) => {
@@ -138,7 +148,7 @@ export class YanivGameShowComponent
   }
 
   ngOnDestroy(): void {
-    this.socket.emit("yaniv-leave-game", this.getGameId());
+    this.socket.emit("oh-heck-leave-game", this.getGameId());
   }
 
   ngAfterViewInit(): void {
@@ -148,11 +158,11 @@ export class YanivGameShowComponent
   initializeTable(): void {
     if (this.game != null && this.tableContainer != null) {
       if (this.table == null) {
-        this.table = new YanivTable(
+        this.table = new OhHeckTable(
           {
             element: this.tableContainer.nativeElement,
           },
-          this.onPlay,
+          this.onPlayCard,
           this.onRearrangeCards
         );
       }
@@ -163,7 +173,7 @@ export class YanivGameShowComponent
   }
 
   viewScores(): void {
-    this.dialog.open(YanivGameScoreboardDialogComponent, {
+    this.dialog.open(OhHeckGameScoreboardDialogComponent, {
       data: { game: this.game },
     });
   }
@@ -207,6 +217,22 @@ export class YanivGameShowComponent
     return this.game != null && this.game.state === GameState.ABORTED;
   }
 
+  canBet(): boolean {
+    return (
+      this.game != null &&
+      this.game.state === GameState.BETTING &&
+      this.game.actionToUserId === this.user?.userId
+    );
+  }
+
+  getBetOptions(): number[] {
+    if (this.game == null) {
+      throw new Error("Game unexpectedly null");
+    }
+    const maxBet = this.game.playerStates[0].numberOfCards;
+    return Array.from({ length: maxBet + 1 }, (_, i) => i);
+  }
+
   canAbortGame(): boolean {
     return (
       this.game !== null &&
@@ -238,18 +264,6 @@ export class YanivGameShowComponent
     return this.newGameStartedEvent != null;
   }
 
-  canCallYaniv(): boolean {
-    return (
-      this.game != null &&
-      this.game.state === GameState.ROUND_ACTIVE &&
-      this.game.playerStates.some((x) => x.userId === this.user?.userId)
-    );
-  }
-
-  async callYaniv(): Promise<void> {
-    await this.onPlay({ callYaniv: true });
-  }
-
   startRound(): void {
     if (this.game == null) {
       throw new Error("Game unexpectedly null");
@@ -269,16 +283,17 @@ export class YanivGameShowComponent
     );
   }
 
-  onPlay = async (action: IGameActionRequest): Promise<void> => {
-    this.gameService.play(this.getGameId(), action).subscribe(
-      async (response: IGameActionResponse) => {
-        if (response.actionToNextPlayerEvent != null) {
-          const event = response.actionToNextPlayerEvent;
-          this.table.updateStateWithUserAction(
-            event.lastAction,
-            event.actionToUserId,
-            response.cardPickedUpFromDeck
-          );
+  onPlayCard = async (card: ICard): Promise<void> => {
+    this.gameService.playCard(this.getGameId(), { card }).subscribe(
+      async (event: ITrickEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
+        this.table.updateStateWithCardPlayed(event);
+        this.game.actionToUserId = event.actionToUserId;
+        this.game.state = event.updatedGameState;
+        if (event.roundScore != null) {
+          this.game.roundScores.push(event.roundScore);
         }
       },
       (errorResponse: HttpErrorResponse) => {
@@ -289,6 +304,29 @@ export class YanivGameShowComponent
         }
       }
     );
+  };
+
+  placeBet = async (): Promise<void> => {
+    this.gameService
+      .placeBet(this.getGameId(), { bet: this.betControl.value })
+      .subscribe(
+        async (response: IBetEvent) => {
+          if (this.game == null) {
+            throw new Error("Game unexpectedly null");
+          }
+          this.table.updateStateWithBetPlaced(response);
+          this.game.actionToUserId = response.actionToUserId;
+          this.game.state = response.updatedGameState;
+          this.betControl.setValue(0);
+        },
+        (errorResponse: HttpErrorResponse) => {
+          if (errorResponse.status === 422) {
+            this.snackBar.open(errorResponse.error, undefined, {
+              duration: 2500,
+            });
+          }
+        }
+      );
   };
 
   onRearrangeCards = async (cards: ICard[]): Promise<void> => {
@@ -313,10 +351,15 @@ export class YanivGameShowComponent
     if (this.game == null) {
       throw new Error("Game unexpectedly null");
     }
-    this.gameService
-      .rematch(this.game.gameId, { playTo: 100 })
-      .subscribe((game) => {
-        this.navigateToGame(game.gameId);
+    this.dialog
+      .open(OhHeckNewGameDialogComponent, {
+        data: { rematchForGameId: this.getGameId() },
+      })
+      .afterClosed()
+      .subscribe((game: IGame) => {
+        if (game != null) {
+          this.navigateToGame(game.gameId);
+        }
       });
   }
 
@@ -397,6 +440,74 @@ export class YanivGameShowComponent
 
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([`yaniv/games/${gameId}`]);
+    this.router.navigate([`oh-heck/games/${gameId}`]);
+  }
+
+  alertOnRoundStart(): void {
+    if (this.game == null) {
+      throw new Error("game unexpectedly null");
+    }
+    const playerToStart = this.game.playerStates.find(
+      (x) => x.userId === this.game?.actionToUserId
+    );
+    if (playerToStart == null) {
+      throw new Error("playerToStart unexpectedly null");
+    }
+    const message = `${playerToStart.displayName} bets first this round and will lead the first trick.`;
+    this.snackBar.open(message, "X", {
+      panelClass: ["snackbar-notification"],
+      duration: 10000,
+    });
+  }
+
+  alertOnBettingComplete(): void {
+    if (this.game == null) {
+      throw new Error("game unexpectedly null");
+    }
+    const playerToStart = this.game.playerStates.find(
+      (x) => x.userId === this.game?.actionToUserId
+    );
+    if (playerToStart == null) {
+      throw new Error("playerToStart unexpectedly null");
+    }
+    const message = `All bets are in. ${playerToStart.displayName} leads the first trick.`;
+    this.snackBar.open(message, "X", {
+      panelClass: ["snackbar-notification"],
+      duration: 10000,
+    });
+  }
+
+  alertOnTrickEnd(event: ITrickEvent): void {
+    if (this.game == null) {
+      throw new Error("game unexpectedly null");
+    }
+    const trickWinner = this.game.playerStates.find(
+      (x) => x.userId === event.actionToUserId
+    );
+    if (trickWinner == null) {
+      throw new Error("trickWinner unexpectedly null");
+    }
+    const isCurrentUserTrickWinner = trickWinner.userId === this.user?.userId;
+    let message = ``;
+    if (isCurrentUserTrickWinner) {
+      message += "You win the trick";
+    } else {
+      message += `${trickWinner.displayName} wins the trick`;
+    }
+    if (event.updatedGameState === GameState.TRICK_COMPLETE) {
+      if (isCurrentUserTrickWinner) {
+        message += " and lead the next trick.";
+      } else {
+        message += ` and leads the next trick`;
+      }
+    } else if (event.updatedGameState === GameState.ROUND_COMPLETE) {
+      message += ". The round is over.";
+    } else if (event.updatedGameState === GameState.COMPLETE) {
+      message += ". The game is over.";
+    }
+    this.snackBar.open(message, "X", {
+      panelClass: ["snackbar-notification"],
+      duration: 10000,
+    });
   }
 }

@@ -1,36 +1,36 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
+import { ICard } from "../../shared/dtos/card";
+import { User } from "./user";
 import {
   GameState,
+  ITrickPlayerCard,
   IGameOptions,
-  RoundScoreType,
-} from "../../shared/dtos/yaniv/game";
-import { ICard } from "../../shared/dtos/card";
-import { deserializeCard } from "../../services/shared/card_helpers";
-import { User } from "./user";
+} from "../../shared/dtos/oh_heck/game";
 
-export interface IYanivPlayer {
+export interface IOhHeckPlayer {
   userId: number;
   cardsInHand: ICard[];
+  bet: null | number;
+  tricksTaken: number;
 }
 
-export interface IYanivRoundPlayerScore {
+export interface IOhHeckRoundPlayerScore {
   userId: number;
+  bet: number;
+  tricksTaken: number;
   score: number;
-  scoreType: RoundScoreType;
 }
 
-export interface ISerializedYanivGame {
+export interface ISerializedOhHeckGame {
   gameId: number;
   hostUserId: number;
-  state: GameState;
   options: IGameOptions;
+  state: GameState;
   actionToUserId: number;
-  cardsInDeck: ICard[];
-  cardsBuriedInDiscardPile: ICard[];
-  cardsOnTopOfDiscardPile: ICard[];
-  players: IYanivPlayer[];
-  completedRounds: IYanivRoundPlayerScore[][];
+  players: IOhHeckPlayer[];
+  currentTrick: ITrickPlayerCard[];
+  completedRounds: IOhHeckRoundPlayerScore[][];
   version: number;
   createdAt: Date;
   updatedAt: Date;
@@ -38,42 +38,36 @@ export interface ISerializedYanivGame {
 
 const STATE_ENUM = DataTypes.ENUM(
   GameState.PLAYERS_JOINING,
-  GameState.ROUND_ACTIVE,
+  GameState.BETTING,
+  GameState.TRICK_ACTIVE,
+  GameState.TRICK_COMPLETE,
   GameState.ROUND_COMPLETE,
   GameState.COMPLETE,
   GameState.ABORTED
 );
 
-export class YanivGame extends Model {
+export class OhHeckGame extends Model {
   public gameId!: number;
   public hostUserId!: number;
-  public state!: GameState;
   public options!: IGameOptions;
+  public state!: GameState;
   public actionToUserId!: number;
-  public cardsInDeck!: number[];
-  public cardsBuriedInDiscardPile!: number[];
-  public cardsOnTopOfDiscardPile!: number[];
-  public players!: IYanivPlayer[];
-  public completedRounds!: IYanivRoundPlayerScore[][];
+  public players!: IOhHeckPlayer[];
+  public currentTrick!: ITrickPlayerCard[];
+  public completedRounds!: IOhHeckRoundPlayerScore[][];
   public version!: number;
   public createdAt!: Date;
   public updatedAt!: Date;
 
-  serialize(): ISerializedYanivGame {
+  serialize(): ISerializedOhHeckGame {
     return {
       gameId: this.gameId,
       hostUserId: this.hostUserId,
-      state: this.state,
       options: this.options,
+      state: this.state,
       actionToUserId: this.actionToUserId,
-      cardsInDeck: this.cardsInDeck.map(deserializeCard),
-      cardsBuriedInDiscardPile: this.cardsBuriedInDiscardPile.map(
-        deserializeCard
-      ),
-      cardsOnTopOfDiscardPile: this.cardsOnTopOfDiscardPile.map(
-        deserializeCard
-      ),
       players: this.players,
+      currentTrick: this.currentTrick,
       completedRounds: this.completedRounds,
       version: this.version,
       createdAt: this.createdAt,
@@ -81,7 +75,7 @@ export class YanivGame extends Model {
     };
   }
 }
-YanivGame.init(
+OhHeckGame.init(
   {
     gameId: {
       type: DataTypes.INTEGER,
@@ -97,12 +91,12 @@ YanivGame.init(
         key: "userId",
       },
     },
-    state: {
-      type: STATE_ENUM,
-      allowNull: false,
-    },
     options: {
       type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    state: {
+      type: STATE_ENUM,
       allowNull: false,
     },
     actionToUserId: {
@@ -113,19 +107,11 @@ YanivGame.init(
         key: "userId",
       },
     },
-    cardsInDeck: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
-    },
-    cardsBuriedInDiscardPile: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
-    },
-    cardsOnTopOfDiscardPile: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
-    },
     players: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    currentTrick: {
       type: DataTypes.JSONB,
       allowNull: false,
     },

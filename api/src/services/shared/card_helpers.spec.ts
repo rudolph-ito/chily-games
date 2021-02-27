@@ -1,4 +1,4 @@
-import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
+import { CardRank, CardSuit } from "../../shared/dtos/card";
 import { expect } from "chai";
 import {
   deserializeCard,
@@ -6,7 +6,7 @@ import {
   standardDeckWithTwoJokers,
 } from "./card_helpers";
 
-describe("YanivCardHelpers", () => {
+describe("CardHelpers", () => {
   describe("serializeCard", () => {
     it("returns 0 for ace of clubs", () => {
       // arrange

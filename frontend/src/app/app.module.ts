@@ -8,6 +8,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatGridListModule } from "@angular/material/grid-list";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatMenuModule } from "@angular/material/menu";
@@ -41,6 +42,10 @@ import { YanivGamesIndexComponent } from "./components/yaniv/yaniv-games-index/y
 import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv-game-show.component";
 import { YanivGameScoreboardDialogComponent } from "./components/yaniv/yaniv-game-scoreboard-dialog/yaniv-game-scoreboard-dialog.component";
 import { ConfirmationDialogComponent } from "./components/common/confirmation-dialog/confirmation-dialog.component";
+import { OhHeckGamesIndexComponent } from "./components/oh-heck/oh-heck-games-index/oh-heck-games-index.component";
+import { OhHeckGameShowComponent } from "./components/oh-heck/oh-heck-game-show/oh-heck-game-show.component";
+import { OhHeckNewGameDialogComponent } from "./components/oh-heck/oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
+import { OhHeckGameScoreboardDialogComponent } from "./components/oh-heck/oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component";
 
 @NgModule({
   declarations: [
@@ -61,6 +66,10 @@ import { ConfirmationDialogComponent } from "./components/common/confirmation-di
     YanivGameShowComponent,
     YanivGameScoreboardDialogComponent,
     ConfirmationDialogComponent,
+    OhHeckGamesIndexComponent,
+    OhHeckGameShowComponent,
+    OhHeckNewGameDialogComponent,
+    OhHeckGameScoreboardDialogComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -71,6 +80,7 @@ import { ConfirmationDialogComponent } from "./components/common/confirmation-di
     MatCheckboxModule,
     MatDialogModule,
     MatFormFieldModule,
+    MatGridListModule,
     MatIconModule,
     MatInputModule,
     MatMenuModule,

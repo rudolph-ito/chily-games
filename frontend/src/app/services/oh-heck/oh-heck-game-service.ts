@@ -2,20 +2,22 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { IPaginatedResponse } from "../../shared/dtos/search";
+import { ICard } from "../../shared/dtos/card";
 import {
+  IBetEvent,
   IGame,
-  IGameActionRequest,
-  IGameActionResponse,
   IGameOptions,
+  IPlaceBetInput,
+  IPlayCardInput,
   ISearchedGame,
   ISearchGamesRequest,
-} from "../../shared/dtos/yaniv/game";
-import { ICard } from "src/app/shared/dtos/card";
+  ITrickEvent,
+} from "../../shared/dtos/oh_heck/game";
 
 @Injectable({
   providedIn: "root",
 })
-export class YanivGameService {
+export class OhHeckGameService {
   constructor(private readonly http: HttpClient) {}
 
   abort(gameId: number): Observable<IGame> {
@@ -23,14 +25,14 @@ export class YanivGameService {
   }
 
   create(options: IGameOptions): Observable<IGame> {
-    return this.http.post<IGame>("/api/yaniv/games", options);
+    return this.http.post<IGame>("/api/oh-heck/games", options);
   }
 
   search(
     request: ISearchGamesRequest
   ): Observable<IPaginatedResponse<ISearchedGame>> {
     return this.http.post<IPaginatedResponse<ISearchedGame>>(
-      `/api/yaniv/games/search`,
+      `/api/oh-heck/games/search`,
       request
     );
   }
@@ -50,13 +52,17 @@ export class YanivGameService {
     );
   }
 
-  play(
-    gameId: number,
-    action: IGameActionRequest
-  ): Observable<IGameActionResponse> {
-    return this.http.put<IGameActionResponse>(
-      `${this.getRoutePrefix(gameId)}/play`,
-      action
+  placeBet(gameId: number, input: IPlaceBetInput): Observable<IBetEvent> {
+    return this.http.put<IBetEvent>(
+      `${this.getRoutePrefix(gameId)}/place-bet`,
+      input
+    );
+  }
+
+  playCard(gameId: number, input: IPlayCardInput): Observable<ITrickEvent> {
+    return this.http.put<ITrickEvent>(
+      `${this.getRoutePrefix(gameId)}/play-card`,
+      input
     );
   }
 
@@ -79,6 +85,6 @@ export class YanivGameService {
   }
 
   private getRoutePrefix(gameId: number): string {
-    return `/api/yaniv/games/${gameId}`;
+    return `/api/oh-heck/games/${gameId}`;
   }
 }

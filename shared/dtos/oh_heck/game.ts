@@ -6,40 +6,37 @@ export interface IPlayerState {
   displayName: string;
   numberOfCards: number;
   cards: ICard[];
+  bet: null | number;
+  tricksTaken: number;
 }
 
-export enum RoundScoreType {
-  DEFAULT = "default",
-  YANIV = "yaniv",
-  ASAF = "asaf",
-
-  // Frontend only
-  TOTAL = "total",
+export interface IRoundPlayerScore {
+  bet: number;
+  tricksTaken: number;
+  score: number;
 }
 
 export interface IRoundScore {
   [userId: number]: IRoundPlayerScore;
 }
 
-export interface IRoundPlayerScore {
-  score: number;
-  scoreType: RoundScoreType;
-}
-
-export interface IRoundPlayerScoreWithCards extends IRoundPlayerScore {
-  cards: ICard[];
-}
-
 export interface IGameOptions {
-  playTo: number;
+  halfGame: boolean;
 }
 
 export enum GameState {
   PLAYERS_JOINING = "players_joining",
-  ROUND_ACTIVE = "round_active",
+  BETTING = "betting",
+  TRICK_ACTIVE = "trick_active",
+  TRICK_COMPLETE = "trick_complete",
   ROUND_COMPLETE = "round_complete",
   COMPLETE = "complete",
   ABORTED = "aborted",
+}
+
+export interface ITrickPlayerCard {
+  userId: number;
+  card: ICard;
 }
 
 export interface IGame {
@@ -48,44 +45,46 @@ export interface IGame {
   options: IGameOptions;
   state: GameState;
   playerStates: IPlayerState[];
+  currentTrick: ITrickPlayerCard[];
   roundScores: IRoundScore[];
   actionToUserId: number;
-  cardsOnTopOfDiscardPile: ICard[];
   createdAt: string;
   updatedAt: string;
-}
-
-export interface IGameActionRequest {
-  callYaniv?: boolean;
-  cardsDiscarded?: ICard[];
-  cardPickedUp?: ICard;
-}
-
-export interface IGameActionResponse {
-  cardPickedUpFromDeck?: ICard;
-  actionToNextPlayerEvent?: IActionToNextPlayerEvent;
-  roundFinishedEvent?: IRoundFinishedEvent;
 }
 
 export interface IPlayerJoinedEvent {
   playerStates: IPlayerState[];
 }
 
-export interface ILastAction {
-  userId: number;
-  cardsDiscarded: ICard[];
-  cardPickedUp?: ICard;
+export interface IPlaceBetInput {
+  bet: number;
 }
 
-export interface IActionToNextPlayerEvent {
-  lastAction: ILastAction;
+export interface IBetPlaced {
+  userId: number;
+  bet: number;
+}
+
+export interface IBetEvent {
+  betPlaced: IBetPlaced;
+  updatedGameState: GameState;
   actionToUserId: number;
 }
 
-export interface IRoundFinishedEvent {
-  playerStates: IPlayerState[];
-  roundScore: IRoundScore;
+export interface IPlayCardInput {
+  card: ICard;
+}
+
+export interface ICardPlayed {
+  userId: number;
+  card: ICard;
+}
+
+export interface ITrickEvent {
+  cardPlayed: ICardPlayed;
+  roundScore?: IRoundScore;
   updatedGameState: GameState;
+  actionToUserId: number;
 }
 
 export interface INewGameStartedEvent {

@@ -1,0 +1,37 @@
+<div mat-dialog-title>Scoreboard</div>
+<mat-checkbox [formControl]="showBetsControl">Show Bets</mat-checkbox>
+<div *ngIf="showBetsControl.value" class="info">
+  Format: score (bet / taken)
+</div>
+<mat-dialog-content>
+  <table mat-table [dataSource]="scoresDataSource">
+    <ng-container
+      *ngFor="let playerState of data.game.playerStates"
+      matColumnDef="player-{{ playerState.userId }}"
+    >
+      <th mat-header-cell *matHeaderCellDef>{{ playerState.displayName }}</th>
+      <td
+        mat-cell
+        [ngClass]="{ total: element[playerState.userId].isTotal }"
+        *matCellDef="let element"
+      >
+        {{ element[playerState.userId].score }}
+        <span
+          *ngIf="
+            showBetsControl.value && element[playerState.userId].bet != null
+          "
+        >
+          ({{ element[playerState.userId].bet }}/{{
+            element[playerState.userId].tricksTaken
+          }})
+        </span>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="scoresTableDisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: scoresTableDisplayedColumns"></tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

@@ -20,7 +20,7 @@ import {
   createTestYanivRoundActiveGame,
   joinTestYanivGame,
 } from "../../../test/yaniv_test_helper";
-import { CardRank, CardSuit } from "../../shared/dtos/yaniv/card";
+import { CardRank, CardSuit } from "../../shared/dtos/card";
 import { YanivGameService } from "../../services/yaniv/yaniv_game_service";
 
 describe("YanivGameRoutes", () => {

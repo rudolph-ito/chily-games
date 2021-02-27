@@ -1,4 +1,4 @@
-import { CardRank, CardSuit, ICard } from "../../shared/dtos/yaniv/card";
+import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
 import shuffle from "knuth-shuffle-seeded";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 
@@ -80,6 +80,15 @@ export function areCardsEqual(a: ICard, b: ICard): boolean {
   return a.rank === b.rank && a.suit === b.suit;
 }
 
+export function standardDeck(): ICard[] {
+  const deck: ICard[] = [];
+  for (let i = 0; i < NUMBER_OF_STANDARD_CARDS; i++) {
+    deck.push(deserializeCard(i));
+  }
+  shuffle(deck);
+  return deck;
+}
+
 export function standardDeckWithTwoJokers(): ICard[] {
   const deck: ICard[] = [];
   for (let i = 0; i < NUMBER_OF_STANDARD_CARDS + 2; i++) {
@@ -104,12 +113,12 @@ export function areCardHandsEquivalent(
 
 function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
   const difference = new Set<T>(setA);
-  for (const elem of setB) {
+  setB.forEach((elem) => {
     if (difference.has(elem)) {
       difference.delete(elem);
     } else {
       difference.add(elem);
     }
-  }
+  });
   return difference;
 }

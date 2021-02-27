@@ -1,7 +1,7 @@
 import { IYanivRoundPlayerScore } from "../src/database/models/yaniv_game";
 import { YanivGameDataService } from "../src/services/yaniv/data/yaniv_game_data_service";
 import { YanivGameService } from "../src/services/yaniv/yaniv_game_service";
-import { ICard } from "../src/shared/dtos/yaniv/card";
+import { ICard } from "../src/shared/dtos/card";
 import {
   GameState,
   IGameOptions,
