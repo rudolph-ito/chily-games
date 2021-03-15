@@ -7,6 +7,7 @@ export interface IConfig {
   database: string;
   host: string;
   dialect: Dialect;
+  dialectOptions?: object;
 }
 
 export interface IConfigMap {

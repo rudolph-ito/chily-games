@@ -16,11 +16,13 @@ function getSequelizeInstance(): Sequelize {
     }
     return new Sequelize(url, {
       dialect: config.dialect,
+      dialectOptions: config.dialectOptions,
       logging: shouldSequelizeLog(),
     });
   }
   return new Sequelize(config.database, config.username, config.password, {
     dialect: config.dialect,
+    dialectOptions: config.dialectOptions,
     host: config.host,
     logging: shouldSequelizeLog(),
   });
