@@ -248,11 +248,12 @@
   dependencies:
     "@types/node" "*"
 
-"@types/socket.io-redis@1.0.26":
-  version "1.0.26"
-  resolved "https://registry.yarnpkg.com/@types/socket.io-redis/-/socket.io-redis-1.0.26.tgz#5cd3fd841c63c905df04bbd11d28d8f532529be4"
-  integrity sha512-RBNSxU1oftdazoIwv34DgEXE36F+46RgaKNS0GchkYpkb3dU+zCW+un5iqHAM2NO8reTz4pl/Qce2ZD0w1fLZQ==
+"@types/socket.io-redis@1.0.27":
+  version "1.0.27"
+  resolved "https://registry.yarnpkg.com/@types/socket.io-redis/-/socket.io-redis-1.0.27.tgz#4614a74f7adc4369d5c846f808ecacadfde400cf"
+  integrity sha512-oyJPDjn5Dnci3wZD2bd1jfPsJkqvTwoNGpOIF+/+P45cOn4zrYsUO9mcGN/shoxIlCz6bcdRhSRXWwZFGQc1PA==
   dependencies:
+    "@types/redis" "*"
     "@types/socket.io" "*"
 
 "@types/socket.io@*":
