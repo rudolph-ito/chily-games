@@ -399,4 +399,8 @@ export class YanivGameShowComponent
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([`yaniv/games/${gameId}`]);
   }
+
+  getChatId(): string {
+    return `yaniv-game-${this.getGameId()}`
+  }
 }

@@ -1,13 +1,9 @@
 import _ from 'lodash'
-import { ISerializedChat } from "src/database/models/chat";
-import { IChat, INewChatMessageEvent } from "src/shared/dtos/chat";
+import { ISerializedChat } from "../../database/models/chat";
+import { IChat, INewChatMessageEvent, IAddMessageRequest } from "../../shared/dtos/chat";
 import { ChatDataService, IChatDataService } from "./data/chat_data_service";
 import { IUserDataService, UserDataService } from "./data/user_data_service";
 import { ValidationError } from "./exceptions";
-
-export interface IAddMessageRequest {
-  message: string;
-}
 
 export interface IChatService {
   addMessage: (chatId: string, userId: number, request: IAddMessageRequest) => Promise<INewChatMessageEvent>;

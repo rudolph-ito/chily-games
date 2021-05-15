@@ -4,6 +4,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
+import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatDialogModule } from "@angular/material/dialog";
@@ -21,7 +22,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatTableModule } from "@angular/material/table";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatTooltipModule } from "@angular/material/tooltip";
-import { ReactiveFormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { SocketIoModule } from "./modules/socket.io/socket-io.module";
 import { TimeagoModule } from "ngx-timeago";
 
@@ -46,6 +47,7 @@ import { OhHeckGamesIndexComponent } from "./components/oh-heck/oh-heck-games-in
 import { OhHeckGameShowComponent } from "./components/oh-heck/oh-heck-game-show/oh-heck-game-show.component";
 import { OhHeckNewGameDialogComponent } from "./components/oh-heck/oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
 import { OhHeckGameScoreboardDialogComponent } from "./components/oh-heck/oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component";
+import { ChatComponent } from './components/common/chat/chat.component';
 
 @NgModule({
   declarations: [
@@ -70,12 +72,15 @@ import { OhHeckGameScoreboardDialogComponent } from "./components/oh-heck/oh-hec
     OhHeckGameShowComponent,
     OhHeckNewGameDialogComponent,
     OhHeckGameScoreboardDialogComponent,
+    ChatComponent,
   ],
   imports: [
     AppRoutingModule,
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     HttpClientModule,
+    MatBadgeModule,
     MatButtonModule,
     MatCheckboxModule,
     MatDialogModule,

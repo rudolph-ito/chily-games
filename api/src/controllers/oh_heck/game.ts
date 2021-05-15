@@ -10,14 +10,11 @@ import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
 } from "src/shared/dtos/oh_heck/game";
-import { ChatService, IChatService } from "src/services/shared/chat_service";
-import { getOhHeckGameChatId } from "src/shared/utilities/chat_id_generators";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
   publishRedisClient: RedisClient,
   gameService: IOhHeckGameService = new OhHeckGameService(),
-  chatService: IChatService = new ChatService(),
 ): express.Router {
   const router = express.Router();
   router.post("/", authenticationRequired, function (req, res, next) {
@@ -171,37 +168,6 @@ export function getGameRouter(
           newSocketIoEmitter(publishRedisClient as any)
             .to(`oh-heck-game-${gameId}`)
             .emit("aborted");
-        })
-        .catch(next);
-    }
-  );
-  router.put(
-    "/:gameId/chat",
-    authenticationRequired,
-    function (req, res, next) {
-      const gameId = parseInt(req.params.gameId);
-      const chatId = getOhHeckGameChatId(gameId);
-      const userId = (req.user as IUser).userId;
-      chatService
-        .addMessage(chatId, userId, req.body)
-        .then((newChatMessageEvent) => {
-          res.status(200).send(newChatMessageEvent);
-          newSocketIoEmitter(publishRedisClient as any)
-            .to(`oh-heck-game-${gameId}`)
-            .emit("new-chat-message");
-        })
-        .catch(next);
-    }
-  );
-  router.get(
-    "/:gameId/chat",
-    function (req, res, next) {
-      const gameId = parseInt(req.params.gameId);
-      const chatId = getOhHeckGameChatId(gameId);
-      chatService
-        .get(chatId)
-        .then((chat) => {
-          res.status(200).send(chat);
         })
         .catch(next);
     }

@@ -4,24 +4,24 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.createTable("Chats", {
       chatId: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         allowNull: false,
         primaryKey: true,
       },
       chatMessages: {
-        type: DataTypes.JSONB,
+        type: Sequelize.JSONB,
         allowNull: false,
       },
       version: {
-        type: DataTypes.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       createdAt: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       updatedAt: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false,
       },
     });

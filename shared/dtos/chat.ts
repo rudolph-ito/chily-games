@@ -11,3 +11,7 @@ export interface IChat {
 export interface INewChatMessageEvent {
   chatMessage: IChatMessage;
 }
+
+export interface IAddMessageRequest {
+  message: string;
+}

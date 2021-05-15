@@ -1,4 +1,4 @@
-import { Chat, ISerializedChat, ISerializedChatMessage } from "src/database/models/chat";
+import { Chat, ISerializedChat, ISerializedChatMessage } from "../../../database/models/chat";
 import { ValidationError } from "../exceptions";
 
 export interface IChatUpdateOptions {
@@ -22,7 +22,7 @@ export class ChatDataService implements IChatDataService {
   ): Promise<ISerializedChat> {
     const chat = Chat.build({
       chatId,
-      messages: [],
+      chatMessages: [],
       version: 1,
     });
     await chat.save();
