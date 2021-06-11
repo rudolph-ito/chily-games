@@ -47,7 +47,7 @@ import { OhHeckGamesIndexComponent } from "./components/oh-heck/oh-heck-games-in
 import { OhHeckGameShowComponent } from "./components/oh-heck/oh-heck-game-show/oh-heck-game-show.component";
 import { OhHeckNewGameDialogComponent } from "./components/oh-heck/oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
 import { OhHeckGameScoreboardDialogComponent } from "./components/oh-heck/oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component";
-import { ChatComponent } from './components/common/chat/chat.component';
+import { ChatComponent } from "./components/common/chat/chat.component";
 
 @NgModule({
   declarations: [

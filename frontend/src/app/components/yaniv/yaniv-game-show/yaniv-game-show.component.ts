@@ -401,6 +401,6 @@ export class YanivGameShowComponent
   }
 
   getChatId(): string {
-    return `yaniv-game-${this.getGameId()}`
+    return `yaniv-game-${this.getGameId()}`;
   }
 }

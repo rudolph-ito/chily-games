@@ -1,38 +1,50 @@
-import _ from 'lodash'
+import _ from "lodash";
 import { ISerializedChat } from "../../database/models/chat";
-import { IChat, INewChatMessageEvent, IAddMessageRequest } from "../../shared/dtos/chat";
+import {
+  IChat,
+  INewChatMessageEvent,
+  IAddMessageRequest,
+} from "../../shared/dtos/chat";
 import { ChatDataService, IChatDataService } from "./data/chat_data_service";
 import { IUserDataService, UserDataService } from "./data/user_data_service";
 import { ValidationError } from "./exceptions";
 
 export interface IChatService {
-  addMessage: (chatId: string, userId: number, request: IAddMessageRequest) => Promise<INewChatMessageEvent>;
-  get: (chatId: string) => Promise<IChat>
+  addMessage: (
+    chatId: string,
+    userId: number,
+    request: IAddMessageRequest
+  ) => Promise<INewChatMessageEvent>;
+  get: (chatId: string) => Promise<IChat>;
 }
 
 export class ChatService implements IChatService {
   constructor(
     private readonly chatDataService: IChatDataService = new ChatDataService(),
-    private readonly userDataService: IUserDataService = new UserDataService(),
+    private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
 
-  async addMessage(chatId: string, userId: number, request: IAddMessageRequest): Promise<INewChatMessageEvent> {
-    const message = request?.message ?? '';
-    if (message == '') {
+  async addMessage(
+    chatId: string,
+    userId: number,
+    request: IAddMessageRequest
+  ): Promise<INewChatMessageEvent> {
+    const message = request?.message ?? "";
+    if (message === "") {
       throw new ValidationError("Message cannot be empty");
     }
     const chat = await this.findOrCreateChat(chatId);
     await this.chatDataService.update(chatId, chat.version, {
-      chatMessages: chat.chatMessages.concat({userId, message})
-    })
-    const user = await this.userDataService.getUser(userId)
+      chatMessages: chat.chatMessages.concat({ userId, message }),
+    });
+    const user = await this.userDataService.getUser(userId);
     return {
       chatMessage: {
         userId,
         displayName: user.displayName,
-        message
-      }
-    }
+        message,
+      },
+    };
   }
 
   async get(chatId: string): Promise<IChat> {
@@ -50,13 +62,16 @@ export class ChatService implements IChatService {
 
   private async loadFullChat(chat: ISerializedChat): Promise<IChat> {
     const userIds = new Set<number>();
-    chat.chatMessages.forEach(c => userIds.add(c.userId))
+    chat.chatMessages.forEach((c) => userIds.add(c.userId));
     const users = await this.userDataService.getUsers(Array.from(userIds));
     const userIdToDisplayName = _.fromPairs(
       users.map((u) => [u.userId, u.displayName])
     );
     return {
-      chatMessages: chat.chatMessages.map((x) => ({ ...x, displayName: userIdToDisplayName[x.userId]}))
-    }
+      chatMessages: chat.chatMessages.map((x) => ({
+        ...x,
+        displayName: userIdToDisplayName[x.userId],
+      })),
+    };
   }
 }

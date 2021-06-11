@@ -14,7 +14,7 @@ import {
 export function getGameRouter(
   authenticationRequired: express.Handler,
   publishRedisClient: RedisClient,
-  gameService: IOhHeckGameService = new OhHeckGameService(),
+  gameService: IOhHeckGameService = new OhHeckGameService()
 ): express.Router {
   const router = express.Router();
   router.post("/", authenticationRequired, function (req, res, next) {

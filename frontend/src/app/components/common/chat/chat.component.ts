@@ -1,14 +1,21 @@
-import { Component, ElementRef, Input, OnInit, SimpleChange, SimpleChanges, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { WrappedSocket } from 'src/app/modules/socket.io/socket.io.service';
-import { ChatService } from 'src/app/services/chat.service';
-import { IUser } from 'src/app/shared/dtos/authentication';
-import { IChatMessage, INewChatMessageEvent } from 'src/app/shared/dtos/chat';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  SimpleChanges,
+  ViewChild,
+} from "@angular/core";
+import { FormControl } from "@angular/forms";
+import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
+import { ChatService } from "src/app/services/chat.service";
+import { IUser } from "src/app/shared/dtos/authentication";
+import { IChatMessage, INewChatMessageEvent } from "src/app/shared/dtos/chat";
 
 @Component({
-  selector: 'app-chat',
-  templateUrl: './chat.component.html',
-  styleUrls: ['./chat.component.styl']
+  selector: "app-chat",
+  templateUrl: "./chat.component.html",
+  styleUrls: ["./chat.component.styl"],
 })
 export class ChatComponent implements OnInit {
   open: boolean = false;
@@ -20,19 +27,22 @@ export class ChatComponent implements OnInit {
   @Input("user") user: IUser | null;
   @Input("chatId") chatId: string;
 
-  @ViewChild('messagesList') private messagesList: ElementRef;
+  @ViewChild("messagesList") private readonly messagesList: ElementRef;
 
   constructor(
-    private chatService: ChatService,
+    private readonly chatService: ChatService,
     private readonly socket: WrappedSocket
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadChatsAndSubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!changes.chatId.isFirstChange && changes.chatId.previousValue != changes.chatId.currentValue) {
+    if (
+      !changes.chatId.isFirstChange() &&
+      changes.chatId.previousValue !== changes.chatId.currentValue
+    ) {
       this.socket.emit("chat-leave", changes.chatId.previousValue);
       this.loadChatsAndSubscribe();
     }
@@ -42,10 +52,10 @@ export class ChatComponent implements OnInit {
     this.socket.emit("chat-leave", this.chatId);
   }
 
-  loadChatsAndSubscribe() {
+  loadChatsAndSubscribe(): void {
     this.chatService
       .get(this.chatId)
-      .subscribe(chat => this.chatMessages = chat.chatMessages)
+      .subscribe((chat) => (this.chatMessages = chat.chatMessages));
     this.socket.emit("chat-join", this.chatId);
     this.socket
       .fromEvent("new-message")
@@ -53,24 +63,24 @@ export class ChatComponent implements OnInit {
         if (!this.open) {
           this.unreadMessageCount += 1;
         }
-        this.chatMessages.push(event.chatMessage)
-        this.scrollMessageListToBottom()
+        this.chatMessages.push(event.chatMessage);
+        this.scrollMessageListToBottom();
       });
   }
 
   isCurrentUser(userId: number): boolean {
-    return this.user?.userId == userId
+    return this.user?.userId === userId;
   }
 
   addMessage(): void {
-    if (this.messageControl.value == "") {
-      return
+    if (this.messageControl.value === "") {
+      return;
     }
     this.chatService
       .addMessage(this.chatId, this.messageControl.value)
       .subscribe(() => {
-        this.messageControl.setValue('')
-      })
+        this.messageControl.setValue("");
+      });
   }
 
   ngAfterViewChecked(): void {
@@ -78,7 +88,11 @@ export class ChatComponent implements OnInit {
   }
 
   scrollMessageListToBottom(): void {
-    if (this.messagesList != null && this.messagesListHeightAtLastAutoscroll != this.messagesList.nativeElement.scrollHeight) {
+    if (
+      this.messagesList != null &&
+      this.messagesListHeightAtLastAutoscroll !==
+        this.messagesList.nativeElement.scrollHeight
+    ) {
       this.messagesList.nativeElement.scrollTop = this.messagesList.nativeElement.scrollHeight;
       this.messagesListHeightAtLastAutoscroll = this.messagesList.nativeElement.scrollHeight;
     }
@@ -96,7 +110,6 @@ export class ChatComponent implements OnInit {
   }
 
   getMatBadgeHidden(): boolean {
-    return this.unreadMessageCount == 0
+    return this.unreadMessageCount === 0;
   }
 }
-

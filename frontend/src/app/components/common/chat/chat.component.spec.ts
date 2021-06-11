@@ -1,16 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { of } from "rxjs";
+import { AppModule } from "src/app/app.module";
+import { ChatService } from "src/app/services/chat.service";
 
-import { ChatComponent } from './chat.component';
+import { ChatComponent } from "./chat.component";
 
-describe('ChatComponent', () => {
+describe("ChatComponent", () => {
   let component: ChatComponent;
   let fixture: ComponentFixture<ChatComponent>;
+  let mockChatService: Partial<ChatService>;
 
   beforeEach(async () => {
+    mockChatService = {
+      get: () => of({ chatMessages: [] }),
+    };
     await TestBed.configureTestingModule({
-      declarations: [ ChatComponent ]
-    })
-    .compileComponents();
+      imports: [AppModule],
+      providers: [{ provide: ChatService, useValue: mockChatService }],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -19,7 +26,7 @@ describe('ChatComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

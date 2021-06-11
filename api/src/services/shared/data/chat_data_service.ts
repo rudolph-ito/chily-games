@@ -1,4 +1,8 @@
-import { Chat, ISerializedChat, ISerializedChatMessage } from "../../../database/models/chat";
+import {
+  Chat,
+  ISerializedChat,
+  ISerializedChatMessage,
+} from "../../../database/models/chat";
 import { ValidationError } from "../exceptions";
 
 export interface IChatUpdateOptions {
@@ -17,9 +21,7 @@ export interface IChatDataService {
 }
 
 export class ChatDataService implements IChatDataService {
-  async create(
-    chatId: string
-  ): Promise<ISerializedChat> {
+  async create(chatId: string): Promise<ISerializedChat> {
     const chat = Chat.build({
       chatId,
       chatMessages: [],
@@ -37,7 +39,7 @@ export class ChatDataService implements IChatDataService {
   async get(chatId: string): Promise<null | ISerializedChat> {
     const chat = await Chat.findByPk(chatId);
     if (chat == null) {
-      return null
+      return null;
     }
     return chat.serialize();
   }
