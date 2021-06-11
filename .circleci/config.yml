@@ -7,14 +7,14 @@ version: 2.1
 jobs:
   build:
     docker: 
-      - image: circleci/node:14-browsers
+      - image: circleci/node:16-browsers
         <<: *DOCKER_BASE
-      - image: circleci/postgres:12.6-ram
+      - image: circleci/postgres:13.3-ram
         <<: *DOCKER_BASE
         environment:
           - POSTGRES_USER=chily-user
           - POSTGRES_PASSWORD=test
-      - image: circleci/redis:6.2.1-alpine
+      - image: circleci/redis:6.2.3-alpine
         <<: *DOCKER_BASE
     steps:
       - checkout
