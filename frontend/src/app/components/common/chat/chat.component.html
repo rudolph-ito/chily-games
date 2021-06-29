@@ -5,7 +5,7 @@
   </div>
 </div>
 <div class="body" *ngIf="open">
-  <div #messagesList class="messages-list">
+  <div #messagesList class="messages-list" [class.long]="!user">
     <ng-container *ngFor="let chatMessage of chatMessages">
       <div class="chat-message">
         <span class="user" [class.current-user]="isCurrentUser(chatMessage.userId)">{{chatMessage.displayName}}: </span>
