@@ -39,49 +39,6 @@
       Login/register to join/play
     </div>
   </div>
-  <div class="left-actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
-    <button mat-button mat-stroked-button (click)="viewScores()">
-      View Scores
-    </button>
-    <button
-      *ngIf="canStartRound()"
-      mat-button
-      mat-flat-button
-      color="primary"
-      (click)="startRound()"
-    >
-      Start Round
-    </button>
-    <button
-      *ngIf="canStartNewGame()"
-      mat-button
-      mat-flat-button
-      color="primary"
-      (click)="startNewGame()"
-    >
-      Start new game
-    </button>
-    <button
-      *ngIf="canJoinNewGame()"
-      mat-button
-      mat-flat-button
-      color="primary"
-      (click)="joinNewGame()"
-    >
-      Join new game
-    </button>
-  </div>
-  <div class="right-actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
-    <button
-      *ngIf="canAbortGame()"
-      mat-button
-      mat-flat-button
-      color="warn"
-      (click)="confirmAbortGame()"
-    >
-      Abort game
-    </button>
-  </div>
   <div class="bet-overlay" *ngIf="!loading && canBet()">
     <mat-form-field>
       <mat-select [formControl]="betControl">
@@ -95,5 +52,53 @@
     <button mat-button mat-flat-button color="primary" (click)="placeBet()">
       Bet
     </button>
+  </div>
+  <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
+    <div class="top-left">
+      <button mat-button mat-stroked-button (click)="viewScores()">
+        View Scores
+      </button>
+      <button
+        *ngIf="canStartRound()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="startRound()"
+      >
+        Start Round
+      </button>
+      <button
+        *ngIf="canStartNewGame()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="startNewGame()"
+      >
+        Start new game
+      </button>
+      <button
+        *ngIf="canJoinNewGame()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="joinNewGame()"
+      >
+        Join new game
+      </button>
+    </div>
+    <div class="top-right">
+      <button
+        *ngIf="canAbortGame()"
+        mat-button
+        mat-flat-button
+        color="warn"
+        (click)="confirmAbortGame()"
+      >
+        Abort game
+      </button>
+    </div>
+    <div class="bottom-right">
+      <app-chat [chatId]="getChatId()" [user]="user"></app-chat>
+    </div>
   </div>
 </div>

@@ -2,13 +2,14 @@
   border-width 1px 1px 0px 1px
   border-style solid
   border-color rgba(0,0,0,0.12)
-  width 400px
   display block
+  background-color white
 
 .body
   height 45vh
   display flex
   flex-direction column
+  width 400px
 
 .messages-list
   height calc(100% - 40px)
@@ -22,9 +23,12 @@
   cursor pointer
   padding 2px
   height 20px
+  width 60px
 
   &.open
     border-bottom 1px solid black
+    width 400px
+    justify-content flex-start
 
 .user
   color black
