@@ -11,6 +11,7 @@ COPY shared ./src/app/shared
 COPY frontend/tsconfig.app.json .
 COPY frontend/tsconfig.json .
 COPY tsconfig.json tsconfig.shared.json
+RUN mkdir -p /frontend/dist/frontend
 RUN yarn run build --configuration production
 
 FROM node:16-alpine AS build-api
