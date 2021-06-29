@@ -19,6 +19,11 @@ create-databases: # Create development / test databases and migrate the developm
 	sleep 2
 	cd api && yarn create-databases && yarn sequelize db:migrate
 
+.PHONY: reset-database
+reset-database:
+	docker-compose down
+	docker volume prune -f
+
 .PHONY: build-api
 build-api: # Build api
 	cd api && yarn build

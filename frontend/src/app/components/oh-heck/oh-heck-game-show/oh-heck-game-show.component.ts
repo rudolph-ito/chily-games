@@ -510,4 +510,8 @@ export class OhHeckGameShowComponent
       duration: 10000,
     });
   }
+
+  getChatId(): string {
+    return `oh-heck-game-${this.getGameId()}`;
+  }
 }
