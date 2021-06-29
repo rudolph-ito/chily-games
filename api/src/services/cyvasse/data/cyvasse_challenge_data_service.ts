@@ -20,7 +20,8 @@ export interface ICyvasseChallengeDataService {
 }
 
 export class CyvasseChallengeDataService
-  implements ICyvasseChallengeDataService {
+  implements ICyvasseChallengeDataService
+{
   async createChallenge(
     options: IChallengeOptions,
     userId: number

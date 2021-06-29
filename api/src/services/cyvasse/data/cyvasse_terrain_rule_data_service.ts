@@ -24,7 +24,8 @@ export interface ICyvasseTerrainRuleDataService {
 }
 
 export class CyvasseTerrainRuleDataService
-  implements ICyvasseTerrainRuleDataService {
+  implements ICyvasseTerrainRuleDataService
+{
   async createTerrainRule(
     options: ITerrainRuleOptions,
     variantId: number

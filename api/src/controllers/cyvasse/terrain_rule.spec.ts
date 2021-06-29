@@ -200,9 +200,8 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      const terrainRules = await new CyvasseTerrainRuleDataService().getTerrainRules(
-        variantId
-      );
+      const terrainRules =
+        await new CyvasseTerrainRuleDataService().getTerrainRules(variantId);
       expect(terrainRules).to.eql([]);
     });
   });

@@ -43,7 +43,8 @@ import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
   styleUrls: ["./cyvasse-game-show.component.styl"],
 })
 export class CyvasseGameShowComponent
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, AfterViewInit, OnDestroy
+{
   loading = false;
   game: IGame;
   gameRules: IGameRules;

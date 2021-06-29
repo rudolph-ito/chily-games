@@ -352,19 +352,15 @@ export class OhHeckTable {
         this.updateCardSizeAndPosition(cardRect, cardPosition, false);
 
         if (userData.userId === this.currentUserId) {
-          cardRect.dragBoundFunc(
-            (pos: IPosition): IPosition => {
-              const minX = positionalData.borderPosition.x;
-              const maxX =
-                minX +
-                positionalData.borderSize.width -
-                cardPosition.size.width;
-              return {
-                x: pos.x < minX ? minX : pos.x > maxX ? maxX : pos.x,
-                y: cardPosition.position.y,
-              };
-            }
-          );
+          cardRect.dragBoundFunc((pos: IPosition): IPosition => {
+            const minX = positionalData.borderPosition.x;
+            const maxX =
+              minX + positionalData.borderSize.width - cardPosition.size.width;
+            return {
+              x: pos.x < minX ? minX : pos.x > maxX ? maxX : pos.x,
+              y: cardPosition.position.y,
+            };
+          });
         }
       }
 

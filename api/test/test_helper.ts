@@ -124,29 +124,30 @@ export async function createTestTerrainRule(
   terrainTypeId: TerrainType,
   variantId: number
 ): Promise<number> {
-  const terrainRule = await new CyvasseTerrainRuleDataService().createTerrainRule(
-    {
-      terrainTypeId,
-      count: 1,
-      passableMovement: {
-        for: PiecesEffectedType.ALL,
-        pieceTypeIds: [],
+  const terrainRule =
+    await new CyvasseTerrainRuleDataService().createTerrainRule(
+      {
+        terrainTypeId,
+        count: 1,
+        passableMovement: {
+          for: PiecesEffectedType.ALL,
+          pieceTypeIds: [],
+        },
+        passableRange: {
+          for: PiecesEffectedType.ALL,
+          pieceTypeIds: [],
+        },
+        slowsMovement: {
+          for: PiecesEffectedType.NONE,
+          pieceTypeIds: [],
+        },
+        stopsMovement: {
+          for: PiecesEffectedType.NONE,
+          pieceTypeIds: [],
+        },
       },
-      passableRange: {
-        for: PiecesEffectedType.ALL,
-        pieceTypeIds: [],
-      },
-      slowsMovement: {
-        for: PiecesEffectedType.NONE,
-        pieceTypeIds: [],
-      },
-      stopsMovement: {
-        for: PiecesEffectedType.NONE,
-        pieceTypeIds: [],
-      },
-    },
-    variantId
-  );
+      variantId
+    );
   return terrainRule.terrainRuleId;
 }
 
