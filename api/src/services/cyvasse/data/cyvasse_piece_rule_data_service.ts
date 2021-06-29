@@ -22,7 +22,8 @@ export interface ICyvassePieceRuleDataService {
 }
 
 export class CyvassePieceRuleDataService
-  implements ICyvassePieceRuleDataService {
+  implements ICyvassePieceRuleDataService
+{
   async createPieceRule(
     options: IPieceRuleOptions,
     variantId: number

@@ -130,9 +130,10 @@ describe("CyvasseChallengeRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
-        { pagination: { pageSize: 10, pageIndex: 0 } }
-      );
+      const paginatedChallenges =
+        await new CyvasseChallengeService().searchChallenges({
+          pagination: { pageSize: 10, pageIndex: 0 },
+        });
       expect(paginatedChallenges.total).to.equal(0);
     });
   });
@@ -198,9 +199,10 @@ describe("CyvasseChallengeRoutes", () => {
         const game: IGame = response.body;
         expect(game.alabasterUserId).to.eql(user1Id);
         expect(game.onyxUserId).to.eql(user2Id);
-        const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
-          { pagination: { pageSize: 10, pageIndex: 0 } }
-        );
+        const paginatedChallenges =
+          await new CyvasseChallengeService().searchChallenges({
+            pagination: { pageSize: 10, pageIndex: 0 },
+          });
         expect(paginatedChallenges.total).to.equal(0);
       });
     });
@@ -271,9 +273,10 @@ describe("CyvasseChallengeRoutes", () => {
         const game: IGame = response.body;
         expect(game.alabasterUserId).to.eql(user1Id);
         expect(game.onyxUserId).to.eql(user2Id);
-        const paginatedChallenges = await new CyvasseChallengeService().searchChallenges(
-          { pagination: { pageSize: 10, pageIndex: 0 } }
-        );
+        const paginatedChallenges =
+          await new CyvasseChallengeService().searchChallenges({
+            pagination: { pageSize: 10, pageIndex: 0 },
+          });
         expect(paginatedChallenges.total).to.equal(0);
       });
     });

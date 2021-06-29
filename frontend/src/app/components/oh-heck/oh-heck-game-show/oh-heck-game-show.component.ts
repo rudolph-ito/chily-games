@@ -40,7 +40,8 @@ import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck
   styleUrls: ["./oh-heck-game-show.component.styl"],
 })
 export class OhHeckGameShowComponent
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, AfterViewInit, OnDestroy
+{
   betControl = new FormControl(0);
   loading: boolean;
   game: IGame | null;

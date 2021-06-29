@@ -67,12 +67,10 @@ export class YanivGame extends Model {
       options: this.options,
       actionToUserId: this.actionToUserId,
       cardsInDeck: this.cardsInDeck.map(deserializeCard),
-      cardsBuriedInDiscardPile: this.cardsBuriedInDiscardPile.map(
-        deserializeCard
-      ),
-      cardsOnTopOfDiscardPile: this.cardsOnTopOfDiscardPile.map(
-        deserializeCard
-      ),
+      cardsBuriedInDiscardPile:
+        this.cardsBuriedInDiscardPile.map(deserializeCard),
+      cardsOnTopOfDiscardPile:
+        this.cardsOnTopOfDiscardPile.map(deserializeCard),
       players: this.players,
       completedRounds: this.completedRounds,
       version: this.version,

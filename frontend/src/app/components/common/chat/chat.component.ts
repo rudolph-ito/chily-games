@@ -93,8 +93,10 @@ export class ChatComponent implements OnInit {
       this.messagesListHeightAtLastAutoscroll !==
         this.messagesList.nativeElement.scrollHeight
     ) {
-      this.messagesList.nativeElement.scrollTop = this.messagesList.nativeElement.scrollHeight;
-      this.messagesListHeightAtLastAutoscroll = this.messagesList.nativeElement.scrollHeight;
+      this.messagesList.nativeElement.scrollTop =
+        this.messagesList.nativeElement.scrollHeight;
+      this.messagesListHeightAtLastAutoscroll =
+        this.messagesList.nativeElement.scrollHeight;
     }
   }
 
