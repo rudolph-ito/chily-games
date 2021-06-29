@@ -256,9 +256,8 @@ export class OhHeckGameService implements IOhHeckGameService {
       updatedState = GameState.TRICK_COMPLETE;
       updatedActionToUserId = trickTakenByUserId;
       if (player.cardsInHand.length === 0) {
-        const newCompletedRound: IOhHeckRoundPlayerScore[] = this.determineScores(
-          game.players
-        );
+        const newCompletedRound: IOhHeckRoundPlayerScore[] =
+          this.determineScores(game.players);
         roundScore = this.buildRoundScore(newCompletedRound);
         updatedCompletedRounds.push(newCompletedRound);
         updatedState =

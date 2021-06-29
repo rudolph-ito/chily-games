@@ -76,8 +76,9 @@ export function validateGameSetupChange(
       const maxPieceTypeCount = pieceRule.count;
       const currentPieceTypeCount = options.coordinateMap
         .serialize()
-        .filter((x) => x.value.piece?.pieceTypeId === pieceChange.pieceTypeId)
-        .length;
+        .filter(
+          (x) => x.value.piece?.pieceTypeId === pieceChange.pieceTypeId
+        ).length;
       if (currentPieceTypeCount === maxPieceTypeCount) {
         return "Piece change - already at max count for piece type";
       }

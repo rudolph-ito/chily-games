@@ -377,9 +377,8 @@ export class YanivGameService implements IYanivGameService {
       game.version,
       {
         actionToUserId: orderedPlayers[1].userId,
-        cardsBuriedInDiscardPile: game.cardsBuriedInDiscardPile.concat(
-          discardsToBury
-        ),
+        cardsBuriedInDiscardPile:
+          game.cardsBuriedInDiscardPile.concat(discardsToBury),
         cardsOnTopOfDiscardPile: cardsDiscarded,
         cardsInDeck: game.cardsInDeck,
         players: game.players,

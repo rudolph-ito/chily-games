@@ -40,7 +40,8 @@ import {
   styleUrls: ["./yaniv-game-show.component.styl"],
 })
 export class YanivGameShowComponent
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, AfterViewInit, OnDestroy
+{
   loading: boolean;
   game: IGame | null;
   user: IUser | null;

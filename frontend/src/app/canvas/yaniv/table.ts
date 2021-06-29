@@ -125,9 +125,8 @@ export class YanivTable {
       throw new Error("Current user required");
     }
     if (this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))) {
-      this.currentUserSelectedDiscards = this.currentUserSelectedDiscards.filter(
-        (x) => !areCardsEqual(x, card)
-      );
+      this.currentUserSelectedDiscards =
+        this.currentUserSelectedDiscards.filter((x) => !areCardsEqual(x, card));
     } else {
       this.currentUserSelectedDiscards.push(card);
     }
@@ -406,19 +405,15 @@ export class YanivTable {
         this.updateCardSizeAndPosition(cardRect, cardPosition, false);
 
         if (userData.userId === this.currentUserId) {
-          cardRect.dragBoundFunc(
-            (pos: IPosition): IPosition => {
-              const minX = positionalData.borderPosition.x;
-              const maxX =
-                minX +
-                positionalData.borderSize.width -
-                cardPosition.size.width;
-              return {
-                x: pos.x < minX ? minX : pos.x > maxX ? maxX : pos.x,
-                y: cardPosition.position.y,
-              };
-            }
-          );
+          cardRect.dragBoundFunc((pos: IPosition): IPosition => {
+            const minX = positionalData.borderPosition.x;
+            const maxX =
+              minX + positionalData.borderSize.width - cardPosition.size.width;
+            return {
+              x: pos.x < minX ? minX : pos.x > maxX ? maxX : pos.x,
+              y: cardPosition.position.y,
+            };
+          });
         }
       }
 
