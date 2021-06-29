@@ -1,0 +1,44 @@
+<div class="title" [class.open]="open" (click)="toggleOpen()">
+  <div
+    class="left"
+    [matBadge]="getMatBadge()"
+    [matBadgeHidden]="getMatBadgeHidden()"
+    matBadgeSize="small"
+    matBadgeOverlap="false"
+  >
+    Chat
+  </div>
+  <div class="right">
+    <mat-icon>{{ open ? "arrow_drop_down" : "arrow_drop_up" }}</mat-icon>
+  </div>
+</div>
+<div class="body" *ngIf="open">
+  <div #messagesList class="messages-list" [class.long]="!user">
+    <ng-container *ngFor="let chatMessage of chatMessages">
+      <div class="chat-message">
+        <span
+          class="user"
+          [class.current-user]="isCurrentUser(chatMessage.userId)"
+          >{{ chatMessage.displayName }}:
+        </span>
+        <span class="message">{{ chatMessage.message }}</span>
+      </div>
+    </ng-container>
+  </div>
+  <div class="input" *ngIf="user">
+    <form (submit)="addMessage()">
+      <mat-form-field appearance="standard">
+        <input
+          matInput
+          type="text"
+          [formControl]="messageControl"
+          placeholder="Message"
+          autocomplete="off"
+        />
+      </mat-form-field>
+      <button mat-icon-button type="submit">
+        <mat-icon>send</mat-icon>
+      </button>
+    </form>
+  </div>
+</div>
