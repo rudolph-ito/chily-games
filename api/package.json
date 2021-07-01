@@ -30,7 +30,7 @@
     "zxcvbn": "4.4.2"
   },
   "devDependencies": {
-    "@types/chai": "4.2.18",
+    "@types/chai": "4.2.19",
     "@types/connect-redis": "0.0.16",
     "@types/cookie-parser": "1.4.2",
     "@types/cors": "2.8.10",
