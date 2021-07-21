@@ -1,4 +1,4 @@
-import { Vector2d } from "konva/types/types";
+import { Vector2d } from "konva/lib/types";
 import { ICard } from "../../shared/dtos/card";
 import {
   GameState,
@@ -277,16 +277,22 @@ export class YanivTable {
     let rectsToDestroy = this.discardedCards;
     for (let index = 0; index < lastAction.cardsDiscarded.length; index++) {
       const card = lastAction.cardsDiscarded[index];
-      let rect: KonvaRect;
+      let rect: KonvaRect | undefined;
       if (lastAction.userId === this.currentUserId) {
         this.currentUserSelectedDiscards = [];
         rect = userData.cards.find((x) =>
           areCardsEqual(x.getAttr("yanivCard"), card)
         );
+        if (rect == null) {
+          throw new Error(`Unexpectedly unable to find rect for card: ${JSON.stringify(card)}`)
+        }
         this.updateCardFaceStroke(rect, false);
         userData.cards.splice(userData.cards.indexOf(rect), 1);
       } else {
         rect = userData.cards.shift();
+        if (rect == null) {
+          throw new Error(`Unexpectedly unable to find rect for card: ${JSON.stringify(card)}`)
+        }
         await this.updateRectWithCardFace(rect, card);
       }
       rect.zIndex(this.cardsLayer.children.length - 1);
