@@ -42,7 +42,7 @@ describe("YanivGameShowComponent", () => {
       providers: [
         { provide: YanivGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
-        { provide: ChatService, useValue: mockChatService }
+        { provide: ChatService, useValue: mockChatService },
       ],
     }).compileComponents();
   });

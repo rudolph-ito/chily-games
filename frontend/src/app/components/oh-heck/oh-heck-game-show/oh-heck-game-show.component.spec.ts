@@ -31,7 +31,7 @@ describe("OhHeckGameShowComponent", () => {
       providers: [
         { provide: OhHeckGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
-        { provide: ChatService, useValue: mockChatService }
+        { provide: ChatService, useValue: mockChatService },
       ],
     }).compileComponents();
   });
