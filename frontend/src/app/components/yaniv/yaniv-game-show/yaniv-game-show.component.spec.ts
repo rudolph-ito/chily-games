@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 import { AppModule } from "src/app/app.module";
+import { ChatService } from "src/app/services/chat.service";
 import { UserService } from "src/app/services/user.service";
 import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
 import { GameState } from "src/app/shared/dtos/yaniv/game";
@@ -11,6 +12,7 @@ describe("YanivGameShowComponent", () => {
   let fixture: ComponentFixture<YanivGameShowComponent>;
   let mockGameService: Partial<YanivGameService>;
   let mockUserService: Partial<UserService>;
+  let mockChatService: Partial<ChatService>;
 
   beforeEach(async () => {
     mockGameService = {
@@ -31,12 +33,16 @@ describe("YanivGameShowComponent", () => {
     mockUserService = {
       get: () => of({ userId: 1, username: "test", displayName: "test" }),
     };
+    mockChatService = {
+      get: () => of({ chatMessages: [] }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         { provide: YanivGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
+        { provide: ChatService, useValue: mockChatService }
       ],
     }).compileComponents();
   });
