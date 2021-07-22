@@ -284,18 +284,20 @@ export class YanivTable {
           areCardsEqual(x.getAttr("yanivCard"), card)
         );
         if (rect == null) {
-          throw new Error(`Unexpectedly unable to find rect for card: ${JSON.stringify(card)}`)
+          throw new Error(
+            `Unexpectedly unable to find rect for card: ${JSON.stringify(card)}`
+          );
         }
         this.updateCardFaceStroke(rect, false);
         userData.cards.splice(userData.cards.indexOf(rect), 1);
       } else {
         rect = userData.cards.shift();
         if (rect == null) {
-          throw new Error(`Unexpectedly unable to find rect for card: ${JSON.stringify(card)}`)
+          throw new Error(`Unexpectedly unable to find any rect for user`);
         }
         await this.updateRectWithCardFace(rect, card);
       }
-      rect.zIndex(this.cardsLayer.children.length - 1);
+      rect.zIndex(this.cardsLayer.getChildren().length - 1);
       this.initializeDiscardEventHandlers(rect);
       rectsToDiscard.push(rect);
       this.updateCardSizeAndPosition(
@@ -304,12 +306,19 @@ export class YanivTable {
         true
       );
     }
-    let onFinish: (() => void) | null = null;
+    let onFinish: (() => void) | undefined;
     if (lastAction.cardPickedUp != null) {
       const { cardPickedUp } = lastAction;
       const cardRect = this.discardedCards.find((x) =>
         areCardsEqual(x.getAttr("yanivCard"), cardPickedUp)
       );
+      if (cardRect == null) {
+        throw new Error(
+          `Unexpectedly unable to find picked up card: ${JSON.stringify(
+            cardPickedUp
+          )}`
+        );
+      }
       this.removeCardEventHandlers(cardRect);
       rectsToDestroy = rectsToDestroy.filter((x) => x !== cardRect);
       userData.cards.push(cardRect);
@@ -343,7 +352,7 @@ export class YanivTable {
       const cardRect = userData.cards[index];
       const cardPosition = positionalData.cardPositions[index];
       const cardOnFinish =
-        index === userData.cards.length - 1 ? onFinish : null;
+        index === userData.cards.length - 1 ? onFinish : undefined;
       this.updateCardSizeAndPosition(
         cardRect,
         cardPosition,
@@ -858,7 +867,7 @@ export class YanivTable {
     rect: KonvaRect,
     displayData: ICardDisplayData,
     animate: boolean,
-    onFinish: (() => void) | null = null
+    onFinish: (() => void) | undefined = undefined
   ): void {
     rect.size(displayData.size);
 
