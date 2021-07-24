@@ -35,7 +35,7 @@
     "@types/cookie-parser": "1.4.2",
     "@types/cors": "2.8.10",
     "@types/dirty-chai": "2.0.2",
-    "@types/express": "4.17.7",
+    "@types/express": "4.17.13",
     "@types/express-session": "1.17.3",
     "@types/lodash.uniqby": "4.7.6",
     "@types/mocha": "8.2.2",
