@@ -215,7 +215,7 @@ export abstract class BaseBoard {
   public applyPly(ply: IGamePly): void {
     if (ply.movement != null) {
       const movement = ply.movement;
-      this.pieceLayer.children.each((image: Konva.Image) => {
+      this.pieceLayer.getChildren().forEach((image: Konva.Image) => {
         const coordinate = image.getAttr("cyvasseCoordinate");
         if (areCoordinatesEqual(coordinate, ply.from)) {
           image.setAttrs({ cyvasseCoordinate: movement.to });
@@ -234,9 +234,11 @@ export abstract class BaseBoard {
   }
 
   public clearHighlight(): void {
-    this.spaceLayer.children.each((shape: Konva.Shape) =>
-      this.toggleSpaceHighlight(shape, SpaceHighlight.NONE)
-    );
+    this.spaceLayer
+      .getChildren()
+      .forEach((shape: Konva.Shape) =>
+        this.toggleSpaceHighlight(shape, SpaceHighlight.NONE)
+      );
   }
 
   public clearPieces(): void {
@@ -269,7 +271,7 @@ export abstract class BaseBoard {
       coordinateToSpaceHighlight.set(c, freeHighlight);
     });
     // TODO reachable
-    this.spaceLayer.children.each((shape: Konva.Shape) => {
+    this.spaceLayer.getChildren().forEach((shape: Konva.Shape) => {
       const value = coordinateToSpaceHighlight.get(
         shape.getAttr("cyvasseCoordinate")
       );
@@ -293,18 +295,18 @@ export abstract class BaseBoard {
     this.setupForContainer(this.gameRules);
     this.stage.height(this.container.offsetHeight);
     this.stage.width(this.container.offsetWidth);
-    this.spaceLayer.children.each((shape: Konva.Shape) => {
+    this.spaceLayer.getChildren().forEach((shape: Konva.Shape) => {
       this.resetShapePosition(shape);
       this.setSpaceSize(shape);
     });
-    this.spaceCoordinateTextLayer.children.each((text: Konva.Text) => {
+    this.spaceCoordinateTextLayer.getChildren().forEach((text: Konva.Text) => {
       this.resetShapePosition(text);
     });
-    this.pieceLayer.children.each((image: Konva.Image) => {
+    this.pieceLayer.getChildren().forEach((image: Konva.Image) => {
       this.resetShapePosition(image);
       this.setPieceSize(image);
     });
-    this.terrainLayer.children.each((shape: Konva.Shape) => {
+    this.terrainLayer.getChildren().forEach((shape: Konva.Shape) => {
       this.resetShapePosition(shape);
       this.setSpaceSize(shape);
       this.setTerrainFillPatternScale(shape);
@@ -429,12 +431,10 @@ export abstract class BaseBoard {
   }
 
   private getPieceAtCoordinate(coordinate: ICoordinate): IPiece | null {
-    const image = this.pieceLayer.children
-      .toArray()
-      .find((image: Konva.Image) => {
-        const pieceCoordinate = image.getAttr("cyvasseCoordinate");
-        return areCoordinatesEqual(coordinate, pieceCoordinate);
-      });
+    const image = this.pieceLayer.getChildren().find((image: Konva.Image) => {
+      const pieceCoordinate = image.getAttr("cyvasseCoordinate");
+      return areCoordinatesEqual(coordinate, pieceCoordinate);
+    });
     if (image != null) {
       return image.getAttr("cyvassePiece");
     }
@@ -453,12 +453,12 @@ export abstract class BaseBoard {
 
   private getFirstOpenSetupIndex(): number {
     const existingIndices: number[] = [];
-    this.pieceLayer.children.each((image: Konva.Image) => {
+    this.pieceLayer.getChildren().forEach((image: Konva.Image) => {
       if (doesHaveValue(image.getAttr("cyvasseSetupIndex"))) {
         existingIndices.push(image.getAttr("cyvasseSetupIndex"));
       }
     });
-    this.terrainLayer.children.each((shape: Konva.Shape) => {
+    this.terrainLayer.getChildren().forEach((shape: Konva.Shape) => {
       if (doesHaveValue(shape.getAttr("cyvasseSetupIndex"))) {
         existingIndices.push(shape.getAttr("cyvasseSetupIndex"));
       }
@@ -489,7 +489,7 @@ export abstract class BaseBoard {
     if (this.game.plies.length > 0) {
       const lastPly = this.game.plies[this.game.plies.length - 1];
       this.clearHighlight();
-      this.spaceLayer.children.each((shape: Konva.Shape) => {
+      this.spaceLayer.getChildren().forEach((shape: Konva.Shape) => {
         const coordinate = shape.getAttr("cyvasseCoordinate");
         if (areCoordinatesEqual(coordinate, lastPly.from)) {
           this.toggleSpaceHighlight(shape, SpaceHighlight.LAST_PLY_MOVEMENT);
@@ -546,7 +546,7 @@ export abstract class BaseBoard {
         coordinateToSpaceHighlight.set(c, SpaceHighlight.TERRITORY_OPPONENT)
       );
     }
-    this.spaceLayer.children.each((shape: Konva.Shape) => {
+    this.spaceLayer.getChildren().forEach((shape: Konva.Shape) => {
       const coordinate = shape.getAttr("cyvasseCoordinate");
       const value = coordinateToSpaceHighlight.get(coordinate);
       if (value != null) {

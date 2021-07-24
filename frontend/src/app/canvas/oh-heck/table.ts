@@ -1,4 +1,3 @@
-import { Vector2d } from "konva/types/types";
 import { ICard } from "../../shared/dtos/card";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 import cardImages from "../../data/card_images";
@@ -15,6 +14,7 @@ import {
   IPlayerState,
   ITrickEvent,
 } from "../../shared/dtos/oh_heck/game";
+import { Vector2d } from "konva/lib/types";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -757,7 +757,7 @@ export class OhHeckTable {
     rect: KonvaRect,
     displayData: ICardDisplayData,
     animate: boolean,
-    onFinish: (() => void) | null = null
+    onFinish: (() => void) | undefined = undefined
   ): void {
     rect.size(displayData.size);
 
