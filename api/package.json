@@ -42,7 +42,7 @@
     "@types/node": "14.17.4",
     "@types/passport": "1.0.6",
     "@types/passport-local": "1.0.33",
-    "@types/redis": "2.8.28",
+    "@types/redis": "2.8.31",
     "@types/socket.io": "3.0.2",
     "@types/socket.io-emitter": "3.2.0",
     "@types/socket.io-redis": "3.0.0",
