@@ -2,13 +2,12 @@ import express from "express";
 import { IUser } from "../../shared/dtos/authentication";
 import { CyvasseTerrainRuleService } from "../../services/cyvasse/cyvasse_terrain_rule_service";
 
-// Assumes parentRouter has variantId in params
 export function getTerrainRulesRouter(
   authenticationRequired: express.Handler,
   terrainRuleService: CyvasseTerrainRuleService = new CyvasseTerrainRuleService()
 ): express.Router {
   const router = express.Router({ mergeParams: true });
-  router.get("/", function (req, res, next) {
+  router.get("/variants/:variantId/terrainRules", function (req, res, next) {
     terrainRuleService
       .getTerrainRules(parseInt(req.params.variantId))
       .then((terrainRules) => {
@@ -16,7 +15,7 @@ export function getTerrainRulesRouter(
       })
       .catch(next);
   });
-  router.post("/", authenticationRequired, function (req, res, next) {
+  router.post("/variants/:variantId/terrainRules", authenticationRequired, function (req, res, next) {
     terrainRuleService
       .createTerrainRule(
         (req.user as IUser).userId,
@@ -29,7 +28,7 @@ export function getTerrainRulesRouter(
       .catch(next);
   });
   router.get(
-    "/:terrainRuleId",
+    "/variants/:variantId/terrainRules/:terrainRuleId",
     authenticationRequired,
     function (req, res, next) {
       terrainRuleService
@@ -44,7 +43,7 @@ export function getTerrainRulesRouter(
     }
   );
   router.put(
-    "/:terrainRuleId",
+    "/variants/:variantId/terrainRules/:terrainRuleId",
     authenticationRequired,
     function (req, res, next) {
       terrainRuleService
@@ -61,7 +60,7 @@ export function getTerrainRulesRouter(
     }
   );
   router.delete(
-    "/:terrainRuleId",
+    "/variants/:variantId/terrainRules/:terrainRuleId",
     authenticationRequired,
     function (req, res, next) {
       terrainRuleService

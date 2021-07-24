@@ -12,14 +12,8 @@ export function getCyvasseRouter(
 ): express.Router {
   const router = express.Router();
   router.use("/variants", getVariantRouter(authenticationRequired));
-  router.use(
-    "/variants/:variantId/pieceRules",
-    getPieceRulesRouter(authenticationRequired)
-  );
-  router.use(
-    "/variants/:variantId/terrainRules",
-    getTerrainRulesRouter(authenticationRequired)
-  );
+  router.use(getPieceRulesRouter(authenticationRequired));
+  router.use(getTerrainRulesRouter(authenticationRequired));
   router.use("/challenges", getChallengeRouter(authenticationRequired));
   router.use(
     "/games",

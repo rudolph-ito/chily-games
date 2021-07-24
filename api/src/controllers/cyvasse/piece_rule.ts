@@ -2,13 +2,12 @@ import express from "express";
 import { IUser } from "../../shared/dtos/authentication";
 import { CyvassePieceRuleService } from "../../services/cyvasse/cyvasse_piece_rule_service";
 
-// Assumes parentRouter has variantId in params
 export function getPieceRulesRouter(
   authenticationRequired: express.Handler,
   pieceRuleService: CyvassePieceRuleService = new CyvassePieceRuleService()
 ): express.Router {
-  const router = express.Router({ mergeParams: true });
-  router.get("/", function (req, res, next) {
+  const router = express.Router();
+  router.get("/variants/:variantId/pieceRules/", function (req, res, next) {
     pieceRuleService
       .getPieceRules(parseInt(req.params.variantId))
       .then((pieceRules) => {
@@ -16,7 +15,7 @@ export function getPieceRulesRouter(
       })
       .catch(next);
   });
-  router.post("/", authenticationRequired, function (req, res, next) {
+  router.post("/variants/:variantId/pieceRules/", authenticationRequired, function (req, res, next) {
     pieceRuleService
       .createPieceRule(
         (req.user as IUser).userId,
@@ -29,7 +28,7 @@ export function getPieceRulesRouter(
       .catch(next);
   });
   router.get(
-    "/:pieceRuleId",
+    "/variants/:variantId/pieceRules/:pieceRuleId",
     authenticationRequired,
     function (req, res, next) {
       pieceRuleService
@@ -44,7 +43,7 @@ export function getPieceRulesRouter(
     }
   );
   router.put(
-    "/:pieceRuleId",
+    "/variants/:variantId/pieceRules/:pieceRuleId",
     authenticationRequired,
     function (req, res, next) {
       pieceRuleService
@@ -61,7 +60,7 @@ export function getPieceRulesRouter(
     }
   );
   router.delete(
-    "/:pieceRuleId",
+    "/variants/:variantId/pieceRules/:pieceRuleId",
     authenticationRequired,
     function (req, res, next) {
       pieceRuleService
