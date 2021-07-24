@@ -1,7 +1,7 @@
 import express from "express";
 import { RedisClient } from "redis";
 import { IUser } from "../shared/dtos/authentication";
-import newSocketIoEmitter from "socket.io-emitter";
+import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import { ChatService, IChatService } from "../services/shared/chat_service";
 
 export function getChatRouter(
@@ -17,7 +17,7 @@ export function getChatRouter(
       .addMessage(chatId, userId, req.body)
       .then((newChatMessageEvent) => {
         res.status(200).end();
-        newSocketIoEmitter(publishRedisClient as any)
+        new SocketIoRedisEmitter(publishRedisClient as any)
           .to(`chat-${chatId}`)
           .emit("new-message", newChatMessageEvent);
       })

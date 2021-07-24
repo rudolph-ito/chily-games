@@ -13,7 +13,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import { getUserRouter } from "./user";
 import { Server as SocketIoServer } from "socket.io";
-import { createAdapter as createSocketIoRedisAdapter } from "socket.io-redis";
+import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter"
 import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
@@ -110,10 +110,10 @@ export function startServer(options: IStartServerOptions): HttpServer {
   const server = createServer(app);
   const socketIoServer = new SocketIoServer(server);
   socketIoServer.adapter(
-    createSocketIoRedisAdapter({
-      pubClient: publishRedisClient,
-      subClient: subscribeRedisClient,
-    })
+    createSocketIoRedisAdapter(
+      publishRedisClient,
+      subscribeRedisClient,
+    )
   );
   socketIoServer.on("connection", (socket) => {
     socket.on("cyvasse-join-game", (gameId: number) => {

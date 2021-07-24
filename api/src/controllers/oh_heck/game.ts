@@ -1,7 +1,7 @@
 import express from "express";
 import { RedisClient } from "redis";
 import { IUser } from "../../shared/dtos/authentication";
-import newSocketIoEmitter from "socket.io-emitter";
+import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import {
   IOhHeckGameService,
   OhHeckGameService,
@@ -66,7 +66,7 @@ export function getGameRouter(
           const playerJoinedEvent: IPlayerJoinedEvent = {
             playerStates: game.playerStates,
           };
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`oh-heck-game-${gameId}`)
             .emit("player-joined", playerJoinedEvent);
         })
@@ -82,7 +82,7 @@ export function getGameRouter(
         .startRound((req.user as IUser).userId, gameId)
         .then((game) => {
           res.status(200).send(game);
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`oh-heck-game-${gameId}`)
             .emit("round-started");
         })
@@ -111,7 +111,7 @@ export function getGameRouter(
         .placeBet((req.user as IUser).userId, gameId, req.body)
         .then((event) => {
           res.status(200).send(event);
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`oh-heck-game-${gameId}`)
             .emit("bet-placed", event);
         })
@@ -127,7 +127,7 @@ export function getGameRouter(
         .playCard((req.user as IUser).userId, gameId, req.body)
         .then((event) => {
           res.status(200).send(event);
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`oh-heck-game-${gameId}`)
             .emit("card-played", event);
         })
@@ -148,7 +148,7 @@ export function getGameRouter(
             gameId: game.gameId,
             userId,
           };
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`oh-heck-game-${gameId}`)
             .emit("new-game-started", event);
         })
@@ -165,7 +165,7 @@ export function getGameRouter(
         .abort(userId, gameId)
         .then((game) => {
           res.status(200).send(game);
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`oh-heck-game-${gameId}`)
             .emit("aborted");
         })
