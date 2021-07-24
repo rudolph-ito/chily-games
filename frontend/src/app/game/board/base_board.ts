@@ -234,9 +234,11 @@ export abstract class BaseBoard {
   }
 
   public clearHighlight(): void {
-    this.spaceLayer.getChildren().forEach((shape: Konva.Shape) =>
-      this.toggleSpaceHighlight(shape, SpaceHighlight.NONE)
-    );
+    this.spaceLayer
+      .getChildren()
+      .forEach((shape: Konva.Shape) =>
+        this.toggleSpaceHighlight(shape, SpaceHighlight.NONE)
+      );
   }
 
   public clearPieces(): void {
@@ -429,11 +431,10 @@ export abstract class BaseBoard {
   }
 
   private getPieceAtCoordinate(coordinate: ICoordinate): IPiece | null {
-    const image = this.pieceLayer.getChildren()
-      .find((image: Konva.Image) => {
-        const pieceCoordinate = image.getAttr("cyvasseCoordinate");
-        return areCoordinatesEqual(coordinate, pieceCoordinate);
-      });
+    const image = this.pieceLayer.getChildren().find((image: Konva.Image) => {
+      const pieceCoordinate = image.getAttr("cyvasseCoordinate");
+      return areCoordinatesEqual(coordinate, pieceCoordinate);
+    });
     if (image != null) {
       return image.getAttr("cyvassePiece");
     }
