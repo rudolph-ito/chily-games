@@ -15,18 +15,22 @@ export function getPieceRulesRouter(
       })
       .catch(next);
   });
-  router.post("/variants/:variantId/pieceRules/", authenticationRequired, function (req, res, next) {
-    pieceRuleService
-      .createPieceRule(
-        (req.user as IUser).userId,
-        parseInt(req.params.variantId),
-        req.body
-      )
-      .then((pieceRule) => {
-        res.status(200).send(pieceRule);
-      })
-      .catch(next);
-  });
+  router.post(
+    "/variants/:variantId/pieceRules/",
+    authenticationRequired,
+    function (req, res, next) {
+      pieceRuleService
+        .createPieceRule(
+          (req.user as IUser).userId,
+          parseInt(req.params.variantId),
+          req.body
+        )
+        .then((pieceRule) => {
+          res.status(200).send(pieceRule);
+        })
+        .catch(next);
+    }
+  );
   router.get(
     "/variants/:variantId/pieceRules/:pieceRuleId",
     authenticationRequired,

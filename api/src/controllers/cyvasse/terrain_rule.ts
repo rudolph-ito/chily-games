@@ -15,18 +15,22 @@ export function getTerrainRulesRouter(
       })
       .catch(next);
   });
-  router.post("/variants/:variantId/terrainRules", authenticationRequired, function (req, res, next) {
-    terrainRuleService
-      .createTerrainRule(
-        (req.user as IUser).userId,
-        parseInt(req.params.variantId),
-        req.body
-      )
-      .then((terrainRule) => {
-        res.status(200).send(terrainRule);
-      })
-      .catch(next);
-  });
+  router.post(
+    "/variants/:variantId/terrainRules",
+    authenticationRequired,
+    function (req, res, next) {
+      terrainRuleService
+        .createTerrainRule(
+          (req.user as IUser).userId,
+          parseInt(req.params.variantId),
+          req.body
+        )
+        .then((terrainRule) => {
+          res.status(200).send(terrainRule);
+        })
+        .catch(next);
+    }
+  );
   router.get(
     "/variants/:variantId/terrainRules/:terrainRuleId",
     authenticationRequired,
