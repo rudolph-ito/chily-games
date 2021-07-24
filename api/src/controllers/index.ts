@@ -13,7 +13,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import { getUserRouter } from "./user";
 import { Server as SocketIoServer } from "socket.io";
-import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter"
+import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter";
 import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
@@ -110,35 +110,32 @@ export function startServer(options: IStartServerOptions): HttpServer {
   const server = createServer(app);
   const socketIoServer = new SocketIoServer(server);
   socketIoServer.adapter(
-    createSocketIoRedisAdapter(
-      publishRedisClient,
-      subscribeRedisClient,
-    )
+    createSocketIoRedisAdapter(publishRedisClient, subscribeRedisClient)
   );
   socketIoServer.on("connection", (socket) => {
     socket.on("cyvasse-join-game", (gameId: number) => {
-      socket.join(`cyvasse-game-${gameId}`);
+      socket.join(`cyvasse-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("cyvasse-leav-game", (gameId: number) => {
-      socket.leave(`cyvasse-game-${gameId}`);
+      socket.leave(`cyvasse-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("oh-heck-join-game", (gameId: number) => {
-      socket.join(`oh-heck-game-${gameId}`);
+      socket.join(`oh-heck-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("oh-heck-leave-game", (gameId: number) => {
-      socket.leave(`oh-heck-game-${gameId}`);
+      socket.leave(`oh-heck-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("yaniv-join-game", (gameId: number) => {
-      socket.join(`yaniv-game-${gameId}`);
+      socket.join(`yaniv-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("yaniv-leave-game", (gameId: number) => {
-      socket.leave(`yaniv-game-${gameId}`);
+      socket.leave(`yaniv-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("chat-join", (chatId: string) => {
-      socket.join(`chat-${chatId}`);
+      socket.join(`chat-${chatId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
     socket.on("chat-leave", (chatId: string) => {
-      socket.leave(`chat-${chatId}`);
+      socket.leave(`chat-${chatId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
     });
   });
   server.listen(options.port, () => {
