@@ -5,7 +5,7 @@ import {
   YanivGameService,
 } from "../../services/yaniv/yaniv_game_service";
 import { IUser } from "../../shared/dtos/authentication";
-import newSocketIoEmitter from "socket.io-emitter";
+import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
@@ -66,7 +66,7 @@ export function getGameRouter(
           const playerJoinedEvent: IPlayerJoinedEvent = {
             playerStates: game.playerStates,
           };
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`yaniv-game-${gameId}`)
             .emit("player-joined", playerJoinedEvent);
         })
@@ -82,7 +82,7 @@ export function getGameRouter(
         .startRound((req.user as IUser).userId, gameId)
         .then((game) => {
           res.status(200).send(game);
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`yaniv-game-${gameId}`)
             .emit("round-started");
         })
@@ -121,12 +121,12 @@ export function getGameRouter(
               roundFinishedEvent,
             });
             if (actionToNextPlayerEvent != null) {
-              newSocketIoEmitter(publishRedisClient as any)
+              new SocketIoRedisEmitter(publishRedisClient)
                 .to(`yaniv-game-${gameId}`)
                 .emit("action-to-next-player", actionToNextPlayerEvent);
             }
             if (roundFinishedEvent != null) {
-              newSocketIoEmitter(publishRedisClient as any)
+              new SocketIoRedisEmitter(publishRedisClient)
                 .to(`yaniv-game-${gameId}`)
                 .emit("round-finished", roundFinishedEvent);
             }
@@ -149,7 +149,7 @@ export function getGameRouter(
             gameId: game.gameId,
             userId,
           };
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`yaniv-game-${gameId}`)
             .emit("new-game-started", event);
         })
@@ -166,7 +166,7 @@ export function getGameRouter(
         .abort(userId, gameId)
         .then((game) => {
           res.status(200).send(game);
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`yaniv-game-${gameId}`)
             .emit("aborted");
         })

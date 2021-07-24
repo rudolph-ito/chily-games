@@ -4,7 +4,7 @@ import {
   CyvasseGameService,
 } from "../../services/cyvasse/cyvasse_game_service";
 import { IUser } from "../../shared/dtos/authentication";
-import newSocketIoEmitter from "socket.io-emitter";
+import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import { RedisClient } from "redis";
 
 export function getGameRouter(
@@ -93,7 +93,7 @@ export function getGameRouter(
         )
         .then((gamePlyEvent) => {
           res.status(200).end();
-          newSocketIoEmitter(publishRedisClient as any)
+          new SocketIoRedisEmitter(publishRedisClient)
             .to(`cyvasse-game-${req.params.gameId}`)
             .emit("game-ply", gamePlyEvent);
         })

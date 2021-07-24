@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import { share } from "rxjs/operators";
-import io from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 export interface SocketIoConfig {
   url: string;
@@ -10,13 +10,13 @@ export interface SocketIoConfig {
 export class WrappedSocket {
   subscribersCounter: Record<string, number> = {};
   eventObservables$: Record<string, Observable<any>> = {};
-  ioSocket: SocketIOClient.Socket;
+  ioSocket: Socket;
   emptyConfig: SocketIoConfig = {
     url: "",
     options: {},
   };
 
-  constructor(private readonly config: SocketIoConfig) {
+  constructor(config: SocketIoConfig) {
     if (config === undefined) {
       config = this.emptyConfig;
     }
@@ -25,39 +25,28 @@ export class WrappedSocket {
     this.ioSocket = io(url, options);
   }
 
-  off(namespace: string): void {
-    this.ioSocket.off(namespace);
+  off(eventName: string, callback: (...args: any[]) => void): void {
+    this.ioSocket.off(eventName, callback);
   }
 
-  on(eventName: string, callback: Function): void {
+  on(eventName: string, callback: (...args: any[]) => void): void {
     this.ioSocket.on(eventName, callback);
   }
 
-  once(eventName: string, callback: Function): void {
+  once(eventName: string, callback: (...args: any[]) => void): void {
     this.ioSocket.once(eventName, callback);
   }
 
-  connect(): SocketIOClient.Socket {
+  connect(): Socket {
     return this.ioSocket.connect();
   }
 
-  disconnect(close?: any): SocketIOClient.Socket {
-    return this.ioSocket.disconnect.apply(this.ioSocket, arguments);
+  disconnect(): Socket {
+    return this.ioSocket.disconnect();
   }
 
-  emit(eventName: string, ...args: any[]): SocketIOClient.Socket {
-    return this.ioSocket.emit.apply(this.ioSocket, arguments);
-  }
-
-  removeListener(
-    eventName: string,
-    callback?: Function
-  ): SocketIOClient.Socket {
-    return this.ioSocket.removeListener.apply(this.ioSocket, arguments);
-  }
-
-  removeAllListeners(eventName?: string): SocketIOClient.Socket {
-    return this.ioSocket.removeAllListeners.apply(this.ioSocket, arguments);
+  emit(eventName: string, ...args: any[]): Socket {
+    return this.ioSocket.emit(eventName, ...args);
   }
 
   fromEvent<T>(eventName: string): Observable<T> {
@@ -75,7 +64,7 @@ export class WrappedSocket {
         return (): void => {
           this.subscribersCounter[eventName]--;
           if (this.subscribersCounter[eventName] === 0) {
-            this.ioSocket.removeListener(eventName, listener);
+            this.ioSocket.off(eventName, listener);
             delete this.eventObservables$[eventName]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
           }
         };
