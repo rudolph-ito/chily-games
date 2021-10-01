@@ -30,7 +30,7 @@
     "zxcvbn": "4.4.2"
   },
   "devDependencies": {
-    "@types/chai": "4.2.21",
+    "@types/chai": "4.2.22",
     "@types/connect-redis": "0.0.17",
     "@types/cookie-parser": "1.4.2",
     "@types/cors": "2.8.12",
@@ -47,7 +47,7 @@
     "@types/zxcvbn": "4.4.1",
     "chai": "4.3.4",
     "dirty-chai": "2.0.1",
-    "mocha": "9.1.1",
+    "mocha": "9.1.2",
     "nodemon": "2.0.13",
     "sequelize-cli": "6.2.0",
     "supertest": "6.1.6",
