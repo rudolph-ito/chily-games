@@ -14,7 +14,7 @@ jobs:
         environment:
           - POSTGRES_USER=chily-user
           - POSTGRES_PASSWORD=test
-      - image: circleci/redis:6.2.5-alpine
+      - image: circleci/redis:6.2.6-alpine
         <<: *DOCKER_BASE
     steps:
       - checkout
