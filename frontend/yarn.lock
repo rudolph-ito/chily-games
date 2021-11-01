@@ -5526,10 +5526,10 @@ klona@^2.0.4:
   resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
   integrity sha512-ZRbnvdg/NxqzC7L9Uyqzf4psi1OM4Cuc+sJAkQPjO6XkQIJTNbfK2Rsmbw8fx1p2mkZdp2FZYo2+LwXYY/uwIA==
 
-konva@8.2.1:
-  version "8.2.1"
-  resolved "https://registry.yarnpkg.com/konva/-/konva-8.2.1.tgz#e03c8a8ba79bcc5f4aff5f049f3a69400d54215d"
-  integrity sha512-1jYJWwfd0O1BxCHtEWdaMwT8BGlT9aBzmQZSIBXEGiZ0RWxIU3i8X1/1gLArgqn9KXg7ZTB+TvYMiCViMSADCw==
+konva@8.2.3:
+  version "8.2.3"
+  resolved "https://registry.yarnpkg.com/konva/-/konva-8.2.3.tgz#14723b0d67d688bd8da532a804d9cd44913297b4"
+  integrity sha512-2hDlDzB9goNgV0Fm6oQqbq3ZISL34bOYvIpe4iXXQmOiPFFy1o3wwo0z0CX2x2Gv+fS6SHDR/JsRNRtEquApXA==
 
 less-loader@10.0.1:
   version "10.0.1"
