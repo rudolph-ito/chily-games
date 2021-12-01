@@ -39,7 +39,7 @@
     "@types/express-session": "1.17.4",
     "@types/lodash.uniqby": "4.7.6",
     "@types/mocha": "9.0.0",
-    "@types/node": "16.11.6",
+    "@types/node": "16.11.11",
     "@types/passport": "1.0.7",
     "@types/passport-local": "1.0.34",
     "@types/redis": "2.8.32",
