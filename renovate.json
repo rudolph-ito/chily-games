@@ -12,7 +12,7 @@
       "groupName": "eslint packages"
     },
     {
-      "packagePatterns": ["angular", "typescript"],
+      "packagePatterns": ["angular"],
       "groupName": "angular packages"
     },
     {
