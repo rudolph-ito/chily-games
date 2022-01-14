@@ -12,6 +12,10 @@
       "groupName": "eslint packages"
     },
     {
+      "packagePatterns": ["angular", "typescript"],
+      "groupName": "angular packages"
+    },
+    {
       "packagePatterns": ["mocha", "chai", "sinon"],
       "groupName": "unit test packages"
     }
