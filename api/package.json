@@ -22,7 +22,7 @@
     "lodash.uniqby": "4.7.0",
     "passport": "0.5.2",
     "passport-json": "1.2.0",
-    "pg": "8.7.1",
+    "pg": "8.7.3",
     "redis": "3.1.2",
     "sequelize": "6.15.0",
     "sequelize-replace-enum-postgres": "1.6.0",
