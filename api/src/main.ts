@@ -13,7 +13,7 @@ const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
 
 startServer({
   port,
-  redisClientBuilder: () => createClient({ url: redisUrl }),
+  redisClientBuilder: () => createClient({ url: redisUrl, legacyMode: true }),
   sessionSecret,
   shouldLog: true,
 });

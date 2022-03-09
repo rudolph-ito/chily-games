@@ -14,22 +14,22 @@ import { StatusCodes } from "http-status-codes";
 import { getUserRouter } from "./user";
 import { Server as SocketIoServer } from "socket.io";
 import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter";
-import { RedisClient } from "redis";
 import connectRedis from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
 import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
+import { SimpleRedisClient } from "src/redis";
 
 const RedisStore = connectRedis(expressSession);
 
 export interface ICreateExpressAppOptions {
-  publishRedisClient: RedisClient;
+  publishRedisClient: SimpleRedisClient;
   sessionSecret: string;
-  sessionStoreRedisClient: RedisClient;
+  sessionStoreRedisClient: SimpleRedisClient;
 }
 
-export type RedisClientBuilder = () => RedisClient;
+export type RedisClientBuilder = () => SimpleRedisClient;
 
 export interface IStartServerOptions {
   port: number;
@@ -100,8 +100,11 @@ export function createExpressApp(
 
 export function startServer(options: IStartServerOptions): HttpServer {
   const publishRedisClient = options.redisClientBuilder();
+  publishRedisClient.connect();
   const subscribeRedisClient = options.redisClientBuilder();
+  subscribeRedisClient.connect();
   const sessionStoreRedisClient = options.redisClientBuilder();
+  sessionStoreRedisClient.connect();
   const app = createExpressApp({
     publishRedisClient,
     sessionSecret: options.sessionSecret,
