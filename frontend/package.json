@@ -23,7 +23,7 @@
     "konva": "8.3.3",
     "moment": "2.29.1",
     "ngx-timeago": "2.0.0",
-    "rxjs": "7.5.2",
+    "rxjs": "7.5.4",
     "socket.io-client": "4.4.1",
     "tslib": "2.3.1",
     "zone.js": "0.11.4"
@@ -44,7 +44,7 @@
     "karma-jasmine": "4.0.1",
     "karma-spec-reporter": "0.0.33",
     "protractor": "7.0.0",
-    "ts-node": "10.4.0",
+    "ts-node": "10.6.0",
     "typescript": "4.5.5"
   }
 }
