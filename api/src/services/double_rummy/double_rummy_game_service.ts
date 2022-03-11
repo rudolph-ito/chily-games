@@ -173,7 +173,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     if (game.state !== GameState.PICKUP) {
       throw new ValidationError("Invalid state to pickup.");
     }
-    const errorMessage = validatePickup(input, game.discardPile, () => []);
+    const errorMessage = validatePickup(input, game.discardPile, []); // TODO pass in player cards
     if (errorMessage != null) {
       throw new ValidationError(errorMessage);
     }

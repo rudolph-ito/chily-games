@@ -35,9 +35,16 @@ export enum GameState {
   ABORTED = "aborted",
 }
 
+export enum DiscardRestriction {
+  NONE = "none",
+  MUST_DISCARD_TO_A = "must_discard_to_a",
+  MUST_DISCARD_TO_B = "must_discard_to_b",
+}
+
 export interface IDiscardPile {
   A: ICard[];
   B: ICard[];
+  restriction: DiscardRestriction;
 }
 
 export interface IGame {
@@ -65,7 +72,7 @@ export interface IMeldInput {
 
 export interface IPickupInput {
   pickup?: ICard;
-  meld: IMeldInput;
+  meld?: IMeldInput;
 }
 
 export interface IPlayerPickup {

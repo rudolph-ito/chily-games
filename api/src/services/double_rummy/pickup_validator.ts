@@ -1,6 +1,7 @@
 import { ICard } from "../../shared/dtos/card";
 import {
   IDiscardPile,
+  IMeldInput,
   IPickupInput,
 } from "../../shared/dtos/double_rummy/game";
 import { areCardsEqual, getCardListDifference } from "../shared/card_helpers";
@@ -8,7 +9,7 @@ import { areCardsEqual, getCardListDifference } from "../shared/card_helpers";
 export function validatePickup(
   input: IPickupInput,
   discardPile: IDiscardPile,
-  getPlayerCards: () => ICard[]
+  playerCards: ICard[]
 ): null | string {
   const { pickup, meld } = input;
   if (
@@ -20,16 +21,8 @@ export function validatePickup(
       return "Cannot meld when picking up from deck or top of discard pile";
     }
   } else {
-    if (meld == null) {
-      return "Meld is required when picking up a buried card from a discard pile";
-    }
-    const playerCards = getPlayerCards();
-    const meldedCardsNotInHand = meld.cards.filter(
-      (meldCard) =>
-        !playerCards.some((playerCard) => areCardsEqual(playerCard, meldCard))
-    );
     for (const pile of [discardPile.A, discardPile.B]) {
-      const result = validateDeepPickup(pile, pickup, meldedCardsNotInHand);
+      const result = validateDeepPickup(pile, pickup, meld, playerCards);
       if (result.success) {
         return null;
       } else if (result.error != null) {
@@ -48,7 +41,7 @@ function isCardTopOfDiscard(pile: ICard[], card: ICard): boolean {
   return false;
 }
 
-export interface IDeepPickupValidationResult {
+interface IDeepPickupValidationResult {
   error?: string;
   success: boolean;
 }
@@ -56,23 +49,35 @@ export interface IDeepPickupValidationResult {
 function validateDeepPickup(
   pile: ICard[],
   pickup: ICard,
-  otherCardsPickedUpForMeld: ICard[]
+  meld: IMeldInput | undefined,
+  playerCards: ICard[]
 ): IDeepPickupValidationResult {
   const pileIndex = pile.findIndex((card) => areCardsEqual(card, pickup));
   if (pileIndex === -1) {
     return { success: false };
   }
+  if (meld == null) {
+    return {
+      success: false,
+      error:
+        "Meld is required when picking up a buried card from a discard pile",
+    };
+  }
+  const meldedCardsNotInHand = meld.cards.filter(
+    (meldCard) =>
+      !playerCards.some((playerCard) => areCardsEqual(playerCard, meldCard))
+  );
   const difference = getCardListDifference(
-    otherCardsPickedUpForMeld,
+    meldedCardsNotInHand,
     pile.slice(pileIndex + 1)
   );
   if (difference.length === 0) {
     return { success: true };
   }
   return {
+    success: false,
     error: `The following cards are not in the users hand or part of what is picked up: ${JSON.stringify(
       difference
     )}`,
-    success: false,
   };
 }
