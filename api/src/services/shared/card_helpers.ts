@@ -111,6 +111,23 @@ export function areCardHandsEquivalent(
   return setSymmetricDifference(setA, setB).size === 0;
 }
 
+// Returns cards in cardsA that are not in cardsB
+export function getCardListDifference(
+  cardsA: ICard[],
+  cardsB: ICard[]
+): ICard[] {
+  const setB: Set<number> = new Set<number>(
+    cardsB.map((x) => serializeCard(x))
+  );
+  const difference: ICard[] = [];
+  for (const card of cardsA) {
+    if (!setB.has(serializeCard(card))) {
+      difference.push(card);
+    }
+  }
+  return difference;
+}
+
 function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
   const difference = new Set<T>(setA);
   setB.forEach((elem) => {
