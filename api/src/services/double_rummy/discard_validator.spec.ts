@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
-import { DiscardRestriction, IDiscard, IDiscardPile } from "../../shared/dtos/double_rummy/game";
 import {
-  validateDiscard
-} from "./discard_validator";
+  DiscardRestriction,
+  IDiscard,
+} from "../../shared/dtos/double_rummy/game";
+import { validateDiscard } from "./discard_validator";
 
 interface IValidateDiscardExample {
   description: string;
@@ -16,58 +17,60 @@ interface IValidateDiscardExample {
 
 const examples: IValidateDiscardExample[] = [
   {
-    description: 'discard to A, no restrictions, card in hand',
+    description: "discard to A, no restrictions, card in hand",
     discard: { A: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.NONE,
     playerCards: [{ suit: CardSuit.CLUBS, rank: CardRank.ACE }],
     expectedResult: null,
   },
   {
-    description: 'discard to B, no restrictions, card in hand',
+    description: "discard to B, no restrictions, card in hand",
     discard: { B: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.NONE,
     playerCards: [{ suit: CardSuit.CLUBS, rank: CardRank.ACE }],
     expectedResult: null,
   },
   {
-    description: 'discard to A, no restrictions, card not in hand',
+    description: "discard to A, no restrictions, card not in hand",
     discard: { A: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.NONE,
     playerCards: [],
-    expectedResult: 'Discard not in your hand',
+    expectedResult: "Discard not in your hand",
   },
   {
-    description: 'discard to B, no restrictions, card not in hand',
+    description: "discard to B, no restrictions, card not in hand",
     discard: { B: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.NONE,
     playerCards: [],
-    expectedResult: 'Discard not in your hand',
+    expectedResult: "Discard not in your hand",
   },
   {
-    description: 'discard to A, must discard to A, card in hand',
+    description: "discard to A, must discard to A, card in hand",
     discard: { A: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.MUST_DISCARD_TO_A,
     playerCards: [{ suit: CardSuit.CLUBS, rank: CardRank.ACE }],
     expectedResult: null,
-  }, {
-    description: 'discard to A, must discard to B, card in hand',
+  },
+  {
+    description: "discard to A, must discard to B, card in hand",
     discard: { A: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.MUST_DISCARD_TO_B,
     playerCards: [{ suit: CardSuit.CLUBS, rank: CardRank.ACE }],
-    expectedResult: 'Must discard to other pile',
+    expectedResult: "Must discard to other pile",
   },
   {
-    description: 'discard to B, must discard to A, card in hand',
+    description: "discard to B, must discard to A, card in hand",
     discard: { B: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.MUST_DISCARD_TO_A,
     playerCards: [{ suit: CardSuit.CLUBS, rank: CardRank.ACE }],
-    expectedResult: 'Must discard to other pile',
-  }, {
-    description: 'discard to B, must discard to B, card in hand',
+    expectedResult: "Must discard to other pile",
+  },
+  {
+    description: "discard to B, must discard to B, card in hand",
     discard: { B: { suit: CardSuit.CLUBS, rank: CardRank.ACE } },
     discardRestriction: DiscardRestriction.MUST_DISCARD_TO_B,
     playerCards: [{ suit: CardSuit.CLUBS, rank: CardRank.ACE }],
-    expectedResult: null
+    expectedResult: null,
   },
 ];
 
@@ -78,7 +81,11 @@ describe("DoubleRummy - DiscardValidator", () => {
         // arrange
 
         // act
-        const result = validateDiscard(example.discard, example.discardRestriction, example.playerCards);
+        const result = validateDiscard(
+          example.discard,
+          example.discardRestriction,
+          example.playerCards
+        );
 
         // assert
         expect(result).to.eql(example.expectedResult);

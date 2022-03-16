@@ -3,6 +3,7 @@ import {
   areCardsARun,
   areCardsASet,
   areCardsEqual,
+  isCardInList,
   RunDirection,
 } from "../shared/card_helpers";
 
@@ -12,7 +13,7 @@ export function isValidDiscard(cards: ICard[]): boolean {
 
 export function isValidPickup(pickup: ICard, lastDiscards: ICard[]): boolean {
   if (lastDiscards.length === 1 || isValidSet(lastDiscards)) {
-    return lastDiscards.some((x) => areCardsEqual(pickup, x));
+    return isCardInList(lastDiscards, pickup);
   }
   if (isValidRun(lastDiscards)) {
     return (

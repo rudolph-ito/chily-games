@@ -99,7 +99,7 @@ export function standardDeckWithTwoJokers(): ICard[] {
 }
 
 export function isCardInList(list: ICard[], card: ICard): boolean {
-  return list.some(x => areCardsEqual(x, card))
+  return list.some((x) => areCardsEqual(x, card));
 }
 
 export function areCardHandsEquivalent(

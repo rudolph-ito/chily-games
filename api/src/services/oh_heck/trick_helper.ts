@@ -1,17 +1,14 @@
 import _ from "lodash";
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
 import { ITrickPlayerCard } from "../../shared/dtos/oh_heck/game";
-import { areCardsEqual } from "../shared/card_helpers";
+import { isCardInList } from "../shared/card_helpers";
 
 export function validatePlay(
   cardsInHand: ICard[],
   currentTrick: ITrickPlayerCard[],
   cardPlayed: ICard
 ): null | string {
-  const isCardInHand = cardsInHand.some((card) =>
-    areCardsEqual(card, cardPlayed)
-  );
-  if (!isCardInHand) {
+  if (!isCardInList(cardsInHand, cardPlayed)) {
     return "Card is not in your hand.";
   }
   if (currentTrick.length > 0) {

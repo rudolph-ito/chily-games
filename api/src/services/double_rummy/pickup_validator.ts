@@ -63,10 +63,7 @@ function validateDeepPickup(
         "Meld is required when picking up a buried card from a discard pile",
     };
   }
-  const meldedCardsNotInHand = meld.cards.filter(
-    (meldCard) =>
-      !playerCards.some((playerCard) => areCardsEqual(playerCard, meldCard))
-  );
+  const meldedCardsNotInHand = getCardListDifference(meld.cards, playerCards);
   const difference = getCardListDifference(
     meldedCardsNotInHand,
     pile.slice(pileIndex)

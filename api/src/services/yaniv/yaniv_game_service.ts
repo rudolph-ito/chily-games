@@ -27,6 +27,7 @@ import {
 import {
   areCardHandsEquivalent,
   areCardsEqual,
+  getCardListDifference,
   standardDeckWithTwoJokers,
 } from "../shared/card_helpers";
 import { isValidDiscard, isValidPickup } from "./discard_validator";
@@ -334,8 +335,8 @@ export class YanivGameService implements IYanivGameService {
     );
     const playerState = orderedPlayers[0];
     if (
-      _.differenceWith(cardsDiscarded, playerState.cardsInHand, areCardsEqual)
-        .length !== 0
+      getCardListDifference(cardsDiscarded, playerState.cardsInHand).length !==
+      0
     ) {
       throw new ValidationError("Can only discard cards in your hand.");
     }
@@ -350,10 +351,9 @@ export class YanivGameService implements IYanivGameService {
     }
     let discardsToBury = game.cardsOnTopOfDiscardPile;
     let cardPickedUpFromDeck: ICard | undefined;
-    playerState.cardsInHand = _.differenceWith(
+    playerState.cardsInHand = getCardListDifference(
       playerState.cardsInHand,
-      cardsDiscarded,
-      areCardsEqual
+      cardsDiscarded
     );
     if (cardPickedUp != null) {
       playerState.cardsInHand.push(cardPickedUp);
