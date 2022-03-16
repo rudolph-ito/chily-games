@@ -98,6 +98,10 @@ export function standardDeckWithTwoJokers(): ICard[] {
   return deck;
 }
 
+export function isCardInList(list: ICard[], card: ICard): boolean {
+  return list.some(x => areCardsEqual(x, card))
+}
+
 export function areCardHandsEquivalent(
   cardsA: ICard[],
   cardsB: ICard[]

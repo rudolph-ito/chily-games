@@ -181,7 +181,7 @@ const examples: IValidateMeldExample[] = [
   },
 ];
 
-describe.only("DoubleRummy - MeldValidator", () => {
+describe("DoubleRummy - MeldValidator", () => {
   describe("validateMeld", () => {
     examples.forEach((example) => {
       it(example.description, () => {
