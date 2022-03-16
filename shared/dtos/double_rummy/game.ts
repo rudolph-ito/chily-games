@@ -1,9 +1,14 @@
 import { IPaginationRequest } from "../search";
 import { ICard } from "../card";
 
+export interface IMeldElement {
+  card: ICard;
+  userId: number;
+}
+
 export interface IMeld {
   id: number;
-  cards: ICard[];
+  elements: IMeldElement[];
 }
 
 export interface IPlayerState {
@@ -11,7 +16,6 @@ export interface IPlayerState {
   displayName: string;
   numberOfCards: number;
   cardsInHand: ICard[];
-  melds: IMeld[];
 }
 
 export interface IRoundPlayerScore {

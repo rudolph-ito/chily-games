@@ -69,7 +69,7 @@ function validateDeepPickup(
   );
   const difference = getCardListDifference(
     meldedCardsNotInHand,
-    pile.slice(pileIndex + 1)
+    pile.slice(pileIndex)
   );
   if (difference.length === 0) {
     return { success: true };
