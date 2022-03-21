@@ -102,6 +102,11 @@ export function isCardInList(list: ICard[], card: ICard): boolean {
   return list.some((x) => areCardsEqual(x, card));
 }
 
+export function removeCardFromList(list: ICard[], card: ICard): void {
+  const index = list.findIndex((x) => areCardsEqual(x, card));
+  list.splice(index, 1);
+}
+
 export function areCardHandsEquivalent(
   cardsA: ICard[],
   cardsB: ICard[]

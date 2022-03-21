@@ -7,6 +7,7 @@ import {
   GameState,
   IDiscardPile,
   IGameOptions,
+  IMeld,
   ISearchGamesRequest,
 } from "../../../shared/dtos/double_rummy/game";
 import {
@@ -27,6 +28,7 @@ export interface IDoubleRummyUpdateOptions {
   actionToUserId?: number;
   cardsInDeck?: ICard[];
   discardPile?: IDiscardPile;
+  melds?: IMeld[];
   players?: IDoubleRummyPlayer[];
   completedRounds?: IDoubleRummyPlayerScore[][];
 }

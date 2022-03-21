@@ -33,7 +33,7 @@ export interface IGameOptions {
 export enum GameState {
   PLAYERS_JOINING = "players_joining",
   PICKUP = "pickup",
-  DISCARD = "discard",
+  MELD_OR_DISCARD = "meld_or_discard",
   ROUND_COMPLETE = "round_complete",
   COMPLETE = "complete",
   ABORTED = "aborted",
@@ -69,49 +69,42 @@ export interface IPlayerJoinedEvent {
   playerStates: IPlayerState[];
 }
 
+export interface IPickupInput {
+  pickup?: ICard;
+  deepPickupMeld?: IMeldInput;
+}
+
+export interface IPickupEvent {
+  userId: number;
+  pickup: IPickupInput;
+  updatedGameState: GameState;
+  actionToUserId: number;
+}
+
 export interface IMeldInput {
   id?: number;
   cards: ICard[];
 }
 
-export interface IPickupInput {
-  pickup?: ICard;
-  meld?: IMeldInput;
-}
-
-export interface IPlayerPickup {
+export interface IMeldEvent {
   userId: number;
-  pickup?: ICard;
-  meld?: IMeld;
-}
-
-export interface IPickupEvent {
-  pickup: IPlayerPickup;
+  meld: IMeldInput;
   updatedGameState: GameState;
   actionToUserId: number;
+  roundScore?: IRoundScore;
 }
 
-export interface IDiscard {
+export interface IDiscardInput {
   A?: ICard;
   B?: ICard;
 }
 
-export interface IDiscardInput {
-  melds: IMeldInput[];
-  discard: IDiscard;
-}
-
-export interface IPlayerDiscard {
-  userId: number;
-  melds: IMeld[];
-  discard: IDiscard;
-}
-
 export interface IDiscardEvent {
-  discard: IPlayerDiscard;
-  roundScore?: IRoundScore;
+  userId: number;
+  discard: IDiscardInput;
   updatedGameState: GameState;
   actionToUserId: number;
+  roundScore?: IRoundScore;
 }
 
 export interface INewGameStartedEvent {

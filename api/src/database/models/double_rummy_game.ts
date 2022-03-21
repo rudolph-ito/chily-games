@@ -28,6 +28,7 @@ export interface ISerializedDoubleRummyGame {
   actionToUserId: number;
   players: IDoubleRummyPlayer[];
   cardsInDeck: ICard[];
+  melds: IMeld[];
   discardPile: IDiscardPile;
   completedRounds: IDoubleRummyPlayerScore[][];
   version: number;
@@ -53,6 +54,7 @@ export class DoubleRummyGame extends Model {
   public players!: IDoubleRummyPlayer[];
   public cardsInDeck!: ICard[];
   public discardPile!: IDiscardPile;
+  public melds!: IMeld[];
   public completedRounds!: IDoubleRummyPlayerScore[][];
   public version!: number;
   public createdAt!: Date;
@@ -68,6 +70,7 @@ export class DoubleRummyGame extends Model {
       players: this.players,
       cardsInDeck: this.cardsInDeck,
       discardPile: this.discardPile,
+      melds: this.melds,
       completedRounds: this.completedRounds,
       version: this.version,
       createdAt: this.createdAt,
@@ -116,6 +119,10 @@ DoubleRummyGame.init(
       allowNull: false,
     },
     discardPile: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+    },
+    melds: {
       type: DataTypes.JSONB,
       allowNull: false,
     },

@@ -8,11 +8,14 @@ import {
 } from "../shared/data/user_data_service";
 import { ICard } from "../../shared/dtos/card";
 import {
+  DiscardRestriction,
   GameState,
   IDiscardEvent,
   IDiscardInput,
   IGame,
   IGameOptions,
+  IMeldEvent,
+  IMeldInput,
   IPickupEvent,
   IPickupInput,
   IPlayerState,
@@ -29,7 +32,9 @@ import {
   IDoubleRummyPlayerScore,
   ISerializedDoubleRummyGame,
 } from "../../database/models/double_rummy_game";
-import { validatePickup } from "./pickup_validator";
+import { performPickup } from "./pickup_helper";
+import { performDiscard } from "./discard_helper";
+import { performMeld } from "./meld_helper";
 
 export interface IDoubleRummyGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
@@ -43,6 +48,11 @@ export interface IDoubleRummyGameService {
     gameId: number,
     input: IPickupInput
   ) => Promise<IPickupEvent>;
+  meld: (
+    userId: number,
+    gameId: number,
+    input: IMeldInput
+  ) => Promise<IMeldEvent>;
   discard: (
     userId: number,
     gameId: number,
@@ -153,8 +163,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
       discardPile: {
         A: [],
         B: [],
-        mustDiscardToA: false,
-        mustDiscardToB: false,
+        restriction: DiscardRestriction.NONE,
       },
       actionToUserId: game.players[firstToActIndex].userId,
     });
@@ -173,21 +182,81 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     if (game.state !== GameState.PICKUP) {
       throw new ValidationError("Invalid state to pickup.");
     }
-    const errorMessage = validatePickup(input, game.discardPile, []); // TODO pass in player cards
+    const player = game.players.find((x) => x.userId === userId);
+    if (player == null) {
+      throw new Error("Player unexpectedly null");
+    }
+    const errorMessage = performPickup(
+      input,
+      game.cardsInDeck,
+      game.discardPile,
+      player.cardsInHand
+    );
     if (errorMessage != null) {
       throw new ValidationError(errorMessage);
     }
-    // TODO validate meld
-    // TODO update player hand + meld
-    const updatedPlayers = game.players;
-    const updatedState = GameState.DISCARD;
+    if (input.deepPickupMeld != null) {
+      const errorMessage = performMeld(
+        input.deepPickupMeld,
+        userId,
+        player.cardsInHand,
+        game.melds
+      );
+      if (errorMessage != null) {
+        throw new ValidationError(errorMessage);
+      }
+    }
+    const updatedState = GameState.MELD_OR_DISCARD;
     await this.gameDataService.update(game.gameId, game.version, {
-      players: updatedPlayers,
+      cardsInDeck: game.cardsInDeck,
+      discardPile: game.discardPile,
+      melds: game.melds,
+      players: game.players,
       state: updatedState,
     });
     const result: IPickupEvent = {
-      pickup: { userId, pickup: input.pickup }, // TODO set meld
+      userId,
+      pickup: input,
       updatedGameState: updatedState,
+      actionToUserId: game.actionToUserId,
+    };
+    return result;
+  }
+
+  async meld(
+    userId: number,
+    gameId: number,
+    input: IMeldInput
+  ): Promise<IMeldEvent> {
+    const game = await this.gameDataService.get(gameId);
+    if (game.actionToUserId !== userId) {
+      throw new ValidationError("Action is not to you.");
+    }
+    if (game.state !== GameState.MELD_OR_DISCARD) {
+      throw new ValidationError("Invalid state to meld.");
+    }
+    const player = game.players.find((x) => x.userId === userId);
+    if (player == null) {
+      throw new Error("Player unexpectedly null");
+    }
+    const errorMessage = performMeld(
+      input,
+      userId,
+      player.cardsInHand,
+      game.melds
+    );
+    if (errorMessage != null) {
+      throw new ValidationError(errorMessage);
+    }
+    // TODO if zero cards left in hand, end round
+    await this.gameDataService.update(game.gameId, game.version, {
+      melds: game.melds,
+      players: game.players,
+    });
+    const result: IMeldEvent = {
+      userId,
+      meld: input,
+      updatedGameState: game.state,
       actionToUserId: game.actionToUserId,
     };
     return result;
@@ -202,18 +271,33 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
-    if (game.state !== GameState.DISCARD) {
+    if (game.state !== GameState.MELD_OR_DISCARD) {
       throw new ValidationError("Invalid state to pickup.");
     }
-    // TODO validate discard
-    // TODO update players / discard pile + if must discard to specific pile
-    const updatedPlayers = game.players;
-    const updatedState = GameState.PICKUP; // TODO could be round complete
-    const updatedDiscardPile = game.discardPile;
-    const updatedActionToUserId = this.getNextPlayerUserId(
+    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
       game.players,
       userId
     );
+    const player = orderedPlayers[0];
+    const errorMessage = performDiscard(
+      input,
+      player.cardsInHand,
+      game.discardPile
+    );
+    if (errorMessage != null) {
+      throw new ValidationError(errorMessage);
+    }
+    const updatedPlayers = game.players;
+    const updatedState = GameState.PICKUP; // TODO could be round complete
+    const updatedDiscardPile = game.discardPile;
+    if (input.A != null) {
+      updatedDiscardPile.A.push(input.A);
+    } else if (input.B != null) {
+      updatedDiscardPile.B.push(input.B);
+    } else {
+      throw new Error("Discard unexpectedly empty");
+    }
+    const updatedActionToUserId = orderedPlayers[1].userId;
     await this.gameDataService.update(game.gameId, game.version, {
       players: updatedPlayers,
       state: updatedState,
@@ -221,7 +305,8 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
       actionToUserId: updatedActionToUserId,
     });
     const result: IDiscardEvent = {
-      discard: { userId, discard: input.discard, melds: [] }, // TODO melds
+      userId,
+      discard: input,
       updatedGameState: updatedState,
       actionToUserId: updatedActionToUserId,
     };
@@ -337,9 +422,11 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
         displayName: userIdToDisplayName[p.userId],
         numberOfCards: 0,
         cardsInHand: [],
-        melds: p.melds,
       };
-      if (game.state === GameState.PICKUP || game.state === GameState.DISCARD) {
+      if (
+        game.state === GameState.PICKUP ||
+        game.state === GameState.MELD_OR_DISCARD
+      ) {
         out.numberOfCards = p.cardsInHand.length;
         if (userId === p.userId) {
           out.cardsInHand = p.cardsInHand;
