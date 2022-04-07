@@ -1,9 +1,5 @@
 import { ICard } from "src/shared/dtos/card";
-import {
-  IMeld,
-  IMeldElement,
-  IMeldInput,
-} from "../../shared/dtos/double_rummy/game";
+import { IMeld, IMeldElement, IMeldInput } from "../../shared/dtos/rummy/game";
 import {
   areCardsARun,
   areCardsASet,

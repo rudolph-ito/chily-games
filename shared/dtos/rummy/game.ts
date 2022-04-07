@@ -27,7 +27,8 @@ export interface IRoundScore {
 }
 
 export interface IGameOptions {
-  game_point_threshold: boolean;
+  pointThreshold: boolean;
+  numberOfDiscardPiles: number;
 }
 
 export enum GameState {
@@ -39,16 +40,9 @@ export enum GameState {
   ABORTED = "aborted",
 }
 
-export enum DiscardRestriction {
-  NONE = "none",
-  MUST_DISCARD_TO_A = "must_discard_to_a",
-  MUST_DISCARD_TO_B = "must_discard_to_b",
-}
-
-export interface IDiscardPile {
-  A: ICard[];
-  B: ICard[];
-  restriction: DiscardRestriction;
+export interface IDiscardState {
+  piles: ICard[][];
+  mustDiscardToPileIndex?: number;
 }
 
 export interface IGame {
@@ -58,7 +52,7 @@ export interface IGame {
   state: GameState;
   playerStates: IPlayerState[];
   cardsInDeck: ICard[];
-  discardPile: IDiscardPile;
+  discardState: IDiscardState;
   roundScores: IRoundScore[];
   actionToUserId: number;
   createdAt: string;
@@ -95,8 +89,8 @@ export interface IMeldEvent {
 }
 
 export interface IDiscardInput {
-  A?: ICard;
-  B?: ICard;
+  card: ICard;
+  pileIndex: number;
 }
 
 export interface IDiscardEvent {

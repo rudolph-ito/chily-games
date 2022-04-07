@@ -4,33 +4,33 @@ import { ICard } from "../../shared/dtos/card";
 import { User } from "./user";
 import {
   GameState,
-  IDiscardPile,
+  IDiscardState,
   IGameOptions,
   IMeld,
-} from "../../shared/dtos/double_rummy/game";
+} from "../../shared/dtos/rummy/game";
 
-export interface IDoubleRummyPlayer {
+export interface IRummyPlayer {
   userId: number;
   cardsInHand: ICard[];
   melds: IMeld[];
 }
 
-export interface IDoubleRummyPlayerScore {
+export interface IRummyPlayerScore {
   userId: number;
   score: number;
 }
 
-export interface ISerializedDoubleRummyGame {
+export interface ISerializedRummyGame {
   gameId: number;
   hostUserId: number;
   options: IGameOptions;
   state: GameState;
   actionToUserId: number;
-  players: IDoubleRummyPlayer[];
+  players: IRummyPlayer[];
   cardsInDeck: ICard[];
   melds: IMeld[];
-  discardPile: IDiscardPile;
-  completedRounds: IDoubleRummyPlayerScore[][];
+  discardState: IDiscardState;
+  completedRounds: IRummyPlayerScore[][];
   version: number;
   createdAt: Date;
   updatedAt: Date;
@@ -39,28 +39,28 @@ export interface ISerializedDoubleRummyGame {
 const STATE_ENUM = DataTypes.ENUM(
   GameState.PLAYERS_JOINING,
   GameState.PICKUP,
-  GameState.DISCARD,
+  GameState.MELD_OR_DISCARD,
   GameState.ROUND_COMPLETE,
   GameState.COMPLETE,
   GameState.ABORTED
 );
 
-export class DoubleRummyGame extends Model {
+export class RummyGame extends Model {
   public gameId!: number;
   public hostUserId!: number;
   public options!: IGameOptions;
   public state!: GameState;
   public actionToUserId!: number;
-  public players!: IDoubleRummyPlayer[];
+  public players!: IRummyPlayer[];
   public cardsInDeck!: ICard[];
-  public discardPile!: IDiscardPile;
+  public discardState!: IDiscardState;
   public melds!: IMeld[];
-  public completedRounds!: IDoubleRummyPlayerScore[][];
+  public completedRounds!: IRummyPlayerScore[][];
   public version!: number;
   public createdAt!: Date;
   public updatedAt!: Date;
 
-  serialize(): ISerializedDoubleRummyGame {
+  serialize(): ISerializedRummyGame {
     return {
       gameId: this.gameId,
       hostUserId: this.hostUserId,
@@ -69,7 +69,7 @@ export class DoubleRummyGame extends Model {
       actionToUserId: this.actionToUserId,
       players: this.players,
       cardsInDeck: this.cardsInDeck,
-      discardPile: this.discardPile,
+      discardState: this.discardState,
       melds: this.melds,
       completedRounds: this.completedRounds,
       version: this.version,
@@ -78,7 +78,7 @@ export class DoubleRummyGame extends Model {
     };
   }
 }
-DoubleRummyGame.init(
+RummyGame.init(
   {
     gameId: {
       type: DataTypes.INTEGER,

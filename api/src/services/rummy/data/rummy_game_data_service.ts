@@ -5,67 +5,61 @@ import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
 import { FindAndCountOptions, Op } from "sequelize";
 import {
   GameState,
-  IDiscardPile,
+  IDiscardState,
   IGameOptions,
   IMeld,
   ISearchGamesRequest,
-} from "../../../shared/dtos/double_rummy/game";
+} from "../../../shared/dtos/rummy/game";
 import {
-  DoubleRummyGame,
-  IDoubleRummyPlayer,
-  IDoubleRummyPlayerScore,
-  ISerializedDoubleRummyGame,
-} from "../../../database/models/double_rummy_game";
+  RummyGame,
+  IRummyPlayer,
+  IRummyPlayerScore,
+  ISerializedRummyGame,
+} from "../../../database/models/rummy_game";
+import { times } from "lodash";
 
-export interface IDoubleRummyCreateOptions {
+export interface IRummyCreateOptions {
   hostUserId: number;
   options: IGameOptions;
 }
 
-export interface IDoubleRummyUpdateOptions {
+export interface IRummyUpdateOptions {
   options?: IGameOptions;
   state?: GameState;
   actionToUserId?: number;
   cardsInDeck?: ICard[];
-  discardPile?: IDiscardPile;
+  discardState?: IDiscardState;
   melds?: IMeld[];
-  players?: IDoubleRummyPlayer[];
-  completedRounds?: IDoubleRummyPlayerScore[][];
+  players?: IRummyPlayer[];
+  completedRounds?: IRummyPlayerScore[][];
 }
 
-export interface IDoubleRummyGameDataService {
-  create: (
-    options: IDoubleRummyCreateOptions
-  ) => Promise<ISerializedDoubleRummyGame>;
-  get: (gameId: number) => Promise<ISerializedDoubleRummyGame>;
+export interface IRummyGameDataService {
+  create: (options: IRummyCreateOptions) => Promise<ISerializedRummyGame>;
+  get: (gameId: number) => Promise<ISerializedRummyGame>;
   update: (
     gameId: number,
     version: number,
-    options: IDoubleRummyUpdateOptions
-  ) => Promise<ISerializedDoubleRummyGame>;
+    options: IRummyUpdateOptions
+  ) => Promise<ISerializedRummyGame>;
   search: (
     request: ISearchGamesRequest
-  ) => Promise<IPaginatedResponse<ISerializedDoubleRummyGame>>;
+  ) => Promise<IPaginatedResponse<ISerializedRummyGame>>;
   abortUnfinishedGames: (ageInHoursThreshold: number) => Promise<any>;
 }
 
-export class DoubleRummyGameDataService implements IDoubleRummyGameDataService {
-  async create(
-    options: IDoubleRummyCreateOptions
-  ): Promise<ISerializedDoubleRummyGame> {
-    const game = DoubleRummyGame.build({
-      hostUserId: options.hostUserId,
-      actionToUserId: options.hostUserId,
-      options: options.options,
+export class RummyGameDataService implements IRummyGameDataService {
+  async create(input: IRummyCreateOptions): Promise<ISerializedRummyGame> {
+    const piles: ICard[][] = [];
+    times(input.options.numberOfDiscardPiles, () => piles.push([]));
+    const game = RummyGame.build({
+      hostUserId: input.hostUserId,
+      actionToUserId: input.hostUserId,
+      options: input.options,
       state: GameState.PLAYERS_JOINING,
       cardsInDeck: [],
-      discardPile: {
-        A: [],
-        B: [],
-      },
-      players: [
-        { userId: options.hostUserId, cardsInHand: [], meldedCards: [] },
-      ],
+      discardState: { piles },
+      players: [{ userId: input.hostUserId, cardsInHand: [], meldedCards: [] }],
       completedRounds: [],
       version: 1,
     });
@@ -74,7 +68,7 @@ export class DoubleRummyGameDataService implements IDoubleRummyGameDataService {
   }
 
   async abortUnfinishedGames(ageInHoursThreshold: number): Promise<number> {
-    const result = await DoubleRummyGame.update(
+    const result = await RummyGame.update(
       {
         state: GameState.ABORTED,
       },
@@ -94,8 +88,8 @@ export class DoubleRummyGameDataService implements IDoubleRummyGameDataService {
     return result[0];
   }
 
-  async get(gameId: number): Promise<ISerializedDoubleRummyGame> {
-    const game = await DoubleRummyGame.findByPk(gameId);
+  async get(gameId: number): Promise<ISerializedRummyGame> {
+    const game = await RummyGame.findByPk(gameId);
     if (game == null) {
       throw gameNotFoundError(gameId);
     }
@@ -104,11 +98,11 @@ export class DoubleRummyGameDataService implements IDoubleRummyGameDataService {
 
   async search(
     request: ISearchGamesRequest
-  ): Promise<IPaginatedResponse<ISerializedDoubleRummyGame>> {
+  ): Promise<IPaginatedResponse<ISerializedRummyGame>> {
     if (doesNotHaveValue(request.pagination)) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
-    const options: FindAndCountOptions<DoubleRummyGame> = {
+    const options: FindAndCountOptions<RummyGame> = {
       offset: request.pagination.pageIndex * request.pagination.pageSize,
       order: [["createdAt", "DESC"]],
       limit: request.pagination.pageSize,
@@ -118,9 +112,9 @@ export class DoubleRummyGameDataService implements IDoubleRummyGameDataService {
         state: { [Op.notIn]: [GameState.COMPLETE, GameState.ABORTED] },
       };
     }
-    const result = await DoubleRummyGame.findAndCountAll(options);
+    const result = await RummyGame.findAndCountAll(options);
     return {
-      data: result.rows.map((r: DoubleRummyGame) => r.serialize()),
+      data: result.rows.map((r: RummyGame) => r.serialize()),
       total: result.count,
     };
   }
@@ -128,14 +122,14 @@ export class DoubleRummyGameDataService implements IDoubleRummyGameDataService {
   async update(
     gameId: number,
     version: number,
-    options: IDoubleRummyUpdateOptions
-  ): Promise<ISerializedDoubleRummyGame> {
+    options: IRummyUpdateOptions
+  ): Promise<ISerializedRummyGame> {
     const updates: any = {};
     for (const [key, value] of Object.entries(options)) {
       updates[key] = value;
     }
     updates.version = version + 1;
-    const result = await DoubleRummyGame.update(updates, {
+    const result = await RummyGame.update(updates, {
       where: {
         gameId,
         version,

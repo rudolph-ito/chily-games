@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
-import { IMeld, IMeldInput } from "../../shared/dtos/double_rummy/game";
+import { IMeld, IMeldInput } from "../../shared/dtos/rummy/game";
 import { performMeld } from "./meld_helper";
 import { cloneDeep } from "lodash";
 
@@ -443,7 +443,7 @@ const examples: IPerformMeldExample[] = [
   },
 ];
 
-describe.only("DoubleRummy - MeldHelper", () => {
+describe("DoubleRummy - MeldHelper", () => {
   describe("performMeld", () => {
     examples.forEach((example) => {
       it(example.description, () => {

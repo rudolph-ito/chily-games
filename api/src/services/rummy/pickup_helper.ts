@@ -1,16 +1,16 @@
 import { ICard } from "../../shared/dtos/card";
 import {
-  IDiscardPile,
+  IDiscardState,
   IMeldInput,
   IPickupInput,
-} from "../../shared/dtos/double_rummy/game";
+} from "../../shared/dtos/rummy/game";
 import { areCardsEqual } from "../shared/card_helpers";
 
 // Validates the pickup and if valid in-place updates cardsInDeck / discardPile / playerCards
 export function performPickup(
   input: IPickupInput,
   cardsInDeck: ICard[],
-  discardPile: IDiscardPile,
+  discardState: IDiscardState,
   playerCards: ICard[]
 ): null | string {
   const { pickup, deepPickupMeld } = input;
@@ -25,7 +25,7 @@ export function performPickup(
     playerCards.push(deckCard);
     return null;
   }
-  for (const pile of [discardPile.A, discardPile.B]) {
+  for (const pile of discardState.piles) {
     if (isCardTopOfDiscard(pile, pickup)) {
       if (deepPickupMeld != null) {
         return "Cannot meld when picking up from top of discard pile";

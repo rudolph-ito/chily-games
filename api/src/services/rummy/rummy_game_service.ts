@@ -8,7 +8,6 @@ import {
 } from "../shared/data/user_data_service";
 import { ICard } from "../../shared/dtos/card";
 import {
-  DiscardRestriction,
   GameState,
   IDiscardEvent,
   IDiscardInput,
@@ -22,16 +21,16 @@ import {
   IRoundScore,
   ISearchedGame,
   ISearchGamesRequest,
-} from "../../shared/dtos/double_rummy/game";
+} from "../../shared/dtos/rummy/game";
 import {
-  DoubleRummyGameDataService,
-  IDoubleRummyGameDataService,
-} from "./data/double_rummy_game_data_service";
+  RummyGameDataService,
+  IRummyGameDataService,
+} from "./data/rummy_game_data_service";
 import {
-  IDoubleRummyPlayer,
-  IDoubleRummyPlayerScore,
-  ISerializedDoubleRummyGame,
-} from "../../database/models/double_rummy_game";
+  IRummyPlayer,
+  IRummyPlayerScore,
+  ISerializedRummyGame,
+} from "../../database/models/rummy_game";
 import { performPickup } from "./pickup_helper";
 import { performDiscard } from "./discard_helper";
 import { performMeld } from "./meld_helper";
@@ -72,7 +71,7 @@ export const CARDS_DEALT_PER_ROUND = 7;
 
 export class DoubleRummyGameService implements IDoubleRummyGameService {
   constructor(
-    private readonly gameDataService: IDoubleRummyGameDataService = new DoubleRummyGameDataService(),
+    private readonly gameDataService: IRummyGameDataService = new RummyGameDataService(),
     private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
 
@@ -139,32 +138,26 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     const deck = standardDeck();
     const roundNumber = game.completedRounds.length + 1;
     const firstToActIndex = (roundNumber - 1) % game.players.length;
-    const updatedPlayers: IDoubleRummyPlayer[] = game.players.map(
-      ({ userId }) => {
-        const player: IDoubleRummyPlayer = {
-          userId,
-          cardsInHand: [],
-          melds: [],
-        };
-        for (let i = 0; i < CARDS_DEALT_PER_ROUND; i++) {
-          const nextCard = deck.pop();
-          if (nextCard == null) {
-            throw new Error("Unexpected empty deck (dealing to players)");
-          }
-          player.cardsInHand.push(nextCard);
+    const updatedPlayers: IRummyPlayer[] = game.players.map(({ userId }) => {
+      const player: IRummyPlayer = {
+        userId,
+        cardsInHand: [],
+        melds: [],
+      };
+      for (let i = 0; i < CARDS_DEALT_PER_ROUND; i++) {
+        const nextCard = deck.pop();
+        if (nextCard == null) {
+          throw new Error("Unexpected empty deck (dealing to players)");
         }
-        return player;
+        player.cardsInHand.push(nextCard);
       }
-    );
+      return player;
+    });
     game = await this.gameDataService.update(gameId, game.version, {
       players: updatedPlayers,
       state: GameState.PICKUP,
       cardsInDeck: deck,
-      discardPile: {
-        A: [],
-        B: [],
-        restriction: DiscardRestriction.NONE,
-      },
+      discardState: { piles: [[]] },
       actionToUserId: game.players[firstToActIndex].userId,
     });
     return await this.loadFullGame(userId, game);
@@ -189,7 +182,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     const errorMessage = performPickup(
       input,
       game.cardsInDeck,
-      game.discardPile,
+      game.discardState,
       player.cardsInHand
     );
     if (errorMessage != null) {
@@ -209,7 +202,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     const updatedState = GameState.MELD_OR_DISCARD;
     await this.gameDataService.update(game.gameId, game.version, {
       cardsInDeck: game.cardsInDeck,
-      discardPile: game.discardPile,
+      discardState: game.discardState,
       melds: game.melds,
       players: game.players,
       state: updatedState,
@@ -282,26 +275,18 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     const errorMessage = performDiscard(
       input,
       player.cardsInHand,
-      game.discardPile
+      game.discardState
     );
     if (errorMessage != null) {
       throw new ValidationError(errorMessage);
     }
     const updatedPlayers = game.players;
     const updatedState = GameState.PICKUP; // TODO could be round complete
-    const updatedDiscardPile = game.discardPile;
-    if (input.A != null) {
-      updatedDiscardPile.A.push(input.A);
-    } else if (input.B != null) {
-      updatedDiscardPile.B.push(input.B);
-    } else {
-      throw new Error("Discard unexpectedly empty");
-    }
     const updatedActionToUserId = orderedPlayers[1].userId;
     await this.gameDataService.update(game.gameId, game.version, {
       players: updatedPlayers,
       state: updatedState,
-      discardPile: updatedDiscardPile,
+      discardState: game.discardState,
       actionToUserId: updatedActionToUserId,
     });
     const result: IDiscardEvent = {
@@ -362,10 +347,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     };
   }
 
-  private getNextPlayerUserId(
-    players: IDoubleRummyPlayer[],
-    userId: number
-  ): number {
+  private getNextPlayerUserId(players: IRummyPlayer[], userId: number): number {
     const orderedPlayers = this.getPlayersOrderedToStartWithUser(
       players,
       userId
@@ -374,9 +356,9 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
   }
 
   private getPlayersOrderedToStartWithUser(
-    playerStates: IDoubleRummyPlayer[],
+    playerStates: IRummyPlayer[],
     userId: number
-  ): IDoubleRummyPlayer[] {
+  ): IRummyPlayer[] {
     const reorderedPlayers = playerStates.slice();
     while (reorderedPlayers[0].userId !== userId) {
       const playerState = reorderedPlayers.shift();
@@ -389,7 +371,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
 
   private async loadFullGame(
     userId: number,
-    game: ISerializedDoubleRummyGame
+    game: ISerializedRummyGame
   ): Promise<IGame> {
     return {
       gameId: game.gameId,
@@ -399,7 +381,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
       actionToUserId: game.actionToUserId,
       playerStates: await this.loadPlayerStates(userId, game),
       cardsInDeck: game.cardsInDeck,
-      discardPile: game.discardPile,
+      discardState: game.discardState,
       roundScores: game.completedRounds.map(this.buildRoundScore),
       createdAt: game.createdAt.toISOString(),
       updatedAt: game.updatedAt.toISOString(),
@@ -408,7 +390,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
 
   private async loadPlayerStates(
     userId: number,
-    game: ISerializedDoubleRummyGame
+    game: ISerializedRummyGame
   ): Promise<IPlayerState[]> {
     const users = await this.userDataService.getUsers(
       game.players.map((x) => x.userId)
@@ -436,9 +418,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     });
   }
 
-  private buildRoundScore(
-    completedRounds: IDoubleRummyPlayerScore[]
-  ): IRoundScore {
+  private buildRoundScore(completedRounds: IRummyPlayerScore[]): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
       out[x.userId] = {
@@ -448,9 +428,7 @@ export class DoubleRummyGameService implements IDoubleRummyGameService {
     return out;
   }
 
-  private determineScores(
-    players: IDoubleRummyPlayer[]
-  ): IDoubleRummyPlayerScore[] {
+  private determineScores(players: IRummyPlayer[]): IRummyPlayerScore[] {
     return players.map((player) => {
       return {
         userId: player.userId,
