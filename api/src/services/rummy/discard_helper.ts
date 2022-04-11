@@ -4,7 +4,7 @@ import { isCardInList, removeCardFromList } from "../shared/card_helpers";
 
 const RESTRICTION_THRESHOLD = 5;
 
-// Validate discard and if valid, in place updates playerCards and discardPile
+// Validate discard and if valid, in place updates playerCards and discardState
 export function performDiscard(
   input: IDiscardInput,
   playerCards: ICard[],

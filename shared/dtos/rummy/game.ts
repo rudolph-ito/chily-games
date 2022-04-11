@@ -27,7 +27,7 @@ export interface IRoundScore {
 }
 
 export interface IGameOptions {
-  pointThreshold: boolean;
+  pointThreshold: number;
   numberOfDiscardPiles: number;
 }
 

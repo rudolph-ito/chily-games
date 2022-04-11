@@ -118,7 +118,7 @@ RummyGame.init(
       type: DataTypes.JSONB,
       allowNull: false,
     },
-    discardPile: {
+    discardState: {
       type: DataTypes.JSONB,
       allowNull: false,
     },

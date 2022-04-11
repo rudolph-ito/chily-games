@@ -59,6 +59,7 @@ export class RummyGameDataService implements IRummyGameDataService {
       state: GameState.PLAYERS_JOINING,
       cardsInDeck: [],
       discardState: { piles },
+      melds: [],
       players: [{ userId: input.hostUserId, cardsInHand: [], meldedCards: [] }],
       completedRounds: [],
       version: 1,

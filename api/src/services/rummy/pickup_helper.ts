@@ -6,7 +6,7 @@ import {
 } from "../../shared/dtos/rummy/game";
 import { areCardsEqual } from "../shared/card_helpers";
 
-// Validates the pickup and if valid in-place updates cardsInDeck / discardPile / playerCards
+// Validates the pickup and if valid in-place updates cardsInDeck / discardState / playerCards
 export function performPickup(
   input: IPickupInput,
   cardsInDeck: ICard[],

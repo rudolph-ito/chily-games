@@ -35,7 +35,7 @@ import { performPickup } from "./pickup_helper";
 import { performDiscard } from "./discard_helper";
 import { performMeld } from "./meld_helper";
 
-export interface IDoubleRummyGameService {
+export interface IRummyGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
   abortUnfinishedGames: () => Promise<number>;
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
@@ -69,7 +69,7 @@ export interface IDoubleRummyGameService {
 
 export const CARDS_DEALT_PER_ROUND = 7;
 
-export class DoubleRummyGameService implements IDoubleRummyGameService {
+export class RummyGameService implements IRummyGameService {
   constructor(
     private readonly gameDataService: IRummyGameDataService = new RummyGameDataService(),
     private readonly userDataService: IUserDataService = new UserDataService()
