@@ -39,7 +39,7 @@ export interface IStartServerOptions {
 }
 
 function errorHandler(): express.ErrorRequestHandler {
-  return (err, req, res, next) => {
+  return (err, req, res, _next) => {
     if (err instanceof AuthorizationError) {
       res.status(StatusCodes.FORBIDDEN).send(err.message);
     } else if (err instanceof NotFoundError) {
