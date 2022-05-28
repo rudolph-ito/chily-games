@@ -24,7 +24,6 @@ import { StatusCodes } from "http-status-codes";
 import { createExpressApp } from "../src/controllers";
 import express from "express";
 import { createClient } from "redis";
-import { promisify } from "util";
 
 chai.use(dirtyChai);
 
