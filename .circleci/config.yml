@@ -10,7 +10,7 @@ orbs:
 
 jobs:
   build:
-    docker: 
+    docker:
       - image: circleci/node:16-browsers
         <<: *DOCKER_BASE
       - image: cimg/postgres:13.5-ram
@@ -46,7 +46,7 @@ jobs:
           key: dependencies-frontend-{{ checksum "frontend/yarn.lock" }}
       - run: make copy-shared
       - run: yarn lint
-      - run: yarn prettier-html --check
+      - run: yarn prettier --check
       - run: cd api && yarn build
       - run: cd api && yarn create-databases && yarn test
       - run: cd frontend && yarn test

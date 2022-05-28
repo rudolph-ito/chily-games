@@ -18,6 +18,7 @@ Overview
 ## Lint / Test
 
 * Run `yarn lint --fix`
+* Run `yarn prettier --write`
 * Run `make test-api`
 * Run `make test-frontend`
 
