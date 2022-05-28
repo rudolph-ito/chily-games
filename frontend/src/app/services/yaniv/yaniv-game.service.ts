@@ -70,8 +70,8 @@ export class YanivGameService {
   rearrangeCards(
     gameId: number,
     cards: ICard[]
-  ): Observable<HttpResponse<Object>> {
-    return this.http.put<HttpResponse<Object>>(
+  ): Observable<HttpResponse<null>> {
+    return this.http.put<null>(
       `${this.getRoutePrefix(gameId)}/rearrange-cards`,
       cards,
       { observe: "response" }

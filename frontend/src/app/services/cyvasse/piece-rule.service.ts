@@ -22,8 +22,8 @@ export class PieceRuleService {
   delete(
     variantId: number,
     pieceRuleId: number
-  ): Observable<HttpResponse<Object>> {
-    return this.http.delete(
+  ): Observable<HttpResponse<null>> {
+    return this.http.delete<null>(
       `${this.getRoutePrefix(variantId)}/${pieceRuleId}`,
       { observe: "response" }
     );

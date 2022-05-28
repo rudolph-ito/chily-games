@@ -30,10 +30,10 @@ export class AuthenticationService {
       .pipe(tap((user) => this.userSubscription.next(user)));
   }
 
-  logout(): Observable<Object> {
+  logout(): Observable<null> {
     this.userSubscription.next(null);
     this.removeSavedGuestCredentials();
-    return this.http.delete(`${this.routePrefix}/logout`);
+    return this.http.delete<null>(`${this.routePrefix}/logout`);
   }
 
   register(request: IRegisterRequest): Observable<IUser> {
