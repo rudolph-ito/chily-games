@@ -56,9 +56,13 @@ export class CyvasseGameService {
   }
 
   createPly(gameId: number, ply: IGamePly): Observable<HttpResponse<null>> {
-    return this.http.post<null>(`${this.getRoutePrefix(gameId)}/createPly`, ply, {
-      observe: "response",
-    });
+    return this.http.post<null>(
+      `${this.getRoutePrefix(gameId)}/createPly`,
+      ply,
+      {
+        observe: "response",
+      }
+    );
   }
 
   search(request: ISearchGamesRequest): Observable<IPaginatedResponse<IGame>> {

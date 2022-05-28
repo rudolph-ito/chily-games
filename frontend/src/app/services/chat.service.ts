@@ -15,10 +15,7 @@ export class ChatService {
     return this.http.get<IChat>(`${this.routePrefix}/${chatId}`);
   }
 
-  addMessage(
-    chatId: string,
-    message: string
-  ): Observable<HttpResponse<null>> {
+  addMessage(chatId: string, message: string): Observable<HttpResponse<null>> {
     return this.http.post<null>(
       `${this.routePrefix}/${chatId}`,
       { message },
