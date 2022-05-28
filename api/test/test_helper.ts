@@ -32,11 +32,17 @@ export interface ITestServer {
   quit: () => Promise<void>;
 }
 
-export function createTestServer(): ITestServer {
-  const publishRedisClient = createClient({ url: "redis://localhost:6379", legacyMode: true });
-  publishRedisClient.connect();
-  const sessionStoreRedisClient = createClient({ url: "redis://localhost:6379", legacyMode: true });
-  sessionStoreRedisClient.connect();
+export async function createTestServer(): Promise<ITestServer> {
+  const publishRedisClient = createClient({
+    url: "redis://localhost:6379",
+  });
+  await publishRedisClient.connect();
+  publishRedisClient.on("error", (e) => console.log(e));
+  const sessionStoreRedisClient = createClient({
+    url: "redis://localhost:6379",
+  });
+  await sessionStoreRedisClient.connect();
+  sessionStoreRedisClient.on("error", (e) => console.log(e));
   return {
     app: createExpressApp({
       publishRedisClient,

@@ -98,13 +98,18 @@ export function createExpressApp(
   return app;
 }
 
-export function startServer(options: IStartServerOptions): HttpServer {
+export async function startServer(
+  options: IStartServerOptions
+): Promise<HttpServer> {
   const publishRedisClient = options.redisClientBuilder();
-  publishRedisClient.connect();
+  await publishRedisClient.connect();
+  publishRedisClient.on("error", (e) => console.error(e));
   const subscribeRedisClient = options.redisClientBuilder();
-  subscribeRedisClient.connect();
+  await subscribeRedisClient.connect();
+  subscribeRedisClient.on("error", (e) => console.error(e));
   const sessionStoreRedisClient = options.redisClientBuilder();
-  sessionStoreRedisClient.connect();
+  await sessionStoreRedisClient.connect();
+  sessionStoreRedisClient.on("error", (e) => console.error(e));
   const app = createExpressApp({
     publishRedisClient,
     sessionSecret: options.sessionSecret,
