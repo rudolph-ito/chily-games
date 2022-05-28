@@ -127,7 +127,9 @@ export class YanivGameDataService implements IYanivGameDataService {
     options: IYanivGameUpdateOptions
   ): Promise<ISerializedYanivGame> {
     const updates: any = {};
-    for (let [key, value] of Object.entries(options)) {
+    for (const pair of Object.entries(options)) {
+      const key = pair[0]
+      let value = pair[1]
       if (
         [
           "cardsInDeck",

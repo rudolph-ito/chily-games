@@ -25,8 +25,8 @@ export class TerrainRuleService {
   delete(
     variantId: number,
     terrainRuleId: number
-  ): Observable<HttpResponse<Object>> {
-    return this.http.delete(
+  ): Observable<HttpResponse<null>> {
+    return this.http.delete<null>(
       `${this.getRoutePrefix(variantId)}/${terrainRuleId}`,
       { observe: "response" }
     );

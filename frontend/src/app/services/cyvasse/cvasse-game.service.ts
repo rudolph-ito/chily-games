@@ -39,24 +39,24 @@ export class CyvasseGameService {
   updateSetup(
     gameId: number,
     change: IGameSetupChange
-  ): Observable<HttpResponse<Object>> {
-    return this.http.post(
+  ): Observable<HttpResponse<null>> {
+    return this.http.post<null>(
       `${this.getRoutePrefix(gameId)}/updateSetup`,
       change,
       { observe: "response" }
     );
   }
 
-  completeSetup(gameId: number): Observable<HttpResponse<Object>> {
-    return this.http.post(
+  completeSetup(gameId: number): Observable<HttpResponse<null>> {
+    return this.http.post<null>(
       `${this.getRoutePrefix(gameId)}/completeSetup`,
       null,
       { observe: "response" }
     );
   }
 
-  createPly(gameId: number, ply: IGamePly): Observable<HttpResponse<Object>> {
-    return this.http.post(`${this.getRoutePrefix(gameId)}/createPly`, ply, {
+  createPly(gameId: number, ply: IGamePly): Observable<HttpResponse<null>> {
+    return this.http.post<null>(`${this.getRoutePrefix(gameId)}/createPly`, ply, {
       observe: "response",
     });
   }

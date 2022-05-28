@@ -21,8 +21,8 @@ export class ChallengeService {
     return this.http.post<IChallenge>(this.routePrefix, request);
   }
 
-  delete(challengeId: number): Observable<HttpResponse<Object>> {
-    return this.http.delete(`${this.routePrefix}/${challengeId}`, {
+  delete(challengeId: number): Observable<HttpResponse<null>> {
+    return this.http.delete<null>(`${this.routePrefix}/${challengeId}`, {
       observe: "response",
     });
   }

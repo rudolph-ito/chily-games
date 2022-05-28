@@ -85,7 +85,7 @@ export class SquareBoard extends BaseBoard {
     return this.spaceSize * 1.1;
   }
 
-  protected getTerrainImageOffset(imageSize: ICoordinate): ICoordinate {
+  protected getTerrainImageOffset(_imageSize: ICoordinate): ICoordinate {
     return {
       x: 0,
       y: 0,
