@@ -11,6 +11,7 @@ import {
   GameState,
   IDiscardEvent,
   IDiscardInput,
+  IDiscardState,
   IGame,
   IGameOptions,
   IMeldEvent,
@@ -153,11 +154,23 @@ export class RummyGameService implements IRummyGameService {
       }
       return player;
     });
+    const discardState: IDiscardState = { piles: [] };
+    for (
+      let pileIndex = 0;
+      pileIndex < game.options.numberOfDiscardPiles;
+      pileIndex += 1
+    ) {
+      const nextCard = deck.pop();
+      if (nextCard == null) {
+        throw new Error("Unexpected empty deck (initializing discard piles)");
+      }
+      discardState.piles.push([nextCard]);
+    }
     game = await this.gameDataService.update(gameId, game.version, {
       players: updatedPlayers,
       state: GameState.PICKUP,
       cardsInDeck: deck,
-      discardState: { piles: [[]] },
+      discardState,
       actionToUserId: game.players[firstToActIndex].userId,
     });
     return await this.loadFullGame(userId, game);
@@ -218,7 +231,7 @@ export class RummyGameService implements IRummyGameService {
     if (input.pickup == null) {
       result.cardPickedUpFromDeck = _.last(player.cardsInHand);
     }
-    return result
+    return result;
   }
 
   async meld(
@@ -228,10 +241,10 @@ export class RummyGameService implements IRummyGameService {
   ): Promise<IMeldEvent> {
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
-      throw new ValidationError("Action is not to you.");
+      throw new ValidationError("Action is not to you");
     }
     if (game.state !== GameState.MELD_OR_DISCARD) {
-      throw new ValidationError("Invalid state to meld.");
+      throw new ValidationError("Invalid state to meld");
     }
     const player = game.players.find((x) => x.userId === userId);
     if (player == null) {

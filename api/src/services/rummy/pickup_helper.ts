@@ -11,7 +11,7 @@ export function performPickup(
   input: IPickupInput,
   cardsInDeck: ICard[],
   discardState: IDiscardState,
-  playerCards: ICard[],
+  playerCards: ICard[]
 ): null | string {
   const { pickup, deepPickupMeld } = input;
   if (pickup == null) {
