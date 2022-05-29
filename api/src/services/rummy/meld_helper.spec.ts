@@ -264,6 +264,18 @@ const examples: IPerformMeldExample[] = [
     expectedResult: null,
   },
   {
+    description: "add to existing meld, invalid",
+    meldInput: {
+      id: 1,
+      cards: [{ rank: CardRank.TWO, suit: CardSuit.SPADES }],
+    },
+    startGameState: {
+      playerCards: [{ rank: CardRank.TWO, suit: CardSuit.SPADES }],
+      melds: [],
+    },
+    expectedResult: "Invalid meld",
+  },
+  {
     description: "adding to existing meld, set",
     meldInput: {
       id: 1,

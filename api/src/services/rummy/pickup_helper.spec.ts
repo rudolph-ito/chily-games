@@ -36,6 +36,33 @@ const examples: IPerformPickupExample[] = [
     result: null,
   },
   {
+    description: "from deck, with meld",
+    input: {
+      deepPickupMeld: {
+        cards: [
+          { rank: CardRank.TWO, suit: CardSuit.SPADES },
+          { rank: CardRank.TWO, suit: CardSuit.HEARTS },
+        ],
+      },
+    },
+    startGameState: {
+      deck: [{ rank: CardRank.TWO, suit: CardSuit.DIAMONDS }],
+      discardState: { piles: [[]] },
+      playerCards: [],
+    },
+    result: "Cannot meld when picking up from deck",
+  },
+  {
+    description: "from deck, empty",
+    input: {},
+    startGameState: {
+      deck: [],
+      discardState: { piles: [[]] },
+      playerCards: [],
+    },
+    result: "Cannot pick up from empty deck",
+  },
+  {
     description: "from top",
     input: { pickup: { rank: CardRank.TWO, suit: CardSuit.HEARTS } },
     startGameState: {
@@ -58,6 +85,31 @@ const examples: IPerformPickupExample[] = [
       playerCards: [{ rank: CardRank.TWO, suit: CardSuit.HEARTS }],
     },
     result: null,
+  },
+  {
+    description: "from top, with meld",
+    input: {
+      pickup: { rank: CardRank.TWO, suit: CardSuit.HEARTS },
+      deepPickupMeld: {
+        cards: [
+          { rank: CardRank.TWO, suit: CardSuit.SPADES },
+          { rank: CardRank.TWO, suit: CardSuit.HEARTS },
+        ],
+      },
+    },
+    startGameState: {
+      deck: [],
+      discardState: {
+        piles: [
+          [
+            { rank: CardRank.ACE, suit: CardSuit.SPADES },
+            { rank: CardRank.TWO, suit: CardSuit.HEARTS },
+          ],
+        ],
+      },
+      playerCards: [],
+    },
+    result: "Cannot meld when picking up from top of discard pile",
   },
   {
     description: "buried, without meld",
