@@ -1,12 +1,15 @@
-import { createTestRummyGame } from "../../../test/rummy_test_helper";
+import {
+  createTestRummyGame,
+  testMeldExpectError,
+  testMeldExpectSuccess,
+  testPickupExpectError,
+  testPickupExpectSuccess,
+} from "../../../test/rummy_test_helper";
 import { expect } from "chai";
 import {
-  IGame,
   IPickupInput,
-  IPickupOutput,
   GameState,
   IMeldInput,
-  IMeldEvent,
 } from "../../shared/dtos/rummy/game";
 import {
   createTestCredentials,
@@ -17,98 +20,7 @@ import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { RummyGameService } from "./rummy_game_service";
 import { CardRank, CardSuit } from "../../shared/dtos/card";
 
-interface ITestPickupResult {
-  error?: Error;
-  result?: IPickupOutput;
-  game?: IGame;
-}
-
-interface ITestPickupSuccessResult {
-  result: IPickupOutput;
-  game: IGame;
-}
-
-async function testPickup(
-  userId: number,
-  gameId: number,
-  action: IPickupInput
-): Promise<ITestPickupResult> {
-  let error: Error | undefined;
-  let game: IGame | undefined;
-  let result: IPickupOutput | undefined;
-  try {
-    result = await new RummyGameService().pickup(userId, gameId, action);
-    game = await new RummyGameService().get(userId, gameId);
-  } catch (e) {
-    error = e;
-  }
-  return { result, game, error };
-}
-
-async function testPickupExpectError(
-  userId: number,
-  gameId: number,
-  input: IPickupInput
-): Promise<Error> {
-  const { result, error } = await testPickup(userId, gameId, input);
-  if (error == null) {
-    throw new Error(
-      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
-    );
-  }
-  return error;
-}
-
-async function testPickupExpectSuccess(
-  userId: number,
-  gameId: number,
-  input: IPickupInput
-): Promise<ITestPickupSuccessResult> {
-  const { result, game, error } = await testPickup(userId, gameId, input);
-  if (result == null || game == null) {
-    throw new Error(`Expected no error but got one, result: ${error}`);
-  }
-  return { result, game };
-}
-
-interface ITestMeldResult {
-  error?: Error;
-  result?: IMeldEvent;
-  game?: IGame;
-}
-
-async function testMeld(
-  userId: number,
-  gameId: number,
-  action: IMeldInput
-): Promise<ITestMeldResult> {
-  let error: Error | undefined;
-  let game: IGame | undefined;
-  let result: IMeldEvent | undefined;
-  try {
-    result = await new RummyGameService().meld(userId, gameId, action);
-    game = await new RummyGameService().get(userId, gameId);
-  } catch (e) {
-    error = e;
-  }
-  return { result, game, error };
-}
-
-async function testMeldExpectError(
-  userId: number,
-  gameId: number,
-  input: IMeldInput
-): Promise<Error> {
-  const { result, error } = await testMeld(userId, gameId, input);
-  if (error == null) {
-    throw new Error(
-      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
-    );
-  }
-  return error;
-}
-
-describe.only("RummyGameService", () => {
+describe("RummyGameService", () => {
   resetDatabaseBeforeEach();
 
   describe("create", () => {
@@ -478,9 +390,7 @@ describe.only("RummyGameService", () => {
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
-        'Validation errors: "Action is not to you"'
-      );
+      expect(error.message).to.eql('Validation errors: "Action is not to you"');
     });
 
     it("throws validation error if invalid state", async () => {
@@ -532,11 +442,191 @@ describe.only("RummyGameService", () => {
       );
     });
 
-    it("adds to meld if valid (round still active)", () => {});
+    it("adds to meld if valid (round still active)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [
+          [
+            { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+            { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+            { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+            { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+            { suit: CardSuit.HEARTS, rank: CardRank.KING },
+          ],
+          [],
+        ],
+        state: GameState.MELD_OR_DISCARD,
+      });
+      const input: IMeldInput = {
+        cards: [
+          { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+          { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+          { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+          { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+        ],
+      };
 
-    it("adds to meld if valid (round complete)", () => {});
+      // act
+      const { game, result } = await testMeldExpectSuccess(
+        user1Id,
+        gameId,
+        input
+      );
 
-    it("adds to meld if valid (game complete)", () => {});
+      // assert
+      expect(result).to.eql({
+        actionToUserId: user1Id,
+        input,
+        updatedGameState: GameState.MELD_OR_DISCARD,
+        userId: user1Id,
+      });
+      expect(game.playerStates[0].cardsInHand).to.eql([
+        { suit: CardSuit.HEARTS, rank: CardRank.KING },
+      ]);
+      expect(game.melds).to.eql([
+        {
+          id: 1,
+          elements: [
+            {
+              userId: user1Id,
+              card: { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+            },
+            {
+              userId: user1Id,
+              card: { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+            },
+            {
+              userId: user1Id,
+              card: { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+            },
+            {
+              userId: user1Id,
+              card: { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("adds to meld if valid (round complete)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [
+          [
+            { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+            { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+            { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+            { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+          ],
+          [{ suit: CardSuit.SPADES, rank: CardRank.JACK }],
+        ],
+        state: GameState.MELD_OR_DISCARD,
+      });
+      const input: IMeldInput = {
+        cards: [
+          { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+          { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+          { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+          { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+        ],
+      };
+
+      // act
+      const { game, result } = await testMeldExpectSuccess(
+        user1Id,
+        gameId,
+        input
+      );
+
+      // assert
+      expect(result).to.eql({
+        actionToUserId: user1Id,
+        input,
+        updatedGameState: GameState.ROUND_COMPLETE,
+        userId: user1Id,
+        roundScore: {
+          [user1Id]: 20,
+          [user2Id]: -10,
+        },
+      });
+      expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+      expect(game.roundScores).to.eql([
+        {
+          [user1Id]: 20,
+          [user2Id]: -10,
+        },
+      ]);
+    });
+
+    it("adds to meld if valid (game complete)", async () => {
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [
+          [
+            { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+            { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+            { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+            { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+          ],
+          [{ suit: CardSuit.SPADES, rank: CardRank.JACK }],
+        ],
+        state: GameState.MELD_OR_DISCARD,
+        roundScores: [
+          [200, 0],
+          [280, 100],
+        ],
+      });
+      const input: IMeldInput = {
+        cards: [
+          { suit: CardSuit.CLUBS, rank: CardRank.THREE },
+          { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
+          { suit: CardSuit.CLUBS, rank: CardRank.FIVE },
+          { suit: CardSuit.CLUBS, rank: CardRank.SIX },
+        ],
+      };
+
+      // act
+      const { game, result } = await testMeldExpectSuccess(
+        user1Id,
+        gameId,
+        input
+      );
+
+      // assert
+      expect(result).to.eql({
+        actionToUserId: user1Id,
+        input,
+        updatedGameState: GameState.COMPLETE,
+        userId: user1Id,
+        roundScore: {
+          [user1Id]: 20,
+          [user2Id]: -10,
+        },
+      });
+      expect(game.state).to.eql(GameState.COMPLETE);
+      expect(game.roundScores).to.eql([
+        {
+          [user1Id]: 200,
+          [user2Id]: 0,
+        },
+        {
+          [user1Id]: 280,
+          [user2Id]: 100,
+        },
+        {
+          [user1Id]: 20,
+          [user2Id]: -10,
+        },
+      ]);
+    });
   });
 
   describe("discard", () => {

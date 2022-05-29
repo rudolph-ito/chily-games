@@ -35,6 +35,7 @@ import {
 import { performPickup } from "./pickup_helper";
 import { performDiscard } from "./discard_helper";
 import { performMeld } from "./meld_helper";
+import { completeRound } from "./complete_round_helper";
 
 export interface IRummyGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
@@ -259,17 +260,26 @@ export class RummyGameService implements IRummyGameService {
     if (errorMessage != null) {
       throw new ValidationError(errorMessage);
     }
-    // TODO if zero cards left in hand, end round
+    if (player.cardsInHand.length == 0) {
+      completeRound(game);
+    }
     await this.gameDataService.update(game.gameId, game.version, {
       melds: game.melds,
       players: game.players,
+      state: game.state,
+      completedRounds: game.completedRounds,
     });
     const result: IMeldEvent = {
       userId,
-      meld: input,
+      input,
       updatedGameState: game.state,
       actionToUserId: game.actionToUserId,
     };
+    if ([GameState.ROUND_COMPLETE, GameState.COMPLETE].includes(game.state)) {
+      result.roundScore = this.buildRoundScore(
+        _.last(game.completedRounds) as IRummyPlayerScore[]
+      );
+    }
     return result;
   }
 
@@ -298,21 +308,28 @@ export class RummyGameService implements IRummyGameService {
     if (errorMessage != null) {
       throw new ValidationError(errorMessage);
     }
-    const updatedPlayers = game.players;
-    const updatedState = GameState.PICKUP; // TODO could be round complete
+    if (player.cardsInHand.length == 0) {
+      completeRound(game);
+    }
     const updatedActionToUserId = orderedPlayers[1].userId;
     await this.gameDataService.update(game.gameId, game.version, {
-      players: updatedPlayers,
-      state: updatedState,
+      players: game.players,
+      state: game.state,
       discardState: game.discardState,
       actionToUserId: updatedActionToUserId,
+      completedRounds: game.completedRounds,
     });
     const result: IDiscardEvent = {
       userId,
-      discard: input,
-      updatedGameState: updatedState,
+      input,
+      updatedGameState: game.state,
       actionToUserId: updatedActionToUserId,
     };
+    if ([GameState.ROUND_COMPLETE, GameState.COMPLETE].includes(game.state)) {
+      result.roundScore = this.buildRoundScore(
+        _.last(game.completedRounds) as IRummyPlayerScore[]
+      );
+    }
     return result;
   }
 
@@ -440,19 +457,8 @@ export class RummyGameService implements IRummyGameService {
   private buildRoundScore(completedRounds: IRummyPlayerScore[]): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
-      out[x.userId] = {
-        score: x.score,
-      };
+      out[x.userId] = x.score;
     });
     return out;
-  }
-
-  private determineScores(players: IRummyPlayer[]): IRummyPlayerScore[] {
-    return players.map((player) => {
-      return {
-        userId: player.userId,
-        score: 0, // TODO points for meld, minus points for cards in hand
-      };
-    });
   }
 }

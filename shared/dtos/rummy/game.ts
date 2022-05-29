@@ -18,12 +18,8 @@ export interface IPlayerState {
   cardsInHand: ICard[];
 }
 
-export interface IRoundPlayerScore {
-  score: number;
-}
-
 export interface IRoundScore {
-  [userId: number]: IRoundPlayerScore;
+  [userId: number]: number;
 }
 
 export interface IGameOptions {
@@ -88,9 +84,8 @@ export interface IMeldInput {
 
 export interface IMeldEvent {
   userId: number;
-  meld: IMeldInput;
+  input: IMeldInput;
   updatedGameState: GameState;
-  actionToUserId: number;
   roundScore?: IRoundScore;
 }
 
@@ -101,7 +96,7 @@ export interface IDiscardInput {
 
 export interface IDiscardEvent {
   userId: number;
-  discard: IDiscardInput;
+  input: IDiscardInput;
   updatedGameState: GameState;
   actionToUserId: number;
   roundScore?: IRoundScore;
