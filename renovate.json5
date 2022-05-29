@@ -2,6 +2,9 @@
   "extends": [
     "config:base"
   ],
+  "ignoreDeps": [
+    "typescript" // updates alongside angular
+  ],
   "packageRules": [
     {
       "updateTypes": ["minor", "patch", "pin", "digest"],

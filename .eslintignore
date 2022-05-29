@@ -1,2 +1,7 @@
+api/src/database/config.js
+api/src/database/migrations/
 dist/
+frontend/src/app/data/
+frontend/e2e/protractor.conf.js
+frontend/karma.conf.js
 node_modules/

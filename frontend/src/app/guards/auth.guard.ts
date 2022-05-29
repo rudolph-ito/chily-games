@@ -16,8 +16,8 @@ export class AuthGuard implements CanActivate {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
   canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    _next: ActivatedRouteSnapshot,
+    _state: RouterStateSnapshot
   ): Observable<boolean> {
     return this.authenticationService
       .getUserSubject()

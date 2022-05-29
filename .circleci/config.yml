@@ -4,19 +4,24 @@ docker_base: &DOCKER_BASE
     password: $DOCKER_HUB_TOKEN
 
 version: 2.1
+
+orbs:
+  browser-tools: circleci/browser-tools@1.1.0
+
 jobs:
   build:
-    docker: 
-      - image: circleci/node:16-browsers
+    docker:
+      - image: cimg/node:16.15-browsers
         <<: *DOCKER_BASE
-      - image: circleci/postgres:13.5-ram
+      - image: cimg/postgres:14.2
         <<: *DOCKER_BASE
         environment:
           - POSTGRES_USER=chily-user
           - POSTGRES_PASSWORD=test
-      - image: circleci/redis:6.2.6-alpine
+      - image: cimg/redis:6.2.7
         <<: *DOCKER_BASE
     steps:
+      - browser-tools/install-browser-tools
       - checkout
       - restore_cache:
           key: dependencies-root-{{ checksum "yarn.lock" }}
@@ -41,7 +46,7 @@ jobs:
           key: dependencies-frontend-{{ checksum "frontend/yarn.lock" }}
       - run: make copy-shared
       - run: yarn lint
-      - run: yarn prettier-html --check
+      - run: yarn prettier --check
       - run: cd api && yarn build
       - run: cd api && yarn create-databases && yarn test
       - run: cd frontend && yarn test
