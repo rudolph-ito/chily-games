@@ -384,14 +384,6 @@ export class RummyGameService implements IRummyGameService {
     };
   }
 
-  private getNextPlayerUserId(players: IRummyPlayer[], userId: number): number {
-    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
-      players,
-      userId
-    );
-    return orderedPlayers[1].userId;
-  }
-
   private getPlayersOrderedToStartWithUser(
     playerStates: IRummyPlayer[],
     userId: number
