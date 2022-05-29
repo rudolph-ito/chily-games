@@ -23,7 +23,7 @@ import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { RummyGameService } from "./rummy_game_service";
 import { CardRank, CardSuit } from "../../shared/dtos/card";
 
-describe("RummyGameService", () => {
+describe.only("RummyGameService", () => {
   resetDatabaseBeforeEach();
 
   describe("create", () => {
@@ -481,7 +481,6 @@ describe("RummyGameService", () => {
 
       // assert
       expect(result).to.eql({
-        actionToUserId: user1Id,
         input,
         updatedGameState: GameState.MELD_OR_DISCARD,
         userId: user1Id,
@@ -549,7 +548,6 @@ describe("RummyGameService", () => {
 
       // assert
       expect(result).to.eql({
-        actionToUserId: user1Id,
         input,
         updatedGameState: GameState.ROUND_COMPLETE,
         userId: user1Id,
@@ -605,7 +603,6 @@ describe("RummyGameService", () => {
 
       // assert
       expect(result).to.eql({
-        actionToUserId: user1Id,
         input,
         updatedGameState: GameState.COMPLETE,
         userId: user1Id,

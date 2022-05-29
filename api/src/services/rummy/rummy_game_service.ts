@@ -273,7 +273,6 @@ export class RummyGameService implements IRummyGameService {
       userId,
       input,
       updatedGameState: game.state,
-      actionToUserId: game.actionToUserId,
     };
     if ([GameState.ROUND_COMPLETE, GameState.COMPLETE].includes(game.state)) {
       result.roundScore = this.buildRoundScore(
