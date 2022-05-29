@@ -23,7 +23,7 @@ import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { RummyGameService } from "./rummy_game_service";
 import { CardRank, CardSuit } from "../../shared/dtos/card";
 
-describe.only("RummyGameService", () => {
+describe("RummyGameService", () => {
   resetDatabaseBeforeEach();
 
   describe("create", () => {
