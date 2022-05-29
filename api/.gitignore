@@ -1,4 +1,6 @@
+.nyc_output
 certs
+coverage
 dist
 node_modules
 yarn-error.log

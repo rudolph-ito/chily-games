@@ -53,6 +53,7 @@ export interface IGame {
   playerStates: IPlayerState[];
   cardsInDeck: ICard[];
   discardState: IDiscardState;
+  melds: IMeld[];
   roundScores: IRoundScore[];
   actionToUserId: number;
   createdAt: string;
@@ -70,9 +71,14 @@ export interface IPickupInput {
 
 export interface IPickupEvent {
   userId: number;
-  pickup: IPickupInput;
+  input: IPickupInput;
   updatedGameState: GameState;
   actionToUserId: number;
+}
+
+export interface IPickupOutput {
+  event: IPickupEvent;
+  cardPickedUpFromDeck?: ICard;
 }
 
 export interface IMeldInput {

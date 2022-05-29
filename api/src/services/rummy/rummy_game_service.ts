@@ -15,8 +15,8 @@ import {
   IGameOptions,
   IMeldEvent,
   IMeldInput,
-  IPickupEvent,
   IPickupInput,
+  IPickupOutput,
   IPlayerState,
   IRoundScore,
   ISearchedGame,
@@ -46,7 +46,7 @@ export interface IRummyGameService {
     userId: number,
     gameId: number,
     input: IPickupInput
-  ) => Promise<IPickupEvent>;
+  ) => Promise<IPickupOutput>;
   meld: (
     userId: number,
     gameId: number,
@@ -110,10 +110,10 @@ export class RummyGameService implements IRummyGameService {
   async join(userId: number, gameId: number): Promise<IGame> {
     let game = await this.gameDataService.get(gameId);
     if (game.state !== GameState.PLAYERS_JOINING) {
-      throw new ValidationError("Cannot join in-progress or completed game.");
+      throw new ValidationError("Cannot join in-progress or completed game");
     }
     if (game.players.some((x) => x.userId === userId)) {
-      throw new ValidationError("Already joined game.");
+      throw new ValidationError("Already joined game");
     }
     game = await this.gameDataService.update(game.gameId, game.version, {
       players: game.players.concat([{ userId, cardsInHand: [], melds: [] }]),
@@ -167,13 +167,13 @@ export class RummyGameService implements IRummyGameService {
     userId: number,
     gameId: number,
     input: IPickupInput
-  ): Promise<IPickupEvent> {
+  ): Promise<IPickupOutput> {
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
-      throw new ValidationError("Action is not to you.");
+      throw new ValidationError("Action is not to you");
     }
     if (game.state !== GameState.PICKUP) {
-      throw new ValidationError("Invalid state to pickup.");
+      throw new ValidationError("Invalid state to pickup");
     }
     const player = game.players.find((x) => x.userId === userId);
     if (player == null) {
@@ -207,13 +207,18 @@ export class RummyGameService implements IRummyGameService {
       players: game.players,
       state: updatedState,
     });
-    const result: IPickupEvent = {
-      userId,
-      pickup: input,
-      updatedGameState: updatedState,
-      actionToUserId: game.actionToUserId,
+    const result: IPickupOutput = {
+      event: {
+        userId,
+        input,
+        updatedGameState: updatedState,
+        actionToUserId: game.actionToUserId,
+      },
     };
-    return result;
+    if (input.pickup == null) {
+      result.cardPickedUpFromDeck = _.last(player.cardsInHand);
+    }
+    return result
   }
 
   async meld(
@@ -383,6 +388,7 @@ export class RummyGameService implements IRummyGameService {
       cardsInDeck: game.cardsInDeck,
       discardState: game.discardState,
       roundScores: game.completedRounds.map(this.buildRoundScore),
+      melds: game.melds,
       createdAt: game.createdAt.toISOString(),
       updatedAt: game.updatedAt.toISOString(),
     };

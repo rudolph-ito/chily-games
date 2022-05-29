@@ -13,6 +13,7 @@ interface ITestGameOptions {
   playerCards: ICard[][];
   discardState?: IDiscardState;
   cardsInDeck?: ICard[];
+  state?: GameState;
 }
 
 interface ITestGame {
@@ -34,7 +35,7 @@ export async function createTestRummyGame(
     userIds.push(await createTestUser(creds));
   }
   const createdGame = await gameService.create(userIds[0], {
-    numberOfDiscardPiles: 1,
+    numberOfDiscardPiles: options.discardState?.piles.length ?? 1,
     pointThreshold: 500,
   });
   for (const userId of userIds.slice(1)) {
@@ -44,7 +45,7 @@ export async function createTestRummyGame(
   game.players.map((x, index) => (x.cardsInHand = options.playerCards[index]));
   const completedRounds: IRummyPlayerScore[][] = [];
   await gameDataService.update(game.gameId, game.version, {
-    state: GameState.PICKUP,
+    state: options.state ?? GameState.PICKUP,
     actionToUserId: userIds[0],
     discardState: options.discardState ?? game.discardState,
     cardsInDeck: options.cardsInDeck ?? game.cardsInDeck,
