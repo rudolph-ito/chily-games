@@ -7,6 +7,9 @@ import {
   IMeldEvent,
   IPickupInput,
   IMeldInput,
+  IDiscardEvent,
+  IDiscardInput,
+  IMeld,
 } from "../src/shared/dtos/rummy/game";
 import { ICard } from "../src/shared/dtos/card";
 import { RummyGameDataService } from "../src/services/rummy/data/rummy_game_data_service";
@@ -22,6 +25,7 @@ interface ITestGameOptions {
   discardState?: IDiscardState;
   cardsInDeck?: ICard[];
   state?: GameState;
+  playerMelds?: ICard[][];
   roundScores?: number[][];
 }
 
@@ -50,6 +54,17 @@ interface ITestMeldResult {
 
 interface ITestMeldSuccessResult {
   result: IMeldEvent;
+  game: IGame;
+}
+
+interface ITestDiscardResult {
+  error?: Error;
+  result?: IDiscardEvent;
+  game?: IGame;
+}
+
+interface ITestDiscardSuccessResult {
+  result: IDiscardEvent;
   game: IGame;
 }
 
@@ -82,6 +97,15 @@ export async function createTestRummyGame(
       );
     });
   }
+  const melds: IMeld[] = [];
+  if (options.playerMelds != null) {
+    options.playerMelds.forEach((cardList, index) => {
+      melds.push({
+        id: index + 1,
+        elements: cardList.map((card) => ({ userId: userIds[index], card })),
+      });
+    });
+  }
   await gameDataService.update(game.gameId, game.version, {
     state: options.state ?? GameState.PICKUP,
     actionToUserId: userIds[0],
@@ -89,6 +113,7 @@ export async function createTestRummyGame(
     cardsInDeck: options.cardsInDeck ?? game.cardsInDeck,
     players: game.players,
     completedRounds,
+    melds,
   });
   return { userCredentials, userIds, gameId: game.gameId };
 }
@@ -173,6 +198,49 @@ export async function testMeldExpectSuccess(
   input: IMeldInput
 ): Promise<ITestMeldSuccessResult> {
   const { result, game, error } = await testMeld(userId, gameId, input);
+  if (result == null || game == null) {
+    throw new Error(`Expected no error but got one, result: ${error}`);
+  }
+  return { result, game };
+}
+
+async function testDiscard(
+  userId: number,
+  gameId: number,
+  action: IDiscardInput
+): Promise<ITestDiscardResult> {
+  let error: Error | undefined;
+  let game: IGame | undefined;
+  let result: IDiscardEvent | undefined;
+  try {
+    result = await new RummyGameService().discard(userId, gameId, action);
+    game = await new RummyGameService().get(userId, gameId);
+  } catch (e) {
+    error = e;
+  }
+  return { result, game, error };
+}
+
+export async function testDiscardExpectError(
+  userId: number,
+  gameId: number,
+  input: IDiscardInput
+): Promise<Error> {
+  const { result, error } = await testDiscard(userId, gameId, input);
+  if (error == null) {
+    throw new Error(
+      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
+    );
+  }
+  return error;
+}
+
+export async function testDiscardExpectSuccess(
+  userId: number,
+  gameId: number,
+  input: IDiscardInput
+): Promise<ITestDiscardSuccessResult> {
+  const { result, game, error } = await testDiscard(userId, gameId, input);
   if (result == null || game == null) {
     throw new Error(`Expected no error but got one, result: ${error}`);
   }

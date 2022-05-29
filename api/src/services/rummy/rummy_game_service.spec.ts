@@ -1,5 +1,7 @@
 import {
   createTestRummyGame,
+  testDiscardExpectError,
+  testDiscardExpectSuccess,
   testMeldExpectError,
   testMeldExpectSuccess,
   testPickupExpectError,
@@ -10,6 +12,7 @@ import {
   IPickupInput,
   GameState,
   IMeldInput,
+  IDiscardInput,
 } from "../../shared/dtos/rummy/game";
 import {
   createTestCredentials,
@@ -630,16 +633,224 @@ describe("RummyGameService", () => {
   });
 
   describe("discard", () => {
-    it("throws validation error if action not to you", () => {});
+    it("throws validation error if action not to you", async () => {
+      // arrange
+      const {
+        userIds: [, user2Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [[], []],
+        state: GameState.MELD_OR_DISCARD,
+      });
+      const input: IDiscardInput = {
+        card: { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+        pileIndex: 0,
+      };
 
-    it("throws validation error if invalid state", () => {});
+      // act
+      const error = await testDiscardExpectError(user2Id, gameId, input);
 
-    it("throws validation error if invalid discard", () => {});
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql('Validation errors: "Action is not to you"');
+    });
 
-    it("updates game state if valid (round still active)", () => {});
+    it("throws validation error if invalid state", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [[], []],
+        state: GameState.PICKUP,
+      });
+      const input: IDiscardInput = {
+        card: { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+        pileIndex: 0,
+      };
 
-    it("updates game state if valid (round complete)", () => {});
+      // act
+      const error = await testDiscardExpectError(user1Id, gameId, input);
 
-    it("updates game state if valid (game complete)", () => {});
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Invalid state to discard"'
+      );
+    });
+
+    it("throws validation error if invalid discard", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [[], []],
+        state: GameState.MELD_OR_DISCARD,
+      });
+      const input: IDiscardInput = {
+        card: { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+        pileIndex: 0,
+      };
+
+      // act
+      const error = await testDiscardExpectError(user1Id, gameId, input);
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Discard not in your hand"'
+      );
+    });
+
+    it("updates game state if valid (round still active)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [
+          [
+            { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+            { suit: CardSuit.HEARTS, rank: CardRank.SEVEN },
+          ],
+          [],
+        ],
+        state: GameState.MELD_OR_DISCARD,
+      });
+      const input: IDiscardInput = {
+        card: { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+        pileIndex: 0,
+      };
+
+      // act
+      const { result, game } = await testDiscardExpectSuccess(
+        user1Id,
+        gameId,
+        input
+      );
+
+      // assert
+      expect(result).to.eql({
+        userId: user1Id,
+        input,
+        actionToUserId: user2Id,
+        updatedGameState: GameState.PICKUP,
+      });
+      expect(game.state).to.eql(GameState.PICKUP);
+      expect(game.actionToUserId).to.eql(user2Id);
+      expect(game.playerStates[0].cardsInHand).to.eql([
+        { suit: CardSuit.HEARTS, rank: CardRank.SEVEN },
+      ]);
+    });
+
+    it("updates game state if valid (round complete)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [
+          [{ suit: CardSuit.CLUBS, rank: CardRank.TWO }],
+          [{ isJoker: true }],
+        ],
+        state: GameState.MELD_OR_DISCARD,
+      });
+      const input: IDiscardInput = {
+        card: { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+        pileIndex: 0,
+      };
+
+      // act
+      const { result, game } = await testDiscardExpectSuccess(
+        user1Id,
+        gameId,
+        input
+      );
+
+      // assert
+      expect(result).to.eql({
+        userId: user1Id,
+        input,
+        actionToUserId: user2Id,
+        updatedGameState: GameState.ROUND_COMPLETE,
+        roundScore: {
+          [user1Id]: 0,
+          [user2Id]: -15,
+        },
+      });
+      expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+      expect(game.roundScores).to.eql([
+        {
+          [user1Id]: 0,
+          [user2Id]: -15,
+        },
+      ]);
+    });
+
+    it("updates game state if valid (game complete)", async () => {
+      // arrange
+      const {
+        userIds: [user1Id, user2Id],
+        gameId,
+      } = await createTestRummyGame({
+        playerCards: [
+          [{ suit: CardSuit.CLUBS, rank: CardRank.TWO }],
+          [{ isJoker: true }],
+        ],
+        state: GameState.MELD_OR_DISCARD,
+        roundScores: [
+          [200, 0],
+          [280, 100],
+        ],
+        playerMelds: [
+          [
+            { suit: CardSuit.HEARTS, rank: CardRank.QUEEN },
+            { suit: CardSuit.SPADES, rank: CardRank.QUEEN },
+            { suit: CardSuit.CLUBS, rank: CardRank.QUEEN },
+            { suit: CardSuit.DIAMONDS, rank: CardRank.QUEEN },
+          ],
+          [],
+        ],
+      });
+      const input: IDiscardInput = {
+        card: { suit: CardSuit.CLUBS, rank: CardRank.TWO },
+        pileIndex: 0,
+      };
+
+      // act
+      const { result, game } = await testDiscardExpectSuccess(
+        user1Id,
+        gameId,
+        input
+      );
+
+      // assert
+      expect(result).to.eql({
+        userId: user1Id,
+        input,
+        actionToUserId: user2Id,
+        updatedGameState: GameState.COMPLETE,
+        roundScore: {
+          [user1Id]: 40,
+          [user2Id]: -15,
+        },
+      });
+      expect(game.state).to.eql(GameState.COMPLETE);
+      expect(game.roundScores).to.eql([
+        {
+          [user1Id]: 200,
+          [user2Id]: 0,
+        },
+        {
+          [user1Id]: 280,
+          [user2Id]: 100,
+        },
+        {
+          [user1Id]: 40,
+          [user2Id]: -15,
+        },
+      ]);
+    });
   });
 });

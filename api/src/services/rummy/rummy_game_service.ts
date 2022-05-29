@@ -290,10 +290,10 @@ export class RummyGameService implements IRummyGameService {
   ): Promise<IDiscardEvent> {
     const game = await this.gameDataService.get(gameId);
     if (game.actionToUserId !== userId) {
-      throw new ValidationError("Action is not to you.");
+      throw new ValidationError("Action is not to you");
     }
     if (game.state !== GameState.MELD_OR_DISCARD) {
-      throw new ValidationError("Invalid state to pickup.");
+      throw new ValidationError("Invalid state to discard");
     }
     const orderedPlayers = this.getPlayersOrderedToStartWithUser(
       game.players,
@@ -310,6 +310,8 @@ export class RummyGameService implements IRummyGameService {
     }
     if (player.cardsInHand.length == 0) {
       completeRound(game);
+    } else {
+      game.state = GameState.PICKUP;
     }
     const updatedActionToUserId = orderedPlayers[1].userId;
     await this.gameDataService.update(game.gameId, game.version, {

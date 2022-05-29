@@ -29,6 +29,18 @@ const examples: IPerformDiscardExample[] = [
     expectedResult: "Must specify a card",
   },
   {
+    description: "invalid pile index",
+    discard: {
+      card: { suit: CardSuit.CLUBS, rank: CardRank.ACE } as any,
+      pileIndex: 1,
+    },
+    startGameState: {
+      playerCards: [],
+      discardState: { piles: [[]] },
+    },
+    expectedResult: "Invalid pile index",
+  },
+  {
     description: "discard, no restrictions, card in hand",
     discard: {
       card: { suit: CardSuit.CLUBS, rank: CardRank.ACE },

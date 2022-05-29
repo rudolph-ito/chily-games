@@ -14,7 +14,7 @@ export function performDiscard(
   if (input.card == null) {
     return "Must specify a card";
   }
-  if (input.pileIndex < 0 || input.pileIndex > discardState.piles.length) {
+  if (input.pileIndex < 0 || input.pileIndex >= discardState.piles.length) {
     return "Invalid pile index";
   }
   if (!isCardInList(playerCards, input.card)) {
