@@ -1,0 +1,4 @@
+exclude: '**/*.spec.ts'
+reporter:
+- text
+- html

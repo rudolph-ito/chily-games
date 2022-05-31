@@ -20,6 +20,7 @@ import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
 import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
+import { getRummyRouter } from "./rummy";
 
 const RedisStore = connectRedis(expressSession);
 
@@ -86,6 +87,10 @@ export function createExpressApp(
     "/api/oh-heck",
     getOhHeckRouter(authenticationRequired, options.publishRedisClient)
   );
+  app.use(
+    "/api/rummy",
+    getRummyRouter(authenticationRequired, options.publishRedisClient)
+  );
   app.use("/api/users", getUserRouter());
   app.use(
     "/api/yaniv",
@@ -113,23 +118,14 @@ export function startServer(options: IStartServerOptions): HttpServer {
     createSocketIoRedisAdapter(publishRedisClient, subscribeRedisClient)
   );
   socketIoServer.on("connection", (socket) => {
-    socket.on("cyvasse-join-game", (gameId: number) => {
-      socket.join(`cyvasse-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
-    });
-    socket.on("cyvasse-leav-game", (gameId: number) => {
-      socket.leave(`cyvasse-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
-    });
-    socket.on("oh-heck-join-game", (gameId: number) => {
-      socket.join(`oh-heck-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
-    });
-    socket.on("oh-heck-leave-game", (gameId: number) => {
-      socket.leave(`oh-heck-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
-    });
-    socket.on("yaniv-join-game", (gameId: number) => {
-      socket.join(`yaniv-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
-    });
-    socket.on("yaniv-leave-game", (gameId: number) => {
-      socket.leave(`yaniv-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+    const gameNames = ["cyvasse", "oh-heck", "yaniv", "rummy"];
+    gameNames.forEach((gameName) => {
+      socket.on(`${gameName}-join-game`, (gameId: number) => {
+        socket.join(`${gameName}-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      });
+      socket.on(`${gameName}-leave-game`, (gameId: number) => {
+        socket.leave(`${gameName}-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      });
     });
     socket.on("chat-join", (chatId: string) => {
       socket.join(`chat-${chatId}`); // eslint-disable-line @typescript-eslint/no-floating-promises

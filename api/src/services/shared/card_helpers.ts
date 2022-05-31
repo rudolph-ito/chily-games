@@ -98,6 +98,15 @@ export function standardDeckWithTwoJokers(): ICard[] {
   return deck;
 }
 
+export function isCardInList(list: ICard[], card: ICard): boolean {
+  return list.some((x) => areCardsEqual(x, card));
+}
+
+export function removeCardFromList(list: ICard[], card: ICard): void {
+  const index = list.findIndex((x) => areCardsEqual(x, card));
+  list.splice(index, 1);
+}
+
 export function areCardHandsEquivalent(
   cardsA: ICard[],
   cardsB: ICard[]
@@ -111,6 +120,23 @@ export function areCardHandsEquivalent(
   return setSymmetricDifference(setA, setB).size === 0;
 }
 
+// Returns cards in cardsA that are not in cardsB
+export function getCardListDifference(
+  cardsA: ICard[],
+  cardsB: ICard[]
+): ICard[] {
+  const setB: Set<number> = new Set<number>(
+    cardsB.map((x) => serializeCard(x))
+  );
+  const difference: ICard[] = [];
+  for (const card of cardsA) {
+    if (!setB.has(serializeCard(card))) {
+      difference.push(card);
+    }
+  }
+  return difference;
+}
+
 function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
   const difference = new Set<T>(setA);
   setB.forEach((elem) => {
@@ -121,4 +147,90 @@ function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
     }
   });
   return difference;
+}
+
+export function areCardsASet(cards: ICard[], minimumSize: number): boolean {
+  if (cards.length < minimumSize) {
+    return false;
+  }
+  const nonJokers = cards.filter((c) => !valueOrDefault(c.isJoker, false));
+  const firstCard = nonJokers[0];
+  return nonJokers.every((c) => c.rank === firstCard.rank);
+}
+
+export enum RunDirection {
+  invalid = 0,
+  ascending = 1,
+  descending = 2,
+}
+
+export function areCardsARun(
+  cards: ICard[],
+  minimumSize: number
+): RunDirection {
+  if (cards.length < minimumSize) {
+    return RunDirection.invalid;
+  }
+
+  const normalizedCards = removeLeadingAndTrailingJokers(cards);
+
+  const firstCard = normalizedCards[0];
+  const isSameSuit = normalizedCards.every(
+    (c) => valueOrDefault(c.isJoker, false) || c.suit === firstCard.suit
+  );
+  if (!isSameSuit) {
+    return RunDirection.invalid;
+  }
+
+  let lastRankNumber = getCardRankNumber(firstCard);
+  let expectedRankDiff = 1;
+  let direction: RunDirection | null = null;
+  for (const card of normalizedCards.slice(1)) {
+    if (valueOrDefault(card.isJoker, false)) {
+      expectedRankDiff += 1;
+    } else {
+      const rankNumber = getCardRankNumber(card);
+      const isExpectedAscending =
+        rankNumber === (lastRankNumber + expectedRankDiff) % 13;
+      const isExpectedDescending =
+        rankNumber === (lastRankNumber - expectedRankDiff + 13) % 13;
+      if (direction == null) {
+        if (isExpectedAscending) {
+          direction = RunDirection.ascending;
+        } else if (isExpectedDescending) {
+          direction = RunDirection.descending;
+        } else {
+          return RunDirection.invalid;
+        }
+      } else if (direction === RunDirection.ascending && !isExpectedAscending) {
+        return RunDirection.invalid;
+      } else if (
+        direction === RunDirection.descending &&
+        !isExpectedDescending
+      ) {
+        return RunDirection.invalid;
+      }
+      lastRankNumber = rankNumber;
+      expectedRankDiff = 1;
+    }
+  }
+
+  if (direction == null) {
+    throw new Error("direction unexpectedly null");
+  }
+  return direction;
+}
+
+function removeLeadingAndTrailingJokers(cards: ICard[]): ICard[] {
+  const newCards = cards.slice();
+  while (newCards.length > 0 && valueOrDefault(newCards[0].isJoker, false)) {
+    newCards.shift();
+  }
+  while (
+    newCards.length > 0 &&
+    valueOrDefault(newCards[newCards.length - 1].isJoker, false)
+  ) {
+    newCards.pop();
+  }
+  return newCards;
 }
