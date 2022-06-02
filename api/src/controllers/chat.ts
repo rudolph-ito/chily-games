@@ -1,12 +1,12 @@
 import express from "express";
-import { RedisClient } from "redis";
 import { IUser } from "../shared/dtos/authentication";
 import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import { ChatService, IChatService } from "../services/shared/chat_service";
+import { SimpleRedisClient } from "src/redis";
 
 export function getChatRouter(
   authenticationRequired: express.Handler,
-  publishRedisClient: RedisClient,
+  publishRedisClient: SimpleRedisClient,
   chatService: IChatService = new ChatService()
 ): express.Router {
   const router = express.Router();

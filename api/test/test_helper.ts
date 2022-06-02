@@ -24,7 +24,6 @@ import { StatusCodes } from "http-status-codes";
 import { createExpressApp } from "../src/controllers";
 import express from "express";
 import { createClient } from "redis";
-import { promisify } from "util";
 
 chai.use(dirtyChai);
 
@@ -33,12 +32,17 @@ export interface ITestServer {
   quit: () => Promise<void>;
 }
 
-export function createTestServer(): ITestServer {
-  const publishRedisClient = createClient({ host: "localhost", port: 6379 });
-  const sessionStoreRedisClient = createClient({
-    host: "localhost",
-    port: 6379,
+export async function createTestServer(): Promise<ITestServer> {
+  const publishRedisClient = createClient({
+    url: "redis://localhost:6379",
   });
+  await publishRedisClient.connect();
+  publishRedisClient.on("error", (e) => console.log(e));
+  const sessionStoreRedisClient = createClient({
+    url: "redis://localhost:6379",
+  });
+  await sessionStoreRedisClient.connect();
+  sessionStoreRedisClient.on("error", (e) => console.log(e));
   return {
     app: createExpressApp({
       publishRedisClient,
@@ -47,8 +51,8 @@ export function createTestServer(): ITestServer {
     }),
     quit: async (): Promise<void> => {
       await Promise.all([
-        promisify(publishRedisClient.quit.bind(publishRedisClient))(),
-        promisify(sessionStoreRedisClient.quit.bind(sessionStoreRedisClient))(),
+        publishRedisClient.disconnect(),
+        sessionStoreRedisClient.disconnect(),
       ]);
     },
   };
