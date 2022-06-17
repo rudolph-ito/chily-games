@@ -1,0 +1,29 @@
+.container {
+  display: flex;
+}
+
+.form {
+  margin-right: 40px;
+}
+
+.mat-form-field {
+  display: block;
+  width: 200px;
+}
+
+.mat-radio-button {
+  margin-right: 10px;
+}
+
+.board-preview-wrapper {
+  .title {
+    margin-bottom: 10px;
+  }
+
+  .container {
+    width: 600px;
+    height: 600px;
+    border: 1px solid black;
+    margin: 5px 0;
+  }
+}

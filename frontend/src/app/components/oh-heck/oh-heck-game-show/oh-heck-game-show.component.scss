@@ -1,0 +1,64 @@
+.wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  min-width: 800px;
+  min-height: 600px;
+  position: relative;
+}
+
+.table-container {
+  height: 100%;
+  width: 100%;
+}
+
+.bet-overlay {
+  position: absolute;
+}
+
+.players-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+
+  button {
+    display: block;
+    margin-bottom: 10px;
+  }
+}
+
+.actions-overlay {
+  position: absolute;
+  width: 100%;
+  .top-left {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+  .top-right {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .bottom-right {
+    position: absolute;
+    bottom: calc(-100vh + 64px + 10px);
+    right: 10px;
+  }
+}
+
+.bet-overlay {
+  top: calc(50% - 20px);
+  left: calc(50% - 70px);
+  .mat-form-field {
+    width: 50px;
+    margin-right: 10px;
+  }
+}
+
+.info {
+  font-style: italic;
+}

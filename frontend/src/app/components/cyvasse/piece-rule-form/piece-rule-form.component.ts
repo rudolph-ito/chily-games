@@ -45,7 +45,7 @@ interface IPieceRuleBoardPreviewControls {
 @Component({
   selector: "app-piece-rule-form",
   templateUrl: "./piece-rule-form.component.html",
-  styleUrls: ["./piece-rule-form.component.styl"],
+  styleUrls: ["./piece-rule-form.component.scss"],
 })
 export class PieceRuleFormComponent implements OnInit {
   loading = false;

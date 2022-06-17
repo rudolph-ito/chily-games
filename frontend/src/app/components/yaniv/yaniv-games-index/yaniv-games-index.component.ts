@@ -14,7 +14,7 @@ import { GameState, ISearchedGame } from "../../../shared/dtos/yaniv/game";
 @Component({
   selector: "app-yaniv-games-index",
   templateUrl: "./yaniv-games-index.component.html",
-  styleUrls: ["./yaniv-games-index.component.styl"],
+  styleUrls: ["./yaniv-games-index.component.scss"],
 })
 export class YanivGamesIndexComponent implements OnInit {
   loading: boolean;

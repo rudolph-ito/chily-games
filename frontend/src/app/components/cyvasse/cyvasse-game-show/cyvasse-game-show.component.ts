@@ -40,7 +40,7 @@ import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 @Component({
   selector: "app-cyvasse-game-show",
   templateUrl: "./cyvasse-game-show.component.html",
-  styleUrls: ["./cyvasse-game-show.component.styl"],
+  styleUrls: ["./cyvasse-game-show.component.scss"],
 })
 export class CyvasseGameShowComponent
   implements OnInit, AfterViewInit, OnDestroy

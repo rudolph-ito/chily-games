@@ -37,7 +37,7 @@ import {
 @Component({
   selector: "app-yaniv-game-show",
   templateUrl: "./yaniv-game-show.component.html",
-  styleUrls: ["./yaniv-game-show.component.styl"],
+  styleUrls: ["./yaniv-game-show.component.scss"],
 })
 export class YanivGameShowComponent
   implements OnInit, AfterViewInit, OnDestroy
