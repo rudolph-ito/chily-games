@@ -9,7 +9,7 @@ import { AuthenticationService } from "src/app/services/authentication.service";
 @Component({
   selector: "app-cyvasse-games-index",
   templateUrl: "./cyvasse-games-index.component.html",
-  styleUrls: ["./cyvasse-games-index.component.styl"],
+  styleUrls: ["./cyvasse-games-index.component.scss"],
 })
 export class CyvasseGamesIndexComponent implements OnInit {
   loading: boolean;

@@ -15,7 +15,7 @@ export interface IOhHeckGameScoreboardDialogData {
 @Component({
   selector: "app-oh-heck-game-scoreboard-dialog",
   templateUrl: "./oh-heck-game-scoreboard-dialog.component.html",
-  styleUrls: ["./oh-heck-game-scoreboard-dialog.component.styl"],
+  styleUrls: ["./oh-heck-game-scoreboard-dialog.component.scss"],
 })
 export class OhHeckGameScoreboardDialogComponent implements OnInit {
   scoresDataSource = new MatTableDataSource<IRoundScore | ITotalScore>();

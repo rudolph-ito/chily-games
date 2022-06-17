@@ -1,0 +1,43 @@
+$navigation-bar-height: 64px;
+$content-padding-height: 10px * 2;
+$title-height: 48px;
+$header-row-height: 40px;
+$header-row-margin: 20px;
+$paginator-height: 56px;
+
+table {
+  width: 100%;
+}
+
+.table-container {
+  height: calc(
+    100vh - #{$navigation-bar-height + $content-padding-height + $title-height +
+      $header-row-height + $header-row-margin + $paginator-height}
+  );
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #d0d0d0;
+}
+
+.header-row {
+  height: $header-row-height;
+  display: flex;
+  align-items: center;
+  margin-bottom: $header-row-margin;
+
+  button {
+    margin-right: 10px;
+  }
+}
+
+td {
+  button {
+    margin-right: 10px;
+  }
+
+  .info {
+    font-style: italic;
+  }
+}

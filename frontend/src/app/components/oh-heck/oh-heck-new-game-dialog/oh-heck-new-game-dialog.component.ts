@@ -12,7 +12,7 @@ export interface IOhHeckNewGameDialogData {
 @Component({
   selector: "app-oh-heck-new-game-dialog",
   templateUrl: "./oh-heck-new-game-dialog.component.html",
-  styleUrls: ["./oh-heck-new-game-dialog.component.styl"],
+  styleUrls: ["./oh-heck-new-game-dialog.component.scss"],
 })
 export class OhHeckNewGameDialogComponent {
   controls = {

@@ -33,7 +33,7 @@ export interface IField {
 @Component({
   selector: "app-variant-show",
   templateUrl: "./variant-show.component.html",
-  styleUrls: ["./variant-show.component.styl"],
+  styleUrls: ["./variant-show.component.scss"],
 })
 export class VariantShowComponent implements OnInit {
   // formatters
