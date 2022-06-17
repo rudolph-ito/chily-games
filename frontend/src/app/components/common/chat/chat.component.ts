@@ -15,7 +15,7 @@ import { IChatMessage, INewChatMessageEvent } from "src/app/shared/dtos/chat";
 @Component({
   selector: "app-chat",
   templateUrl: "./chat.component.html",
-  styleUrls: ["./chat.component.styl"],
+  styleUrls: ["./chat.component.scss"],
 })
 export class ChatComponent implements OnInit {
   open: boolean = false;

@@ -37,7 +37,7 @@ import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck
 @Component({
   selector: "app-oh-heck-game-show",
   templateUrl: "./oh-heck-game-show.component.html",
-  styleUrls: ["./oh-heck-game-show.component.styl"],
+  styleUrls: ["./oh-heck-game-show.component.scss"],
 })
 export class OhHeckGameShowComponent
   implements OnInit, AfterViewInit, OnDestroy

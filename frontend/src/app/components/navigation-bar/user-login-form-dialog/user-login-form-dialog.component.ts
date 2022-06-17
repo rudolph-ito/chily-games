@@ -14,7 +14,7 @@ interface IUserLoginControls {
 @Component({
   selector: "app-user-login-form-dialog",
   templateUrl: "./user-login-form-dialog.component.html",
-  styleUrls: ["./user-login-form-dialog.component.styl"],
+  styleUrls: ["./user-login-form-dialog.component.scss"],
 })
 export class UserLoginFormDialogComponent implements OnInit {
   controls: IUserLoginControls = {

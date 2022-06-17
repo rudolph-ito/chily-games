@@ -13,7 +13,7 @@ import { IGame } from "../../../shared/dtos/cyvasse/game";
 @Component({
   selector: "app-challenges-index",
   templateUrl: "./challenges-index.component.html",
-  styleUrls: ["./challenges-index.component.styl"],
+  styleUrls: ["./challenges-index.component.scss"],
 })
 export class ChallengesIndexComponent implements OnInit {
   loading: boolean;

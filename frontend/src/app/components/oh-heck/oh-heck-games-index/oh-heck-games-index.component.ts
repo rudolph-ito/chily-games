@@ -20,7 +20,7 @@ import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck
 @Component({
   selector: "app-oh-heck-games-index",
   templateUrl: "./oh-heck-games-index.component.html",
-  styleUrls: ["./oh-heck-games-index.component.styl"],
+  styleUrls: ["./oh-heck-games-index.component.scss"],
 })
 export class OhHeckGamesIndexComponent implements OnInit {
   loading: boolean;
