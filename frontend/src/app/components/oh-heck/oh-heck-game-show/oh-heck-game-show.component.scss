@@ -3,8 +3,6 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  min-width: 800px;
-  min-height: 600px;
   position: relative;
 }
 
@@ -17,20 +15,16 @@
   position: absolute;
 }
 
-.players-overlay {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-
-  button {
-    display: block;
-    margin-bottom: 10px;
-  }
-}
-
+.players-overlay,
 .actions-overlay {
   position: absolute;
   width: 100%;
+
+  .players,
+  .player-list {
+    margin-bottom: 20px;
+  }
+
   .top-left {
     position: absolute;
     top: 10px;
@@ -47,6 +41,11 @@
     position: absolute;
     bottom: calc(-100vh + 64px + 10px);
     right: 10px;
+  }
+
+  button {
+    display: block;
+    margin-bottom: 10px;
   }
 }
 
