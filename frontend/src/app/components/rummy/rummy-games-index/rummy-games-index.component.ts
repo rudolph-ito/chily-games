@@ -1,28 +1,22 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormControl } from "@angular/forms";
-import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { Subscription, timer } from "rxjs";
 import { AuthenticationService } from "src/app/services/authentication.service";
-import { OhHeckGameService } from "src/app/services/oh-heck-game-service";
+import { RummyGameService } from "src/app/services/rummy-game.service";
 import { IUser } from "src/app/shared/dtos/authentication";
-import {
-  GameState,
-  IGame,
-  ISearchedGame,
-} from "../../../shared/dtos/oh_heck/game";
-import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
+import { GameState, ISearchedGame } from "src/app/shared/dtos/rummy/game";
 
 @Component({
-  selector: "app-oh-heck-games-index",
-  templateUrl: "./oh-heck-games-index.component.html",
-  styleUrls: ["./oh-heck-games-index.component.scss"],
+  selector: "app-rummy-games-index",
+  templateUrl: "./rummy-games-index.component.html",
+  styleUrls: ["./rummy-games-index.component.scss"],
 })
-export class OhHeckGamesIndexComponent implements OnInit {
+export class RummyGamesIndexComponent implements OnInit {
   loading: boolean;
   includeCompletedFormControl = new FormControl(false);
   gamesDataSource = new MatTableDataSource<ISearchedGame>();
@@ -33,11 +27,10 @@ export class OhHeckGamesIndexComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
-    private readonly gameService: OhHeckGameService,
+    private readonly gameService: RummyGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar,
-    private readonly dialog: MatDialog
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -83,13 +76,10 @@ export class OhHeckGamesIndexComponent implements OnInit {
   }
 
   create(): void {
-    this.dialog
-      .open(OhHeckNewGameDialogComponent, { data: { rematchForGameId: null } })
-      .afterClosed()
-      .subscribe((game: IGame) => {
-        if (game != null) {
-          this.navigateToGame(game.gameId);
-        }
+    this.gameService
+      .create({ numberOfDiscardPiles: 1, pointThreshold: 200 })
+      .subscribe((game) => {
+        this.navigateToGame(game.gameId);
       });
   }
 
@@ -110,7 +100,7 @@ export class OhHeckGamesIndexComponent implements OnInit {
 
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([`oh-heck/games/${gameId}`]);
+    this.router.navigate([`yaniv/games/${gameId}`]);
   }
 
   getHostUsername(game: ISearchedGame): string {

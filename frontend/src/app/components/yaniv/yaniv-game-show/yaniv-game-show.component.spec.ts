@@ -3,7 +3,7 @@ import { of } from "rxjs";
 import { AppModule } from "src/app/app.module";
 import { ChatService } from "src/app/services/chat.service";
 import { UserService } from "src/app/services/user.service";
-import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
+import { YanivGameService } from "src/app/services/yaniv-game.service";
 import { GameState } from "src/app/shared/dtos/yaniv/game";
 import { YanivGameShowComponent } from "./yaniv-game-show.component";
 

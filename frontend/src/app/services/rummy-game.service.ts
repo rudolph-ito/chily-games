@@ -1,21 +1,25 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { IPaginatedResponse } from "../../shared/dtos/search";
+import { IPaginatedResponse } from "../shared/dtos/search";
+import { ICard } from "src/app/shared/dtos/card";
 import {
+  IDiscardEvent,
+  IDiscardInput,
   IGame,
-  IGameActionRequest,
-  IGameActionResponse,
   IGameOptions,
+  IMeldEvent,
+  IMeldInput,
+  IPickupEvent,
+  IPickupInput,
   ISearchedGame,
   ISearchGamesRequest,
-} from "../../shared/dtos/yaniv/game";
-import { ICard } from "src/app/shared/dtos/card";
+} from "../shared/dtos/rummy/game";
 
 @Injectable({
   providedIn: "root",
 })
-export class YanivGameService {
+export class RummyGameService {
   constructor(private readonly http: HttpClient) {}
 
   abort(gameId: number): Observable<IGame> {
@@ -50,17 +54,28 @@ export class YanivGameService {
     );
   }
 
-  play(
-    gameId: number,
-    action: IGameActionRequest
-  ): Observable<IGameActionResponse> {
-    return this.http.put<IGameActionResponse>(
-      `${this.getRoutePrefix(gameId)}/play`,
+  pickup(gameId: number, action: IPickupInput): Observable<IPickupEvent> {
+    return this.http.put<IPickupEvent>(
+      `${this.getRoutePrefix(gameId)}/pickup`,
       action
     );
   }
 
-  rematch(gameId, options: IGameOptions): Observable<IGame> {
+  meld(gameId: number, action: IMeldInput): Observable<IMeldEvent> {
+    return this.http.put<IMeldEvent>(
+      `${this.getRoutePrefix(gameId)}/meld`,
+      action
+    );
+  }
+
+  discard(gameId: number, action: IDiscardInput): Observable<IDiscardEvent> {
+    return this.http.put<IDiscardEvent>(
+      `${this.getRoutePrefix(gameId)}/discard`,
+      action
+    );
+  }
+
+  rematch(gameId: number, options: IGameOptions): Observable<IGame> {
     return this.http.post<IGame>(
       `${this.getRoutePrefix(gameId)}/rematch`,
       options
@@ -79,6 +94,6 @@ export class YanivGameService {
   }
 
   private getRoutePrefix(gameId: number): string {
-    return `/api/yaniv/games/${gameId}`;
+    return `/api/rummy/games/${gameId}`;
   }
 }

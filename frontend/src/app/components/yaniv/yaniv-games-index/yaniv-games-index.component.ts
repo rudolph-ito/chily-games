@@ -7,7 +7,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { Router } from "@angular/router";
 import { Subscription, timer } from "rxjs";
 import { AuthenticationService } from "src/app/services/authentication.service";
-import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
+import { YanivGameService } from "src/app/services/yaniv-game.service";
 import { IUser } from "src/app/shared/dtos/authentication";
 import { GameState, ISearchedGame } from "../../../shared/dtos/yaniv/game";
 

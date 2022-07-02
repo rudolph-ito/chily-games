@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 import { AppModule } from "src/app/app.module";
 import { ChatService } from "src/app/services/chat.service";
-import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
+import { OhHeckGameService } from "src/app/services/oh-heck-game-service";
 import { UserService } from "src/app/services/user.service";
 import { getMockGame } from "src/app/test/oh-heck/mock-data";
 

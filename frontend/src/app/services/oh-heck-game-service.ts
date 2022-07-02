@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpResponse } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { IPaginatedResponse } from "../../shared/dtos/search";
-import { ICard } from "../../shared/dtos/card";
+import { IPaginatedResponse } from "../shared/dtos/search";
+import { ICard } from "../shared/dtos/card";
 import {
   IBetEvent,
   IGame,
@@ -12,7 +12,7 @@ import {
   ISearchedGame,
   ISearchGamesRequest,
   ITrickEvent,
-} from "../../shared/dtos/oh_heck/game";
+} from "../shared/dtos/oh_heck/game";
 
 @Injectable({
   providedIn: "root",

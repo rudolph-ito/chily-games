@@ -48,6 +48,8 @@ import { OhHeckGameShowComponent } from "./components/oh-heck/oh-heck-game-show/
 import { OhHeckNewGameDialogComponent } from "./components/oh-heck/oh-heck-new-game-dialog/oh-heck-new-game-dialog.component";
 import { OhHeckGameScoreboardDialogComponent } from "./components/oh-heck/oh-heck-game-scoreboard-dialog/oh-heck-game-scoreboard-dialog.component";
 import { ChatComponent } from "./components/common/chat/chat.component";
+import { RummyGamesIndexComponent } from "./components/rummy/rummy-games-index/rummy-games-index.component";
+import { RummyGameShowComponent } from "./components/rummy/rummy-game-show/rummy-game-show.component";
 
 @NgModule({
   declarations: [
@@ -73,6 +75,8 @@ import { ChatComponent } from "./components/common/chat/chat.component";
     OhHeckNewGameDialogComponent,
     OhHeckGameScoreboardDialogComponent,
     ChatComponent,
+    RummyGamesIndexComponent,
+    RummyGameShowComponent,
   ],
   imports: [
     AppRoutingModule,

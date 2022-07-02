@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 import { AppModule } from "src/app/app.module";
-import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
+import { OhHeckGameService } from "src/app/services/oh-heck-game-service";
 
 import { OhHeckGamesIndexComponent } from "./oh-heck-games-index.component";
 

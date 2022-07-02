@@ -16,7 +16,7 @@ import { Subject } from "rxjs";
 import { OhHeckTable } from "src/app/canvas/oh-heck/table";
 import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
-import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
+import { OhHeckGameService } from "src/app/services/oh-heck-game-service";
 import { IUser } from "../../../shared/dtos/authentication";
 import { ICard } from "../../../shared/dtos/card";
 import {

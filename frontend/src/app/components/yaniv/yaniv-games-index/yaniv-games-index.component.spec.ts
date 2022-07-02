@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 import { AppModule } from "src/app/app.module";
-import { YanivGameService } from "src/app/services/yaniv/yaniv-game.service";
+import { YanivGameService } from "src/app/services/yaniv-game.service";
 import { YanivGamesIndexComponent } from "./yaniv-games-index.component";
 
 describe("YanivGamesIndexComponent", () => {

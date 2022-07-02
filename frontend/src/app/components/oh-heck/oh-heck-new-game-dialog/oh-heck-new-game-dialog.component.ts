@@ -1,7 +1,7 @@
 import { Component, Inject } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
+import { OhHeckGameService } from "src/app/services/oh-heck-game-service";
 
 const HALF_GAME_ROUNDS = 7;
 
