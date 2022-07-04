@@ -1,11 +1,6 @@
 import { ICard } from "../../shared/dtos/card";
-import { valueOrDefault } from "../../shared/utilities/value_checker";
-import cardImages from "../../data/card_images";
-import { Stage as KonvaStage } from "konva/lib/Stage";
-import { Layer as KonvaLayer } from "konva/lib/Layer";
 import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
-import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
 import Konva from "konva";
 import {
   GameState,
@@ -15,20 +10,14 @@ import {
   ITrickEvent,
 } from "../../shared/dtos/oh_heck/game";
 import { Vector2d } from "konva/lib/types";
-
-export interface ITableOptions {
-  element: HTMLDivElement;
-}
-
-interface IPosition {
-  x: number;
-  y: number;
-}
-
-interface ISize {
-  width: number;
-  height: number;
-}
+import {
+  areCardsEqual,
+  BaseTable,
+  CARD_FACE_DEFAULT_STROKE,
+  IPosition,
+  ISize,
+  ITableOptions,
+} from "../base_table";
 
 interface ICardDisplayInputs {
   cardSpacer: number;
@@ -67,47 +56,22 @@ interface IUserData {
   border: KonvaRect;
 }
 
-export function areCardsEqual(a: ICard, b: ICard): boolean {
-  if (valueOrDefault(a.isJoker, false)) {
-    return valueOrDefault(b.isJoker, false) && a.jokerNumber === b.jokerNumber;
-  }
-  return a.rank === b.rank && a.suit === b.suit;
-}
-
-const CARD_BACK_DEFAULT_STROKE = 2;
-const CARD_FACE_DEFAULT_STROKE = 0;
 const CARD_FACE_HOVER_STORKE = 5;
 const CARD_FACE_TRICK_WINNER_STROKE = 3;
 
-export class OhHeckTable {
-  private readonly container: HTMLDivElement;
-  private readonly stage: KonvaStage;
-  private readonly cardsLayer: KonvaLayer;
-  private cardHeight: number;
-  private cardWidth: number;
-  private cardBackImage: HTMLImageElement;
+export class OhHeckTable extends BaseTable {
   private users: Map<number, IUserData>;
   private currentUserId: number | null;
   private readonly messageText: KonvaText;
   private readonly onPlayCard: (card: ICard) => void;
-  private readonly onRearrangeCards: (cards: ICard[]) => void;
 
   constructor(
     options: ITableOptions,
     onPlayCard: (card: ICard) => void,
     onRearrangeCards: (cards: ICard[]) => void
   ) {
-    this.container = options.element;
+    super(options, onRearrangeCards);
     this.onPlayCard = onPlayCard;
-    this.onRearrangeCards = onRearrangeCards;
-    this.stage = new KonvaStage({
-      container: this.container,
-      height: this.container.offsetHeight,
-      width: this.container.offsetWidth,
-    });
-    this.cardsLayer = new KonvaLayer();
-    this.stage.add(this.cardsLayer);
-    this.computeCardSize();
   }
 
   private currentUserDragEndCard(draggedCardRect: Konva.Rect): void {
@@ -125,7 +89,7 @@ export class OhHeckTable {
     );
     const cardRect = userData.cardsInHand[index];
     const cardPosition = positionalData.cardInHandPositions[index];
-    this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+    this.updateCardSizeAndPosition(cardRect, cardPosition, "none");
     const updatedCards: ICard[] = userData.cardsInHand.map((x) =>
       x.getAttr("yanivCard")
     );
@@ -170,19 +134,10 @@ export class OhHeckTable {
         const cardRect = userData.cardsInHand[index];
         if (cardRect !== draggedCardRect) {
           const cardPosition = positionalData.cardInHandPositions[index];
-          this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+          this.updateCardSizeAndPosition(cardRect, cardPosition, "none");
         }
       }
     }
-  }
-
-  private computeCardSize(): void {
-    const min = Math.min(
-      this.container.offsetHeight,
-      this.container.offsetWidth
-    );
-    this.cardHeight = min / 6;
-    this.cardWidth = (this.cardHeight * 2.5) / 3.5;
   }
 
   async initializeState(game: IGame, currentUserId?: number): Promise<void> {
@@ -246,10 +201,14 @@ export class OhHeckTable {
       this.updateCardFaceStroke(rect, false);
       this.removeCardEventHandlers(rect);
     } else {
-      const rect = userData.cardsInHand.shift();
-      if (rect == null) {
+      const rects = userData.cardsInHand.splice(
+        Math.floor(userData.cardsInHand.length / 2),
+        1
+      );
+      if (rects.length == 0) {
         throw new Error("Unexpectedly have no cards for user");
       }
+      const rect = rects[0];
       await this.updateRectWithCardFace(rect, card);
       userData.playedCard = rect;
     }
@@ -260,12 +219,12 @@ export class OhHeckTable {
     this.updateCardSizeAndPosition(
       userData.playedCard,
       positionalData.playedCardPosition,
-      true
+      "position_only"
     );
     for (let index = 0; index < userData.cardsInHand.length; index++) {
       const cardRect = userData.cardsInHand[index];
       const cardPosition = positionalData.cardInHandPositions[index];
-      this.updateCardSizeAndPosition(cardRect, cardPosition, true);
+      this.updateCardSizeAndPosition(cardRect, cardPosition, "full");
     }
     this.updateTrickWinnerIfNeeded(
       trickEvent.updatedGameState,
@@ -341,7 +300,7 @@ export class OhHeckTable {
         this.updateCardSizeAndPosition(
           userData.playedCard,
           positionalData.playedCardPosition,
-          false
+          "none"
         );
         userData.playedCard.zIndex(userData.playedCardIndex);
       }
@@ -349,7 +308,7 @@ export class OhHeckTable {
       for (let index = 0; index < userData.cardsInHand.length; index++) {
         const cardRect = userData.cardsInHand[index];
         const cardPosition = positionalData.cardInHandPositions[index];
-        this.updateCardSizeAndPosition(cardRect, cardPosition, false);
+        this.updateCardSizeAndPosition(cardRect, cardPosition, "none");
 
         if (userData.userId === this.currentUserId) {
           cardRect.dragBoundFunc((pos: IPosition): IPosition => {
@@ -634,24 +593,8 @@ export class OhHeckTable {
       rect.strokeWidth(CARD_FACE_HOVER_STORKE);
       return;
     }
-    // const card = rect.getAttr("yanivCard");
-    // if (
-    //   doesHaveValue(card) &&
-    //   this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))
-    // ) {
-    //   rect.stroke("blue");
-    //   rect.strokeWidth(CARD_FACE_SELECTED_STROKE);
-    //   return;
-    // }
     rect.stroke("black");
     rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);
-  }
-
-  private removeCardEventHandlers(rect: KonvaRect): void {
-    rect.off("mouseover");
-    rect.off("mouseout");
-    rect.off("click");
-    rect.off("tap");
   }
 
   private initializeCurrentUserCardEventHandlers(rect: KonvaRect): void {
@@ -681,114 +624,6 @@ export class OhHeckTable {
     rect.on("dragend", () => {
       this.currentUserDragEndCard(rect);
     });
-  }
-
-  private async loadCardFace(card: ICard): Promise<KonvaRect> {
-    const rect = new KonvaRect();
-    rect.height(this.cardHeight);
-    rect.width(this.cardWidth);
-    await this.updateRectWithCardFace(rect, card);
-    return rect;
-  }
-
-  private getCardImageBase64(card: ICard): string {
-    if (valueOrDefault(card.isJoker, false)) {
-      return cardImages.joker;
-    }
-    if (card.suit == null || card.rank == null) {
-      throw new Error(
-        `Card missing rank or suit when attempting to load image, card: ${JSON.stringify(
-          card
-        )}`
-      );
-    }
-    return cardImages[`${card.suit.replace(/s$/, "")}_${card.rank}`];
-  }
-
-  private async loadCardBack(): Promise<KonvaRect> {
-    const rect = new KonvaRect();
-    rect.height(this.cardHeight);
-    rect.width(this.cardWidth);
-    await this.updateRectWithCardBack(rect);
-    return rect;
-  }
-
-  private async updateRectWithCardBack(rect: KonvaRect): Promise<void> {
-    if (this.cardBackImage == null) {
-      this.cardBackImage = await new Promise<HTMLImageElement>((resolve) => {
-        const image = new Image();
-        image.src = `data:image/png;base64,${cardImages.back}`;
-        image.onload = () => {
-          resolve(image);
-        };
-      });
-    }
-    this.updateRectWithImage(rect, this.cardBackImage);
-    rect.stroke("black");
-    rect.strokeWidth(CARD_BACK_DEFAULT_STROKE);
-  }
-
-  private async updateRectWithCardFace(
-    rect: KonvaRect,
-    card: ICard
-  ): Promise<void> {
-    return await new Promise((resolve) => {
-      const image = new Image();
-      image.src = `data:image/png;base64,${this.getCardImageBase64(card)}`;
-      image.onload = () => {
-        rect.setAttr("yanivCard", card);
-        this.updateRectWithImage(rect, image);
-        rect.stroke("black");
-        rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);
-        resolve();
-      };
-    });
-  }
-
-  private updateRectWithImage(rect: KonvaRect, image: HTMLImageElement): void {
-    rect.fillPatternImage(image);
-    rect.fillPatternRepeat("no-repeat");
-    rect.fillPatternScale({
-      x: rect.width() / image.width,
-      y: rect.height() / image.height,
-    });
-  }
-
-  private updateCardSizeAndPosition(
-    rect: KonvaRect,
-    displayData: ICardDisplayData,
-    animate: boolean,
-    onFinish: (() => void) | undefined = undefined
-  ): void {
-    rect.size(displayData.size);
-
-    const image = rect.fillPatternImage();
-    if (image != null) {
-      rect.fillPatternScale({
-        x: displayData.size.width / image.width,
-        y: displayData.size.height / image.height,
-      });
-    }
-
-    if (animate) {
-      const tween = new KonvaTween({
-        node: rect,
-        duration: 1,
-        easing: KonvaEasings.EaseInOut,
-        onFinish,
-
-        x: displayData.position.x,
-        y: displayData.position.y,
-        offsetX: displayData.offset.x,
-        offsetY: displayData.offset.y,
-        rotation: displayData.rotation,
-      });
-      tween.play();
-    } else {
-      rect.position(displayData.position);
-      rect.offset(displayData.offset);
-      rect.rotation(displayData.rotation);
-    }
   }
 
   private getUserText(userData: IUserData): string {
