@@ -10,7 +10,7 @@
   height: 45vh;
   display: flex;
   flex-direction: column;
-  width: 400px;
+  width: 50vw;
 }
 
 .messages-list {
@@ -31,9 +31,10 @@
   padding: 2px;
   height: 20px;
   width: 60px;
+
   &.open {
     border-bottom: 1px solid black;
-    width: 400px;
+    width: 50vw;
     justify-content: flex-start;
   }
 }
