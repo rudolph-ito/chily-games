@@ -1,1 +1,87 @@
-<p>rummy-game-show works!</p>
+<div (window:resize)="onResize()" class="wrapper">
+  <div class="table-container" #tableContainer></div>
+  <div class="players-overlay" *ngIf="!loading && isWaitingForPlayers()">
+    <h2>Players:</h2>
+    <div class="player-list">
+      <div *ngFor="let playerState of game?.playerStates">
+        {{ playerState.displayName }}
+        <span *ngIf="playerState.userId == game?.hostUserId">(host)</span>
+      </div>
+    </div>
+    <button
+      *ngIf="canJoin()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="join()"
+    >
+      Join
+    </button>
+    <button
+      *ngIf="canStartRound()"
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="startRound()"
+    >
+      Start Round
+    </button>
+    <button
+      *ngIf="canAbortGame()"
+      mat-button
+      mat-flat-button
+      color="warn"
+      (click)="confirmAbortGame()"
+    >
+      Abort game
+    </button>
+    <div class="info" *ngIf="couldJoinOrPlayIfLoggedIn()">
+      Login/register to join/play
+    </div>
+  </div>
+  <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
+    <div class="top-left">
+      <button
+        *ngIf="canStartRound()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="startRound()"
+      >
+        Start Round
+      </button>
+      <button
+        *ngIf="canStartNewGame()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="startNewGame()"
+      >
+        Start new game
+      </button>
+      <button
+        *ngIf="canJoinNewGame()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="joinNewGame()"
+      >
+        Join new game
+      </button>
+    </div>
+    <div class="top-right">
+      <button
+        *ngIf="canAbortGame()"
+        mat-button
+        mat-flat-button
+        color="warn"
+        (click)="confirmAbortGame()"
+      >
+        Abort game
+      </button>
+    </div>
+    <div class="bottom-right">
+      <app-chat [chatId]="getChatId()" [user]="user"></app-chat>
+    </div>
+  </div>
+</div>

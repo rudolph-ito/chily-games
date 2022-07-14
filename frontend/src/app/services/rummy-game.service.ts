@@ -10,8 +10,8 @@ import {
   IGameOptions,
   IMeldEvent,
   IMeldInput,
-  IPickupEvent,
   IPickupInput,
+  IPickupOutput,
   ISearchedGame,
   ISearchGamesRequest,
 } from "../shared/dtos/rummy/game";
@@ -54,8 +54,8 @@ export class RummyGameService {
     );
   }
 
-  pickup(gameId: number, action: IPickupInput): Observable<IPickupEvent> {
-    return this.http.put<IPickupEvent>(
+  pickup(gameId: number, action: IPickupInput): Observable<IPickupOutput> {
+    return this.http.put<IPickupOutput>(
       `${this.getRoutePrefix(gameId)}/pickup`,
       action
     );
