@@ -17,7 +17,18 @@ import {
   ISize,
   ITableOptions,
 } from "../base_table";
-import { GameState, IDiscardEvent, IDiscardInput, IDiscardState, IGame, IMeldEvent, IMeldInput, IPickupEvent, IPickupInput, IPlayerState } from "src/app/shared/dtos/rummy/game";
+import {
+  GameState,
+  IDiscardEvent,
+  IDiscardInput,
+  IDiscardState,
+  IGame,
+  IMeldEvent,
+  IMeldInput,
+  IPickupEvent,
+  IPickupInput,
+  IPlayerState,
+} from "src/app/shared/dtos/rummy/game";
 
 interface ICardDisplayInputs {
   cardSpacer: number;
@@ -64,7 +75,6 @@ export class RummyTable extends BaseTable {
   private readonly onPickup: (request: IPickupInput) => void;
   private readonly onMeld: (request: IMeldInput) => void;
   private readonly onDiscard: (request: IDiscardInput) => void;
-
 
   constructor(
     options: ITableOptions,
@@ -219,13 +229,9 @@ export class RummyTable extends BaseTable {
     cardPickedUpFromDeck?: ICard
   ): Promise<void> {}
 
-  async updateStateWithMeld(
-    event: IMeldEvent
-  ): Promise<void> {}
+  async updateStateWithMeld(event: IMeldEvent): Promise<void> {}
 
-  async updateStateWithDiscard(
-    event: IDiscardEvent
-  ): Promise<void> {}
+  async updateStateWithDiscard(event: IDiscardEvent): Promise<void> {}
 
   updateActionTo(actionToUserId: number): void {
     this.users.forEach((userData) => {
@@ -347,7 +353,11 @@ export class RummyTable extends BaseTable {
 
   async initializeDiscards(discardState: IDiscardState): Promise<void> {
     this.discardPiles = [];
-    for (let pileIndex = 0; pileIndex < discardState.piles.length; pileIndex++) {
+    for (
+      let pileIndex = 0;
+      pileIndex < discardState.piles.length;
+      pileIndex++
+    ) {
       const pile = discardState.piles[pileIndex];
       this.discardPiles.push([]);
       for (let cardIndex = 0; cardIndex < pile.length; cardIndex++) {
@@ -502,7 +512,7 @@ export class RummyTable extends BaseTable {
   private getDiscardPositionalData(
     pileIndex: number,
     cardIndex: number,
-    numberOfPiles: number,
+    numberOfPiles: number
   ): ICardDisplayData {
     const center: IPosition = {
       x: this.container.offsetWidth / 2,
@@ -510,11 +520,9 @@ export class RummyTable extends BaseTable {
     };
     const partialCardWidth = this.cardWidth / 4;
     const initialCardX = center.x - this.cardWidth * 2.1;
-    const discardPileOffset = this.cardHeight * 1.1
+    const discardPileOffset = this.cardHeight * 1.1;
     const initialCardY =
-      center.y -
-      this.cardHeight / 2 -
-      (numberOfPiles - 1) * discardPileOffset;
+      center.y - this.cardHeight / 2 - (numberOfPiles - 1) * discardPileOffset;
     return {
       size: {
         height: this.cardHeight,

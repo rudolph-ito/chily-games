@@ -1,16 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { RummyNewGameDialogComponent } from './rummy-new-game-dialog.component';
+import { RummyNewGameDialogComponent } from "./rummy-new-game-dialog.component";
 
-describe('RummyNewGameDialogComponent', () => {
+describe("RummyNewGameDialogComponent", () => {
   let component: RummyNewGameDialogComponent;
   let fixture: ComponentFixture<RummyNewGameDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RummyNewGameDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [RummyNewGameDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
@@ -19,7 +18,7 @@ describe('RummyNewGameDialogComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

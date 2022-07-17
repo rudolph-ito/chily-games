@@ -9,7 +9,7 @@ module.exports = {
       "meld_or_discard",
       "round_complete",
       "complete",
-      "aborted",
+      "aborted"
     );
     const userConfig = {
       type: Sequelize.INTEGER,

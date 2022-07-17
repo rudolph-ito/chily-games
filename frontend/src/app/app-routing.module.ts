@@ -14,6 +14,8 @@ import { YanivGamesIndexComponent } from "./components/yaniv/yaniv-games-index/y
 import { YanivGameShowComponent } from "./components/yaniv/yaniv-game-show/yaniv-game-show.component";
 import { OhHeckGamesIndexComponent } from "./components/oh-heck/oh-heck-games-index/oh-heck-games-index.component";
 import { OhHeckGameShowComponent } from "./components/oh-heck/oh-heck-game-show/oh-heck-game-show.component";
+import { RummyGamesIndexComponent } from "./components/rummy/rummy-games-index/rummy-games-index.component";
+import { RummyGameShowComponent } from "./components/rummy/rummy-game-show/rummy-game-show.component";
 
 const routes: Routes = [
   {
@@ -73,6 +75,14 @@ const routes: Routes = [
   {
     path: "oh-heck/games/:gameId",
     component: OhHeckGameShowComponent,
+  },
+  {
+    path: "rummy/games",
+    component: RummyGamesIndexComponent,
+  },
+  {
+    path: "rummy/games/:gameId",
+    component: RummyGameShowComponent,
   },
   {
     path: "yaniv/games",

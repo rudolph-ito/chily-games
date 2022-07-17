@@ -11,7 +11,6 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject } from "rxjs";
-import { YanivTable } from "src/app/canvas/yaniv/table";
 import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { ICard } from "src/app/shared/dtos/card";
@@ -21,7 +20,19 @@ import {
   ConfirmationDialogComponent,
   IConfirmationDialogData,
 } from "../../common/confirmation-dialog/confirmation-dialog.component";
-import { GameState, IDiscardEvent, IDiscardInput, IGame, IMeldEvent, IMeldInput, INewGameStartedEvent, IPickupEvent, IPickupInput, IPickupOutput, IPlayerJoinedEvent } from "src/app/shared/dtos/rummy/game";
+import {
+  GameState,
+  IDiscardEvent,
+  IDiscardInput,
+  IGame,
+  IMeldEvent,
+  IMeldInput,
+  INewGameStartedEvent,
+  IPickupEvent,
+  IPickupInput,
+  IPickupOutput,
+  IPlayerJoinedEvent,
+} from "src/app/shared/dtos/rummy/game";
 import { RummyGameService } from "src/app/services/rummy-game.service";
 import { RummyTable } from "src/app/canvas/rummy/table";
 import { RummyNewGameDialogComponent } from "../rummy-new-game-dialog/rummy-new-game-dialog.component";
@@ -96,27 +107,19 @@ export class RummyGameShowComponent
       .fromEvent<IPickupEvent>("pickup")
       .subscribe((event: IPickupEvent) => {
         if (event.userId !== this.user?.userId) {
-          this.table.updateStateWithPickup(
-            event,
-          );
+          this.table.updateStateWithPickup(event);
         }
       });
-    this.socket
-      .fromEvent<IMeldEvent>("meld")
-      .subscribe((event: IMeldEvent) => {
-        if (event.userId !== this.user?.userId) {
-          this.table.updateStateWithMeld(
-            event,
-          );
-        }
-      });
+    this.socket.fromEvent<IMeldEvent>("meld").subscribe((event: IMeldEvent) => {
+      if (event.userId !== this.user?.userId) {
+        this.table.updateStateWithMeld(event);
+      }
+    });
     this.socket
       .fromEvent<IDiscardEvent>("discard")
       .subscribe((event: IDiscardEvent) => {
         if (event.userId !== this.user?.userId) {
-          this.table.updateStateWithDiscard(
-            event,
-          );
+          this.table.updateStateWithDiscard(event);
         }
       });
     this.socket
@@ -266,7 +269,7 @@ export class RummyGameShowComponent
             duration: 2500,
           });
         }
-      }
+      },
     });
   };
   onMeld = async (input: IMeldInput): Promise<void> => {
@@ -280,7 +283,7 @@ export class RummyGameShowComponent
             duration: 2500,
           });
         }
-      }
+      },
     });
   };
   onDiscard = async (input: IDiscardInput): Promise<void> => {
@@ -294,9 +297,9 @@ export class RummyGameShowComponent
             duration: 2500,
           });
         }
-      }
+      },
     });
-  }
+  };
 
   onRearrangeCards = async (cards: ICard[]): Promise<void> => {
     this.gameService
