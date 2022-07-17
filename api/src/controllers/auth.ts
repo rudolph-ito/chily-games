@@ -69,9 +69,14 @@ function getAuthRouter(
   router.post("/login", passport.authenticate("json"), function (req, res) {
     res.json(req.user);
   });
-  router.delete("/logout", authenticationRequired, function (req, res) {
-    req.logout();
-    res.end();
+  router.delete("/logout", authenticationRequired, function (req, res, next) {
+    req.logout((err) => {
+      if (err) {
+        next(err);
+      } else {
+        res.end();
+      }
+    });
   });
   router.get("/user", authenticationRequired, function (req, res) {
     res.json(req.user);
