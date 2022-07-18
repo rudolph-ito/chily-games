@@ -27,14 +27,14 @@ export class RummyGameService {
   }
 
   create(options: IGameOptions): Observable<IGame> {
-    return this.http.post<IGame>("/api/yaniv/games", options);
+    return this.http.post<IGame>("/api/rummy/games", options);
   }
 
   search(
     request: ISearchGamesRequest
   ): Observable<IPaginatedResponse<ISearchedGame>> {
     return this.http.post<IPaginatedResponse<ISearchedGame>>(
-      `/api/yaniv/games/search`,
+      `/api/rummy/games/search`,
       request
     );
   }

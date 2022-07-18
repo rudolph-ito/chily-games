@@ -114,9 +114,7 @@ export class YanivTable extends BaseTable {
     const cardRect = userData.cards[index];
     const cardPosition = positionalData.cardPositions[index];
     this.updateCardSizeAndPosition(cardRect, cardPosition, "none");
-    const updatedCards: ICard[] = userData.cards.map((x) =>
-      x.getAttr("yanivCard")
-    );
+    const updatedCards: ICard[] = userData.cards.map((x) => x.getAttr("card"));
     this.onRearrangeCards(updatedCards);
   }
 
@@ -230,7 +228,7 @@ export class YanivTable extends BaseTable {
       if (lastAction.userId === this.currentUserId) {
         this.currentUserSelectedDiscards = [];
         rect = userData.cards.find((x) =>
-          areCardsEqual(x.getAttr("yanivCard"), card)
+          areCardsEqual(x.getAttr("card"), card)
         );
         if (rect == null) {
           throw new Error(
@@ -259,7 +257,7 @@ export class YanivTable extends BaseTable {
     if (lastAction.cardPickedUp != null) {
       const { cardPickedUp } = lastAction;
       const cardRect = this.discardedCards.find((x) =>
-        areCardsEqual(x.getAttr("yanivCard"), cardPickedUp)
+        areCardsEqual(x.getAttr("card"), cardPickedUp)
       );
       if (cardRect == null) {
         throw new Error(
@@ -668,7 +666,7 @@ export class YanivTable extends BaseTable {
       rect.strokeWidth(CARD_FACE_HOVER_STORKE);
       return;
     }
-    const card = rect.getAttr("yanivCard");
+    const card = rect.getAttr("card");
     if (
       doesHaveValue(card) &&
       this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))
@@ -699,7 +697,7 @@ export class YanivTable extends BaseTable {
       const rect = event.target as KonvaRect;
       if (this.currentUserSelectedDiscards.length > 0) {
         this.onPlay({
-          cardPickedUp: rect.getAttr("yanivCard"),
+          cardPickedUp: rect.getAttr("card"),
           cardsDiscarded: this.currentUserSelectedDiscards,
         });
       }
@@ -720,7 +718,7 @@ export class YanivTable extends BaseTable {
     });
     rect.on("click tap", (event) => {
       const rect = event.target as KonvaRect;
-      this.currentUserClickCard(rect.getAttr("yanivCard"));
+      this.currentUserClickCard(rect.getAttr("card"));
     });
     rect.draggable(true);
     rect.on("dragstart", () => {

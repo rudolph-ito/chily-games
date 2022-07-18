@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormControl } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
@@ -9,7 +10,12 @@ import { Subscription, timer } from "rxjs";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { RummyGameService } from "src/app/services/rummy-game.service";
 import { IUser } from "src/app/shared/dtos/authentication";
-import { GameState, ISearchedGame } from "src/app/shared/dtos/rummy/game";
+import {
+  GameState,
+  IGame,
+  ISearchedGame,
+} from "src/app/shared/dtos/rummy/game";
+import { RummyNewGameDialogComponent } from "../rummy-new-game-dialog/rummy-new-game-dialog.component";
 
 @Component({
   selector: "app-rummy-games-index",
@@ -30,7 +36,8 @@ export class RummyGamesIndexComponent implements OnInit {
     private readonly gameService: RummyGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -76,10 +83,13 @@ export class RummyGamesIndexComponent implements OnInit {
   }
 
   create(): void {
-    this.gameService
-      .create({ numberOfDiscardPiles: 1, pointThreshold: 200 })
-      .subscribe((game) => {
-        this.navigateToGame(game.gameId);
+    this.dialog
+      .open(RummyNewGameDialogComponent, { data: { rematchForGameId: null } })
+      .afterClosed()
+      .subscribe((game: IGame) => {
+        if (game != null) {
+          this.navigateToGame(game.gameId);
+        }
       });
   }
 
@@ -100,7 +110,7 @@ export class RummyGamesIndexComponent implements OnInit {
 
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([`yaniv/games/${gameId}`]);
+    this.router.navigate([`rummy/games/${gameId}`]);
   }
 
   getHostUsername(game: ISearchedGame): string {

@@ -70,7 +70,7 @@ export class RummyGameShowComponent
     });
     this.route.params.subscribe(() => {
       if (this.game != null) {
-        this.socket.emit("yaniv-leave-game", this.game.gameId);
+        this.socket.emit("rummy-leave-game", this.game.gameId);
         if (this.table != null) {
           this.table.clear();
         }
@@ -86,7 +86,7 @@ export class RummyGameShowComponent
       this.loading = false;
       this.initializeTable();
     });
-    this.socket.emit("yaniv-join-game", this.getGameId());
+    this.socket.emit("rummy-join-game", this.getGameId());
     this.socket
       .fromEvent("player-joined")
       .subscribe((event: IPlayerJoinedEvent) => {
@@ -106,20 +106,34 @@ export class RummyGameShowComponent
     this.socket
       .fromEvent<IPickupEvent>("pickup")
       .subscribe((event: IPickupEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
         if (event.userId !== this.user?.userId) {
           this.table.updateStateWithPickup(event);
+          this.game.actionToUserId = event.actionToUserId;
+          this.game.state = event.updatedGameState;
         }
       });
     this.socket.fromEvent<IMeldEvent>("meld").subscribe((event: IMeldEvent) => {
+      if (this.game == null) {
+        throw new Error("Game unexpectedly null");
+      }
       if (event.userId !== this.user?.userId) {
         this.table.updateStateWithMeld(event);
+        this.game.state = event.updatedGameState;
       }
     });
     this.socket
       .fromEvent<IDiscardEvent>("discard")
       .subscribe((event: IDiscardEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
         if (event.userId !== this.user?.userId) {
           this.table.updateStateWithDiscard(event);
+          this.game.actionToUserId = event.actionToUserId;
+          this.game.state = event.updatedGameState;
         }
       });
     this.socket
@@ -140,7 +154,7 @@ export class RummyGameShowComponent
   }
 
   ngOnDestroy(): void {
-    this.socket.emit("yaniv-leave-game", this.getGameId());
+    this.socket.emit("rummy-leave-game", this.getGameId());
   }
 
   ngAfterViewInit(): void {
@@ -155,8 +169,6 @@ export class RummyGameShowComponent
             element: this.tableContainer.nativeElement,
           },
           this.onPickup,
-          this.onMeld,
-          this.onDiscard,
           this.onRearrangeCards
         );
       }
@@ -258,10 +270,15 @@ export class RummyGameShowComponent
   onPickup = async (input: IPickupInput): Promise<void> => {
     this.gameService.pickup(this.getGameId(), input).subscribe({
       next: async (response: IPickupOutput) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
         this.table.updateStateWithPickup(
           response.event,
           response.cardPickedUpFromDeck
         );
+        this.game.actionToUserId = response.event.actionToUserId;
+        this.game.state = response.event.updatedGameState;
       },
       error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -272,10 +289,44 @@ export class RummyGameShowComponent
       },
     });
   };
+
+  canMeldOrDiscard() {
+    if (this.game == null || this.user == null) {
+      return false;
+    }
+    return (
+      this.game.actionToUserId == this.user.userId &&
+      this.game.state == GameState.MELD_OR_DISCARD
+    );
+  }
+
+  meldSelected(): void {
+    // TODO prompt is new meld or adding to existing (if adding, select which)
+  }
+
+  discardSelected(): void {
+    const selectedCards = this.table.getCurrentUserSelectedCards();
+    if (selectedCards.length != 1) {
+      this.snackBar.open("Must select exactly one card to discard", undefined, {
+        duration: 2500,
+      });
+      return;
+    }
+    // TODO - if more than one discard pile and no discard requirement, option for user to select where to discard
+    this.onDiscard({
+      card: selectedCards[0],
+      pileIndex: 0,
+    });
+  }
+
   onMeld = async (input: IMeldInput): Promise<void> => {
     this.gameService.meld(this.getGameId(), input).subscribe({
       next: async (response: IMeldEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
         this.table.updateStateWithMeld(response);
+        this.game.state = response.updatedGameState;
       },
       error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -286,10 +337,16 @@ export class RummyGameShowComponent
       },
     });
   };
+
   onDiscard = async (input: IDiscardInput): Promise<void> => {
     this.gameService.discard(this.getGameId(), input).subscribe({
       next: async (response: IDiscardEvent) => {
+        if (this.game == null) {
+          throw new Error("Game unexpectedly null");
+        }
         this.table.updateStateWithDiscard(response);
+        this.game.actionToUserId = response.actionToUserId;
+        this.game.state = response.updatedGameState;
       },
       error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -412,10 +469,10 @@ export class RummyGameShowComponent
 
   navigateToGame(gameId: number): void {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([`yaniv/games/${gameId}`]);
+    this.router.navigate([`rummy/games/${gameId}`]);
   }
 
   getChatId(): string {
-    return `yaniv-game-${this.getGameId()}`;
+    return `rummy-game-${this.getGameId()}`;
   }
 }

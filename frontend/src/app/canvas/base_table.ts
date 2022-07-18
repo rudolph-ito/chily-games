@@ -131,7 +131,7 @@ export class BaseTable {
       const image = new Image();
       image.src = `data:image/png;base64,${this.getCardImageBase64(card)}`;
       image.onload = () => {
-        rect.setAttr("yanivCard", card);
+        rect.setAttr("card", card);
         this.updateRectWithImage(rect, image);
         rect.stroke("black");
         rect.strokeWidth(CARD_FACE_DEFAULT_STROKE);

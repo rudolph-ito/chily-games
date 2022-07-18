@@ -5,10 +5,6 @@ import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
 import Konva from "konva";
 import {
-  getGameMessage,
-  getRoundMessage,
-} from "../../utils/yaniv/message-helpers";
-import {
   areCardsEqual,
   BaseTable,
   CARD_BACK_DEFAULT_STROKE,
@@ -20,11 +16,9 @@ import {
 import {
   GameState,
   IDiscardEvent,
-  IDiscardInput,
   IDiscardState,
   IGame,
   IMeldEvent,
-  IMeldInput,
   IPickupEvent,
   IPickupInput,
   IPlayerState,
@@ -68,36 +62,31 @@ const CARD_FACE_SELECTED_STROKE = 3;
 export class RummyTable extends BaseTable {
   private users: Map<number, IUserData>;
   private currentUserId: number | null;
-  private currentUserSelectedDiscards: ICard[] = [];
+  private currentUserSelectedCards: ICard[] = [];
   private deckCard: KonvaRect;
   private discardPiles: KonvaRect[][] = [];
   private messageText: KonvaText;
   private readonly onPickup: (request: IPickupInput) => void;
-  private readonly onMeld: (request: IMeldInput) => void;
-  private readonly onDiscard: (request: IDiscardInput) => void;
 
   constructor(
     options: ITableOptions,
     onPickup: (request: IPickupInput) => void,
-    onMeld: (request: IMeldInput) => void,
-    onDiscard: (request: IDiscardInput) => void,
     onRearrangeCards: (cards: ICard[]) => void
   ) {
     super(options, onRearrangeCards);
     this.onPickup = onPickup;
-    this.onMeld = onMeld;
-    this.onDiscard = onDiscard;
   }
 
   private currentUserClickCard(card: ICard): void {
     if (this.currentUserId == null) {
       throw new Error("Current user required");
     }
-    if (this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))) {
-      this.currentUserSelectedDiscards =
-        this.currentUserSelectedDiscards.filter((x) => !areCardsEqual(x, card));
+    if (this.currentUserSelectedCards.some((x) => areCardsEqual(x, card))) {
+      this.currentUserSelectedCards = this.currentUserSelectedCards.filter(
+        (x) => !areCardsEqual(x, card)
+      );
     } else {
-      this.currentUserSelectedDiscards.push(card);
+      this.currentUserSelectedCards.push(card);
     }
     const user = this.users.get(this.currentUserId);
     if (user == null) {
@@ -125,9 +114,7 @@ export class RummyTable extends BaseTable {
     const cardRect = userData.cards[index];
     const cardPosition = positionalData.cardPositions[index];
     this.updateCardSizeAndPosition(cardRect, cardPosition, "none");
-    const updatedCards: ICard[] = userData.cards.map((x) =>
-      x.getAttr("yanivCard")
-    );
+    const updatedCards: ICard[] = userData.cards.map((x) => x.getAttr("card"));
     this.onRearrangeCards(updatedCards);
   }
 
@@ -175,10 +162,14 @@ export class RummyTable extends BaseTable {
     }
   }
 
+  getCurrentUserSelectedCards(): ICard[] {
+    return this.currentUserSelectedCards.slice();
+  }
+
   async initializeState(game: IGame, currentUserId?: number): Promise<void> {
     this.users = new Map<number, IUserData>();
     this.currentUserId = currentUserId ?? null;
-    this.currentUserSelectedDiscards = [];
+    this.currentUserSelectedCards = [];
     this.cardsLayer.destroyChildren();
     const promises: Array<Promise<any>> = [];
     if (game.playerStates[0].numberOfCards !== 0) {
@@ -227,11 +218,126 @@ export class RummyTable extends BaseTable {
   async updateStateWithPickup(
     event: IPickupEvent,
     cardPickedUpFromDeck?: ICard
-  ): Promise<void> {}
+  ): Promise<void> {
+    const userData = this.users.get(event.userId);
+    if (userData == null) {
+      throw new Error("User not found");
+    }
+    let onFinish: (() => void) | undefined;
+    if (event.input.pickup != null) {
+      const pickup = event.input.pickup;
+      if (event.input.deepPickupMeld == null) {
+        const pile = this.discardPiles.find((pile) =>
+          areCardsEqual(pile[pile.length - 1].getAttr("card"), pickup)
+        );
+        if (pile == null) {
+          throw new Error(
+            `Unexpectedly unable to find picked up card: ${JSON.stringify(
+              pickup
+            )}`
+          );
+        }
+        const cardRect = pile.pop();
+        if (cardRect == null) {
+          throw new Error(`Unexpectedly unable to get card from top of pile`);
+        }
+        this.removeCardEventHandlers(cardRect);
+        userData.cards.push(cardRect);
+        if (event.userId === this.currentUserId) {
+          this.initializeCurrentUserCardEventHandlers(cardRect);
+        } else {
+          onFinish = async (): Promise<void> => {
+            await this.updateRectWithCardBack(cardRect);
+            this.cardsLayer.draw();
+          };
+        }
+      } else {
+        // TODO Animate meld + pickup remaining cards to user hand
+      }
+    } else {
+      const cardRect = this.deckCard.clone();
+      cardRect.strokeWidth(CARD_BACK_DEFAULT_STROKE);
+      this.removeCardEventHandlers(cardRect);
+      if (event.userId === this.currentUserId) {
+        if (cardPickedUpFromDeck == null) {
+          throw new Error("cardPickedUpFromDeck unexpectedly null");
+        }
+        await this.updateRectWithCardFace(cardRect, cardPickedUpFromDeck);
+        this.initializeCurrentUserCardEventHandlers(cardRect);
+      }
+      userData.cards.push(cardRect);
+      this.cardsLayer.add(cardRect);
+    }
+    const positionalData = this.getPlayerPositionData(
+      userData,
+      this.users.size
+    );
+    for (let index = 0; index < userData.cards.length; index++) {
+      const cardRect = userData.cards[index];
+      const cardPosition = positionalData.cardPositions[index];
+      const cardOnFinish =
+        index === userData.cards.length - 1 ? onFinish : undefined;
+      this.updateCardSizeAndPosition(
+        cardRect,
+        cardPosition,
+        "full",
+        cardOnFinish
+      );
+    }
+    this.updateActionTo(event.actionToUserId);
+    this.cardsLayer.draw();
+  }
 
   async updateStateWithMeld(event: IMeldEvent): Promise<void> {}
 
-  async updateStateWithDiscard(event: IDiscardEvent): Promise<void> {}
+  async updateStateWithDiscard(event: IDiscardEvent): Promise<void> {
+    const userData = this.users.get(event.userId);
+    if (userData == null) {
+      throw new Error("User not found");
+    }
+    const card = event.input.card;
+    let rect: KonvaRect | undefined;
+    if (event.userId === this.currentUserId) {
+      rect = userData.cards.find((x) => areCardsEqual(x.getAttr("card"), card));
+      if (rect == null) {
+        throw new Error(
+          `Unexpectedly unable to find rect for card: ${JSON.stringify(card)}`
+        );
+      }
+      this.updateCardFaceStroke(rect, false);
+      userData.cards.splice(userData.cards.indexOf(rect), 1);
+    } else {
+      rect = userData.cards.shift();
+      if (rect == null) {
+        throw new Error(`Unexpectedly unable to find any rect for user`);
+      }
+      await this.updateRectWithCardFace(rect, card);
+    }
+    rect.zIndex(this.cardsLayer.getChildren().length - 1);
+    this.initializeDiscardEventHandlers(rect);
+    this.discardPiles[event.input.pileIndex].push(rect);
+    const cardIndex = this.discardPiles[event.input.pileIndex].length - 1;
+    this.updateCardSizeAndPosition(
+      rect,
+      this.getDiscardPositionalData(
+        event.input.pileIndex,
+        cardIndex,
+        this.discardPiles.length
+      ),
+      "position_only"
+    );
+    const positionalData = this.getPlayerPositionData(
+      userData,
+      this.users.size
+    );
+    for (let index = 0; index < userData.cards.length; index++) {
+      const cardRect = userData.cards[index];
+      const cardPosition = positionalData.cardPositions[index];
+      this.updateCardSizeAndPosition(cardRect, cardPosition, "full");
+    }
+    this.updateActionTo(event.actionToUserId);
+    this.cardsLayer.draw();
+  }
 
   updateActionTo(actionToUserId: number): void {
     this.users.forEach((userData) => {
@@ -320,7 +426,7 @@ export class RummyTable extends BaseTable {
         width: this.cardWidth,
       },
       position: {
-        x: this.container.offsetWidth / 2 - this.cardWidth * 1.1,
+        x: this.container.offsetWidth / 2 - this.cardWidth * 2.1,
         y: this.container.offsetHeight / 2 - this.cardHeight / 2,
       },
       offset: { x: 0, y: 0 },
@@ -332,10 +438,8 @@ export class RummyTable extends BaseTable {
     const cardBack = await this.loadCardBack();
     cardBack.on("mouseover", (event) => {
       const rect = event.target as KonvaRect;
-      if (this.currentUserSelectedDiscards.length > 0) {
-        rect.strokeWidth(CARD_BACK_HOVER_STROKE);
-        this.cardsLayer.draw();
-      }
+      rect.strokeWidth(CARD_BACK_HOVER_STROKE);
+      this.cardsLayer.draw();
     });
     cardBack.on("mouseout", (event) => {
       const rect = event.target as KonvaRect;
@@ -343,9 +447,7 @@ export class RummyTable extends BaseTable {
       this.cardsLayer.draw();
     });
     cardBack.on("click tap", () => {
-      if (this.currentUserSelectedDiscards.length > 0) {
-        // TODO
-      }
+      this.onPickup({});
     });
     this.deckCard = cardBack;
     this.cardsLayer.add(cardBack);
@@ -519,7 +621,7 @@ export class RummyTable extends BaseTable {
       y: this.container.offsetHeight / 2,
     };
     const partialCardWidth = this.cardWidth / 4;
-    const initialCardX = center.x - this.cardWidth * 2.1;
+    const initialCardX = center.x - this.cardWidth * 1;
     const discardPileOffset = this.cardHeight * 1.1;
     const initialCardY =
       center.y - this.cardHeight / 2 - (numberOfPiles - 1) * discardPileOffset;
@@ -598,10 +700,10 @@ export class RummyTable extends BaseTable {
       rect.strokeWidth(CARD_FACE_HOVER_STORKE);
       return;
     }
-    const card = rect.getAttr("yanivCard");
+    const card = rect.getAttr("card");
     if (
       doesHaveValue(card) &&
-      this.currentUserSelectedDiscards.some((x) => areCardsEqual(x, card))
+      this.currentUserSelectedCards.some((x) => areCardsEqual(x, card))
     ) {
       rect.stroke("blue");
       rect.strokeWidth(CARD_FACE_SELECTED_STROKE);
@@ -615,10 +717,8 @@ export class RummyTable extends BaseTable {
     this.removeCardEventHandlers(rect);
     rect.on("mouseover", (event) => {
       const rect = event.target as KonvaRect;
-      if (this.currentUserSelectedDiscards.length > 0) {
-        this.updateCardFaceStroke(rect, true);
-        this.cardsLayer.draw();
-      }
+      this.updateCardFaceStroke(rect, true);
+      this.cardsLayer.draw();
     });
     rect.on("mouseout", (event) => {
       const rect = event.target as KonvaRect;
@@ -626,7 +726,9 @@ export class RummyTable extends BaseTable {
       this.cardsLayer.draw();
     });
     rect.on("click tap", (event) => {
-      // TODO
+      this.onPickup({
+        pickup: rect.getAttr("card"),
+      });
     });
   }
 
@@ -644,7 +746,7 @@ export class RummyTable extends BaseTable {
     });
     rect.on("click tap", (event) => {
       const rect = event.target as KonvaRect;
-      this.currentUserClickCard(rect.getAttr("yanivCard"));
+      this.currentUserClickCard(rect.getAttr("card"));
     });
     rect.draggable(true);
     rect.on("dragstart", () => {

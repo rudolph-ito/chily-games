@@ -91,7 +91,7 @@ export class OhHeckTable extends BaseTable {
     const cardPosition = positionalData.cardInHandPositions[index];
     this.updateCardSizeAndPosition(cardRect, cardPosition, "none");
     const updatedCards: ICard[] = userData.cardsInHand.map((x) =>
-      x.getAttr("yanivCard")
+      x.getAttr("card")
     );
     this.onRearrangeCards(updatedCards);
   }
@@ -191,7 +191,7 @@ export class OhHeckTable extends BaseTable {
     const card = trickEvent.cardPlayed.card;
     if (trickEvent.cardPlayed.userId === this.currentUserId) {
       const rect = userData.cardsInHand.find((x) =>
-        areCardsEqual(x.getAttr("yanivCard"), card)
+        areCardsEqual(x.getAttr("card"), card)
       );
       if (rect == null) {
         throw new Error("Unexpectedly unable to find user played card");
@@ -611,7 +611,7 @@ export class OhHeckTable extends BaseTable {
     });
     rect.on("click tap", (event) => {
       const rect = event.target as KonvaRect;
-      this.onPlayCard(rect.getAttr("yanivCard"));
+      this.onPlayCard(rect.getAttr("card"));
     });
     rect.draggable(true);
     rect.on("dragstart", () => {

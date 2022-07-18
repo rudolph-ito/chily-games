@@ -39,6 +39,17 @@
       Login/register to join/play
     </div>
   </div>
+  <div class="meld-or-discard-overlay" *ngIf="!loading && canMeldOrDiscard()">
+    <button mat-button mat-flat-button (click)="meldSelected()">Meld</button>
+    <button
+      mat-button
+      mat-flat-button
+      color="primary"
+      (click)="discardSelected()"
+    >
+      Discard
+    </button>
+  </div>
   <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
     <div class="top-left">
       <button
