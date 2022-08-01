@@ -1918,10 +1918,10 @@ sequelize-replace-enum-postgres@1.6.0:
   resolved "https://registry.yarnpkg.com/sequelize-replace-enum-postgres/-/sequelize-replace-enum-postgres-1.6.0.tgz#aa6d54e45d74cb0f9827753e387f134a7b092e0d"
   integrity sha512-0lWC2zaPI0owkg38eMNkNO+4j8L4RsjasnFd1XiI2hpPWzKMPHDLroIeTdMNzs/kpB+VtLJI0bIHBZK4RhK2KA==
 
-sequelize@6.21.2:
-  version "6.21.2"
-  resolved "https://registry.yarnpkg.com/sequelize/-/sequelize-6.21.2.tgz#28d3c9c376471670c651e0345ea42e0017b6f112"
-  integrity sha512-K0c6j/Y6yfucBL9XYHMVWqYGFShPsj6ZzMrQcOAjqzyE+a1XMBOoTXXjRvJS+fz6cKeh2D3ZqhYDRwN8nfvOMQ==
+sequelize@6.21.3:
+  version "6.21.3"
+  resolved "https://registry.yarnpkg.com/sequelize/-/sequelize-6.21.3.tgz#6026b088b5327f8cc0501b0e7e5a8de1bf0346ce"
+  integrity sha512-cJPrTTVCofUxaaNKoIETiXCYh2xJ+OFq5jMHJQqftp34M4kNoLpTfUMPSwYtRUeTcSh1/5HodfJXIBi7troIFA==
   dependencies:
     "@types/debug" "^4.1.7"
     "@types/validator" "^13.7.1"
