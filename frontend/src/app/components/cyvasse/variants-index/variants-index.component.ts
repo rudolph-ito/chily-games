@@ -13,7 +13,7 @@ import { ChallengePlayAs } from "src/app/shared/dtos/cyvasse/challenge";
 @Component({
   selector: "app-variants-index",
   templateUrl: "./variants-index.component.html",
-  styleUrls: ["./variants-index.component.styl"],
+  styleUrls: ["./variants-index.component.scss"],
 })
 export class VariantsIndexComponent implements OnInit {
   loading: boolean;

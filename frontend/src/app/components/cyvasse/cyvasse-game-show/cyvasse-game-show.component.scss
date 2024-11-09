@@ -1,0 +1,33 @@
+.wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.header,
+.footer {
+  height: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.board-container {
+  height: calc(100% - 40px);
+  width: 100%;
+}
+
+.left {
+  height: 100%;
+  width: calc(100% - 110px);
+}
+
+.right {
+  height: 100%;
+  width: 100px;
+  background: red;
+}
+
+.action-to {
+  border: 1px solid black;
+}

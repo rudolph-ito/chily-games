@@ -470,7 +470,7 @@ export class YanivTable {
       rect.strokeWidth(CARD_BACK_DEFAULT_STROKE);
       this.cardsLayer.draw();
     });
-    cardBack.on("click", () => {
+    cardBack.on("click tap", () => {
       if (this.currentUserSelectedDiscards.length > 0) {
         this.onPlay({
           cardsDiscarded: this.currentUserSelectedDiscards,
@@ -746,7 +746,7 @@ export class YanivTable {
       this.updateCardFaceStroke(rect, false);
       this.cardsLayer.draw();
     });
-    rect.on("click", (event) => {
+    rect.on("click tap", (event) => {
       const rect = event.target as KonvaRect;
       if (this.currentUserSelectedDiscards.length > 0) {
         this.onPlay({
@@ -761,6 +761,7 @@ export class YanivTable {
     rect.off("mouseover");
     rect.off("mouseout");
     rect.off("click");
+    rect.off("tap");
   }
 
   private initializeCurrentUserCardEventHandlers(rect: KonvaRect): void {
@@ -775,7 +776,7 @@ export class YanivTable {
       this.updateCardFaceStroke(rect, false);
       this.cardsLayer.draw();
     });
-    rect.on("click", (event) => {
+    rect.on("click tap", (event) => {
       const rect = event.target as KonvaRect;
       this.currentUserClickCard(rect.getAttr("yanivCard"));
     });

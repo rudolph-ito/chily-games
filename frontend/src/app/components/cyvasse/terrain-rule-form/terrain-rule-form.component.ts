@@ -53,7 +53,7 @@ interface ITerrainRuleFormControls {
 @Component({
   selector: "app-terrain-rule-form",
   templateUrl: "./terrain-rule-form.component.html",
-  styleUrls: ["./terrain-rule-form.component.styl"],
+  styleUrls: ["./terrain-rule-form.component.scss"],
 })
 export class TerrainRuleFormComponent implements OnInit {
   loading = false;

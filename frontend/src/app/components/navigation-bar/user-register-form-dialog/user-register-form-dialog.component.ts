@@ -22,7 +22,7 @@ interface IUserRegisterControls {
 @Component({
   selector: "app-user-register-form-dialog",
   templateUrl: "./user-register-form-dialog.component.html",
-  styleUrls: ["./user-register-form-dialog.component.styl"],
+  styleUrls: ["./user-register-form-dialog.component.scss"],
 })
 export class UserRegisterFormDialogComponent implements OnInit {
   controls: IUserRegisterControls = {

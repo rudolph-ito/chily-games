@@ -651,6 +651,7 @@ export class OhHeckTable {
     rect.off("mouseover");
     rect.off("mouseout");
     rect.off("click");
+    rect.off("tap");
   }
 
   private initializeCurrentUserCardEventHandlers(rect: KonvaRect): void {
@@ -665,7 +666,7 @@ export class OhHeckTable {
       this.updateCardFaceStroke(rect, false);
       this.cardsLayer.draw();
     });
-    rect.on("click", (event) => {
+    rect.on("click tap", (event) => {
       const rect = event.target as KonvaRect;
       this.onPlayCard(rect.getAttr("yanivCard"));
     });

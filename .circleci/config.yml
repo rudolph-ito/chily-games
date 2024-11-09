@@ -6,19 +6,19 @@ docker_base: &DOCKER_BASE
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.1.0
+  browser-tools: circleci/browser-tools@1.4.0
 
 jobs:
   build:
     docker:
       - image: cimg/node:16.15-browsers
         <<: *DOCKER_BASE
-      - image: cimg/postgres:14.2
+      - image: cimg/postgres:14.4
         <<: *DOCKER_BASE
         environment:
           - POSTGRES_USER=chily-user
           - POSTGRES_PASSWORD=test
-      - image: cimg/redis:6.2.7
+      - image: cimg/redis:7.0.5
         <<: *DOCKER_BASE
     steps:
       - browser-tools/install-browser-tools

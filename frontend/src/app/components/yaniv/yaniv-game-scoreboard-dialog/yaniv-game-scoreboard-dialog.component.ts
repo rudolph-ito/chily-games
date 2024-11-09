@@ -11,7 +11,7 @@ export interface IYanivGameScoreboardDialogData {
 @Component({
   selector: "app-yaniv-game-scoreboard-dialog",
   templateUrl: "./yaniv-game-scoreboard-dialog.component.html",
-  styleUrls: ["./yaniv-game-scoreboard-dialog.component.styl"],
+  styleUrls: ["./yaniv-game-scoreboard-dialog.component.scss"],
 })
 export class YanivGameScoreboardDialogComponent implements OnInit {
   scoresDataSource = new MatTableDataSource<IRoundScore>();

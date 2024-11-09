@@ -8,7 +8,7 @@ import { IUser } from "../../shared/dtos/authentication";
 @Component({
   selector: "app-navigation-bar",
   templateUrl: "./navigation-bar.component.html",
-  styleUrls: ["./navigation-bar.component.styl"],
+  styleUrls: ["./navigation-bar.component.scss"],
 })
 export class NavigationBarComponent implements OnInit {
   loading: boolean = false;
