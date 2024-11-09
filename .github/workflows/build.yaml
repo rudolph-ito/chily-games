@@ -40,16 +40,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Install top level dependencies
         run: yarn --frozen-lockfile
-      - name: Install api dependencies
-        run: cd api && yarn install --frozen-lockfile
-      - name: Install frontend dependencies
-        run: cd frontend && yarn install --frozen-lockfile
       - name: Copy shared code
         run: make copy-shared
       - name: Lint
         run: yarn lint
       - name: Prettier check
         run: yarn prettier --check
+
+      - name: Install api dependencies
+        run: cd api && yarn install --frozen-lockfile
       - name: Build API
         run: cd api && yarn build
       - name: Test API
@@ -58,7 +57,13 @@ jobs:
           NODE_ENV: ci
           DATABASE_URL: 'postgres://chily-user:test@postgres:5432/chily_test'
           REDIS_URL: 'redis://redis:6379'
+
+      - name: Install frontend dependencies
+        run: cd frontend && yarn install --frozen-lockfile
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
       - name: Test Frontend
         run: cd frontend && yarn test
+
       - name: Build production image
         run: docker build .
