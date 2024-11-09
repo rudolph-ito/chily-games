@@ -14,10 +14,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: node:16.15-alpine
 
     services:
       postgres:
-        image: postgres
+        image: postgres:14.4
         env:
           POSTGRES_USER: chily-user
           POSTGRES_PASSWORD: test
@@ -27,7 +28,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
       redis:
-        image: redis
+        image: redis:6.2
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -35,12 +36,8 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16.15
-          cache: 'yarn'
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Install top level dependencies
         run: yarn --frozen-lockfile
       - name: Install api dependencies
