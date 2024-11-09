@@ -2,11 +2,11 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "create-databases": "sequelize db:create && NODE_ENV=test sequelize db:create",
+    "create-databases": "sequelize db:create",
     "start-dev": "node -r ts-node/register src/main.ts",
     "start-dev:watch": "nodemon",
     "start-prod": "node dist/main.js",
-    "test": "NODE_ENV=test mocha 'src/**/*.spec.ts'"
+    "test": "mocha 'src/**/*.spec.ts'"
   },
   "dependencies": {
     "@socket.io/redis-adapter": "7.1.0",
