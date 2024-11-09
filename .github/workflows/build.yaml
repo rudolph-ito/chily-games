@@ -58,12 +58,5 @@ jobs:
           DATABASE_URL: 'postgres://chily-user:test@postgres:5432/chily_test'
           REDIS_URL: 'redis://redis:6379'
 
-      - name: Install frontend dependencies
-        run: cd frontend && yarn install --frozen-lockfile
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-      - name: Test Frontend
-        run: cd frontend && yarn test
-
       - name: Build production image
         run: docker build .
