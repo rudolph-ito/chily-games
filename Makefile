@@ -18,6 +18,7 @@ create-databases: # Create development / test databases and migrate the developm
 	docker-compose up -d postgres
 	sleep 2
 	cd api && yarn create-databases && yarn sequelize db:migrate
+	cd api && NODE_ENV=test yarn create-databases
 
 .PHONY: reset-database
 reset-database:
@@ -31,11 +32,7 @@ build-api: # Build api
 .PHONY: test-api
 test-api: # Run api tests
 	docker-compose up -d postgres redis
-	cd api && yarn test --reporter spec
-
-.PHONY: test-api-unit
-test-api-unit: # Run api unit tests (without database)
-	cd api && yarn test --reporter spec
+	cd api && NODE_ENV=test yarn test --reporter spec
 
 .PHONY: test-frontend
 test-frontend: # Run frontend tests
