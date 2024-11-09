@@ -59,7 +59,7 @@ jobs:
         run: cd api && yarn create-databases && yarn test
         env:
           NODE_ENV: ci
-          DATABASE_URL: 'postgresql://chily-user:test@postgres/chily-test'
+          DATABASE_URL: 'postgres://chily-user:test@postgres/chily-test'
           REDIS_URL: 'redis://redis:6379'
       - name: Test Frontend
         run: cd frontend && yarn test
