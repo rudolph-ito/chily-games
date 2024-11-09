@@ -34,11 +34,9 @@ export interface ITestServer {
 }
 
 export function createTestServer(): ITestServer {
-  const publishRedisClient = createClient({ host: "localhost", port: 6379 });
-  const sessionStoreRedisClient = createClient({
-    host: "localhost",
-    port: 6379,
-  });
+  const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
+  const publishRedisClient = createClient({ url: redisUrl });
+  const sessionStoreRedisClient = createClient({ url: redisUrl });
   return {
     app: createExpressApp({
       publishRedisClient,
