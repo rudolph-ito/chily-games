@@ -1,5 +1,5 @@
 import { Component, Inject } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { OhHeckGameService } from "src/app/services/oh-heck/oh-heck-game-service";
 
@@ -16,7 +16,7 @@ export interface IOhHeckNewGameDialogData {
 })
 export class OhHeckNewGameDialogComponent {
   controls = {
-    gameRounds: new FormControl(HALF_GAME_ROUNDS),
+    gameRounds: new UntypedFormControl(HALF_GAME_ROUNDS),
   };
 
   constructor(

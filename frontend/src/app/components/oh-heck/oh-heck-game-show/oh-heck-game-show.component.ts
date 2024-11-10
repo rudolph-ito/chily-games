@@ -7,7 +7,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -42,7 +42,7 @@ import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck
 export class OhHeckGameShowComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  betControl = new FormControl(0);
+  betControl = new UntypedFormControl(0);
   loading: boolean;
   game: IGame | null;
   user: IUser | null;

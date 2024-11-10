@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { MatDialog } from "@angular/material/dialog";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
@@ -24,7 +24,7 @@ import { OhHeckNewGameDialogComponent } from "../oh-heck-new-game-dialog/oh-heck
 })
 export class OhHeckGamesIndexComponent implements OnInit {
   loading: boolean;
-  includeCompletedFormControl = new FormControl(false);
+  includeCompletedFormControl = new UntypedFormControl(false);
   gamesDataSource = new MatTableDataSource<ISearchedGame>();
   displayedColumns: string[] = ["hostUserId", "state", "created_at", "actions"];
   user: IUser | null;

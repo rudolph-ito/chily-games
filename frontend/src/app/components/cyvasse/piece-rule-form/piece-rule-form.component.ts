@@ -6,7 +6,7 @@ import {
   CaptureType,
 } from "src/app/shared/dtos/cyvasse/piece_rule";
 import { ISelectOption } from "src/app/models/form";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { Observable } from "rxjs";
 import { PieceRuleService } from "src/app/services/cyvasse/piece-rule.service";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -26,20 +26,20 @@ import { PlayerColor } from "src/app/shared/dtos/cyvasse/game";
 import { buildBoard } from "src/app/game/board/board_builder";
 
 interface IPieceRuleFormControls {
-  pieceTypeId: FormControl;
-  count: FormControl;
-  movementType: FormControl;
-  movementMinimum: FormControl;
-  movementMaximum: FormControl;
-  captureType: FormControl;
-  rangeType: FormControl;
-  rangeMinimum: FormControl;
-  rangeMaximum: FormControl;
-  moveAndRangeCapture: FormControl;
+  pieceTypeId: UntypedFormControl;
+  count: UntypedFormControl;
+  movementType: UntypedFormControl;
+  movementMinimum: UntypedFormControl;
+  movementMaximum: UntypedFormControl;
+  captureType: UntypedFormControl;
+  rangeType: UntypedFormControl;
+  rangeMinimum: UntypedFormControl;
+  rangeMaximum: UntypedFormControl;
+  moveAndRangeCapture: UntypedFormControl;
 }
 
 interface IPieceRuleBoardPreviewControls {
-  evaluationType: FormControl;
+  evaluationType: UntypedFormControl;
 }
 
 @Component({
@@ -53,20 +53,20 @@ export class PieceRuleFormComponent implements OnInit {
   pathTypeOptions: ISelectOption[] = PATH_TYPE_OPTIONS;
   captureTypeOptions: ISelectOption[] = CAPTURE_TYPE_OPTIONS;
   controls: IPieceRuleFormControls = {
-    pieceTypeId: new FormControl(),
-    count: new FormControl(),
-    movementType: new FormControl(),
-    movementMinimum: new FormControl(),
-    movementMaximum: new FormControl(),
-    captureType: new FormControl(),
-    rangeType: new FormControl(),
-    rangeMinimum: new FormControl(),
-    rangeMaximum: new FormControl(),
-    moveAndRangeCapture: new FormControl(),
+    pieceTypeId: new UntypedFormControl(),
+    count: new UntypedFormControl(),
+    movementType: new UntypedFormControl(),
+    movementMinimum: new UntypedFormControl(),
+    movementMaximum: new UntypedFormControl(),
+    captureType: new UntypedFormControl(),
+    rangeType: new UntypedFormControl(),
+    rangeMinimum: new UntypedFormControl(),
+    rangeMaximum: new UntypedFormControl(),
+    moveAndRangeCapture: new UntypedFormControl(),
   };
 
   boardPreviewControls: IPieceRuleBoardPreviewControls = {
-    evaluationType: new FormControl(CaptureType.MOVEMENT),
+    evaluationType: new UntypedFormControl(CaptureType.MOVEMENT),
   };
 
   generalError?: string;
@@ -107,7 +107,7 @@ export class PieceRuleFormComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    const formControlsTriggeringPreviewUpdate: FormControl[] = [
+    const formControlsTriggeringPreviewUpdate: UntypedFormControl[] = [
       this.controls.pieceTypeId,
       this.controls.movementType,
       this.controls.movementMinimum,

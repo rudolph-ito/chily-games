@@ -4,7 +4,7 @@ import {
   TERRAIN_TYPE_OPTIONS,
 } from "src/app/models/terrain-rule";
 import { PIECE_TYPE_OPTIONS } from "src/app/models/piece-rule";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import {
   ITerrainRuleOptions,
   ITerrainRule,
@@ -33,17 +33,17 @@ export const TERRAIN_EFFECTS: ITerrainEffect[] = [
 ];
 
 interface ITerrainEffectFormControls {
-  for: FormControl;
-  pieceTypeIds: FormControl;
+  for: UntypedFormControl;
+  pieceTypeIds: UntypedFormControl;
 }
 
 interface ITerrainEffectByFormControls extends ITerrainEffectFormControls {
-  by: FormControl;
+  by: UntypedFormControl;
 }
 
 interface ITerrainRuleFormControls {
-  terrainTypeId: FormControl;
-  count: FormControl;
+  terrainTypeId: UntypedFormControl;
+  count: UntypedFormControl;
   passableMovement: ITerrainEffectFormControls;
   passableRange: ITerrainEffectFormControls;
   slowsMovement: ITerrainEffectByFormControls;
@@ -62,24 +62,24 @@ export class TerrainRuleFormComponent implements OnInit {
   piecesEffectedTypeOptions = PIECES_EFFECTED_TYPE_OPTIONS;
   pieceTypeOptions = PIECE_TYPE_OPTIONS;
   controls: ITerrainRuleFormControls = {
-    terrainTypeId: new FormControl(),
-    count: new FormControl(),
+    terrainTypeId: new UntypedFormControl(),
+    count: new UntypedFormControl(),
     passableMovement: {
-      for: new FormControl(),
-      pieceTypeIds: new FormControl(),
+      for: new UntypedFormControl(),
+      pieceTypeIds: new UntypedFormControl(),
     },
     passableRange: {
-      for: new FormControl(),
-      pieceTypeIds: new FormControl(),
+      for: new UntypedFormControl(),
+      pieceTypeIds: new UntypedFormControl(),
     },
     slowsMovement: {
-      for: new FormControl(),
-      pieceTypeIds: new FormControl(),
-      by: new FormControl(),
+      for: new UntypedFormControl(),
+      pieceTypeIds: new UntypedFormControl(),
+      by: new UntypedFormControl(),
     },
     stopsMovement: {
-      for: new FormControl(),
-      pieceTypeIds: new FormControl(),
+      for: new UntypedFormControl(),
+      pieceTypeIds: new UntypedFormControl(),
     },
   };
 
