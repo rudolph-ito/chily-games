@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@types/chai": "4.3.3",
-    "@types/connect-redis": "0.0.18",
+    "@types/connect-redis": "0.0.23",
     "@types/cookie-parser": "1.4.3",
     "@types/cors": "2.8.12",
     "@types/dirty-chai": "2.0.2",
