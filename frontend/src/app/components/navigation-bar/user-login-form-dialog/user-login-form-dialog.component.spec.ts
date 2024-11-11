@@ -11,7 +11,7 @@ describe("UserLoginFormDialogComponent", () => {
 
   beforeEach(async () => {
     matDialogRef = {
-      close: jasmine.createSpy(),
+      close: jest.fn(),
     };
     await TestBed.configureTestingModule({
       imports: [AppModule],
