@@ -14,7 +14,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: node:16.15
+    container: node:18.20
 
     services:
       postgres:
