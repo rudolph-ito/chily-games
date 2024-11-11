@@ -33,16 +33,11 @@ export interface ITestServer {
 }
 
 export async function createTestServer(): Promise<ITestServer> {
-  const publishRedisClient = createClient({
-    url: "redis://localhost:6379",
-  });
+  const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
+  const publishRedisClient = createClient({ url: redisUrl });
   await publishRedisClient.connect();
-  publishRedisClient.on("error", (e) => console.log(e));
-  const sessionStoreRedisClient = createClient({
-    url: "redis://localhost:6379",
-  });
+  const sessionStoreRedisClient = createClient({ url: redisUrl });
   await sessionStoreRedisClient.connect();
-  sessionStoreRedisClient.on("error", (e) => console.log(e));
   return {
     app: createExpressApp({
       publishRedisClient,
