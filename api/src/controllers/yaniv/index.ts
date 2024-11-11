@@ -1,10 +1,10 @@
 import express from "express";
+import { SimpleRedisClient } from "src/redis";
 import { getGameRouter } from "./game";
-import { RedisClient } from "redis";
 
 export function getYanivRouter(
   authenticationRequired: express.Handler,
-  publishRedisClient: RedisClient
+  publishRedisClient: SimpleRedisClient
 ): express.Router {
   const router = express.Router();
   router.use(

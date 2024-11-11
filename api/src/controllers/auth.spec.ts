@@ -13,8 +13,8 @@ describe("AuthRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
 
-  before(() => {
-    testServer = createTestServer();
+  before(async () => {
+    testServer = await createTestServer();
   });
 
   after(async () => {

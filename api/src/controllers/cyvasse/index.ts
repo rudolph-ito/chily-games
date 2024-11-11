@@ -4,11 +4,11 @@ import { getPieceRulesRouter } from "./piece_rule";
 import { getTerrainRulesRouter } from "./terrain_rule";
 import { getChallengeRouter } from "./challenge";
 import { getGameRouter } from "./game";
-import { RedisClient } from "redis";
+import { SimpleRedisClient } from "src/redis";
 
 export function getCyvasseRouter(
   authenticationRequired: express.Handler,
-  publishRedisClient: RedisClient
+  publishRedisClient: SimpleRedisClient
 ): express.Router {
   const router = express.Router();
   router.use("/variants", getVariantRouter(authenticationRequired));

@@ -28,8 +28,8 @@ describe("CyvasseChallengeRoutes", () => {
   let user1Id: number;
   let variantId: number;
 
-  before(() => {
-    testServer = createTestServer();
+  before(async () => {
+    testServer = await createTestServer();
   });
 
   after(async () => {

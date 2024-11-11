@@ -6,14 +6,14 @@ docker_base: &DOCKER_BASE
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.4.0
+  browser-tools: circleci/browser-tools@1.4.8
 
 jobs:
   build:
     docker:
       - image: cimg/node:16.15-browsers
         <<: *DOCKER_BASE
-      - image: cimg/postgres:14.4
+      - image: cimg/postgres:14.13
         <<: *DOCKER_BASE
         environment:
           - POSTGRES_USER=chily-user
@@ -50,5 +50,5 @@ jobs:
       - run: cd api && yarn build
       - run: cd api && yarn create-databases && yarn test
       - run: cd frontend && yarn test
-      - setup_remote_docker: {version: 19.03.13}
+      - setup_remote_docker
       - run: docker build .
