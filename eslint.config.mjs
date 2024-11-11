@@ -17,6 +17,7 @@ export default [{
         "api/src/database/config.js",
         "api/src/database/migrations/",
         "**/dist/",
+        "frontend/jest.config.js",
         "frontend/src/app/data/",
         "**/node_modules/",
     ],
