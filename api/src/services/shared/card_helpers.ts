@@ -1,6 +1,7 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
 import shuffle from "knuth-shuffle-seeded";
 import { valueOrDefault } from "../../shared/utilities/value_checker";
+import { setSymmetricDifference } from "./set_helpers";
 
 const NUMBER_OF_STANDARD_CARDS = 52;
 
@@ -109,16 +110,4 @@ export function areCardHandsEquivalent(
     cardsB.map((x) => serializeCard(x))
   );
   return setSymmetricDifference(setA, setB).size === 0;
-}
-
-function setSymmetricDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
-  const difference = new Set<T>(setA);
-  setB.forEach((elem) => {
-    if (difference.has(elem)) {
-      difference.delete(elem);
-    } else {
-      difference.add(elem);
-    }
-  });
-  return difference;
 }

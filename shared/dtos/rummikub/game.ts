@@ -1,20 +1,12 @@
 import { IPaginationRequest } from "../search";
-import { ICard } from "../card";
+import { ITile } from "./tile";
 
 export interface IPlayerState {
   userId: number;
   displayName: string;
-  numberOfCards: number;
-  cards: ICard[];
-}
-
-export enum RoundScoreType {
-  DEFAULT = "default",
-  YANIV = "yaniv",
-  ASAF = "asaf",
-
-  // Frontend only
-  TOTAL = "total",
+  hasPlayedInitialMeld: boolean;
+  numberOfTiles: number;
+  tiles: ITile[];
 }
 
 export interface IRoundScore {
@@ -23,10 +15,10 @@ export interface IRoundScore {
 
 export interface IRoundPlayerScore {
   score: number;
-  scoreType: RoundScoreType;
 }
 
 export interface IGameOptions {
+  hideTileCount: boolean;
   playTo: number;
 }
 
@@ -43,22 +35,28 @@ export interface IGame {
   hostUserId: number;
   options: IGameOptions;
   state: GameState;
-  playerStates: IPlayerState[];
-  roundScores: IRoundScore[];
   actionToUserId: number;
-  cardsOnTopOfDiscardPile: ICard[];
+  playerStates: IPlayerState[];
+  sets: ITile[][];
+  tilePoolCount: number;
+  roundScores: IRoundScore[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface IGameActionRequest {
-  callYaniv?: boolean;
-  cardsDiscarded?: ICard[];
-  cardPickedUp?: ICard;
+export interface IUpdateSets  {
+  tilesAdded: ITile[];
+  sets: ITile[][];
+}
+
+export interface IGameActionRequest  {
+  initialMeld?: ITile[][];
+  updateSets?: IUpdateSets;
+  pickUpTile?: boolean;
 }
 
 export interface IGameActionResponse {
-  cardPickedUpFromDeck?: ICard;
+  tilePickedUp?: ITile;
   actionToNextPlayerEvent?: IActionToNextPlayerEvent;
   roundFinishedEvent?: IRoundFinishedEvent;
 }
@@ -69,8 +67,9 @@ export interface IPlayerJoinedEvent {
 
 export interface ILastAction {
   userId: number;
-  cardsDiscarded: ICard[];
-  cardPickedUp?: ICard;
+  initialMeld?: ITile[][];
+  updateSets?: IUpdateSets;
+  pickedUpTile?: boolean;
 }
 
 export interface IActionToNextPlayerEvent {
