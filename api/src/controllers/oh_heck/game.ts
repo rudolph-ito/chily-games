@@ -1,5 +1,4 @@
 import express from "express";
-import { RedisClient } from "redis";
 import { IUser } from "../../shared/dtos/authentication";
 import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import {
@@ -10,10 +9,11 @@ import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
 } from "src/shared/dtos/oh_heck/game";
+import { SimpleRedisClient } from "src/redis";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
-  publishRedisClient: RedisClient,
+  publishRedisClient: SimpleRedisClient,
   gameService: IOhHeckGameService = new OhHeckGameService()
 ): express.Router {
   const router = express.Router();

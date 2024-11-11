@@ -30,8 +30,8 @@ describe("CyvassePieceRuleRoutes", () => {
   let creatorId: number;
   let variantId: number;
 
-  before(() => {
-    testServer = createTestServer();
+  before(async () => {
+    testServer = await createTestServer();
   });
 
   after(async () => {
