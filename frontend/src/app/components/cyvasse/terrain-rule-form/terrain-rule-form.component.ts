@@ -247,6 +247,6 @@ export class TerrainRuleFormComponent implements OnInit {
   }
 
   goToVariant(): void {
-    this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+    this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]);
   }
 }

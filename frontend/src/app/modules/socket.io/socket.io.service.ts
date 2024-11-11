@@ -65,7 +65,7 @@ export class WrappedSocket {
           this.subscribersCounter[eventName]--;
           if (this.subscribersCounter[eventName] === 0) {
             this.ioSocket.off(eventName, listener);
-            delete this.eventObservables$[eventName]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
+            delete this.eventObservables$[eventName];
           }
         };
       }).pipe(share());

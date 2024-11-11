@@ -163,9 +163,9 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
 
   goBack(): void {
     if (this.isUpdatingExistingVariant()) {
-      this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]);
     } else {
-      this.router.navigate(["/cyvasse/variants"]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/cyvasse/variants"]);
     }
   }
 

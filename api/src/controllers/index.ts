@@ -120,28 +120,28 @@ export async function startServer(
   );
   socketIoServer.on("connection", (socket) => {
     socket.on("cyvasse-join-game", (gameId: number) => {
-      socket.join(`cyvasse-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.join(`cyvasse-game-${gameId}`);
     });
     socket.on("cyvasse-leav-game", (gameId: number) => {
-      socket.leave(`cyvasse-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.leave(`cyvasse-game-${gameId}`);
     });
     socket.on("oh-heck-join-game", (gameId: number) => {
-      socket.join(`oh-heck-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.join(`oh-heck-game-${gameId}`);
     });
     socket.on("oh-heck-leave-game", (gameId: number) => {
-      socket.leave(`oh-heck-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.leave(`oh-heck-game-${gameId}`);
     });
     socket.on("yaniv-join-game", (gameId: number) => {
-      socket.join(`yaniv-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.join(`yaniv-game-${gameId}`);
     });
     socket.on("yaniv-leave-game", (gameId: number) => {
-      socket.leave(`yaniv-game-${gameId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.leave(`yaniv-game-${gameId}`);
     });
     socket.on("chat-join", (chatId: string) => {
-      socket.join(`chat-${chatId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.join(`chat-${chatId}`);
     });
     socket.on("chat-leave", (chatId: string) => {
-      socket.leave(`chat-${chatId}`); // eslint-disable-line @typescript-eslint/no-floating-promises
+      socket.leave(`chat-${chatId}`);
     });
   });
   server.listen(options.port, () => {

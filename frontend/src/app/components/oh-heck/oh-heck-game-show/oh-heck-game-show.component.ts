@@ -440,7 +440,6 @@ export class OhHeckGameShowComponent
   }
 
   navigateToGame(gameId: number): void {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([`oh-heck/games/${gameId}`]);
   }
 

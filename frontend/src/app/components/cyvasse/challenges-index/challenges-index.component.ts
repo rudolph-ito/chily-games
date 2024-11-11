@@ -50,7 +50,7 @@ export class ChallengesIndexComponent implements OnInit {
     this.challengeService
       .accept(challenge.challengeId)
       .subscribe((game: IGame) => {
-        this.router.navigate([`games/${game.gameId}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+        this.router.navigate([`games/${game.gameId}`]);
       });
   }
 }

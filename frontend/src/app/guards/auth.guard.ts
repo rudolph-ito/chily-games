@@ -8,7 +8,7 @@ import { doesHaveValue } from "../shared/utilities/value_checker";
 @Injectable({
   providedIn: "root",
 })
-export class AuthGuard  {
+export class AuthGuard {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
   canActivate(
