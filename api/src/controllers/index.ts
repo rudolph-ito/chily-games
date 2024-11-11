@@ -14,14 +14,12 @@ import { StatusCodes } from "http-status-codes";
 import { getUserRouter } from "./user";
 import { Server as SocketIoServer } from "socket.io";
 import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter";
-import connectRedis from "connect-redis";
+import RedisStore from "connect-redis";
 import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
 import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
 import { SimpleRedisClient } from "src/redis";
-
-const RedisStore = connectRedis(expressSession);
 
 export interface ICreateExpressAppOptions {
   publishRedisClient: SimpleRedisClient;
