@@ -1,5 +1,4 @@
 import express from "express";
-import { RedisClient } from "redis";
 import {
   IYanivGameService,
   YanivGameService,
@@ -10,10 +9,11 @@ import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
 } from "src/shared/dtos/yaniv/game";
+import { SimpleRedisClient } from "src/redis";
 
 export function getGameRouter(
   authenticationRequired: express.Handler,
-  publishRedisClient: RedisClient,
+  publishRedisClient: SimpleRedisClient,
   gameService: IYanivGameService = new YanivGameService()
 ): express.Router {
   const router = express.Router();

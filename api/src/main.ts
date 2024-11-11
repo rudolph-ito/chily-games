@@ -1,5 +1,6 @@
 import { startServer } from "./controllers";
 import { createClient } from "redis";
+import { exit } from "process";
 
 if (process.env.PORT == null) {
   throw new Error("PORT environment variable in required");
@@ -16,4 +17,7 @@ startServer({
   redisClientBuilder: () => createClient({ url: redisUrl }),
   sessionSecret,
   shouldLog: true,
+}).catch((e) => {
+  console.error(e);
+  exit(1);
 });
