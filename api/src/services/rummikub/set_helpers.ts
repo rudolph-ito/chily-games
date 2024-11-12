@@ -1,6 +1,6 @@
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { ITile } from "src/shared/dtos/rummikub/tile";
-import { getTileRankNumber } from "./tile_helpers";
+import { getTileColorNumber, getTileRankNumber } from "./tile_helpers";
 
 export function isValidSet(tiles: ITile[]): boolean {
   return isGroup(tiles) || isRun(tiles);
@@ -11,8 +11,13 @@ function isGroup(tiles: ITile[]): boolean {
     return false;
   }
   const nonJokers = tiles.filter((c) => !valueOrDefault(c.isJoker, false));
-  const firstTile = nonJokers[0];
-  return nonJokers.every((c) => c.rank === firstTile.rank);
+  const colors = new Set<number>();
+  const ranks = new Set<number>();
+  for (const tile of tiles) {
+    colors.add(getTileColorNumber(tile));
+    ranks.add(getTileRankNumber(tile));
+  }
+  return ranks.size == 1 && colors.size == nonJokers.length;
 }
 
 function isRun(tiles: ITile[]): boolean {
