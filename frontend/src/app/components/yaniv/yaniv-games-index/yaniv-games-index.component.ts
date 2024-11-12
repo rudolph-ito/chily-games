@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatTableDataSource } from "@angular/material/table";
@@ -18,7 +18,7 @@ import { GameState, ISearchedGame } from "../../../shared/dtos/yaniv/game";
 })
 export class YanivGamesIndexComponent implements OnInit {
   loading: boolean;
-  includeCompletedFormControl = new FormControl(false);
+  includeCompletedFormControl = new UntypedFormControl(false);
   gamesDataSource = new MatTableDataSource<ISearchedGame>();
   displayedColumns: string[] = ["hostUserId", "state", "created_at", "actions"];
   user: IUser | null;
@@ -97,7 +97,6 @@ export class YanivGamesIndexComponent implements OnInit {
   }
 
   navigateToGame(gameId: number): void {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([`yaniv/games/${gameId}`]);
   }
 

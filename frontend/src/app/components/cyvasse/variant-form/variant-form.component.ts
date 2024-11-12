@@ -12,7 +12,7 @@ import {
   BoardType,
   SupportType,
 } from "../../../shared/dtos/cyvasse/variant";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { Router, ActivatedRoute } from "@angular/router";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
 import { setError } from "src/app/utils/form-control-helpers";
@@ -35,17 +35,17 @@ const SUPPORT_TYPE_OPTIONS: ISelectOption[] = [
 ];
 
 interface IVariantFormControls {
-  boardType: FormControl;
-  boardSize: FormControl;
-  boardRows: FormControl;
-  boardColumns: FormControl;
-  pieceRanks: FormControl;
-  supportType: FormControl;
+  boardType: UntypedFormControl;
+  boardSize: UntypedFormControl;
+  boardRows: UntypedFormControl;
+  boardColumns: UntypedFormControl;
+  pieceRanks: UntypedFormControl;
+  supportType: UntypedFormControl;
 }
 
 interface IVariantBoardPreviewControls {
-  showCoordinates: FormControl;
-  viewpoint: FormControl;
+  showCoordinates: UntypedFormControl;
+  viewpoint: UntypedFormControl;
 }
 
 @Component({
@@ -59,17 +59,17 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
   boardTypeOptions = BOARD_TYPE_OPTIONS;
   supportTypeOptions = SUPPORT_TYPE_OPTIONS;
   controls: IVariantFormControls = {
-    boardType: new FormControl(),
-    boardSize: new FormControl(6),
-    boardColumns: new FormControl(8),
-    boardRows: new FormControl(8),
-    pieceRanks: new FormControl(false),
-    supportType: new FormControl(),
+    boardType: new UntypedFormControl(),
+    boardSize: new UntypedFormControl(6),
+    boardColumns: new UntypedFormControl(8),
+    boardRows: new UntypedFormControl(8),
+    pieceRanks: new UntypedFormControl(false),
+    supportType: new UntypedFormControl(),
   };
 
   boardPreviewControls: IVariantBoardPreviewControls = {
-    showCoordinates: new FormControl(false),
-    viewpoint: new FormControl(PlayerColor.ALABASTER),
+    showCoordinates: new UntypedFormControl(false),
+    viewpoint: new UntypedFormControl(PlayerColor.ALABASTER),
   };
 
   board: BaseBoard | null;
@@ -163,9 +163,9 @@ export class VariantFormComponent implements OnInit, AfterViewInit {
 
   goBack(): void {
     if (this.isUpdatingExistingVariant()) {
-      this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.router.navigate([`/cyvasse/variants/${this.getVariantId()}`]);
     } else {
-      this.router.navigate(["/cyvasse/variants"]); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/cyvasse/variants"]);
     }
   }
 

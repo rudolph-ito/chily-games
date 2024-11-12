@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import {
   IRegisterRequest,
@@ -12,11 +12,11 @@ import { setError } from "src/app/utils/form-control-helpers";
 import { Observable } from "rxjs";
 
 interface IUserRegisterControls {
-  registrationType: FormControl;
-  username: FormControl;
-  displayName: FormControl;
-  password: FormControl;
-  passwordConfirmation: FormControl;
+  registrationType: UntypedFormControl;
+  username: UntypedFormControl;
+  displayName: UntypedFormControl;
+  password: UntypedFormControl;
+  passwordConfirmation: UntypedFormControl;
 }
 
 @Component({
@@ -26,11 +26,11 @@ interface IUserRegisterControls {
 })
 export class UserRegisterFormDialogComponent implements OnInit {
   controls: IUserRegisterControls = {
-    registrationType: new FormControl("guest"),
-    username: new FormControl(),
-    displayName: new FormControl(),
-    password: new FormControl(),
-    passwordConfirmation: new FormControl(),
+    registrationType: new UntypedFormControl("guest"),
+    username: new UntypedFormControl(),
+    displayName: new UntypedFormControl(),
+    password: new UntypedFormControl(),
+    passwordConfirmation: new UntypedFormControl(),
   };
 
   constructor(

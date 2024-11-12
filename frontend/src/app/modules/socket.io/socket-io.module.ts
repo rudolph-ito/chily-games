@@ -10,7 +10,6 @@ export const SOCKET_CONFIG_TOKEN = new InjectionToken<SocketIoConfig>(
 );
 
 @NgModule({})
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class SocketIoModule {
   static forRoot(config: SocketIoConfig): ModuleWithProviders<SocketIoModule> {
     return {

@@ -6,7 +6,7 @@ import {
   SimpleChanges,
   ViewChild,
 } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { WrappedSocket } from "src/app/modules/socket.io/socket.io.service";
 import { ChatService } from "src/app/services/chat.service";
 import { IUser } from "src/app/shared/dtos/authentication";
@@ -19,7 +19,7 @@ import { IChatMessage, INewChatMessageEvent } from "src/app/shared/dtos/chat";
 })
 export class ChatComponent implements OnInit {
   open: boolean = false;
-  messageControl: FormControl = new FormControl("");
+  messageControl: UntypedFormControl = new UntypedFormControl("");
   chatMessages: IChatMessage[] = [];
   messagesListHeightAtLastAutoscroll: number;
   unreadMessageCount: number = 0;

@@ -385,10 +385,10 @@ export abstract class BaseBoard {
     image.setAttr("cyvassePiece", piece);
     image.setAttrs(konvaPositionalAttributes);
     image.on("click", () => {
-      this.onPieceClick(image); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.onPieceClick(image);
     });
     image.on("dragend", () => {
-      this.onPieceDragEnd(image); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.onPieceDragEnd(image);
     });
     this.resetShapePosition(image);
     this.setPieceSize(image);
@@ -405,7 +405,7 @@ export abstract class BaseBoard {
     terrainSpace.setAttr("cyvasseTerrain", terrain);
     terrainSpace.setAttrs(konvaPositionalAttributes);
     terrainSpace.on("dragend", () => {
-      this.onTerrainDragEnd(terrainSpace); // eslint-disable-line @typescript-eslint/no-floating-promises
+      this.onTerrainDragEnd(terrainSpace);
     });
     this.resetShapePosition(terrainSpace);
     this.setSpaceSize(terrainSpace);

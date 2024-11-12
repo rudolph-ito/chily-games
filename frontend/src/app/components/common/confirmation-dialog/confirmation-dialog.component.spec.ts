@@ -11,7 +11,7 @@ describe("ConfirmationDialogComponent", () => {
 
   beforeEach(async () => {
     matDialogRef = {
-      close: jasmine.createSpy(),
+      close: jest.fn(),
     };
     const data = {
       title: "Confirm",

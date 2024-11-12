@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { ILoginRequest } from "src/app/shared/dtos/authentication";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -7,8 +7,8 @@ import { MatDialogRef } from "@angular/material/dialog";
 import { setError } from "src/app/utils/form-control-helpers";
 
 interface IUserLoginControls {
-  username: FormControl;
-  password: FormControl;
+  username: UntypedFormControl;
+  password: UntypedFormControl;
 }
 
 @Component({
@@ -18,8 +18,8 @@ interface IUserLoginControls {
 })
 export class UserLoginFormDialogComponent implements OnInit {
   controls: IUserLoginControls = {
-    username: new FormControl(),
-    password: new FormControl(),
+    username: new UntypedFormControl(),
+    password: new UntypedFormControl(),
   };
 
   constructor(
