@@ -42,7 +42,10 @@ export function serializeTile(tile: ITile): number {
     }
     return NUMBER_OF_NON_JOKER_TILES + tile.jokerNumber;
   }
-  return getTileRankNumber(tile) + NUMBER_OF_TILES_PER_COLOR * getTileColorNumber(tile);
+  return (
+    getTileRankNumber(tile) +
+    NUMBER_OF_TILES_PER_COLOR * getTileColorNumber(tile)
+  );
 }
 
 export function deserializeTile(tileNumber: number): ITile {
@@ -82,21 +85,21 @@ export function areTileSetsEquivalent(
   const uniqueTilesA = new Set(Object.keys(countsA));
   const uniqueTilesB = new Set(Object.keys(countsB));
   if (setSymmetricDifference(uniqueTilesA, uniqueTilesB).size !== 0) {
-    return false
+    return false;
   }
-  return Array.from(uniqueTilesA).every(x => countsA[x] == countsB[x]);
+  return Array.from(uniqueTilesA).every((x) => countsA[x] == countsB[x]);
 }
 
 export function getSerializedTileCounts(
-  tiles: ITile[],
+  tiles: ITile[]
 ): Record<number, number> {
   const counts: Record<number, number> = {};
   for (let i = 0; i < NUMBER_OF_TILES; i++) {
     counts[i] = 0;
   }
   tiles.forEach((tile) => {
-    const serialzed = serializeTile(tile)
-    counts[serialzed] += 1
-  })
+    const serialzed = serializeTile(tile);
+    counts[serialzed] += 1;
+  });
   return counts;
 }

@@ -1,9 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import {
-  GameState,
-  IGameOptions,
-} from "../../shared/dtos/rummikub/game";
+import { GameState, IGameOptions } from "../../shared/dtos/rummikub/game";
 import { ITile } from "../../shared/dtos/rummikub/tile";
 import { deserializeTile } from "../../services/rummikub/tile_helpers";
 import { User } from "./user";
@@ -63,7 +60,7 @@ export class RummikubGame extends Model {
       state: this.state,
       options: this.options,
       actionToUserId: this.actionToUserId,
-      sets: this.sets.map(s => s.map(deserializeTile)),
+      sets: this.sets.map((s) => s.map(deserializeTile)),
       tilePool: this.tilePool.map(deserializeTile),
       players: this.players,
       completedRounds: this.completedRounds,

@@ -44,12 +44,12 @@ export interface IGame {
   updatedAt: string;
 }
 
-export interface IUpdateSets  {
+export interface IUpdateSets {
   tilesAdded: ITile[];
   sets: ITile[][];
 }
 
-export interface IGameActionRequest  {
+export interface IGameActionRequest {
   initialMeld?: ITile[][];
   updateSets?: IUpdateSets;
   pickUpTile?: boolean;
@@ -78,6 +78,7 @@ export interface IActionToNextPlayerEvent {
 }
 
 export interface IRoundFinishedEvent {
+  lastAction: ILastAction;
   playerStates: IPlayerState[];
   roundScore: IRoundScore;
   updatedGameState: GameState;

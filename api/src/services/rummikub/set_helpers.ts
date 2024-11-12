@@ -38,7 +38,7 @@ function isRun(tiles: ITile[]): boolean {
     } else {
       const rankNumber = getTileRankNumber(tile);
       if (tile.rank !== lastRankNumber + expectedRankDiff) {
-        return false
+        return false;
       }
       lastRankNumber = rankNumber;
       expectedRankDiff = 1;

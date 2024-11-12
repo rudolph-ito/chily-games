@@ -1,8 +1,3 @@
-import { ICard } from "../../../shared/dtos/card";
-import {
-  doesHaveValue,
-  doesNotHaveValue,
-} from "../../../shared/utilities/value_checker";
 import {
   RummikubGame,
   ISerializedRummikubGame,
@@ -36,7 +31,9 @@ export interface IRummikubGameUpdateOptions {
 }
 
 export interface IRummikubGameDataService {
-  create: (options: IRummbikubGameCreateOptions) => Promise<ISerializedRummikubGame>;
+  create: (
+    options: IRummbikubGameCreateOptions
+  ) => Promise<ISerializedRummikubGame>;
   get: (gameId: number) => Promise<ISerializedRummikubGame>;
   update: (
     gameId: number,
@@ -100,7 +97,7 @@ export class RummikubGameDataService implements IRummikubGameDataService {
   async search(
     request: ISearchGamesRequest
   ): Promise<IPaginatedResponse<ISerializedRummikubGame>> {
-    if (doesNotHaveValue(request.pagination)) {
+    if (request.pagination == null) {
       request.pagination = { pageIndex: 0, pageSize: 100 };
     }
     const options: FindAndCountOptions<RummikubGame> = {
@@ -130,7 +127,7 @@ export class RummikubGameDataService implements IRummikubGameDataService {
       const key = pair[0];
       let value = pair[1];
       if (key == "sets" || value != null) {
-        value = (value as ITile[][]).map(s => s.map(serializeTile));
+        value = (value as ITile[][]).map((s) => s.map(serializeTile));
       }
       if (key == "tilePool") {
         value = (value as ITile[]).map(serializeTile);
