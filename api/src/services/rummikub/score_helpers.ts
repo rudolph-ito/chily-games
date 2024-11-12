@@ -1,5 +1,5 @@
-import { ITile } from "src/shared/dtos/rummikub/tile";
-import { valueOrDefault } from "src/shared/utilities/value_checker";
+import { ITile } from "../../shared/dtos/rummikub/tile";
+import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { getTileRankNumber } from "./tile_helpers";
 
 const JOKER_SCORE_VALUE = 30;

@@ -50,6 +50,11 @@ export class RummikubGameDataService implements IRummikubGameDataService {
   async create(
     options: IRummbikubGameCreateOptions
   ): Promise<ISerializedRummikubGame> {
+    const initialPlayer: IRummikubPlayer = {
+      userId: options.hostUserId,
+      tiles: [],
+      hasPlayedInitialMeld: false,
+    };
     const game = RummikubGame.build({
       hostUserId: options.hostUserId,
       actionToUserId: options.hostUserId,
@@ -57,7 +62,7 @@ export class RummikubGameDataService implements IRummikubGameDataService {
       state: GameState.PLAYERS_JOINING,
       sets: [],
       tilePool: [],
-      players: [{ userId: options.hostUserId, cardsInHand: [] }],
+      players: [initialPlayer],
       completedRounds: [],
       version: 1,
     });
@@ -126,7 +131,7 @@ export class RummikubGameDataService implements IRummikubGameDataService {
     for (const pair of Object.entries(options)) {
       const key = pair[0];
       let value = pair[1];
-      if (key == "sets" || value != null) {
+      if (key == "sets") {
         value = (value as ITile[][]).map((s) => s.map(serializeTile));
       }
       if (key == "tilePool") {

@@ -285,6 +285,15 @@ export class RummikubGameService implements IRummikubGameService {
     if (score < 30) {
       throw new ValidationError("Tile value must be at least 30.");
     }
+    const remainingTiles: ITile[] = [];
+    Array.from(Object.keys(userTileCounts)).forEach((x) => {
+      const remaining = userTileCounts[x] - initialMeldTileCounts[x];
+      for (let i = 0; i < remaining; i++) {
+        remainingTiles.push(deserializeTile(Number(x)));
+      }
+    });
+    playerState.tiles = remainingTiles;
+    playerState.hasPlayedInitialMeld = true;
     await this.gameDataService.update(game.gameId, game.version, {
       actionToUserId: orderedPlayers[1].userId,
       sets: game.sets.concat(initialMeld),
@@ -352,7 +361,7 @@ export class RummikubGameService implements IRummikubGameService {
     Array.from(Object.keys(userTileCounts)).forEach((x) => {
       const remaining = userTileCounts[x] - tilesAddedTileCounts[x];
       for (let i = 0; i < remaining; i++) {
-        remainingTiles.push(deserializeTile(i));
+        remainingTiles.push(deserializeTile(Number(x)));
       }
     });
     playerState.tiles = remainingTiles;
