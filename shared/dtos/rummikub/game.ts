@@ -10,11 +10,7 @@ export interface IPlayerState {
 }
 
 export interface IRoundScore {
-  [userId: number]: IRoundPlayerScore;
-}
-
-export interface IRoundPlayerScore {
-  score: number;
+  [userId: number]: number;
 }
 
 export interface IGameOptions {

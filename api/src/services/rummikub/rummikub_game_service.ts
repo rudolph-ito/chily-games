@@ -186,7 +186,7 @@ export class RummikubGameService implements IRummikubGameService {
       result.actionToNextPlayerEvent =
         initialMeldResult.actionToNextPlayerEvent;
     } else if (action.updateSets != null) {
-      const manipulateSetsResult = await this.playSetsUpdate(
+      const manipulateSetsResult = await this.playUpdateSets(
         userId,
         action.updateSets,
         game
@@ -273,17 +273,17 @@ export class RummikubGameService implements IRummikubGameService {
       (x) => userTileCounts[x] >= initialMeldTileCounts[x]
     );
     if (!valid) {
-      throw new ValidationError(
-        "Initial meld includes a tile not in user hand."
-      );
+      throw new ValidationError("Initial meld: includes a tile not in hand.");
     }
     const areAllSetsValid = initialMeld.every((s) => isValidSet(s));
     if (!areAllSetsValid) {
-      throw new ValidationError("One or more sets are invalid.");
+      throw new ValidationError("Initial meld: a set is invalid.");
     }
     const score = getTilesScore(initialMeld.flatMap((x) => x));
     if (score < 30) {
-      throw new ValidationError("Tile value must be at least 30.");
+      throw new ValidationError(
+        "Initial meld: tile score must be at least 30."
+      );
     }
     const remainingTiles: ITile[] = [];
     Array.from(Object.keys(userTileCounts)).forEach((x) => {
@@ -310,7 +310,7 @@ export class RummikubGameService implements IRummikubGameService {
     };
   }
 
-  private async playSetsUpdate(
+  private async playUpdateSets(
     userId: number,
     updateSets: IUpdateSets,
     game: ISerializedRummikubGame
@@ -321,9 +321,7 @@ export class RummikubGameService implements IRummikubGameService {
     );
     const playerState = orderedPlayers[0];
     if (!playerState.hasPlayedInitialMeld) {
-      throw new ValidationError(
-        "Cannot update sets until has played initial meld."
-      );
+      throw new ValidationError("Update sets: must first play initial meld.");
     }
     const userTileCounts = getSerializedTileCounts(playerState.tiles);
     const tilesAddedTileCounts = getSerializedTileCounts(updateSets.tilesAdded);
@@ -331,9 +329,7 @@ export class RummikubGameService implements IRummikubGameService {
       (x) => userTileCounts[x] >= tilesAddedTileCounts[x]
     );
     if (!validTilesAdded) {
-      throw new ValidationError(
-        "Tiles added includes a tile not in user hand."
-      );
+      throw new ValidationError("Update sets: includes a tile not in hand.");
     }
     const existingSetsTileCounts = getSerializedTileCounts(
       game.sets.flatMap((x) => x)
@@ -350,12 +346,12 @@ export class RummikubGameService implements IRummikubGameService {
     );
     if (!validUpdatedSets) {
       throw new ValidationError(
-        "Updated sets is not equal to existing sets plus the tiles added."
+        "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."
       );
     }
     const areAllSetsValid = updateSets.sets.every((s) => isValidSet(s));
     if (!areAllSetsValid) {
-      throw new ValidationError("One or more sets are invalid.");
+      throw new ValidationError("Update sets: a set is invalid.");
     }
     const remainingTiles: ITile[] = [];
     Array.from(Object.keys(userTileCounts)).forEach((x) => {
@@ -531,7 +527,7 @@ export class RummikubGameService implements IRummikubGameService {
   ): IRoundScore {
     const out: IRoundScore = {};
     completedRounds.forEach((x) => {
-      out[x.userId] = { score: x.score };
+      out[x.userId] = x.score;
     });
     return out;
   }

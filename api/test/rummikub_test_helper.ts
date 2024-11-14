@@ -28,7 +28,9 @@ interface ITestGameOptions {
   sets: ITile[][];
   playerTiles: ITile[][];
   tilePool: ITile[];
+  playerHasPlayedInitialMeld?: boolean[];
   playerRoundScores?: number[][];
+  createOptions?: IGameOptions;
 }
 
 interface ITestGame {
@@ -49,15 +51,22 @@ export async function createTestRummikubRoundActiveGame(
     userCredentials.push(creds);
     userIds.push(await createTestUser(creds));
   }
-  const createdGame = await gameService.create(userIds[0], {
-    playTo: 100,
-    hideTileCount: true,
-  });
+  const createdGame = await gameService.create(
+    userIds[0],
+    options.createOptions ?? {
+      playTo: 100,
+      hideTileCount: true,
+    }
+  );
   for (const userId of userIds.slice(1)) {
     await gameService.join(userId, createdGame.gameId);
   }
   const game = await gameDataService.get(createdGame.gameId);
-  game.players.forEach((x, index) => (x.tiles = options.playerTiles[index]));
+  game.players.forEach((x, index) => {
+    x.hasPlayedInitialMeld =
+      options.playerHasPlayedInitialMeld?.[index] ?? false;
+    x.tiles = options.playerTiles[index];
+  });
   const completedRounds: IRummikubRoundPlayerScore[][] = (
     options.playerRoundScores ?? []
   ).map((roundScores) => {
