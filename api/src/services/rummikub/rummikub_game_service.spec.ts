@@ -79,7 +79,7 @@ describe("RummikubGameService", () => {
       const userCreds = createTestCredentials("test");
       const userId = await createTestUser(userCreds);
       const gameId = 1;
-      const action: IGameActionRequest = { pickUpTile: true };
+      const action: IGameActionRequest = { pickUpTileOrPass: true };
 
       // act
       const error = await testPlayExpectError(userId, gameId, action);
@@ -99,7 +99,7 @@ describe("RummikubGameService", () => {
         playerTiles: [[], []],
         tilePool: [],
       });
-      const action: IGameActionRequest = { pickUpTile: true };
+      const action: IGameActionRequest = { pickUpTileOrPass: true };
 
       // act
       const error = await testPlayExpectError(user2Id, gameId, action);
@@ -271,6 +271,7 @@ describe("RummikubGameService", () => {
             tiles: [{ rank: 5, color: TileColor.YELLOW }],
             numberOfTiles: 1,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
             userId: user1Id,
             displayName: "test1",
           },
@@ -278,6 +279,7 @@ describe("RummikubGameService", () => {
             tiles: [],
             numberOfTiles: 0,
             hasPlayedInitialMeld: false,
+            passedLastTurn: false,
             userId: user2Id,
             displayName: "test2",
           },
@@ -482,7 +484,7 @@ describe("RummikubGameService", () => {
         );
       });
 
-      it("updates state appropriately if valid play (round not over)", async () => {
+      it("updates state appropriately if valid play (round active)", async () => {
         // Arrange
         const {
           userIds: [user1Id, user2Id],
@@ -538,6 +540,7 @@ describe("RummikubGameService", () => {
             tiles: [{ rank: 1, color: TileColor.RED }],
             numberOfTiles: 1,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
             userId: user1Id,
             displayName: "test1",
           },
@@ -545,13 +548,14 @@ describe("RummikubGameService", () => {
             tiles: [],
             numberOfTiles: 0,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
             userId: user2Id,
             displayName: "test2",
           },
         ]);
       });
 
-      it("updates state appropriately if valid play (round over)", async () => {
+      it("updates state appropriately if valid play (round complete)", async () => {
         // Arrange
         const {
           userIds: [user1Id, user2Id],
@@ -607,6 +611,7 @@ describe("RummikubGameService", () => {
             tiles: [],
             numberOfTiles: 0,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
             userId: user1Id,
             displayName: "test1",
           },
@@ -617,14 +622,15 @@ describe("RummikubGameService", () => {
             ],
             numberOfTiles: 2,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
             userId: user2Id,
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([{ [user1Id]: -12, [user2Id]: 12 }]);
+        expect(game.roundScores).to.eql([{ [user1Id]: 12, [user2Id]: -12 }]);
       });
 
-      it("updates state appropriately if valid play (game over)", async () => {
+      it("updates state appropriately if valid play (game complete)", async () => {
         // Arrange
         const {
           userIds: [user1Id, user2Id],
@@ -647,9 +653,9 @@ describe("RummikubGameService", () => {
           playerHasPlayedInitialMeld: [true, true],
           tilePool: [],
           playerRoundScores: [
-            [-20, 20],
-            [10, -10],
-            [-80, 80],
+            [20, -20],
+            [-10, 10],
+            [80, -80],
           ],
           createOptions: { playTo: 100, hideTileCount: false },
         });
@@ -686,6 +692,7 @@ describe("RummikubGameService", () => {
             tiles: [],
             numberOfTiles: 0,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
             userId: user1Id,
             displayName: "test1",
           },
@@ -696,15 +703,205 @@ describe("RummikubGameService", () => {
             ],
             numberOfTiles: 2,
             hasPlayedInitialMeld: true,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+        expect(game.roundScores).to.eql([
+          { [user1Id]: 20, [user2Id]: -20 },
+          { [user1Id]: -10, [user2Id]: 10 },
+          { [user1Id]: 80, [user2Id]: -80 },
+          { [user1Id]: 12, [user2Id]: -12 },
+        ]);
+      });
+    });
+
+    describe("pickup tile or pass", () => {
+      it("updates state appropriately if valid pickup", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
+          tilePool: [
+            { rank: 5, color: TileColor.BLUE },
+            { rank: 11, color: TileColor.YELLOW },
+          ],
+        });
+        const action: IGameActionRequest = {
+          pickUpTileOrPass: true,
+        };
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game.tilePoolCount).to.eql(1);
+        expect(game.playerStates).to.eql([
+          {
+            tiles: [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 11, color: TileColor.YELLOW },
+            ],
+            numberOfTiles: 2,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+      });
+
+      it("updates state appropriately if pass (round active)", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
+          tilePool: [],
+        });
+        const action: IGameActionRequest = {
+          pickUpTileOrPass: true,
+        };
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game.playerStates).to.eql([
+          {
+            tiles: [{ rank: 10, color: TileColor.BLACK }],
+            numberOfTiles: 1,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: true,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+      });
+
+      it("updates state appropriately if pass (round complete)", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [
+            [{ rank: 10, color: TileColor.BLACK }],
+            [{ rank: 7, color: TileColor.YELLOW }],
+          ],
+          playerPassedLastTurn: [false, true],
+          tilePool: [],
+        });
+        const action: IGameActionRequest = {
+          pickUpTileOrPass: true,
+        };
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
+        expect(game.playerStates).to.eql([
+          {
+            tiles: [{ rank: 10, color: TileColor.BLACK }],
+            numberOfTiles: 1,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: true,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [{ rank: 7, color: TileColor.YELLOW }],
+            numberOfTiles: 1,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: true,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+        expect(game.roundScores).to.eql([{ [user1Id]: -10, [user2Id]: 10 }]);
+      });
+
+      it("updates state appropriately if pass (game complete)", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [
+            [{ rank: 10, color: TileColor.BLACK }],
+            [{ rank: 7, color: TileColor.YELLOW }],
+          ],
+          playerPassedLastTurn: [false, true],
+          tilePool: [],
+          playerRoundScores: [
+            [-20, 20],
+            [5, -5],
+            [-80, 80],
+          ],
+        });
+        const action: IGameActionRequest = {
+          pickUpTileOrPass: true,
+        };
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.COMPLETE);
+        expect(game.playerStates).to.eql([
+          {
+            tiles: [{ rank: 10, color: TileColor.BLACK }],
+            numberOfTiles: 1,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: true,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [{ rank: 7, color: TileColor.YELLOW }],
+            numberOfTiles: 1,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: true,
             userId: user2Id,
             displayName: "test2",
           },
         ]);
         expect(game.roundScores).to.eql([
           { [user1Id]: -20, [user2Id]: 20 },
-          { [user1Id]: 10, [user2Id]: -10 },
+          { [user1Id]: 5, [user2Id]: -5 },
           { [user1Id]: -80, [user2Id]: 80 },
-          { [user1Id]: -12, [user2Id]: 12 },
+          { [user1Id]: -10, [user2Id]: 10 },
         ]);
       });
     });
@@ -827,6 +1024,7 @@ describe("RummikubGameService", () => {
         {
           userId: user1Id,
           hasPlayedInitialMeld: false,
+          passedLastTurn: false,
           tiles: [
             { rank: 1, color: TileColor.RED },
             { rank: 1, color: TileColor.BLACK },
@@ -835,6 +1033,7 @@ describe("RummikubGameService", () => {
         {
           userId: user2Id,
           hasPlayedInitialMeld: false,
+          passedLastTurn: false,
           tiles: [{ rank: 2, color: TileColor.BLUE }],
         },
       ]);

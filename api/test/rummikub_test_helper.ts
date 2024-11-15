@@ -29,6 +29,7 @@ interface ITestGameOptions {
   playerTiles: ITile[][];
   tilePool: ITile[];
   playerHasPlayedInitialMeld?: boolean[];
+  playerPassedLastTurn?: boolean[];
   playerRoundScores?: number[][];
   createOptions?: IGameOptions;
 }
@@ -65,6 +66,7 @@ export async function createTestRummikubRoundActiveGame(
   game.players.forEach((x, index) => {
     x.hasPlayedInitialMeld =
       options.playerHasPlayedInitialMeld?.[index] ?? false;
+    x.passedLastTurn = options.playerPassedLastTurn?.[index] ?? false;
     x.tiles = options.playerTiles[index];
   });
   const completedRounds: IRummikubRoundPlayerScore[][] = (

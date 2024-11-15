@@ -16,7 +16,7 @@ import { FindAndCountOptions, Op } from "sequelize";
 import { ITile } from "src/shared/dtos/rummikub/tile";
 
 export interface IRummbikubGameCreateOptions {
-  hostUserId: number;
+  hostPlayer: IRummikubPlayer;
   options: IGameOptions;
 }
 
@@ -48,21 +48,16 @@ export interface IRummikubGameDataService {
 
 export class RummikubGameDataService implements IRummikubGameDataService {
   async create(
-    options: IRummbikubGameCreateOptions
+    createOptions: IRummbikubGameCreateOptions
   ): Promise<ISerializedRummikubGame> {
-    const initialPlayer: IRummikubPlayer = {
-      userId: options.hostUserId,
-      tiles: [],
-      hasPlayedInitialMeld: false,
-    };
     const game = RummikubGame.build({
-      hostUserId: options.hostUserId,
-      actionToUserId: options.hostUserId,
-      options: options.options,
+      hostUserId: createOptions.hostPlayer.userId,
+      actionToUserId: createOptions.hostPlayer.userId,
+      options: createOptions.options,
       state: GameState.PLAYERS_JOINING,
       sets: [],
       tilePool: [],
-      players: [initialPlayer],
+      players: [createOptions.hostPlayer],
       completedRounds: [],
       version: 1,
     });

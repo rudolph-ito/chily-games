@@ -17,10 +17,12 @@ import {
   IActionToNextPlayerEvent,
   IRoundFinishedEvent,
   IUpdateSets,
+  ILastAction,
 } from "../../shared/dtos/rummikub/game";
 import { ValidationError } from "../shared/exceptions";
 import {
   IRummikubGameDataService,
+  IRummikubGameUpdateOptions,
   RummikubGameDataService,
 } from "./data/rummikub_game_data_service";
 import { IPaginatedResponse } from "../../shared/dtos/search";
@@ -47,8 +49,9 @@ interface IPlayUpdateSetsResult {
   roundFinishedEvent?: IRoundFinishedEvent;
 }
 
-interface IPlayPickupTileResult {
-  actionToNextPlayerEvent: IActionToNextPlayerEvent;
+interface IPlayPickupTileOrPassResult {
+  actionToNextPlayerEvent?: IActionToNextPlayerEvent;
+  roundFinishedEvent?: IRoundFinishedEvent;
 }
 
 export interface IRummikubGameService {
@@ -94,21 +97,21 @@ export class RummikubGameService implements IRummikubGameService {
     game = await this.gameDataService.update(game.gameId, game.version, {
       state: GameState.ABORTED,
     });
-    return await this.loadFullGame(userId, game);
+    return await this.loadFullGame(game, userId);
   }
 
   async create(userId: number, options: IGameOptions): Promise<IGame> {
     // validate options
     const game = await this.gameDataService.create({
-      hostUserId: userId,
+      hostPlayer: this.createPlayer(userId),
       options,
     });
-    return await this.loadFullGame(userId, game);
+    return await this.loadFullGame(game, userId);
   }
 
   async get(userId: number, gameId: number): Promise<IGame> {
     const game = await this.gameDataService.get(gameId);
-    return await this.loadFullGame(userId, game);
+    return await this.loadFullGame(game, userId);
   }
 
   async join(userId: number, gameId: number): Promise<IGame> {
@@ -120,11 +123,9 @@ export class RummikubGameService implements IRummikubGameService {
       throw new ValidationError("Already joined game.");
     }
     game = await this.gameDataService.update(game.gameId, game.version, {
-      players: game.players.concat([
-        { userId, tiles: [], hasPlayedInitialMeld: false },
-      ]),
+      players: game.players.concat([this.createPlayer(userId)]),
     });
-    return await this.loadFullGame(userId, game);
+    return await this.loadFullGame(game, userId);
   }
 
   async startRound(userId: number, gameId: number): Promise<IGame> {
@@ -142,13 +143,9 @@ export class RummikubGameService implements IRummikubGameService {
       throw new ValidationError("Invalid state to start round");
     }
     const tilePool = standardTiles();
-    const updatedPlayers: IRummikubPlayer[] = game.players.map((x) => {
-      return {
-        userId: x.userId,
-        hasPlayedInitialMeld: false,
-        tiles: [],
-      };
-    });
+    const updatedPlayers: IRummikubPlayer[] = game.players.map((x) =>
+      this.createPlayer(x.userId)
+    );
     for (let i = 0; i < 14; i++) {
       updatedPlayers.forEach((x) => {
         const nextCard = tilePool.pop();
@@ -164,7 +161,7 @@ export class RummikubGameService implements IRummikubGameService {
       tilePool,
       players: updatedPlayers,
     });
-    return await this.loadFullGame(userId, game);
+    return await this.loadFullGame(game, userId);
   }
 
   async play(
@@ -195,12 +192,12 @@ export class RummikubGameService implements IRummikubGameService {
         manipulateSetsResult.actionToNextPlayerEvent;
       result.roundFinishedEvent = manipulateSetsResult.roundFinishedEvent;
     } else {
-      if (!action.pickUpTile) {
+      if (!action.pickUpTileOrPass) {
         throw new ValidationError(
-          "Pick up tile is required to be true if not playing initial meld / updating sets."
+          "Pick up tile or pass is required to be true if not playing initial meld / updating sets."
         );
       }
-      const pickUpTileResult = await this.playPickUpTile(userId, game);
+      const pickUpTileResult = await this.playPickUpTileOrPass(userId, game);
       result.actionToNextPlayerEvent = pickUpTileResult.actionToNextPlayerEvent;
     }
     return result;
@@ -294,6 +291,7 @@ export class RummikubGameService implements IRummikubGameService {
     });
     playerState.tiles = remainingTiles;
     playerState.hasPlayedInitialMeld = true;
+    playerState.passedLastTurn = false;
     await this.gameDataService.update(game.gameId, game.version, {
       actionToUserId: orderedPlayers[1].userId,
       sets: game.sets.concat(initialMeld),
@@ -361,54 +359,25 @@ export class RummikubGameService implements IRummikubGameService {
       }
     });
     playerState.tiles = remainingTiles;
+    playerState.passedLastTurn = false;
+    const lastAction: ILastAction = {
+      userId,
+      updateSets,
+    };
     if (playerState.tiles.length == 0) {
-      const completedRound: IRummikubRoundPlayerScore[] = game.players.map(
-        (playerState) => {
-          return {
-            userId: playerState.userId,
-            score: getTilesScore(playerState.tiles),
-          };
-        }
-      );
-      const total = completedRound.reduce((sum, last) => sum + last.score, 0);
-      completedRound.forEach((x) => {
-        if (x.userId == userId) {
-          x.score = -1 * total;
-        }
-      });
-      const roundScore = this.buildRoundScore(completedRound);
-      const updatedCompletedRounds = game.completedRounds.concat([
+      const completedRound = this.computePlayerScores(game.players);
+      this.updateScoresWithWinner(completedRound, userId);
+      const roundFinishedEvent = await this.finalizeRound(
+        game,
+        lastAction,
         completedRound,
-      ]);
-      const isGameComplete = this.isGameComplete(
-        updatedCompletedRounds,
-        game.options.playTo
-      );
-      const updatedGameState = isGameComplete
-        ? GameState.COMPLETE
-        : GameState.ROUND_COMPLETE;
-      const updatedGame = await this.gameDataService.update(
-        game.gameId,
-        game.version,
         {
           actionToUserId: userId,
-          state: updatedGameState,
           sets: updateSets.sets,
           players: game.players,
-          completedRounds: updatedCompletedRounds,
         }
       );
-      return {
-        roundFinishedEvent: {
-          lastAction: {
-            userId: playerState.userId,
-            updateSets,
-          },
-          playerStates: await this.loadPlayerStates(userId, updatedGame),
-          roundScore,
-          updatedGameState,
-        },
-      };
+      return { roundFinishedEvent };
     } else {
       await this.gameDataService.update(game.gameId, game.version, {
         actionToUserId: orderedPlayers[1].userId,
@@ -418,44 +387,71 @@ export class RummikubGameService implements IRummikubGameService {
       return {
         actionToNextPlayerEvent: {
           actionToUserId: orderedPlayers[1].userId,
-          lastAction: {
-            userId: playerState.userId,
-            updateSets,
-          },
+          lastAction,
         },
       };
     }
   }
 
-  private async playPickUpTile(
+  private async playPickUpTileOrPass(
     userId: number,
     game: ISerializedRummikubGame
-  ): Promise<IPlayPickupTileResult> {
-    if (game.tilePool.length == 0) {
-      throw new ValidationError("No tile available to pick up.");
-    }
+  ): Promise<IPlayPickupTileOrPassResult> {
     const orderedPlayers = this.getPlayersOrderedToStartWithUser(
       game.players,
       userId
     );
     const playerState = orderedPlayers[0];
-    const pickedUpTile = game.tilePool.pop();
-    if (pickedUpTile == null) {
-      throw new Error("Unexpected empty tile pool");
+    const lastAction: ILastAction = {
+      userId,
+      pickUpTileOrPass: true,
+    };
+    if (game.tilePool.length == 0) {
+      playerState.passedLastTurn = true;
+      const roundOver = orderedPlayers.every((x) => x.passedLastTurn);
+      if (roundOver) {
+        const completedRound = this.computePlayerScores(game.players);
+        const winnerUserId =
+          this.determineWinnerAfterEveryonePassed(completedRound);
+        this.updateScoresWithWinner(completedRound, winnerUserId);
+        const roundFinishedEvent = await this.finalizeRound(
+          game,
+          lastAction,
+          completedRound,
+          {
+            actionToUserId: winnerUserId,
+            players: game.players,
+          }
+        );
+        return { roundFinishedEvent };
+      }
+    } else {
+      const pickedUpTile = game.tilePool.pop();
+      if (pickedUpTile == null) {
+        throw new Error("Pickup tile: unexpected empty tile pool");
+      }
+      playerState.tiles.push(pickedUpTile);
+      playerState.passedLastTurn = false;
     }
-    playerState.tiles.push(pickedUpTile);
     await this.gameDataService.update(game.gameId, game.version, {
       actionToUserId: orderedPlayers[1].userId,
       players: game.players,
+      tilePool: game.tilePool,
     });
     return {
       actionToNextPlayerEvent: {
         actionToUserId: orderedPlayers[1].userId,
-        lastAction: {
-          userId: playerState.userId,
-          pickedUpTile: true,
-        },
+        lastAction,
       },
+    };
+  }
+
+  private createPlayer(userId: number): IRummikubPlayer {
+    return {
+      userId,
+      hasPlayedInitialMeld: false,
+      passedLastTurn: false,
+      tiles: [],
     };
   }
 
@@ -473,9 +469,81 @@ export class RummikubGameService implements IRummikubGameService {
     return reorderedPlayers;
   }
 
+  private computePlayerScores(
+    players: IRummikubPlayer[]
+  ): IRummikubRoundPlayerScore[] {
+    return players.map((playerState) => {
+      return {
+        userId: playerState.userId,
+        score: getTilesScore(playerState.tiles),
+      };
+    });
+  }
+
+  private determineWinnerAfterEveryonePassed(
+    scores: IRummikubRoundPlayerScore[]
+  ): number {
+    let lowestScore = scores[0];
+    for (let i = 1; i < scores.length; i++) {
+      if (scores[i].score < lowestScore.score) {
+        lowestScore = scores[i];
+      }
+    }
+    lowestScore.score = 0;
+    return lowestScore.userId;
+  }
+
+  private updateScoresWithWinner(
+    completedRound: IRummikubRoundPlayerScore[],
+    userId: number
+  ): void {
+    const total = completedRound.reduce((sum, last) => sum + last.score, 0);
+    completedRound.forEach((x) => {
+      if (x.userId == userId) {
+        x.score = total;
+      } else {
+        x.score *= -1;
+      }
+    });
+  }
+
+  private async finalizeRound(
+    game: ISerializedRummikubGame,
+    lastAction: ILastAction,
+    completedRound: IRummikubRoundPlayerScore[],
+    otherUpdates: IRummikubGameUpdateOptions
+  ): Promise<IRoundFinishedEvent> {
+    const roundScore = this.buildRoundScore(completedRound);
+    const updatedCompletedRounds = game.completedRounds.concat([
+      completedRound,
+    ]);
+    const isGameComplete = this.isGameComplete(
+      updatedCompletedRounds,
+      game.options.playTo
+    );
+    const updatedGameState = isGameComplete
+      ? GameState.COMPLETE
+      : GameState.ROUND_COMPLETE;
+    const updatedGame = await this.gameDataService.update(
+      game.gameId,
+      game.version,
+      {
+        ...otherUpdates,
+        state: updatedGameState,
+        completedRounds: updatedCompletedRounds,
+      }
+    );
+    return {
+      lastAction,
+      playerStates: await this.loadPlayerStates(updatedGame),
+      roundScore,
+      updatedGameState,
+    };
+  }
+
   private async loadFullGame(
-    userId: number,
-    game: ISerializedRummikubGame
+    game: ISerializedRummikubGame,
+    userId: number
   ): Promise<IGame> {
     return {
       gameId: game.gameId,
@@ -485,7 +553,7 @@ export class RummikubGameService implements IRummikubGameService {
       actionToUserId: game.actionToUserId,
       sets: game.sets,
       tilePoolCount: game.tilePool.length,
-      playerStates: await this.loadPlayerStates(userId, game),
+      playerStates: await this.loadPlayerStates(game, userId),
       roundScores: game.completedRounds.map(this.buildRoundScore),
       createdAt: game.createdAt.toISOString(),
       updatedAt: game.updatedAt.toISOString(),
@@ -493,8 +561,8 @@ export class RummikubGameService implements IRummikubGameService {
   }
 
   private async loadPlayerStates(
-    userId: number,
-    game: ISerializedRummikubGame
+    game: ISerializedRummikubGame,
+    userId: number | null = null
   ): Promise<IPlayerState[]> {
     const users = await this.userDataService.getUsers(
       game.players.map((x) => x.userId)
@@ -507,6 +575,7 @@ export class RummikubGameService implements IRummikubGameService {
         userId: p.userId,
         displayName: userIdToDisplayName[p.userId],
         hasPlayedInitialMeld: p.hasPlayedInitialMeld,
+        passedLastTurn: p.passedLastTurn,
         numberOfTiles: p.tiles.length,
         tiles: [],
       };

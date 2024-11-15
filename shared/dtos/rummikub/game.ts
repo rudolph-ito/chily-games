@@ -5,6 +5,7 @@ export interface IPlayerState {
   userId: number;
   displayName: string;
   hasPlayedInitialMeld: boolean;
+  passedLastTurn: boolean;
   numberOfTiles: number;
   tiles: ITile[];
 }
@@ -48,7 +49,7 @@ export interface IUpdateSets {
 export interface IGameActionRequest {
   initialMeld?: ITile[][];
   updateSets?: IUpdateSets;
-  pickUpTile?: boolean;
+  pickUpTileOrPass?: boolean;
 }
 
 export interface IGameActionResponse {
@@ -63,9 +64,7 @@ export interface IPlayerJoinedEvent {
 
 export interface ILastAction {
   userId: number;
-  initialMeld?: ITile[][];
-  updateSets?: IUpdateSets;
-  pickedUpTile?: boolean;
+  action: IGameActionRequest;
 }
 
 export interface IActionToNextPlayerEvent {

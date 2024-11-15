@@ -9,6 +9,7 @@ export interface IRummikubPlayer {
   userId: number;
   tiles: ITile[];
   hasPlayedInitialMeld: boolean;
+  passedLastTurn: boolean;
 }
 
 export interface IRummikubRoundPlayerScore {
