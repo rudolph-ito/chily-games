@@ -932,7 +932,7 @@ describe("RummikubGameService", () => {
       );
     });
 
-    it("throws a validation error if player attempts to add a card", async () => {
+    it("throws a validation error if player attempts to add a tile", async () => {
       // arrange
       const {
         userIds: [user1Id],
@@ -957,11 +957,11 @@ describe("RummikubGameService", () => {
       // assert
       expect(error).to.be.instanceOf(ValidationError);
       expect(error?.message).to.eql(
-        'Validation errors: "Rearranged cards are not equivalent to cards in hand."'
+        'Validation errors: "Rearranged tiles are not equivalent to tiles in hand."'
       );
     });
 
-    it("throws a validation error if player attempts to remove a card", async () => {
+    it("throws a validation error if player attempts to remove a tile", async () => {
       // arrange
       const {
         userIds: [user1Id],
@@ -991,11 +991,11 @@ describe("RummikubGameService", () => {
       // assert
       expect(error).to.be.instanceOf(ValidationError);
       expect(error?.message).to.eql(
-        'Validation errors: "Rearranged cards are not equivalent to cards in hand."'
+        'Validation errors: "Rearranged tiles are not equivalent to tiles in hand."'
       );
     });
 
-    it("succeeds if passed in cards are equivalent to existing cards", async () => {
+    it("succeeds if passed in tiles are equivalent to existing tiles", async () => {
       // arrange
       const {
         userIds: [user1Id, user2Id],

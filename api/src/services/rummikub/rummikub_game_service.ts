@@ -69,7 +69,7 @@ export interface IRummikubGameService {
   rearrangeTiles: (
     userId: number,
     gameId: number,
-    cards: ITile[]
+    tiles: ITile[]
   ) => Promise<void>;
   search: (
     request: ISearchGamesRequest
@@ -215,7 +215,7 @@ export class RummikubGameService implements IRummikubGameService {
     }
     if (!areTileSetsEquivalent(tiles, player.tiles)) {
       throw new ValidationError(
-        "Rearranged cards are not equivalent to cards in hand."
+        "Rearranged tiles are not equivalent to tiles in hand."
       );
     }
     player.tiles = tiles;
