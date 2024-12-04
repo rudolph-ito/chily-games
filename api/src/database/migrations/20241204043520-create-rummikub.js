@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     // Matches shared/dtos/rummikub/game:GameState
     const stateEnum = Sequelize.ENUM(
       "players_joining",
       "round_active",
       "round_complete",
       "complete",
-      "aborted",
+      "aborted"
     );
     const userConfig = {
       type: Sequelize.INTEGER,
@@ -68,7 +68,7 @@ module.exports = {
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     return queryInterface.dropTable("RummikubGames");
-  }
+  },
 };
