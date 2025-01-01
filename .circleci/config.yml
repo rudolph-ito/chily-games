@@ -11,7 +11,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/node:16.15.1-browsers
+      - image: cimg/node:16.20.2-browsers
         <<: *DOCKER_BASE
       - image: cimg/postgres:14.13
         <<: *DOCKER_BASE
