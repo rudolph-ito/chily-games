@@ -24,7 +24,7 @@
     "passport-json": "1.2.0",
     "pg": "8.13.1",
     "redis": "4.7.0",
-    "sequelize": "6.29.0",
+    "sequelize": "6.37.5",
     "sequelize-replace-enum-postgres": "1.6.0",
     "socket.io": "4.8.1",
     "socket.io-adapter": "2.5.5",
