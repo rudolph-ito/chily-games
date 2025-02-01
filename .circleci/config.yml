@@ -18,7 +18,7 @@ jobs:
         environment:
           - POSTGRES_USER=chily-user
           - POSTGRES_PASSWORD=test
-      - image: cimg/redis:7.4.1
+      - image: cimg/redis:7.4.2
         <<: *DOCKER_BASE
     steps:
       - browser-tools/install-browser-tools
