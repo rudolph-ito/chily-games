@@ -20,6 +20,7 @@ import { getYanivRouter } from "./yaniv";
 import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
 import { SimpleRedisClient } from "src/redis";
+import { getRummikubRouter } from "./rummikub";
 
 export interface ICreateExpressAppOptions {
   publishRedisClient: SimpleRedisClient;
@@ -84,6 +85,10 @@ export function createExpressApp(
     "/api/oh-heck",
     getOhHeckRouter(authenticationRequired, options.publishRedisClient)
   );
+  app.use(
+    "/api/rummikub",
+    getRummikubRouter(authenticationRequired, options.publishRedisClient)
+  );
   app.use("/api/users", getUserRouter());
   app.use(
     "/api/yaniv",
@@ -136,6 +141,12 @@ export async function startServer(
     });
     socket.on("yaniv-leave-game", (gameId: number) => {
       socket.leave(`yaniv-game-${gameId}`);
+    });
+    socket.on("rummikub-join-game", (gameId: number) => {
+      socket.join(`rummikub-game-${gameId}`);
+    });
+    socket.on("rummikub-leave-game", (gameId: number) => {
+      socket.leave(`rummikub-game-${gameId}`);
     });
     socket.on("chat-join", (chatId: string) => {
       socket.join(`chat-${chatId}`);

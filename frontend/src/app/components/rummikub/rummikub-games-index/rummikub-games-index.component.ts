@@ -99,7 +99,7 @@ export class RummikubGamesIndexComponent {
   }
 
   navigateToGame(gameId: number): void {
-    this.router.navigate([`yaniv/games/${gameId}`]);
+    this.router.navigate([`rummikub/games/${gameId}`]);
   }
 
   getHostUsername(game: ISearchedGame): string {

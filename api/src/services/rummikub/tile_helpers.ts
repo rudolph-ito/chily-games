@@ -40,10 +40,11 @@ export function serializeTile(tile: ITile): number {
     if (tile.jokerNumber == null) {
       throw new Error("Card missing joker number");
     }
-    return NUMBER_OF_NON_JOKER_TILES + tile.jokerNumber;
+    return NUMBER_OF_NON_JOKER_TILES + tile.jokerNumber - 1;
   }
   return (
-    getTileRankNumber(tile) +
+    getTileRankNumber(tile) -
+    1 +
     NUMBER_OF_TILES_PER_COLOR * getTileColorNumber(tile)
   );
 }
@@ -52,11 +53,11 @@ export function deserializeTile(tileNumber: number): ITile {
   if (tileNumber >= NUMBER_OF_NON_JOKER_TILES) {
     return {
       isJoker: true,
-      jokerNumber: tileNumber - NUMBER_OF_NON_JOKER_TILES,
+      jokerNumber: tileNumber - NUMBER_OF_NON_JOKER_TILES + 1,
     };
   }
-  const rankNumber = tileNumber % NUMBER_OF_TILES_PER_COLOR;
-  const colorNumber = (tileNumber - rankNumber) / NUMBER_OF_TILES_PER_COLOR;
+  const rankNumber = (tileNumber % NUMBER_OF_TILES_PER_COLOR) + 1;
+  const colorNumber = Math.floor(tileNumber / NUMBER_OF_TILES_PER_COLOR);
   return { rank: rankNumber, color: numberToColor[colorNumber] };
 }
 

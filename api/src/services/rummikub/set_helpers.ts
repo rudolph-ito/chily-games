@@ -1,6 +1,11 @@
 import { valueOrDefault } from "../../shared/utilities/value_checker";
 import { ITile } from "../../shared/dtos/rummikub/tile";
-import { getTileColorNumber, getTileRankNumber } from "./tile_helpers";
+import {
+  getTileColorNumber,
+  getTileRankNumber,
+  serializeTile,
+} from "./tile_helpers";
+import { ISets } from "src/shared/dtos/rummikub/game";
 
 export function isValidSet(tiles: ITile[]): boolean {
   return isGroup(tiles) || isRun(tiles);
@@ -64,4 +69,54 @@ function removeLeadingAndTrailingJokers(tiles: ITile[]): ITile[] {
     newTiles.pop();
   }
   return newTiles;
+}
+
+export function isOnlyAddingNewSets(
+  initialSets: ISets,
+  updatedSets: ISets
+): boolean {
+  const initialSetCounts = getSetCounts(initialSets);
+  const updatedSetCounts = getSetCounts(updatedSets);
+  const setCountsDiff = getSetCountsDiff(initialSetCounts, updatedSetCounts);
+  for (const x in setCountsDiff) {
+    if (setCountsDiff[x] < 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function getSetCounts(sets: ISets): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (let i = 0; i < sets.length; i++) {
+    const tiles = sets[i];
+    if (tiles != null) {
+      const id = tiles.map((x) => serializeTile(x)).join("|");
+      if (result[id] == null) {
+        result[id] = 0;
+      }
+      result[id] += 1;
+    }
+  }
+  return result;
+}
+
+function getSetCountsDiff(
+  count1: Record<string, number>,
+  count2: Record<string, number>
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const x in count1) {
+    if (count2[x] == null) {
+      result[x] = -1 * count1[x];
+    } else {
+      result[x] = count2[x] - count1[x];
+    }
+  }
+  for (const x in count2) {
+    if (count1[x] == null) {
+      result[x] = count2[x];
+    }
+  }
+  return result;
 }

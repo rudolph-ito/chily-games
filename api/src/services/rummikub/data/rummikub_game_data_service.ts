@@ -8,8 +8,8 @@ import {
   GameState,
   IGameOptions,
   ISearchGamesRequest,
+  ISets,
 } from "../../../shared/dtos/rummikub/game";
-import { serializeTile } from "../../rummikub/tile_helpers";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
 import { FindAndCountOptions, Op } from "sequelize";
@@ -24,7 +24,7 @@ export interface IRummikubGameUpdateOptions {
   options?: IGameOptions;
   state?: GameState;
   actionToUserId?: number;
-  sets?: ITile[][];
+  sets?: ISets;
   tilePool?: ITile[];
   players?: IRummikubPlayer[];
   completedRounds?: IRummikubRoundPlayerScore[][];
@@ -122,20 +122,9 @@ export class RummikubGameDataService implements IRummikubGameDataService {
     version: number,
     options: IRummikubGameUpdateOptions
   ): Promise<ISerializedRummikubGame> {
-    const updates: any = {};
-    for (const pair of Object.entries(options)) {
-      const key = pair[0];
-      let value = pair[1];
-      if (key == "sets") {
-        value = (value as ITile[][]).map((s) => s.map(serializeTile));
-      }
-      if (key == "tilePool") {
-        value = (value as ITile[]).map(serializeTile);
-      }
-      updates[key] = value;
-    }
+    const updates: any = Object.assign({}, options);
     updates.version = version + 1;
-    const result = await RummikubGame.update(updates, {
+    const result = await RummikubGame.update(options, {
       where: {
         gameId,
         version,

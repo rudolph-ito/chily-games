@@ -39,8 +39,8 @@
       Login/register to join/play
     </div>
   </div>
-  <div class="actions-overlay" *ngIf="!loading && !isWaitingForPlayers()">
-    <div class="top-left">
+  <ng-container *ngIf="!loading && !isWaitingForPlayers()">
+    <div class="actions-overlay top-left">
       <button mat-button mat-stroked-button (click)="viewScores()">
         View Scores
       </button>
@@ -72,7 +72,7 @@
         Join new game
       </button>
     </div>
-    <div class="top-right">
+    <div class="actions-overlay top-right">
       <button
         *ngIf="canAbortGame()"
         mat-button
@@ -82,9 +82,19 @@
       >
         Abort game
       </button>
+      <button
+        *ngIf="isActionToCurrentUser()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="doneWithTurn()"
+        matTooltip="Draw tile or submit sets change"
+      >
+        Done with turn
+      </button>
     </div>
-    <div class="bottom-right">
+    <div class="actions-overlay bottom-right">
       <app-chat [chatId]="getChatId()" [user]="user"></app-chat>
     </div>
-  </div>
+  </ng-container>
 </div>

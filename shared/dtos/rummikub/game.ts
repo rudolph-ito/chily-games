@@ -1,13 +1,17 @@
 import { IPaginationRequest } from "../search";
 import { ITile } from "./tile";
 
+// null used to mark end of row
+export type ISets = (ITile[] | null)[];
+export type IPlayerTiles = (ITile | null)[];
+
 export interface IPlayerState {
   userId: number;
   displayName: string;
   hasPlayedInitialMeld: boolean;
   passedLastTurn: boolean;
   numberOfTiles: number;
-  tiles: ITile[];
+  tiles: IPlayerTiles;
 }
 
 export interface IRoundScore {
@@ -34,7 +38,7 @@ export interface IGame {
   state: GameState;
   actionToUserId: number;
   playerStates: IPlayerState[];
-  sets: ITile[][];
+  sets: ISets;
   tilePoolCount: number;
   roundScores: IRoundScore[];
   createdAt: string;
@@ -43,11 +47,10 @@ export interface IGame {
 
 export interface IUpdateSets {
   tilesAdded: ITile[];
-  sets: ITile[][];
+  sets: ISets;
 }
 
 export interface IGameActionRequest {
-  initialMeld?: ITile[][];
   updateSets?: IUpdateSets;
   pickUpTileOrPass?: boolean;
 }

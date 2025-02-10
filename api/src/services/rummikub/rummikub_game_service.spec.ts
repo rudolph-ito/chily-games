@@ -31,7 +31,7 @@ async function testPlay(
   let game: IGame | undefined;
   let result: IGameActionResponse | undefined;
   try {
-    await new RummikubGameService().play(userId, gameId, action);
+    result = await new RummikubGameService().play(userId, gameId, action);
     game = await new RummikubGameService().get(userId, gameId);
   } catch (e) {
     error = e;
@@ -111,184 +111,8 @@ describe("RummikubGameService", () => {
       );
     });
 
-    describe("initial meld", () => {
-      it("throws a validation error if includes tiles not in user hand", async () => {
-        // Arrange
-        const {
-          userIds: [user1Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [],
-          playerTiles: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 10, color: TileColor.RED },
-              { rank: 5, color: TileColor.YELLOW },
-            ],
-            [],
-          ],
-          tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          initialMeld: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
-          ],
-        };
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Initial meld: includes a tile not in hand."'
-        );
-      });
-
-      it("throws a validation error if invalid set", async () => {
-        // Arrange
-        const {
-          userIds: [user1Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [],
-          playerTiles: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 10, color: TileColor.RED },
-              { rank: 11, color: TileColor.BLUE },
-              { rank: 5, color: TileColor.YELLOW },
-            ],
-            [],
-          ],
-          tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          initialMeld: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 10, color: TileColor.RED },
-              { rank: 11, color: TileColor.BLUE },
-            ],
-          ],
-        };
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Initial meld: a set is invalid."'
-        );
-      });
-
-      it("throws a validation error if total is less than 30", async () => {
-        // Arrange
-        const {
-          userIds: [user1Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [],
-          playerTiles: [
-            [
-              { rank: 9, color: TileColor.BLACK },
-              { rank: 9, color: TileColor.RED },
-              { rank: 9, color: TileColor.BLUE },
-              { rank: 5, color: TileColor.YELLOW },
-            ],
-            [],
-          ],
-          tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          initialMeld: [
-            [
-              { rank: 9, color: TileColor.BLACK },
-              { rank: 9, color: TileColor.RED },
-              { rank: 9, color: TileColor.BLUE },
-            ],
-          ],
-        };
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Initial meld: tile score must be at least 30."'
-        );
-      });
-
-      it("updates state appropriately if valid play", async () => {
-        // arrange
-        const {
-          userIds: [user1Id, user2Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [],
-          playerTiles: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-              { rank: 5, color: TileColor.YELLOW },
-            ],
-            [],
-          ],
-          tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          initialMeld: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
-          ],
-        };
-
-        // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
-
-        // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.sets).to.eql([
-          [
-            { rank: 10, color: TileColor.BLACK },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
-        ]);
-        expect(game.playerStates).to.eql([
-          {
-            tiles: [{ rank: 5, color: TileColor.YELLOW }],
-            numberOfTiles: 1,
-            hasPlayedInitialMeld: true,
-            passedLastTurn: false,
-            userId: user1Id,
-            displayName: "test1",
-          },
-          {
-            tiles: [],
-            numberOfTiles: 0,
-            hasPlayedInitialMeld: false,
-            passedLastTurn: false,
-            userId: user2Id,
-            displayName: "test2",
-          },
-        ]);
-      });
-    });
-
     describe("update sets", () => {
-      it("throws a validation error if user has not played initial meld", async () => {
+      it("throws a validation error if user has not played initial meld and modifying existing set", async () => {
         // Arrange
         const {
           userIds: [user1Id],
@@ -296,14 +120,21 @@ describe("RummikubGameService", () => {
         } = await createTestRummikubRoundActiveGame({
           sets: [
             [
+              { rank: 8, color: TileColor.BLACK },
+              { rank: 8, color: TileColor.RED },
+              { rank: 8, color: TileColor.YELLOW },
+            ],
+            [
+              { rank: 8, color: TileColor.YELLOW },
+              { rank: 9, color: TileColor.YELLOW },
               { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
             ],
           ],
           playerTiles: [
             [
-              { rank: 10, color: TileColor.BLACK },
+              { rank: 8, color: TileColor.BLUE },
+              { rank: 11, color: TileColor.YELLOW },
+              { rank: 12, color: TileColor.YELLOW },
               { rank: 1, color: TileColor.RED },
             ],
             [],
@@ -315,13 +146,24 @@ describe("RummikubGameService", () => {
           updateSets: {
             sets: [
               [
+                { rank: 8, color: TileColor.BLACK },
+                { rank: 8, color: TileColor.RED },
+                { rank: 8, color: TileColor.YELLOW },
+                { rank: 8, color: TileColor.BLUE },
+              ],
+              [
+                { rank: 8, color: TileColor.YELLOW },
+                { rank: 9, color: TileColor.YELLOW },
                 { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-                { rank: 10, color: TileColor.BLACK },
+                { rank: 11, color: TileColor.YELLOW },
+                { rank: 12, color: TileColor.YELLOW },
               ],
             ],
-            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            tilesAdded: [
+              { rank: 8, color: TileColor.BLUE },
+              { rank: 11, color: TileColor.YELLOW },
+              { rank: 12, color: TileColor.YELLOW },
+            ],
           },
         };
 
@@ -331,7 +173,52 @@ describe("RummikubGameService", () => {
         // assert
         expect(error).to.be.instanceOf(ValidationError);
         expect(error.message).to.eql(
-          'Validation errors: "Update sets: must first play initial meld."'
+          'Validation errors: "Update sets: cannot modify existing sets on initial play"'
+        );
+      });
+
+      it("throws a validation error if user has not played initial meld and sum total is less than 30", async () => {
+        // Arrange
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [
+            [
+              { rank: 9, color: TileColor.BLACK },
+              { rank: 9, color: TileColor.RED },
+              { rank: 9, color: TileColor.BLUE },
+              { rank: 5, color: TileColor.YELLOW },
+            ],
+            [],
+          ],
+          tilePool: [],
+        });
+        const action: IGameActionRequest = {
+          updateSets: {
+            sets: [
+              [
+                { rank: 9, color: TileColor.BLACK },
+                { rank: 9, color: TileColor.RED },
+                { rank: 9, color: TileColor.BLUE },
+              ],
+            ],
+            tilesAdded: [
+              { rank: 9, color: TileColor.BLACK },
+              { rank: 9, color: TileColor.RED },
+              { rank: 9, color: TileColor.BLUE },
+            ],
+          },
+        };
+
+        // act
+        const error = await testPlayExpectError(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.instanceOf(ValidationError);
+        expect(error.message).to.eql(
+          'Validation errors: "Update sets: sum of tiles in initial play must be at least 30 (is only 27)"'
         );
       });
 
@@ -484,7 +371,76 @@ describe("RummikubGameService", () => {
         );
       });
 
-      it("updates state appropriately if valid play (round active)", async () => {
+      it("updates state appropriately if valid play (round active, initial meld)", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [
+            [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 5, color: TileColor.YELLOW },
+            ],
+            [],
+          ],
+          playerHasPlayedInitialMeld: [false, false],
+          tilePool: [],
+        });
+        const action: IGameActionRequest = {
+          updateSets: {
+            sets: [
+              [
+                { rank: 10, color: TileColor.BLACK },
+                { rank: 10, color: TileColor.RED },
+                { rank: 10, color: TileColor.BLUE },
+              ],
+            ],
+            tilesAdded: [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+            ],
+          },
+        };
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game.sets).to.eql([
+          [
+            { rank: 10, color: TileColor.BLACK },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ]);
+        expect(game.playerStates).to.eql([
+          {
+            tiles: [{ rank: 5, color: TileColor.YELLOW }],
+            numberOfTiles: 1,
+            hasPlayedInitialMeld: true,
+            passedLastTurn: false,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+      });
+
+      it("updates state appropriately if valid play (round active, not initial meld)", async () => {
         // Arrange
         const {
           userIds: [user1Id, user2Id],

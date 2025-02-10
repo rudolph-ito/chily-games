@@ -1,13 +1,16 @@
 import { Model, DataTypes } from "sequelize";
 import { sequelize } from "./connection";
-import { GameState, IGameOptions } from "../../shared/dtos/rummikub/game";
+import {
+  GameState,
+  IGameOptions,
+  ISets,
+} from "../../shared/dtos/rummikub/game";
 import { ITile } from "../../shared/dtos/rummikub/tile";
-import { deserializeTile } from "../../services/rummikub/tile_helpers";
 import { User } from "./user";
 
 export interface IRummikubPlayer {
   userId: number;
-  tiles: ITile[];
+  tiles: (ITile | null)[];
   hasPlayedInitialMeld: boolean;
   passedLastTurn: boolean;
 }
@@ -23,7 +26,7 @@ export interface ISerializedRummikubGame {
   state: GameState;
   options: IGameOptions;
   actionToUserId: number;
-  sets: ITile[][];
+  sets: (ITile[] | null)[];
   tilePool: ITile[];
   players: IRummikubPlayer[];
   completedRounds: IRummikubRoundPlayerScore[][];
@@ -46,8 +49,8 @@ export class RummikubGame extends Model {
   public state!: GameState;
   public options!: IGameOptions;
   public actionToUserId!: number;
-  public sets!: number[][];
-  public tilePool!: number[];
+  public sets!: ISets;
+  public tilePool!: ITile[];
   public players!: IRummikubPlayer[];
   public completedRounds!: IRummikubRoundPlayerScore[][];
   public version!: number;
@@ -61,8 +64,8 @@ export class RummikubGame extends Model {
       state: this.state,
       options: this.options,
       actionToUserId: this.actionToUserId,
-      sets: this.sets.map((s) => s.map(deserializeTile)),
-      tilePool: this.tilePool.map(deserializeTile),
+      sets: this.sets,
+      tilePool: this.tilePool,
       players: this.players,
       completedRounds: this.completedRounds,
       version: this.version,

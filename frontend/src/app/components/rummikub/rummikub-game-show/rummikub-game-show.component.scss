@@ -1,0 +1,41 @@
+.wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+}
+
+.table-container {
+  height: 100%;
+  width: 100%;
+}
+
+.players-overlay,
+.actions-overlay {
+  position: absolute;
+  box-sizing: border-box;
+
+  .players,
+  .player-list {
+    margin-bottom: 20px;
+  }
+
+  button {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  &.top-right {
+    right: 10px;
+  }
+
+  &.bottom-right {
+    bottom: 0;
+    right: 0;
+  }
+}
+
+.info {
+  font-style: italic;
+}

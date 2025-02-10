@@ -18,6 +18,7 @@ import {
   IRoundFinishedEvent,
   IUpdateSets,
   ILastAction,
+  IPlayerTiles,
 } from "../../shared/dtos/rummikub/game";
 import { ValidationError } from "../shared/exceptions";
 import {
@@ -37,12 +38,8 @@ import {
   getSerializedTileCounts,
   standardTiles,
 } from "./tile_helpers";
-import { isValidSet } from "./set_helpers";
+import { isOnlyAddingNewSets, isValidSet } from "./set_helpers";
 import { getTilesScore } from "./score_helpers";
-
-interface IPlayInitialMeldResult {
-  actionToNextPlayerEvent: IActionToNextPlayerEvent;
-}
 
 interface IPlayUpdateSetsResult {
   actionToNextPlayerEvent?: IActionToNextPlayerEvent;
@@ -53,6 +50,8 @@ interface IPlayPickupTileOrPassResult {
   actionToNextPlayerEvent?: IActionToNextPlayerEvent;
   roundFinishedEvent?: IRoundFinishedEvent;
 }
+
+const isNotNull = <T>(value: T | null): value is T => value !== null;
 
 export interface IRummikubGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
@@ -69,7 +68,7 @@ export interface IRummikubGameService {
   rearrangeTiles: (
     userId: number,
     gameId: number,
-    tiles: ITile[]
+    tiles: IPlayerTiles
   ) => Promise<void>;
   search: (
     request: ISearchGamesRequest
@@ -174,15 +173,7 @@ export class RummikubGameService implements IRummikubGameService {
       throw new ValidationError("Action is not to you.");
     }
     const result: IGameActionResponse = {};
-    if (action.initialMeld != null) {
-      const initialMeldResult = await this.playInitialMeld(
-        userId,
-        action.initialMeld,
-        game
-      );
-      result.actionToNextPlayerEvent =
-        initialMeldResult.actionToNextPlayerEvent;
-    } else if (action.updateSets != null) {
+    if (action.updateSets != null) {
       const manipulateSetsResult = await this.playUpdateSets(
         userId,
         action.updateSets,
@@ -206,14 +197,19 @@ export class RummikubGameService implements IRummikubGameService {
   async rearrangeTiles(
     userId: number,
     gameId: number,
-    tiles: ITile[]
+    tiles: (ITile | null)[]
   ): Promise<void> {
     const game = await this.gameDataService.get(gameId);
     const player = game.players.find((x) => x.userId === userId);
     if (player == null) {
       throw new ValidationError("You are not a player in this game.");
     }
-    if (!areTileSetsEquivalent(tiles, player.tiles)) {
+    if (
+      !areTileSetsEquivalent(
+        tiles.filter(isNotNull),
+        player.tiles.filter(isNotNull)
+      )
+    ) {
       throw new ValidationError(
         "Rearranged tiles are not equivalent to tiles in hand."
       );
@@ -252,62 +248,6 @@ export class RummikubGameService implements IRummikubGameService {
     };
   }
 
-  private async playInitialMeld(
-    userId: number,
-    initialMeld: ITile[][],
-    game: ISerializedRummikubGame
-  ): Promise<IPlayInitialMeldResult> {
-    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
-      game.players,
-      userId
-    );
-    const playerState = orderedPlayers[0];
-    const userTileCounts = getSerializedTileCounts(playerState.tiles);
-    const initialMeldTileCounts = getSerializedTileCounts(
-      initialMeld.flatMap((x) => x)
-    );
-    const valid = Array.from(Object.keys(initialMeldTileCounts)).every(
-      (x) => userTileCounts[x] >= initialMeldTileCounts[x]
-    );
-    if (!valid) {
-      throw new ValidationError("Initial meld: includes a tile not in hand.");
-    }
-    const areAllSetsValid = initialMeld.every((s) => isValidSet(s));
-    if (!areAllSetsValid) {
-      throw new ValidationError("Initial meld: a set is invalid.");
-    }
-    const score = getTilesScore(initialMeld.flatMap((x) => x));
-    if (score < 30) {
-      throw new ValidationError(
-        "Initial meld: tile score must be at least 30."
-      );
-    }
-    const remainingTiles: ITile[] = [];
-    Array.from(Object.keys(userTileCounts)).forEach((x) => {
-      const remaining = userTileCounts[x] - initialMeldTileCounts[x];
-      for (let i = 0; i < remaining; i++) {
-        remainingTiles.push(deserializeTile(Number(x)));
-      }
-    });
-    playerState.tiles = remainingTiles;
-    playerState.hasPlayedInitialMeld = true;
-    playerState.passedLastTurn = false;
-    await this.gameDataService.update(game.gameId, game.version, {
-      actionToUserId: orderedPlayers[1].userId,
-      sets: game.sets.concat(initialMeld),
-      players: game.players,
-    });
-    return {
-      actionToNextPlayerEvent: {
-        actionToUserId: orderedPlayers[1].userId,
-        lastAction: {
-          userId: playerState.userId,
-          initialMeld,
-        },
-      },
-    };
-  }
-
   private async playUpdateSets(
     userId: number,
     updateSets: IUpdateSets,
@@ -318,10 +258,9 @@ export class RummikubGameService implements IRummikubGameService {
       userId
     );
     const playerState = orderedPlayers[0];
-    if (!playerState.hasPlayedInitialMeld) {
-      throw new ValidationError("Update sets: must first play initial meld.");
-    }
-    const userTileCounts = getSerializedTileCounts(playerState.tiles);
+    const userTileCounts = getSerializedTileCounts(
+      playerState.tiles.filter(isNotNull)
+    );
     const tilesAddedTileCounts = getSerializedTileCounts(updateSets.tilesAdded);
     const validTilesAdded = Array.from(Object.keys(tilesAddedTileCounts)).every(
       (x) => userTileCounts[x] >= tilesAddedTileCounts[x]
@@ -330,10 +269,10 @@ export class RummikubGameService implements IRummikubGameService {
       throw new ValidationError("Update sets: includes a tile not in hand.");
     }
     const existingSetsTileCounts = getSerializedTileCounts(
-      game.sets.flatMap((x) => x)
+      game.sets.flatMap((x) => (x == null ? [] : x))
     );
     const updatedSetsTileCounts = getSerializedTileCounts(
-      updateSets.sets.flatMap((x) => x)
+      updateSets.sets.flatMap((x) => (x == null ? [] : x))
     );
     const validUpdatedSets = Array.from(
       Object.keys(updatedSetsTileCounts)
@@ -347,9 +286,25 @@ export class RummikubGameService implements IRummikubGameService {
         "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."
       );
     }
-    const areAllSetsValid = updateSets.sets.every((s) => isValidSet(s));
+    const areAllSetsValid = updateSets.sets.every((s) =>
+      s == null ? true : isValidSet(s)
+    );
     if (!areAllSetsValid) {
       throw new ValidationError("Update sets: a set is invalid.");
+    }
+    if (!playerState.hasPlayedInitialMeld) {
+      if (!isOnlyAddingNewSets(game.sets, updateSets.sets)) {
+        throw new ValidationError(
+          `Update sets: cannot modify existing sets on initial play`
+        );
+      }
+      const score = getTilesScore(updateSets.tilesAdded.flatMap((x) => x));
+      if (score < 30) {
+        throw new ValidationError(
+          `Update sets: sum of tiles in initial play must be at least 30 (is only ${score})`
+        );
+      }
+      playerState.hasPlayedInitialMeld = true;
     }
     const remainingTiles: ITile[] = [];
     Array.from(Object.keys(userTileCounts)).forEach((x) => {
@@ -362,7 +317,7 @@ export class RummikubGameService implements IRummikubGameService {
     playerState.passedLastTurn = false;
     const lastAction: ILastAction = {
       userId,
-      updateSets,
+      action: { updateSets },
     };
     if (playerState.tiles.length == 0) {
       const completedRound = this.computePlayerScores(game.players);
@@ -404,7 +359,7 @@ export class RummikubGameService implements IRummikubGameService {
     const playerState = orderedPlayers[0];
     const lastAction: ILastAction = {
       userId,
-      pickUpTileOrPass: true,
+      action: { pickUpTileOrPass: true },
     };
     if (game.tilePool.length == 0) {
       playerState.passedLastTurn = true;
@@ -475,7 +430,7 @@ export class RummikubGameService implements IRummikubGameService {
     return players.map((playerState) => {
       return {
         userId: playerState.userId,
-        score: getTilesScore(playerState.tiles),
+        score: getTilesScore(playerState.tiles.filter(isNotNull)),
       };
     });
   }

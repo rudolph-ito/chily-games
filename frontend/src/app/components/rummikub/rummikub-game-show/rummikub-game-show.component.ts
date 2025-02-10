@@ -144,7 +144,6 @@ export class RummikubGameShowComponent {
           {
             element: this.tableContainer.nativeElement,
           },
-          this.onPlay,
           this.onRearrangeTiles
         );
       }
@@ -206,6 +205,18 @@ export class RummikubGameShowComponent {
       this.game.state !== GameState.ABORTED &&
       this.game.hostUserId === this.user?.userId
     );
+  }
+
+  isActionToCurrentUser(): boolean {
+    return (
+      this.game !== null &&
+      this.game.state == GameState.ROUND_ACTIVE &&
+      this.game.actionToUserId == this.user?.userId
+    );
+  }
+
+  doneWithTurn(): void {
+    this.onPlay(this.table.getCurrentPlay());
   }
 
   canStartRound(): boolean {
