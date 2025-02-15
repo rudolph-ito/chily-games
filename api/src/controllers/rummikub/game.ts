@@ -103,6 +103,22 @@ export function getGameRouter(
     }
   );
   router.put(
+    "/:gameId/update-sets",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .saveLatestUpdateSets((req.user as IUser).userId, gameId, req.body)
+        .then((shareableUpdateSets) => {
+          res.status(200).end();
+          new SocketIoRedisEmitter(publishRedisClient)
+            .to(`rummikub-game-${gameId}`)
+            .emit("update-sets", shareableUpdateSets);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
     "/:gameId/play",
     authenticationRequired,
     function (req, res, next) {

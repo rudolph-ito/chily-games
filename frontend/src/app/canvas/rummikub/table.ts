@@ -80,6 +80,7 @@ export class RummikubTable {
   private gridOffset: Vector2d;
   private playerDisplays: Map<number, IPlayerDisplay>;
   private currentUserId: number | null;
+  private actionToUserId: number | null;
   private boardGridDropSites: IBoardCellDropSite[];
   private currentUserHandTileDisplays: (ITileDisplay | null)[] = [];
   private currentTurnTilesAddedToSets: ITile[];
@@ -481,18 +482,43 @@ export class RummikubTable {
     group.off("mouseover");
     group.off("mouseout");
     group.off("dragstart");
-    group.off("dragmove");
     group.off("dragend");
   }
 
   private onTileDragEnd(tileDisplay: ITileDisplay): void {
-    // currently assumes only dragging tiles within current user hand
     const tileOldIndex = this.currentUserHandTileDisplays.findIndex(
       (x) => x === tileDisplay
     );
+    if (tileOldIndex) {
+      const isMovingWithinHand = this.checkForMovingTileWithinUserHand(
+        tileDisplay,
+        tileOldIndex
+      );
+      if (isMovingWithinHand) {
+        return;
+      }
+      if (this.currentUserId == this.actionToUserId) {
+        const isMovingWithinBoard = this.checkForMovingTileWithinBoard(
+          tileDisplay,
+          tileOldIndex
+        );
+        if (isMovingWithinBoard) {
+          return;
+        }
+      }
+    }
+    // reset position
+    this.updateCurrentPlayerHandPosition(tileOldIndex);
+    this.layer.draw();
+  }
+
+  private checkForMovingTileWithinUserHand(
+    tileDisplay: ITileDisplay,
+    tileOldIndex: number
+  ) {
+    let tileNewIndex = tileOldIndex;
     const newX = tileDisplay.group.x();
     const newY = tileDisplay.group.y();
-    let tileNewIndex = tileOldIndex;
     for (
       let index = 0;
       index < BOARD_GRID_SIZE * CURRENT_USER_HAND_ROWS;
@@ -557,7 +583,16 @@ export class RummikubTable {
       this.onRearrangeTiles(
         this.currentUserHandTileDisplays.map((x) => (x == null ? null : x.tile))
       );
+      return true;
     }
+    return false;
+  }
+
+  private checkForMovingTileWithinBoard(
+    tileDisplay: ITileDisplay,
+    tileOldIndex: number
+  ): boolean {
+    return false;
   }
 
   private initializeTileEventHandlers(tileDisplay: ITileDisplay | null): void {

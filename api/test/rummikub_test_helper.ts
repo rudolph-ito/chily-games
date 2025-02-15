@@ -1,7 +1,11 @@
 import { IRummikubRoundPlayerScore } from "../src/database/models/rummikub_game";
 import { RummikubGameDataService } from "../src/services/rummikub/data/rummikub_game_data_service";
 import { RummikubGameService } from "../src/services/rummikub/rummikub_game_service";
-import { GameState, IGameOptions } from "../src/shared/dtos/rummikub/game";
+import {
+  GameState,
+  IGameOptions,
+  IUpdateSets,
+} from "../src/shared/dtos/rummikub/game";
 import { ITile } from "../src/shared/dtos/rummikub/tile";
 import {
   createTestCredentials,
@@ -28,6 +32,8 @@ interface ITestGameOptions {
   sets: ITile[][];
   playerTiles: ITile[][];
   tilePool: ITile[];
+  latestUpdateSets?: IUpdateSets;
+  lastValidUpdateSets?: IUpdateSets;
   playerHasPlayedInitialMeld?: boolean[];
   playerPassedLastTurn?: boolean[];
   playerRoundScores?: number[][];
@@ -82,6 +88,8 @@ export async function createTestRummikubRoundActiveGame(
   await gameDataService.update(game.gameId, game.version, {
     state: GameState.ROUND_ACTIVE,
     actionToUserId: userIds[0],
+    latestUpdateSets: options.latestUpdateSets,
+    lastValidUpdateSets: options.lastValidUpdateSets,
     sets: options.sets,
     players: game.players,
     tilePool: options.tilePool,

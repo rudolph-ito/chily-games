@@ -4,6 +4,7 @@ import {
   GameState,
   IGameOptions,
   ISets,
+  IUpdateSets,
 } from "../../shared/dtos/rummikub/game";
 import { ITile } from "../../shared/dtos/rummikub/tile";
 import { User } from "./user";
@@ -26,6 +27,8 @@ export interface ISerializedRummikubGame {
   state: GameState;
   options: IGameOptions;
   actionToUserId: number;
+  latestUpdateSets: IUpdateSets | null;
+  lastValidUpdateSets: IUpdateSets | null;
   sets: (ITile[] | null)[];
   tilePool: ITile[];
   players: IRummikubPlayer[];
@@ -49,6 +52,8 @@ export class RummikubGame extends Model {
   public state!: GameState;
   public options!: IGameOptions;
   public actionToUserId!: number;
+  public latestUpdateSets!: IUpdateSets;
+  public lastValidUpdateSets!: IUpdateSets;
   public sets!: ISets;
   public tilePool!: ITile[];
   public players!: IRummikubPlayer[];
@@ -64,6 +69,8 @@ export class RummikubGame extends Model {
       state: this.state,
       options: this.options,
       actionToUserId: this.actionToUserId,
+      latestUpdateSets: this.latestUpdateSets,
+      lastValidUpdateSets: this.lastValidUpdateSets,
       sets: this.sets,
       tilePool: this.tilePool,
       players: this.players,
@@ -105,6 +112,14 @@ RummikubGame.init(
         model: User,
         key: "userId",
       },
+    },
+    latestUpdateSets: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    lastValidUpdateSets: {
+      type: DataTypes.JSONB,
+      allowNull: true,
     },
     sets: {
       type: DataTypes.JSONB,

@@ -1,7 +1,7 @@
 import { IPaginationRequest } from "../search";
 import { ITile } from "./tile";
 
-// null used to mark end of row
+// null used to mark space
 export type ISets = (ITile[] | null)[];
 export type IPlayerTiles = (ITile | null)[];
 
@@ -38,6 +38,8 @@ export interface IGame {
   state: GameState;
   actionToUserId: number;
   playerStates: IPlayerState[];
+  latestUpdateSets: IUpdateSets | null; // null if no changes from lastValidUpdateSets
+  lastValidUpdateSets: IUpdateSets | null; // null if not made any changes
   sets: ISets;
   tilePoolCount: number;
   roundScores: IRoundScore[];
@@ -48,10 +50,11 @@ export interface IGame {
 export interface IUpdateSets {
   tilesAdded: ITile[];
   sets: ISets;
+  remainingTiles: ITile[];
 }
 
 export interface IGameActionRequest {
-  updateSets?: IUpdateSets;
+  finalizeUpdateSets?: boolean;
   pickUpTileOrPass?: boolean;
 }
 
@@ -67,7 +70,12 @@ export interface IPlayerJoinedEvent {
 
 export interface ILastAction {
   userId: number;
-  action: IGameActionRequest;
+  pickUpTileOrPass: boolean;
+}
+
+export interface IPlayerUpdatedSetsEvent {
+  sets: ISets;
+  tilesAdded: ITile[];
 }
 
 export interface IActionToNextPlayerEvent {

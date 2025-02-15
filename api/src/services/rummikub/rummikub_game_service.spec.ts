@@ -15,11 +15,71 @@ import {
 } from "../../shared/dtos/rummikub/game";
 import { createTestRummikubRoundActiveGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
+import { IUpdateSets } from "../../shared/dtos/rummikub/game";
 
 interface ITestPlayResult {
   error?: Error;
   result?: IGameActionResponse;
   game?: IGame;
+}
+
+async function testSaveLatestUpdateSets(
+  userId: number,
+  gameId: number,
+  updateSets: IUpdateSets
+): Promise<ITestPlayResult> {
+  let error: Error | undefined;
+  let game: IGame | undefined;
+  try {
+    await new RummikubGameService().saveLatestUpdateSets(
+      userId,
+      gameId,
+      updateSets
+    );
+    game = await new RummikubGameService().get(userId, gameId);
+  } catch (e) {
+    error = e;
+  }
+  return { game, error };
+}
+
+async function testSaveLatestUpdateSetsExpectError(
+  userId: number,
+  gameId: number,
+  updateSets: IUpdateSets
+): Promise<Error> {
+  const { result, error } = await testSaveLatestUpdateSets(
+    userId,
+    gameId,
+    updateSets
+  );
+  if (error == null) {
+    throw new Error(
+      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
+    );
+  }
+  return error;
+}
+
+async function testSaveLatestUpdateSetsExpectSuccess(
+  userId: number,
+  gameId: number,
+  updateSets: IUpdateSets
+): Promise<IGame> {
+  const { error, game } = await testSaveLatestUpdateSets(
+    userId,
+    gameId,
+    updateSets
+  );
+  if (error != null) {
+    throw new Error(
+      `Expected no error but got one, error: ${error.stack ?? error.message}`
+    );
+  }
+  if (game == null) {
+    throw new Error(`Expected game but is null`);
+  }
+  return game;
 }
 
 async function testPlay(
@@ -70,8 +130,259 @@ async function testPlayExpectSuccess(
   return game;
 }
 
-describe("RummikubGameService", () => {
+describe.only("RummikubGameService", () => {
   resetDatabaseBeforeEach();
+
+  describe("saveLatestUpdateSets", () => {
+    it("throws a validation error if sets includes tile not in user hand", async () => {
+      // Arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ],
+        playerTiles: [
+          [
+            { rank: 2, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+          [],
+        ],
+        playerHasPlayedInitialMeld: [true, true],
+        tilePool: [],
+      });
+      const updateSets: IUpdateSets = {
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+            { rank: 10, color: TileColor.BLACK },
+          ],
+        ],
+        tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+        remainingTiles: [
+          { rank: 2, color: TileColor.BLACK },
+          { rank: 1, color: TileColor.RED },
+        ],
+      };
+
+      // act
+      const error = await testSaveLatestUpdateSetsExpectError(
+        user1Id,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Update sets: includes a tile not in hand."'
+      );
+    });
+
+    it("throws a validation error if updated sets are not existing sets plus tiles added", async () => {
+      // Arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ],
+        playerTiles: [
+          [
+            { rank: 10, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+          [],
+        ],
+        playerHasPlayedInitialMeld: [true, true],
+        tilePool: [],
+      });
+      const updateSets: IUpdateSets = {
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLACK },
+          ],
+        ],
+        tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+        remainingTiles: [{ rank: 1, color: TileColor.RED }],
+      };
+
+      // act
+      const error = await testSaveLatestUpdateSetsExpectError(
+        user1Id,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."'
+      );
+    });
+
+    it("throws a validation error if player tiles is not remaining hand plus tiles added", async () => {
+      // Arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ],
+        playerTiles: [
+          [
+            { rank: 10, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+          [],
+        ],
+        playerHasPlayedInitialMeld: [true, true],
+        tilePool: [],
+      });
+      const updateSets: IUpdateSets = {
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ],
+        tilesAdded: [],
+        remainingTiles: [{ rank: 1, color: TileColor.RED }],
+      };
+
+      // act
+      const error = await testSaveLatestUpdateSetsExpectError(
+        user1Id,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql(
+        'Validation errors: "Update sets: remaining tiles is invalid."'
+      );
+    });
+
+    it("updates state appropriately if valid play (all sets valid)", async () => {
+      // Arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ],
+        playerTiles: [
+          [
+            { rank: 10, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+          [],
+        ],
+        playerHasPlayedInitialMeld: [true, true],
+        tilePool: [],
+      });
+      const updateSets: IUpdateSets = {
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+            { rank: 10, color: TileColor.BLACK },
+          ],
+        ],
+        tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+        remainingTiles: [{ rank: 1, color: TileColor.RED }],
+      };
+
+      // act
+      const game = await testSaveLatestUpdateSetsExpectSuccess(
+        user1Id,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(game.actionToUserId).to.eql(user1Id);
+      expect(game.latestUpdateSets).to.eql(null);
+      expect(game.lastValidUpdateSets).to.eql(updateSets);
+    });
+
+    it("updates state appropriately if valid play (not all sets valid)", async () => {
+      // Arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+        ],
+        playerTiles: [
+          [
+            { rank: 10, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+          [],
+        ],
+        playerHasPlayedInitialMeld: [true, true],
+        tilePool: [],
+      });
+      const updateSets: IUpdateSets = {
+        sets: [
+          [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+          [{ rank: 1, color: TileColor.RED }],
+        ],
+        tilesAdded: [{ rank: 1, color: TileColor.RED }],
+        remainingTiles: [{ rank: 10, color: TileColor.BLACK }],
+      };
+
+      // act
+      const game = await testSaveLatestUpdateSetsExpectSuccess(
+        user1Id,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(game.actionToUserId).to.eql(user1Id);
+      expect(game.latestUpdateSets).to.eql(updateSets);
+      expect(game.lastValidUpdateSets).to.eql(null);
+    });
+  });
 
   describe("play", () => {
     it("throws a validation error if game not found", async () => {
@@ -111,7 +422,13 @@ describe("RummikubGameService", () => {
       );
     });
 
-    describe("update sets", () => {
+    describe("finalize update sets", () => {
+      let action: IGameActionRequest;
+
+      beforeEach(() => {
+        action = { finalizeUpdateSets: true };
+      });
+
       it("throws a validation error if user has not played initial meld and modifying existing set", async () => {
         // Arrange
         const {
@@ -141,9 +458,7 @@ describe("RummikubGameService", () => {
           ],
           playerHasPlayedInitialMeld: [false, true],
           tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          lastValidUpdateSets: {
             sets: [
               [
                 { rank: 8, color: TileColor.BLACK },
@@ -164,8 +479,9 @@ describe("RummikubGameService", () => {
               { rank: 11, color: TileColor.YELLOW },
               { rank: 12, color: TileColor.YELLOW },
             ],
+            remainingTiles: [{ rank: 1, color: TileColor.RED }],
           },
-        };
+        });
 
         // act
         const error = await testPlayExpectError(user1Id, gameId, action);
@@ -173,7 +489,7 @@ describe("RummikubGameService", () => {
         // assert
         expect(error).to.be.instanceOf(ValidationError);
         expect(error.message).to.eql(
-          'Validation errors: "Update sets: cannot modify existing sets on initial play"'
+          'Validation errors: "Finalize update sets: cannot modify existing sets on initial play"'
         );
       });
 
@@ -194,9 +510,7 @@ describe("RummikubGameService", () => {
             [],
           ],
           tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          lastValidUpdateSets: {
             sets: [
               [
                 { rank: 9, color: TileColor.BLACK },
@@ -209,55 +523,9 @@ describe("RummikubGameService", () => {
               { rank: 9, color: TileColor.RED },
               { rank: 9, color: TileColor.BLUE },
             ],
+            remainingTiles: [{ rank: 5, color: TileColor.YELLOW }],
           },
-        };
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Update sets: sum of tiles in initial play must be at least 30 (is only 27)"'
-        );
-      });
-
-      it("throws a validation error if includes tile not in user hand", async () => {
-        // Arrange
-        const {
-          userIds: [user1Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
-          ],
-          playerTiles: [
-            [
-              { rank: 2, color: TileColor.BLACK },
-              { rank: 1, color: TileColor.RED },
-            ],
-            [],
-          ],
-          playerHasPlayedInitialMeld: [true, true],
-          tilePool: [],
         });
-        const action: IGameActionRequest = {
-          updateSets: {
-            sets: [
-              [
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-                { rank: 10, color: TileColor.BLACK },
-              ],
-            ],
-            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
-          },
-        };
 
         // act
         const error = await testPlayExpectError(user1Id, gameId, action);
@@ -265,57 +533,11 @@ describe("RummikubGameService", () => {
         // assert
         expect(error).to.be.instanceOf(ValidationError);
         expect(error.message).to.eql(
-          'Validation errors: "Update sets: includes a tile not in hand."'
+          'Validation errors: "Finalize update sets: sum of tiles in initial play must be at least 30 (is only 27)"'
         );
       });
 
-      it("throws a validation error if updated sets are not existing sets plus tiles added", async () => {
-        // Arrange
-        const {
-          userIds: [user1Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
-          ],
-          playerTiles: [
-            [
-              { rank: 10, color: TileColor.BLACK },
-              { rank: 1, color: TileColor.RED },
-            ],
-            [],
-          ],
-          playerHasPlayedInitialMeld: [true, true],
-          tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
-            sets: [
-              [
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLACK },
-              ],
-            ],
-            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
-          },
-        };
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."'
-        );
-      });
-
-      it("throws a validation error if set is invalid", async () => {
+      it("throws a validation error if lastest state is invalid", async () => {
         // Arrange
         const {
           userIds: [user1Id],
@@ -338,9 +560,7 @@ describe("RummikubGameService", () => {
           ],
           playerHasPlayedInitialMeld: [true, true],
           tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          latestUpdateSets: {
             sets: [
               [
                 { rank: 10, color: TileColor.YELLOW },
@@ -358,8 +578,9 @@ describe("RummikubGameService", () => {
               { rank: 2, color: TileColor.RED },
               { rank: 3, color: TileColor.BLACK },
             ],
+            remainingTiles: [],
           },
-        };
+        });
 
         // act
         const error = await testPlayExpectError(user1Id, gameId, action);
@@ -367,7 +588,42 @@ describe("RummikubGameService", () => {
         // assert
         expect(error).to.be.instanceOf(ValidationError);
         expect(error.message).to.eql(
-          'Validation errors: "Update sets: a set is invalid."'
+          'Validation errors: "Finalize update sets: latest state is invalid."'
+        );
+      });
+
+      it("throws a validation error if no changes made", async () => {
+        // Arrange
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [
+            [
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+            ],
+          ],
+          playerTiles: [
+            [
+              { rank: 1, color: TileColor.BLACK },
+              { rank: 2, color: TileColor.RED },
+              { rank: 3, color: TileColor.BLACK },
+            ],
+            [],
+          ],
+          playerHasPlayedInitialMeld: [true, true],
+          tilePool: [],
+        });
+
+        // act
+        const error = await testPlayExpectError(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.instanceOf(ValidationError);
+        expect(error.message).to.eql(
+          'Validation errors: "Finalize update sets: no changes made."'
         );
       });
 
@@ -389,9 +645,7 @@ describe("RummikubGameService", () => {
           ],
           playerHasPlayedInitialMeld: [false, false],
           tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          lastValidUpdateSets: {
             sets: [
               [
                 { rank: 10, color: TileColor.BLACK },
@@ -404,8 +658,9 @@ describe("RummikubGameService", () => {
               { rank: 10, color: TileColor.RED },
               { rank: 10, color: TileColor.BLUE },
             ],
+            remainingTiles: [{ rank: 5, color: TileColor.YELLOW }],
           },
-        };
+        });
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -420,6 +675,7 @@ describe("RummikubGameService", () => {
             { rank: 10, color: TileColor.BLUE },
           ],
         ]);
+        expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
           {
             tiles: [{ rank: 5, color: TileColor.YELLOW }],
@@ -462,9 +718,7 @@ describe("RummikubGameService", () => {
           ],
           playerHasPlayedInitialMeld: [true, true],
           tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          lastValidUpdateSets: {
             sets: [
               [
                 { rank: 10, color: TileColor.YELLOW },
@@ -474,8 +728,9 @@ describe("RummikubGameService", () => {
               ],
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [{ rank: 1, color: TileColor.RED }],
           },
-        };
+        });
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -491,6 +746,7 @@ describe("RummikubGameService", () => {
             { rank: 10, color: TileColor.BLACK },
           ],
         ]);
+        expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
           {
             tiles: [{ rank: 1, color: TileColor.RED }],
@@ -533,9 +789,7 @@ describe("RummikubGameService", () => {
           ],
           playerHasPlayedInitialMeld: [true, true],
           tilePool: [],
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          lastValidUpdateSets: {
             sets: [
               [
                 { rank: 10, color: TileColor.YELLOW },
@@ -545,8 +799,9 @@ describe("RummikubGameService", () => {
               ],
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [],
           },
-        };
+        });
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -562,6 +817,7 @@ describe("RummikubGameService", () => {
             { rank: 10, color: TileColor.BLACK },
           ],
         ]);
+        expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
           {
             tiles: [],
@@ -608,15 +864,7 @@ describe("RummikubGameService", () => {
           ],
           playerHasPlayedInitialMeld: [true, true],
           tilePool: [],
-          playerRoundScores: [
-            [20, -20],
-            [-10, 10],
-            [80, -80],
-          ],
-          createOptions: { playTo: 100, hideTileCount: false },
-        });
-        const action: IGameActionRequest = {
-          updateSets: {
+          lastValidUpdateSets: {
             sets: [
               [
                 { rank: 10, color: TileColor.YELLOW },
@@ -626,8 +874,15 @@ describe("RummikubGameService", () => {
               ],
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [],
           },
-        };
+          playerRoundScores: [
+            [20, -20],
+            [-10, 10],
+            [80, -80],
+          ],
+          createOptions: { playTo: 100, hideTileCount: false },
+        });
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -643,6 +898,7 @@ describe("RummikubGameService", () => {
             { rank: 10, color: TileColor.BLACK },
           ],
         ]);
+        expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
           {
             tiles: [],
@@ -948,6 +1204,96 @@ describe("RummikubGameService", () => {
       expect(error).to.be.instanceOf(ValidationError);
       expect(error?.message).to.eql(
         'Validation errors: "Rearranged tiles are not equivalent to tiles in hand."'
+      );
+    });
+
+    it("throws a validation error if action to player and there is a latest update sets", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [],
+        playerTiles: [
+          [
+            { rank: 1, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+          [],
+        ],
+        tilePool: [],
+        latestUpdateSets: {
+          sets: [[{ rank: 1, color: TileColor.BLACK }]],
+          tilesAdded: [{ rank: 1, color: TileColor.BLACK }],
+          remainingTiles: [{ rank: 1, color: TileColor.RED }],
+        },
+      });
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new RummikubGameService().rearrangeTiles(user1Id, gameId, [
+          { rank: 1, color: TileColor.BLACK },
+        ]);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Cannot rearrange tiles while have update sets in progress."'
+      );
+    });
+
+    it("throws a validation error if action to player and there is a last valid update sets", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubRoundActiveGame({
+        sets: [],
+        playerTiles: [
+          [
+            { rank: 1, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+            { rank: 1, color: TileColor.YELLOW },
+            { rank: 2, color: TileColor.BLUE },
+          ],
+          [],
+        ],
+        tilePool: [],
+        lastValidUpdateSets: {
+          sets: [
+            [
+              { rank: 1, color: TileColor.BLACK },
+              { rank: 1, color: TileColor.RED },
+              { rank: 1, color: TileColor.YELLOW },
+            ],
+          ],
+          tilesAdded: [
+            { rank: 1, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+            { rank: 1, color: TileColor.YELLOW },
+          ],
+          remainingTiles: [{ rank: 2, color: TileColor.BLUE }],
+        },
+      });
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new RummikubGameService().rearrangeTiles(user1Id, gameId, [
+          { rank: 2, color: TileColor.BLUE },
+        ]);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Cannot rearrange tiles while have update sets in progress."'
       );
     });
 

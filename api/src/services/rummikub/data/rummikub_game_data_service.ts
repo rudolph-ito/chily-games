@@ -9,6 +9,7 @@ import {
   IGameOptions,
   ISearchGamesRequest,
   ISets,
+  IUpdateSets,
 } from "../../../shared/dtos/rummikub/game";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
 import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
@@ -24,6 +25,8 @@ export interface IRummikubGameUpdateOptions {
   options?: IGameOptions;
   state?: GameState;
   actionToUserId?: number;
+  latestUpdateSets?: IUpdateSets | null;
+  lastValidUpdateSets?: IUpdateSets | null;
   sets?: ISets;
   tilePool?: ITile[];
   players?: IRummikubPlayer[];
