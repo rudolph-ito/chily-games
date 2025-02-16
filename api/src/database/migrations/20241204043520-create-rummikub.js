@@ -49,6 +49,14 @@ module.exports = {
         type: Sequelize.JSONB,
         allowNull: false,
       },
+      latestUpdateSets: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      lastValidUpdateSets: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
       completedRounds: {
         type: Sequelize.JSONB,
         allowNull: false,

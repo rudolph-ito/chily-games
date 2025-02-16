@@ -25,11 +25,11 @@ export interface IRummikubGameUpdateOptions {
   options?: IGameOptions;
   state?: GameState;
   actionToUserId?: number;
-  latestUpdateSets?: IUpdateSets | null;
-  lastValidUpdateSets?: IUpdateSets | null;
   sets?: ISets;
   tilePool?: ITile[];
   players?: IRummikubPlayer[];
+  latestUpdateSets?: IUpdateSets | null;
+  lastValidUpdateSets?: IUpdateSets | null;
   completedRounds?: IRummikubRoundPlayerScore[][];
 }
 

@@ -9,6 +9,7 @@ import {
   IGameOptions,
   ISearchedGame,
   ISearchGamesRequest,
+  IUpdateSets,
 } from "../../shared/dtos/rummikub/game";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
 
@@ -74,6 +75,17 @@ export class RummikubGameService {
     return this.http.put<null>(
       `${this.getRoutePrefix(gameId)}/rearrange-tiles`,
       tiles,
+      { observe: "response" }
+    );
+  }
+
+  updateSets(
+    gameId: number,
+    updateSets: IUpdateSets
+  ): Observable<HttpResponse<null>> {
+    return this.http.put<null>(
+      `${this.getRoutePrefix(gameId)}/update-sets`,
+      updateSets,
       { observe: "response" }
     );
   }

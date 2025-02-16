@@ -368,10 +368,10 @@ export class RummikubGameService implements IRummikubGameService {
       pickUpTileOrPass: false,
     };
     const updates: IRummikubGameUpdateOptions = {
-      latestUpdateSets: null,
-      lastValidUpdateSets: null,
       sets: game.lastValidUpdateSets.sets,
       players: game.players,
+      latestUpdateSets: null,
+      lastValidUpdateSets: null,
     };
     if (playerState.tiles.length == 0) {
       const completedRound = this.computePlayerScores(game.players);
@@ -409,6 +409,19 @@ export class RummikubGameService implements IRummikubGameService {
       userId
     );
     const playerState = orderedPlayers[0];
+    if (game.latestUpdateSets != null) {
+      throw new ValidationError(
+        "Pickup tile or pass: must first undo invalid set changes."
+      );
+    }
+    if (game.lastValidUpdateSets != null) {
+      if (game.lastValidUpdateSets.tilesAdded.length > 0) {
+        throw new ValidationError(
+          "Pickup tile or pass: must first undo set changes."
+        );
+      }
+      playerState.tiles = game.lastValidUpdateSets.remainingTiles;
+    }
     const lastAction: ILastAction = {
       userId,
       pickUpTileOrPass: true,
@@ -428,6 +441,7 @@ export class RummikubGameService implements IRummikubGameService {
           {
             actionToUserId: winnerUserId,
             players: game.players,
+            lastValidUpdateSets: null,
           }
         );
         return { roundFinishedEvent };
@@ -444,6 +458,7 @@ export class RummikubGameService implements IRummikubGameService {
       actionToUserId: orderedPlayers[1].userId,
       players: game.players,
       tilePool: game.tilePool,
+      lastValidUpdateSets: null,
     });
     return {
       actionToNextPlayerEvent: {

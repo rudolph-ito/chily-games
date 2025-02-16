@@ -27,11 +27,11 @@ export interface ISerializedRummikubGame {
   state: GameState;
   options: IGameOptions;
   actionToUserId: number;
-  latestUpdateSets: IUpdateSets | null;
-  lastValidUpdateSets: IUpdateSets | null;
   sets: (ITile[] | null)[];
   tilePool: ITile[];
   players: IRummikubPlayer[];
+  latestUpdateSets: IUpdateSets | null;
+  lastValidUpdateSets: IUpdateSets | null;
   completedRounds: IRummikubRoundPlayerScore[][];
   version: number;
   createdAt: Date;
@@ -52,11 +52,11 @@ export class RummikubGame extends Model {
   public state!: GameState;
   public options!: IGameOptions;
   public actionToUserId!: number;
-  public latestUpdateSets!: IUpdateSets;
-  public lastValidUpdateSets!: IUpdateSets;
   public sets!: ISets;
   public tilePool!: ITile[];
   public players!: IRummikubPlayer[];
+  public latestUpdateSets!: IUpdateSets;
+  public lastValidUpdateSets!: IUpdateSets;
   public completedRounds!: IRummikubRoundPlayerScore[][];
   public version!: number;
   public createdAt!: Date;
@@ -69,11 +69,11 @@ export class RummikubGame extends Model {
       state: this.state,
       options: this.options,
       actionToUserId: this.actionToUserId,
-      latestUpdateSets: this.latestUpdateSets,
-      lastValidUpdateSets: this.lastValidUpdateSets,
       sets: this.sets,
       tilePool: this.tilePool,
       players: this.players,
+      latestUpdateSets: this.latestUpdateSets,
+      lastValidUpdateSets: this.lastValidUpdateSets,
       completedRounds: this.completedRounds,
       version: this.version,
       createdAt: this.createdAt,
@@ -113,14 +113,6 @@ RummikubGame.init(
         key: "userId",
       },
     },
-    latestUpdateSets: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-    },
-    lastValidUpdateSets: {
-      type: DataTypes.JSONB,
-      allowNull: true,
-    },
     sets: {
       type: DataTypes.JSONB,
       allowNull: false,
@@ -132,6 +124,14 @@ RummikubGame.init(
     players: {
       type: DataTypes.JSONB,
       allowNull: false,
+    },
+    latestUpdateSets: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    lastValidUpdateSets: {
+      type: DataTypes.JSONB,
+      allowNull: true,
     },
     completedRounds: {
       type: DataTypes.JSONB,

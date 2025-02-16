@@ -9,6 +9,7 @@ import {
   IGameActionRequest,
   ILastAction,
   IPlayerState,
+  IUpdateSets,
 } from "src/app/shared/dtos/rummikub/game";
 import { ITile, TileColor } from "src/app/shared/dtos/rummikub/tile";
 import { Vector2d } from "konva/lib/types";
@@ -83,16 +84,19 @@ export class RummikubTable {
   private actionToUserId: number | null;
   private boardGridDropSites: IBoardCellDropSite[];
   private currentUserHandTileDisplays: (ITileDisplay | null)[] = [];
-  private currentTurnTilesAddedToSets: ITile[];
   private setDisplays: (ISetDisplay | null)[] = [];
+  private currentUpdateSets: IUpdateSets | null;
   private readonly onRearrangeTiles: (cards: (ITile | null)[]) => void;
+  private readonly onUpdateSets: (updateSets: IUpdateSets) => void;
 
   constructor(
     options: ITableOptions,
-    onRearrangeTiles: (cards: ITile[]) => void
+    onRearrangeTiles: (cards: ITile[]) => void,
+    onUpdateSets: (updateSets: IUpdateSets) => void
   ) {
     this.container = options.element;
     this.onRearrangeTiles = onRearrangeTiles;
+    this.onUpdateSets = onUpdateSets;
     this.stage = new KonvaStage({
       container: this.container,
       height: this.container.offsetHeight,
@@ -128,15 +132,9 @@ export class RummikubTable {
   }
 
   getCurrentPlay(): IGameActionRequest {
-    if (this.didCurrentUserModifySets()) {
-      return {
-        updateSets: {
-          tilesAdded: this.currentTurnTilesAddedToSets,
-          sets: this.setDisplays.map((x) =>
-            x == null ? null : x.tiles.map((y) => y.tile)
-          ),
-        },
-      };
+    // TODO simplify so no request needed and if has valid update sets with tile added, finalize it and otherwise draw tile
+    if (this.currentUpdateSets != null) {
+      return { finalizeUpdateSets: true };
     }
     return { pickUpTileOrPass: true };
   }

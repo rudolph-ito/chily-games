@@ -37,11 +37,11 @@ export interface IGame {
   options: IGameOptions;
   state: GameState;
   actionToUserId: number;
+  sets: ISets;
+  tilePoolCount: number;
   playerStates: IPlayerState[];
   latestUpdateSets: IUpdateSets | null; // null if no changes from lastValidUpdateSets
   lastValidUpdateSets: IUpdateSets | null; // null if not made any changes
-  sets: ISets;
-  tilePoolCount: number;
   roundScores: IRoundScore[];
   createdAt: string;
   updatedAt: string;

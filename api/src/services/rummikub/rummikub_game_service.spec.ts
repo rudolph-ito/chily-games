@@ -930,7 +930,65 @@ describe.only("RummikubGameService", () => {
     });
 
     describe("pickup tile or pass", () => {
-      it("updates state appropriately if valid pickup", async () => {
+      let action: IGameActionRequest;
+
+      beforeEach(() => {
+        action = { pickUpTileOrPass: true };
+      });
+
+      it("throws a validation error if latest update sets in defined", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, _],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
+          tilePool: [],
+          latestUpdateSets: {
+            sets: [],
+            tilesAdded: [],
+            remainingTiles: [{ rank: 10, color: TileColor.BLACK }],
+          },
+        });
+
+        // act
+        const error = await testPlayExpectError(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.instanceOf(ValidationError);
+        expect(error.message).to.eql(
+          'Validation errors: "Pickup tile or pass: must first undo invalid set changes."'
+        );
+      });
+
+      it("throws a validation error if last valid update sets is defined and some tiles added", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, _],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
+          tilePool: [],
+          lastValidUpdateSets: {
+            sets: [],
+            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [],
+          },
+        });
+
+        // act
+        const error = await testPlayExpectError(user1Id, gameId, action);
+
+        // assert
+        expect(error).to.be.instanceOf(ValidationError);
+        expect(error.message).to.eql(
+          'Validation errors: "Pickup tile or pass: must first undo set changes."'
+        );
+      });
+
+      it("updates state appropriately if valid pickup (last valid update sets is undefined) ", async () => {
         // arrange
         const {
           userIds: [user1Id, user2Id],
@@ -943,9 +1001,6 @@ describe.only("RummikubGameService", () => {
             { rank: 11, color: TileColor.YELLOW },
           ],
         });
-        const action: IGameActionRequest = {
-          pickUpTileOrPass: true,
-        };
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -977,6 +1032,66 @@ describe.only("RummikubGameService", () => {
         ]);
       });
 
+      it("updates state appropriately if valid pickup (last valid update sets is defined) ", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubRoundActiveGame({
+          sets: [],
+          playerTiles: [
+            [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 10, color: TileColor.BLUE },
+            ],
+            [],
+          ],
+          tilePool: [
+            { rank: 5, color: TileColor.BLUE },
+            { rank: 11, color: TileColor.YELLOW },
+          ],
+          lastValidUpdateSets: {
+            sets: [],
+            tilesAdded: [],
+            remainingTiles: [
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
+            ],
+          },
+        });
+
+        // act
+        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+
+        // assert
+        expect(game.actionToUserId).to.eql(user2Id);
+        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
+        expect(game.tilePoolCount).to.eql(1);
+        expect(game.lastValidUpdateSets).to.eql(null);
+        expect(game.playerStates).to.eql([
+          {
+            tiles: [
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 11, color: TileColor.YELLOW },
+            ],
+            numberOfTiles: 3,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+      });
+
       it("updates state appropriately if pass (round active)", async () => {
         // arrange
         const {
@@ -987,9 +1102,6 @@ describe.only("RummikubGameService", () => {
           playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
           tilePool: [],
         });
-        const action: IGameActionRequest = {
-          pickUpTileOrPass: true,
-        };
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -1031,9 +1143,6 @@ describe.only("RummikubGameService", () => {
           playerPassedLastTurn: [false, true],
           tilePool: [],
         });
-        const action: IGameActionRequest = {
-          pickUpTileOrPass: true,
-        };
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
@@ -1081,9 +1190,6 @@ describe.only("RummikubGameService", () => {
             [-80, 80],
           ],
         });
-        const action: IGameActionRequest = {
-          pickUpTileOrPass: true,
-        };
 
         // act
         const game = await testPlayExpectSuccess(user1Id, gameId, action);
