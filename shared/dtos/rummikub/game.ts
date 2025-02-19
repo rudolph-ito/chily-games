@@ -58,8 +58,14 @@ export interface IGameActionRequest {
   pickUpTileOrPass?: boolean;
 }
 
+export interface IPickedUpTileEvent {
+  tile: ITile;
+  playerTileIndex: number;
+  tilePoolCount: number;
+}
+
 export interface IGameActionResponse {
-  tilePickedUp?: ITile;
+  pickedUpTileEvent?: IPickedUpTileEvent;
   actionToNextPlayerEvent?: IActionToNextPlayerEvent;
   roundFinishedEvent?: IRoundFinishedEvent;
 }
@@ -71,6 +77,7 @@ export interface IPlayerJoinedEvent {
 export interface ILastAction {
   userId: number;
   pickUpTileOrPass: boolean;
+  tilePoolCount?: number;
 }
 
 export interface IPlayerUpdatedSetsEvent {

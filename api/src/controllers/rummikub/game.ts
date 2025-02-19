@@ -125,25 +125,21 @@ export function getGameRouter(
       const gameId = parseInt(req.params.gameId);
       gameService
         .play((req.user as IUser).userId, gameId, req.body)
-        .then(
-          ({ tilePickedUp, actionToNextPlayerEvent, roundFinishedEvent }) => {
-            res.status(200).send({
-              tilePickedUp,
-              actionToNextPlayerEvent,
-              roundFinishedEvent,
-            });
-            if (actionToNextPlayerEvent != null) {
-              new SocketIoRedisEmitter(publishRedisClient)
-                .to(`rummikub-game-${gameId}`)
-                .emit("action-to-next-player", actionToNextPlayerEvent);
-            }
-            if (roundFinishedEvent != null) {
-              new SocketIoRedisEmitter(publishRedisClient)
-                .to(`rummikub-game-${gameId}`)
-                .emit("round-finished", roundFinishedEvent);
-            }
+        .then((gameActionResponse) => {
+          res.status(200).send(gameActionResponse);
+          const { actionToNextPlayerEvent, roundFinishedEvent } =
+            gameActionResponse;
+          if (actionToNextPlayerEvent != null) {
+            new SocketIoRedisEmitter(publishRedisClient)
+              .to(`rummikub-game-${gameId}`)
+              .emit("action-to-next-player", actionToNextPlayerEvent);
           }
-        )
+          if (roundFinishedEvent != null) {
+            new SocketIoRedisEmitter(publishRedisClient)
+              .to(`rummikub-game-${gameId}`)
+              .emit("round-finished", roundFinishedEvent);
+          }
+        })
         .catch(next);
     }
   );

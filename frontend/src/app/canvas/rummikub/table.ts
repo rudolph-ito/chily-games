@@ -13,6 +13,8 @@ import {
 } from "src/app/shared/dtos/rummikub/game";
 import { ITile, TileColor } from "src/app/shared/dtos/rummikub/tile";
 import { Vector2d } from "konva/lib/types";
+import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
+import { IGameActionResponse } from "src/app/shared/dtos/rummikub/game";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -83,6 +85,7 @@ export class RummikubTable {
   private currentUserId: number | null;
   private actionToUserId: number | null;
   private boardGridDropSites: IBoardCellDropSite[];
+  private tilePoolText: KonvaText;
   private currentUserHandTileDisplays: (ITileDisplay | null)[] = [];
   private setDisplays: (ISetDisplay | null)[] = [];
   private currentUpdateSets: IUpdateSets | null;
@@ -112,6 +115,7 @@ export class RummikubTable {
     this.currentUserId = currentUserId ?? null;
     this.layer.destroyChildren();
     this.initializeBoardGridDropSites();
+    this.initializeTilePool();
     if (game.state !== GameState.PLAYERS_JOINING) {
       this.initializePlayers(game);
     }
@@ -124,6 +128,8 @@ export class RummikubTable {
     if (game.state === GameState.ROUND_ACTIVE) {
       this.initializeSets(game);
       this.updateActionTo(game.actionToUserId);
+      this.initializeTilePool();
+      this.updateTilePoolCount(game.tilePoolCount);
     }
     // else {
     //   this.initializeMessageText(game);
@@ -143,12 +149,33 @@ export class RummikubTable {
     return true;
   }
 
+  async updateStateWithCurrentUserAction(
+    actionResponse: IGameActionResponse
+  ): Promise<void> {
+    if (actionResponse.pickedUpTileEvent != null) {
+      const { tile, playerTileIndex, tilePoolCount } =
+        actionResponse.pickedUpTileEvent;
+      const tileDisplay = this.createTileDisplay(tile);
+      this.currentUserHandTileDisplays[playerTileIndex] = tileDisplay;
+      this.animateTileFaceUpFromPoolIntoCurrentUserHand(playerTileIndex);
+      this.updateTilePoolCount(tilePoolCount);
+    }
+  }
+
   async updateStateWithUserAction(
     lastAction: ILastAction,
-    newActionToUserId: number,
-    tilePickedUp?: ITile
+    newActionToUserId: number
   ): Promise<void> {
-    console.log(lastAction, newActionToUserId, tilePickedUp);
+    if (lastAction.pickUpTileOrPass) {
+      this.animateTileFaceDownFromPoolToOtherPlayer(lastAction.userId);
+      if (lastAction.tilePoolCount == null) {
+        throw Error(
+          "updateStateWithUserAction: last action tile pool count unexpectedly null"
+        );
+      }
+      this.updateTilePoolCount(lastAction.tilePoolCount);
+    }
+    this.updateActionTo(newActionToUserId);
   }
 
   resize(): void {
@@ -206,10 +233,23 @@ export class RummikubTable {
       playerDisplay.border.size(positionalData.borderSize);
     });
 
+    this.tilePoolText.position(this.getTilePoolPosition());
+    this.tilePoolText.size({
+      width: PLAYER_NAME_WIDTH,
+      height: PLAYER_NAME_HEIGHT,
+    });
+
     this.layer.draw();
   }
 
   clear(): void {}
+
+  private getTilePoolPosition(): Vector2d {
+    return {
+      x: TABLE_PADDING,
+      y: this.stage.height() - PLAYER_NAME_HEIGHT - TABLE_PADDING,
+    };
+  }
 
   private computeTileSize(): void {
     const min = Math.min(
@@ -271,6 +311,19 @@ export class RummikubTable {
     for (let i = 0; i < cellCount; i++) {
       this.boardGridDropSites.push(this.createBoardCellDropSite());
     }
+  }
+
+  private initializeTilePool(): void {
+    this.tilePoolText = new KonvaText({
+      align: "center",
+      fontSize: 14,
+      verticalAlign: "middle",
+    });
+    this.layer.add(this.tilePoolText);
+  }
+
+  private updateTilePoolCount(count: number): void {
+    this.tilePoolText.text(`Tile Pool:\n${count}`);
   }
 
   private createBoardCellDropSite() {
@@ -420,6 +473,69 @@ export class RummikubTable {
     }
   }
 
+  private animateTileFaceUpFromPoolIntoCurrentUserHand(
+    tileIndex: number
+  ): void {
+    const tileDisplay = this.currentUserHandTileDisplays[tileIndex];
+    if (tileDisplay == null) {
+      throw Error("Tile display unexpected null");
+    }
+    tileDisplay.value.setSize({
+      width: this.tileSize * 0.9,
+      height: this.tileSize * 0.9,
+    });
+    tileDisplay.border.setSize({
+      width: this.tileSize * 0.9,
+      height: this.tileSize * 0.9,
+    });
+    tileDisplay.group.setPosition(this.getTilePoolPosition());
+    const handPosition = this.getCurrentPlayerHandPosition(tileIndex);
+    const tween = new KonvaTween({
+      node: tileDisplay.group,
+      duration: 1,
+      easing: KonvaEasings.EaseInOut,
+      x: handPosition.x,
+      y: handPosition.y,
+    });
+    tween.play();
+  }
+
+  private animateTileFaceDownFromPoolToOtherPlayer(userId: number): void {
+    const playerDisplay = Array.from(this.playerDisplays.values()).find(
+      (x) => x.userId == userId
+    );
+    if (playerDisplay == null) {
+      throw Error(
+        "animateTileFaceDownFromPoolToOtherPlayer: player unexpectedly not found"
+      );
+    }
+    const positionData = this.getPlayerNamePositionData(
+      playerDisplay,
+      this.playerDisplays.size
+    );
+    const tileBorder = new KonvaRect({
+      fill: "white",
+      stroke: "black",
+      strokeWidth: TILE_DEFAULT_STROKE,
+      width: this.tileSize,
+      height: this.tileSize,
+    });
+    this.layer.add(tileBorder);
+    tileBorder.setPosition(this.getTilePoolPosition());
+    const tween = new KonvaTween({
+      node: tileBorder,
+      duration: 2,
+      easing: KonvaEasings.EaseInOut,
+      onFinish: () => {
+        tileBorder.destroy();
+        this.layer.draw();
+      },
+      x: positionData.textPosition.x,
+      y: positionData.textPosition.y,
+    });
+    tween.play();
+  }
+
   private getDividerHeight() {
     return this.tileSize * 0.5;
   }
@@ -484,13 +600,13 @@ export class RummikubTable {
   }
 
   private onTileDragEnd(tileDisplay: ITileDisplay): void {
-    const tileOldIndex = this.currentUserHandTileDisplays.findIndex(
+    const currentHandTileOldIndex = this.currentUserHandTileDisplays.findIndex(
       (x) => x === tileDisplay
     );
-    if (tileOldIndex) {
+    if (currentHandTileOldIndex != null) {
       const isMovingWithinHand = this.checkForMovingTileWithinUserHand(
         tileDisplay,
-        tileOldIndex
+        currentHandTileOldIndex
       );
       if (isMovingWithinHand) {
         return;
@@ -498,7 +614,7 @@ export class RummikubTable {
       if (this.currentUserId == this.actionToUserId) {
         const isMovingWithinBoard = this.checkForMovingTileWithinBoard(
           tileDisplay,
-          tileOldIndex
+          currentHandTileOldIndex
         );
         if (isMovingWithinBoard) {
           return;
@@ -506,7 +622,7 @@ export class RummikubTable {
       }
     }
     // reset position
-    this.updateCurrentPlayerHandPosition(tileOldIndex);
+    this.updateCurrentPlayerHandPosition(currentHandTileOldIndex);
     this.layer.draw();
   }
 

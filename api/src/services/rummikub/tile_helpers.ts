@@ -5,9 +5,8 @@ import { setSymmetricDifference } from "../shared/set_helpers";
 
 const NUMBER_OF_COLORS = 4;
 const NUMBER_OF_TILES_PER_COLOR = 13;
-const NUMBER_OF_JOKERS = 2;
 const NUMBER_OF_NON_JOKER_TILES = NUMBER_OF_COLORS * NUMBER_OF_TILES_PER_COLOR;
-const NUMBER_OF_TILES = NUMBER_OF_NON_JOKER_TILES + NUMBER_OF_JOKERS;
+const MAX_JOKER_COUNT = 3;
 
 export function getTileRankNumber(tile: ITile): number {
   if (tile.rank == null) {
@@ -68,10 +67,17 @@ export function areTilesEqual(a: ITile, b: ITile): boolean {
   return a.rank === b.rank && a.color === b.color;
 }
 
-export function standardTiles(): ITile[] {
+export function standardTiles(duplicateCount: number): ITile[] {
   const deck: ITile[] = [];
-  for (let i = 0; i < NUMBER_OF_TILES; i++) {
-    deck.push(deserializeTile(i));
+  // colored numbers
+  for (let i = 0; i < duplicateCount; i++) {
+    for (let i = 0; i < NUMBER_OF_NON_JOKER_TILES; i++) {
+      deck.push(deserializeTile(i));
+    }
+  }
+  // jokers
+  for (let i = 0; i < duplicateCount; i++) {
+    deck.push(deserializeTile(NUMBER_OF_NON_JOKER_TILES + i));
   }
   shuffle(deck);
   return deck;
@@ -95,7 +101,7 @@ export function getSerializedTileCounts(
   tiles: ITile[]
 ): Record<number, number> {
   const counts: Record<number, number> = {};
-  for (let i = 0; i < NUMBER_OF_TILES; i++) {
+  for (let i = 0; i < NUMBER_OF_NON_JOKER_TILES + MAX_JOKER_COUNT; i++) {
     counts[i] = 0;
   }
   tiles.forEach((tile) => {

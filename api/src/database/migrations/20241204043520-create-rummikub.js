@@ -51,11 +51,11 @@ module.exports = {
       },
       latestUpdateSets: {
         type: Sequelize.JSONB,
-        allowNull: false,
+        allowNull: true,
       },
       lastValidUpdateSets: {
         type: Sequelize.JSONB,
-        allowNull: false,
+        allowNull: true,
       },
       completedRounds: {
         type: Sequelize.JSONB,

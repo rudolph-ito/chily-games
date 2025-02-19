@@ -19,6 +19,7 @@ import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
   IRoundFinishedEvent,
+  IUpdateSets,
 } from "src/app/shared/dtos/rummikub/game";
 import {
   ConfirmationDialogComponent,
@@ -144,7 +145,8 @@ export class RummikubGameShowComponent {
           {
             element: this.tableContainer.nativeElement,
           },
-          this.onRearrangeTiles
+          this.onRearrangeTiles,
+          this.onUpdateSets
         );
       }
       if (this.game.state !== GameState.PLAYERS_JOINING) {
@@ -207,11 +209,10 @@ export class RummikubGameShowComponent {
     );
   }
 
-  isActionToCurrentUser(): boolean {
+  isCurrentUserInGame(): boolean {
     return (
       this.game !== null &&
-      this.game.state == GameState.ROUND_ACTIVE &&
-      this.game.actionToUserId == this.user?.userId
+      this.game.playerStates.find((x) => x.userId == this.user?.userId) != null
     );
   }
 
@@ -263,14 +264,7 @@ export class RummikubGameShowComponent {
   onPlay = async (action: IGameActionRequest): Promise<void> => {
     this.gameService.play(this.getGameId(), action).subscribe(
       async (response: IGameActionResponse) => {
-        if (response.actionToNextPlayerEvent != null) {
-          const event = response.actionToNextPlayerEvent;
-          this.table.updateStateWithUserAction(
-            event.lastAction,
-            event.actionToUserId,
-            response.tilePickedUp
-          );
-        }
+        this.table.updateStateWithCurrentUserAction(response);
       },
       (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
@@ -282,16 +276,28 @@ export class RummikubGameShowComponent {
     );
   };
 
-  onRearrangeTiles = async (tiles: ITile[]): Promise<void> => {
-    this.gameService
-      .rearrangeTiles(this.getGameId(), tiles)
-      .subscribe(null, (errorResponse: HttpErrorResponse) => {
+  onRearrangeTiles = (tiles: ITile[]): void => {
+    this.gameService.rearrangeTiles(this.getGameId(), tiles).subscribe({
+      error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
           this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
         }
-      });
+      },
+    });
+  };
+
+  onUpdateSets = (updateSets: IUpdateSets): void => {
+    this.gameService.updateSets(this.getGameId(), updateSets).subscribe({
+      error: (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      },
+    });
   };
 
   onResize(): void {
