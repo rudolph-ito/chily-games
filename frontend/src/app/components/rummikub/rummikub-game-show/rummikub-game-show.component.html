@@ -83,7 +83,7 @@
         Abort game
       </button>
       <button
-        *ngIf="isCurrentUserInGame()"
+        *ngIf="canBeDoneWithTurn()"
         mat-button
         mat-flat-button
         color="primary"

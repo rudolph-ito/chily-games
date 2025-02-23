@@ -119,16 +119,16 @@ export function getGameRouter(
     }
   );
   router.put(
-    "/:gameId/play",
+    "/:gameId/done-with-turn",
     authenticationRequired,
     function (req, res, next) {
       const gameId = parseInt(req.params.gameId);
       gameService
-        .play((req.user as IUser).userId, gameId, req.body)
-        .then((gameActionResponse) => {
-          res.status(200).send(gameActionResponse);
+        .doneWithTurn((req.user as IUser).userId, gameId)
+        .then((doneWithTurnResponse) => {
+          res.status(200).send(doneWithTurnResponse);
           const { actionToNextPlayerEvent, roundFinishedEvent } =
-            gameActionResponse;
+            doneWithTurnResponse;
           if (actionToNextPlayerEvent != null) {
             new SocketIoRedisEmitter(publishRedisClient)
               .to(`rummikub-game-${gameId}`)

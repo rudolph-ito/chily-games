@@ -14,8 +14,12 @@ export interface IPlayerState {
   tiles: IPlayerTiles;
 }
 
+export interface IRoundPlayerScore {
+  score: number;
+}
+
 export interface IRoundScore {
-  [userId: number]: number;
+  [userId: number]: IRoundPlayerScore;
 }
 
 export interface IGameOptions {
@@ -50,12 +54,7 @@ export interface IGame {
 export interface IUpdateSets {
   tilesAdded: ITile[];
   sets: ISets;
-  remainingTiles: ITile[];
-}
-
-export interface IGameActionRequest {
-  finalizeUpdateSets?: boolean;
-  pickUpTileOrPass?: boolean;
+  remainingTiles: IPlayerTiles;
 }
 
 export interface IPickedUpTileEvent {
@@ -64,7 +63,7 @@ export interface IPickedUpTileEvent {
   tilePoolCount: number;
 }
 
-export interface IGameActionResponse {
+export interface IDoneWithTurnResponse {
   pickedUpTileEvent?: IPickedUpTileEvent;
   actionToNextPlayerEvent?: IActionToNextPlayerEvent;
   roundFinishedEvent?: IRoundFinishedEvent;

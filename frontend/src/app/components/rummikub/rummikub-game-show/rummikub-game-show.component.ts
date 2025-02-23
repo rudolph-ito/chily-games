@@ -13,9 +13,8 @@ import { IUser } from "src/app/shared/dtos/authentication";
 import {
   GameState,
   IActionToNextPlayerEvent,
+  IDoneWithTurnResponse,
   IGame,
-  IGameActionRequest,
-  IGameActionResponse,
   INewGameStartedEvent,
   IPlayerJoinedEvent,
   IRoundFinishedEvent,
@@ -95,11 +94,24 @@ export class RummikubGameShowComponent {
     this.socket
       .fromEvent<IActionToNextPlayerEvent>("action-to-next-player")
       .subscribe((event: IActionToNextPlayerEvent) => {
+        if (this.game == null) {
+          throw Error(
+            "Action to next player event handler: Game unexepcetedly null"
+          );
+        }
+        this.game.actionToUserId = event.actionToUserId;
         if (event.lastAction.userId !== this.user?.userId) {
           this.table.updateStateWithUserAction(
             event.lastAction,
             event.actionToUserId
           );
+        }
+      });
+    this.socket
+      .fromEvent<IUpdateSets>("update-sets")
+      .subscribe((event: IUpdateSets) => {
+        if (this.game?.actionToUserId !== this.user?.userId) {
+          this.table.updateStateWithUpdateSets(event);
         }
       });
     this.socket
@@ -111,7 +123,7 @@ export class RummikubGameShowComponent {
         this.game.state = event.updatedGameState;
         this.game.playerStates = event.playerStates;
         this.game.roundScores.push(event.roundScore);
-        this.initializeTable();
+        // snackbar message round is over, open score dialog
       });
     this.socket
       .fromEvent("new-game-started")
@@ -209,15 +221,12 @@ export class RummikubGameShowComponent {
     );
   }
 
-  isCurrentUserInGame(): boolean {
+  canBeDoneWithTurn(): boolean {
     return (
       this.game !== null &&
+      this.game.state == GameState.ROUND_ACTIVE &&
       this.game.playerStates.find((x) => x.userId == this.user?.userId) != null
     );
-  }
-
-  doneWithTurn(): void {
-    this.onPlay(this.table.getCurrentPlay());
   }
 
   canStartRound(): boolean {
@@ -261,9 +270,9 @@ export class RummikubGameShowComponent {
     );
   }
 
-  onPlay = async (action: IGameActionRequest): Promise<void> => {
-    this.gameService.play(this.getGameId(), action).subscribe(
-      async (response: IGameActionResponse) => {
+  doneWithTurn(): void {
+    this.gameService.doneWithTurn(this.getGameId()).subscribe(
+      (response: IDoneWithTurnResponse) => {
         this.table.updateStateWithCurrentUserAction(response);
       },
       (errorResponse: HttpErrorResponse) => {
@@ -274,7 +283,7 @@ export class RummikubGameShowComponent {
         }
       }
     );
-  };
+  }
 
   onRearrangeTiles = (tiles: ITile[]): void => {
     this.gameService.rearrangeTiles(this.getGameId(), tiles).subscribe({

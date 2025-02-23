@@ -10,16 +10,20 @@ import { RummikubGameService } from "./rummikub_game_service";
 import {
   GameState,
   IGame,
-  IGameActionRequest,
-  IGameActionResponse,
+  IDoneWithTurnResponse,
 } from "../../shared/dtos/rummikub/game";
 import { createTestRummikubRoundActiveGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
 import { IUpdateSets } from "../../shared/dtos/rummikub/game";
 
-interface ITestPlayResult {
+interface ITestSaveLatestUpdateSetsResult {
   error?: Error;
-  result?: IGameActionResponse;
+  game?: IGame;
+}
+
+interface ITestDoneWithTurnResult {
+  error?: Error;
+  result?: IDoneWithTurnResponse;
   game?: IGame;
 }
 
@@ -27,7 +31,7 @@ async function testSaveLatestUpdateSets(
   userId: number,
   gameId: number,
   updateSets: IUpdateSets
-): Promise<ITestPlayResult> {
+): Promise<ITestSaveLatestUpdateSetsResult> {
   let error: Error | undefined;
   let game: IGame | undefined;
   try {
@@ -48,15 +52,9 @@ async function testSaveLatestUpdateSetsExpectError(
   gameId: number,
   updateSets: IUpdateSets
 ): Promise<Error> {
-  const { result, error } = await testSaveLatestUpdateSets(
-    userId,
-    gameId,
-    updateSets
-  );
+  const { error } = await testSaveLatestUpdateSets(userId, gameId, updateSets);
   if (error == null) {
-    throw new Error(
-      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
-    );
+    throw new Error("Expected error but didn't get one");
   }
   return error;
 }
@@ -82,16 +80,15 @@ async function testSaveLatestUpdateSetsExpectSuccess(
   return game;
 }
 
-async function testPlay(
+async function testDoneWithTurn(
   userId: number,
-  gameId: number,
-  action: IGameActionRequest
-): Promise<ITestPlayResult> {
+  gameId: number
+): Promise<ITestDoneWithTurnResult> {
   let error: Error | undefined;
   let game: IGame | undefined;
-  let result: IGameActionResponse | undefined;
+  let result: IDoneWithTurnResponse | undefined;
   try {
-    result = await new RummikubGameService().play(userId, gameId, action);
+    result = await new RummikubGameService().doneWithTurn(userId, gameId);
     game = await new RummikubGameService().get(userId, gameId);
   } catch (e) {
     error = e;
@@ -99,12 +96,11 @@ async function testPlay(
   return { result, game, error };
 }
 
-async function testPlayExpectError(
+async function testDoneWithTurnExpectError(
   userId: number,
-  gameId: number,
-  action: IGameActionRequest
+  gameId: number
 ): Promise<Error> {
-  const { result, error } = await testPlay(userId, gameId, action);
+  const { result, error } = await testDoneWithTurn(userId, gameId);
   if (error == null) {
     throw new Error(
       `Expected error but didn't get one, result: ${JSON.stringify(result)}`
@@ -113,12 +109,11 @@ async function testPlayExpectError(
   return error;
 }
 
-async function testPlayExpectSuccess(
+async function testDoneWithTurnExpectSuccess(
   userId: number,
-  gameId: number,
-  action: IGameActionRequest
+  gameId: number
 ): Promise<IGame> {
-  const { error, game } = await testPlay(userId, gameId, action);
+  const { error, game } = await testDoneWithTurn(userId, gameId);
   if (error != null) {
     throw new Error(
       `Expected no error but got one, error: ${error.stack ?? error.message}`
@@ -130,7 +125,7 @@ async function testPlayExpectSuccess(
   return game;
 }
 
-describe.only("RummikubGameService", () => {
+describe("RummikubGameService", () => {
   resetDatabaseBeforeEach();
 
   describe("saveLatestUpdateSets", () => {
@@ -390,10 +385,9 @@ describe.only("RummikubGameService", () => {
       const userCreds = createTestCredentials("test");
       const userId = await createTestUser(userCreds);
       const gameId = 1;
-      const action: IGameActionRequest = { pickUpTileOrPass: true };
 
       // act
-      const error = await testPlayExpectError(userId, gameId, action);
+      const error = await testDoneWithTurnExpectError(userId, gameId);
 
       // assert
       expect(error).to.be.instanceOf(NotFoundError);
@@ -410,10 +404,9 @@ describe.only("RummikubGameService", () => {
         playerTiles: [[], []],
         tilePool: [],
       });
-      const action: IGameActionRequest = { pickUpTileOrPass: true };
 
       // act
-      const error = await testPlayExpectError(user2Id, gameId, action);
+      const error = await testDoneWithTurnExpectError(user2Id, gameId);
 
       // assert
       expect(error).to.be.instanceOf(ValidationError);
@@ -423,12 +416,6 @@ describe.only("RummikubGameService", () => {
     });
 
     describe("finalize update sets", () => {
-      let action: IGameActionRequest;
-
-      beforeEach(() => {
-        action = { finalizeUpdateSets: true };
-      });
-
       it("throws a validation error if user has not played initial meld and modifying existing set", async () => {
         // Arrange
         const {
@@ -484,7 +471,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
+        const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -528,7 +515,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
+        const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
@@ -583,47 +570,12 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
+        const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
         // assert
         expect(error).to.be.instanceOf(ValidationError);
         expect(error.message).to.eql(
           'Validation errors: "Finalize update sets: latest state is invalid."'
-        );
-      });
-
-      it("throws a validation error if no changes made", async () => {
-        // Arrange
-        const {
-          userIds: [user1Id],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
-          ],
-          playerTiles: [
-            [
-              { rank: 1, color: TileColor.BLACK },
-              { rank: 2, color: TileColor.RED },
-              { rank: 3, color: TileColor.BLACK },
-            ],
-            [],
-          ],
-          playerHasPlayedInitialMeld: [true, true],
-          tilePool: [],
-        });
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Finalize update sets: no changes made."'
         );
       });
 
@@ -663,7 +615,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -733,7 +685,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -804,7 +756,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user1Id);
@@ -839,7 +791,9 @@ describe.only("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([{ [user1Id]: 12, [user2Id]: -12 }]);
+        expect(game.roundScores).to.eql([
+          { [user1Id]: { score: 12 }, [user2Id]: { score: -12 } },
+        ]);
       });
 
       it("updates state appropriately if valid play (game complete)", async () => {
@@ -885,7 +839,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user1Id);
@@ -921,73 +875,15 @@ describe.only("RummikubGameService", () => {
           },
         ]);
         expect(game.roundScores).to.eql([
-          { [user1Id]: 20, [user2Id]: -20 },
-          { [user1Id]: -10, [user2Id]: 10 },
-          { [user1Id]: 80, [user2Id]: -80 },
-          { [user1Id]: 12, [user2Id]: -12 },
+          { [user1Id]: { score: 20 }, [user2Id]: { score: -20 } },
+          { [user1Id]: { score: -10 }, [user2Id]: { score: 10 } },
+          { [user1Id]: { score: 80 }, [user2Id]: { score: -80 } },
+          { [user1Id]: { score: 12 }, [user2Id]: { score: -12 } },
         ]);
       });
     });
 
     describe("pickup tile or pass", () => {
-      let action: IGameActionRequest;
-
-      beforeEach(() => {
-        action = { pickUpTileOrPass: true };
-      });
-
-      it("throws a validation error if latest update sets in defined", async () => {
-        // arrange
-        const {
-          userIds: [user1Id, _],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [],
-          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
-          tilePool: [],
-          latestUpdateSets: {
-            sets: [],
-            tilesAdded: [],
-            remainingTiles: [{ rank: 10, color: TileColor.BLACK }],
-          },
-        });
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Pickup tile or pass: must first undo invalid set changes."'
-        );
-      });
-
-      it("throws a validation error if last valid update sets is defined and some tiles added", async () => {
-        // arrange
-        const {
-          userIds: [user1Id, _],
-          gameId,
-        } = await createTestRummikubRoundActiveGame({
-          sets: [],
-          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
-          tilePool: [],
-          lastValidUpdateSets: {
-            sets: [],
-            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
-            remainingTiles: [],
-          },
-        });
-
-        // act
-        const error = await testPlayExpectError(user1Id, gameId, action);
-
-        // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
-          'Validation errors: "Pickup tile or pass: must first undo set changes."'
-        );
-      });
-
       it("updates state appropriately if valid pickup (last valid update sets is undefined) ", async () => {
         // arrange
         const {
@@ -1003,7 +899,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -1061,7 +957,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -1104,7 +1000,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -1145,7 +1041,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -1168,7 +1064,9 @@ describe.only("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([{ [user1Id]: -10, [user2Id]: 10 }]);
+        expect(game.roundScores).to.eql([
+          { [user1Id]: { score: -10 }, [user2Id]: { score: 10 } },
+        ]);
       });
 
       it("updates state appropriately if pass (game complete)", async () => {
@@ -1192,7 +1090,7 @@ describe.only("RummikubGameService", () => {
         });
 
         // act
-        const game = await testPlayExpectSuccess(user1Id, gameId, action);
+        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).to.eql(user2Id);
@@ -1216,10 +1114,10 @@ describe.only("RummikubGameService", () => {
           },
         ]);
         expect(game.roundScores).to.eql([
-          { [user1Id]: -20, [user2Id]: 20 },
-          { [user1Id]: 5, [user2Id]: -5 },
-          { [user1Id]: -80, [user2Id]: 80 },
-          { [user1Id]: -10, [user2Id]: 10 },
+          { [user1Id]: { score: -20 }, [user2Id]: { score: 20 } },
+          { [user1Id]: { score: 5 }, [user2Id]: { score: -5 } },
+          { [user1Id]: { score: -80 }, [user2Id]: { score: 80 } },
+          { [user1Id]: { score: -10 }, [user2Id]: { score: 10 } },
         ]);
       });
     });

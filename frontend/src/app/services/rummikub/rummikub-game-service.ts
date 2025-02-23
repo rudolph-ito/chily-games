@@ -4,8 +4,7 @@ import { Observable } from "rxjs";
 import { IPaginatedResponse } from "../../shared/dtos/search";
 import {
   IGame,
-  IGameActionRequest,
-  IGameActionResponse,
+  IDoneWithTurnResponse,
   IGameOptions,
   ISearchedGame,
   ISearchGamesRequest,
@@ -51,13 +50,10 @@ export class RummikubGameService {
     );
   }
 
-  play(
-    gameId: number,
-    action: IGameActionRequest
-  ): Observable<IGameActionResponse> {
-    return this.http.put<IGameActionResponse>(
-      `${this.getRoutePrefix(gameId)}/play`,
-      action
+  doneWithTurn(gameId: number): Observable<IDoneWithTurnResponse> {
+    return this.http.put<IDoneWithTurnResponse>(
+      `${this.getRoutePrefix(gameId)}/done-with-turn`,
+      null
     );
   }
 

@@ -19,7 +19,7 @@ export function computeTotalScore(
   });
   roundScores.forEach((roundScore) => {
     for (const userId in roundScore) {
-      out[userId].score += roundScore[userId];
+      out[userId].score += roundScore[userId].score;
     }
   });
   return out;
