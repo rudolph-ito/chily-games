@@ -13,7 +13,7 @@ jobs:
     docker:
       - image: cimg/node:16.20.2-browsers
         <<: *DOCKER_BASE
-      - image: cimg/postgres:14.16
+      - image: cimg/postgres:17.4
         <<: *DOCKER_BASE
         environment:
           - POSTGRES_USER=chily-user
