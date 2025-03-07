@@ -111,7 +111,7 @@ export class RummikubGameShowComponent {
       .fromEvent<IUpdateSets>("update-sets")
       .subscribe((event: IUpdateSets) => {
         if (this.game?.actionToUserId !== this.user?.userId) {
-          this.table.updateStateWithUpdateSets(event, false);
+          this.table.updateStateWithUpdateSets(event);
         }
       });
     this.socket
@@ -321,7 +321,7 @@ export class RummikubGameShowComponent {
   revertToLastValidUpdateSets(): void {
     this.gameService.revertToLastValidUpdateSets(this.getGameId()).subscribe({
       next: (updateSets: IUpdateSets) => {
-        this.table.updateStateWithUpdateSets(updateSets, true);
+        this.table.updateStateWithUpdateSets(updateSets);
       },
       error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {

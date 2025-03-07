@@ -2,13 +2,18 @@ import { IUpdateSets } from "src/app/shared/dtos/rummikub/game";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
 import { areTilesEqual } from "./tiles_helpers";
 
-export interface IUpdateSetsWithinBoardChange {
+export interface IUpdateSetsWithinBoardOrHandChange {
   from: number;
   to: number;
 }
 
-export interface IUpdateSetsFromBoardToHandChange {
+export interface IUpdateSetsFromBoardToHandOtherPlayerChange {
   from: number;
+}
+
+export interface IUpdateSetsFromBoardToHandCurrentPlayerChange {
+  fromBoardIndex: number;
+  toHandIndex: number,
 }
 
 export interface IUpdateSetsFromHandToBoardChange {
@@ -17,9 +22,11 @@ export interface IUpdateSetsFromHandToBoardChange {
 }
 
 export interface IUpdateSetsChanges {
-  withinBoard: IUpdateSetsWithinBoardChange[];
-  fromBoardToHand: IUpdateSetsFromBoardToHandChange[];
+  withinBoard: IUpdateSetsWithinBoardOrHandChange[];
+  fromBoardToHandOtherPlayer: IUpdateSetsFromBoardToHandOtherPlayerChange[];
+  fromHandToBoardCurrentPlayer: IUpdateSetsFromBoardToHandCurrentPlayerChange[];
   fromHandToBoard: IUpdateSetsFromHandToBoardChange[];
+  withinHand: IUpdateSetsWithinBoardOrHandChange[];
 }
 
 interface ITileCountData {
@@ -91,7 +98,9 @@ export function computeUpdateSetsChanges(
   const result: IUpdateSetsChanges = {
     withinBoard: [],
     fromHandToBoard: [],
-    fromBoardToHand: [],
+    fromBoardToHandOtherPlayer: [],
+    fromHandToBoardCurrentPlayer: [],
+    withinHand: []
   };
   const beforeBoardTiles = before.sets.flatMap((x) => (x == null ? [null] : x));
   const afterBoardTiles = after.sets.flatMap((x) => (x == null ? [null] : x));
@@ -113,10 +122,30 @@ export function computeUpdateSetsChanges(
     if (
       beforeTile != null &&
       afterTile != null &&
-      !this.areTilesEqual(beforeTile, afterTile)
+      !areTilesEqual(beforeTile, afterTile)
     ) {
       boardIndexesWithNewTiles.push(i);
       boardIndexesWithMovedTiles.push(i);
+    }
+  }
+  const handIndexesWithNewTiles: number[] = [];
+  const handIndexesWithMovedTiles: number[] = [];
+  for (let i = 0; i < before.remainingTiles.length; i++) {
+    const beforeTile = before.remainingTiles[i];
+    const afterTile = after.remainingTiles[i];
+    if (beforeTile == null && afterTile != null) {
+      handIndexesWithNewTiles.push(i);
+    }
+    if (beforeTile != null && afterTile == null) {
+      handIndexesWithMovedTiles.push(i);
+    }
+    if (
+      beforeTile != null &&
+      afterTile != null &&
+      !areTilesEqual(beforeTile, afterTile)
+    ) {
+      handIndexesWithNewTiles.push(i);
+      handIndexesWithMovedTiles.push(i);
     }
   }
 
@@ -161,22 +190,78 @@ export function computeUpdateSetsChanges(
     }
   }
 
-  for (let i = 0; i < boardIndexesWithMovedTiles.length; i++) {
-    const movedTileIndex = boardIndexesWithMovedTiles[i];
-    const movedTile = beforeBoardTiles[movedTileIndex];
-    if (movedTile == null) {
+  if (before.remainingTiles.length == 0 && after.remainingTiles.length == 0) {
+    for (let i = 0; i < boardIndexesWithMovedTiles.length; i++) {
+      const movedTileIndex = boardIndexesWithMovedTiles[i];
+      const movedTile = beforeBoardTiles[movedTileIndex];
+      if (movedTile == null) {
+        throw Error("Unexpected null");
+      }
+
+      const removedItem = tilesAddedChanges.removed.find((x) =>
+        areTilesEqual(x.tile, movedTile)
+      );
+      if (removedItem != null && removedItem.count > 0) {
+        removedItem.count -= 1;
+        result.fromBoardToHandOtherPlayer.push({ from: movedTileIndex });
+      } else {
+        throw new Error("Unexpected move");
+      }
+    }
+  }
+
+  for (let i = 0; i < handIndexesWithNewTiles.length; i++) {
+    const newTileIndex = handIndexesWithNewTiles[i];
+    const newTile = after.remainingTiles[newTileIndex];
+    if (newTile == null) {
       throw Error("Unexpected null");
     }
+    let withinHand = false;
+    let fromBoard = false;
 
-    const removedItem = tilesAddedChanges.removed.find((x) =>
-      areTilesEqual(x.tile, movedTile)
-    );
-    if (removedItem != null && removedItem.count > 0) {
-      removedItem.count -= 1;
-      result.fromBoardToHand.push({ from: movedTileIndex });
-    } else {
+    const remainingHandIndexesWithMovedTiles =
+      handIndexesWithMovedTiles.slice();
+    for (let j = 0; j < remainingHandIndexesWithMovedTiles.length; j++) {
+      const movedTileIndex = remainingHandIndexesWithMovedTiles[j];
+      const movedTile = before.remainingTiles[movedTileIndex];
+      if (movedTile == null) {
+        throw Error("Unexpected null");
+      }
+      if (areTilesEqual(movedTile, newTile)) {
+        result.withinHand.push({ from: movedTileIndex, to: newTileIndex });
+        handIndexesWithMovedTiles.splice(j, 1);
+        withinHand = true;
+        break;
+      }
+    }
+
+    const remainingBoardIndexesWithMovedTiles =
+      boardIndexesWithMovedTiles.slice();
+    for (let j = 0; j < remainingBoardIndexesWithMovedTiles.length; j++) {
+      const movedTileIndex = remainingBoardIndexesWithMovedTiles[j];
+      const movedTile = beforeBoardTiles[movedTileIndex];
+      if (movedTile == null) {
+        throw Error("Unexpected null");
+      }
+
+      if (areTilesEqual(movedTile, newTile)) {
+        result.fromHandToBoardCurrentPlayer.push({ fromBoardIndex: movedTileIndex, toHandIndex: newTileIndex });
+        boardIndexesWithMovedTiles.splice(j, 1);
+        fromBoard = true;
+        break;
+      }
+    }
+
+    if (!withinHand && !fromBoard) {
       throw new Error("Unexpected move");
     }
+  }
+
+  if (boardIndexesWithMovedTiles.length > 1) {
+    throw new Error("Unaccounted for board index with moved tile");
+  }
+  if (handIndexesWithMovedTiles.length > 1) {
+    throw new Error("Unaccounted for hand index with moved tile");
   }
 
   return result;
