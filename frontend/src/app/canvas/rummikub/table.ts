@@ -16,6 +16,8 @@ import {
 import { ITile, TileColor } from "src/app/shared/dtos/rummikub/tile";
 import { Vector2d } from "konva/lib/types";
 import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
+import { areTilesEqual } from "./tiles_helpers";
+import { computeUpdateSetsChanges } from "./change_helpers";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -63,11 +65,15 @@ interface IDraggedTileNewIndex {
 }
 
 const TABLE_PADDING = 5;
-const BOARD_GRID_SIZE = 13;
-const BOARD_NUM_COLUMNS = 13;
-const BOARD_NUM_ROWS = 10;
-const CURRENT_USER_HAND_ROWS = BOARD_NUM_COLUMNS - BOARD_NUM_ROWS;
+const TOTAL_COLUMNS = 20;
+const TOTAL_ROWS = 10;
+const BOARD_NUM_ROWS = 8;
+const BOARD_NUM_TILES = BOARD_NUM_ROWS * TOTAL_COLUMNS;
+const CURRENT_USER_HAND_ROWS = TOTAL_ROWS - BOARD_NUM_ROWS;
 const CURRENT_USER_HAND_INITIAL_ROW = BOARD_NUM_ROWS;
+const CURRENT_USER_HAND_NUM_TILES = CURRENT_USER_HAND_ROWS * TOTAL_COLUMNS;
+const TOTAL_NUM_TILES = BOARD_NUM_TILES + CURRENT_USER_HAND_NUM_TILES;
+const TILE_HEIGHT_TO_WIDTH_RATIO = 5 / 7;
 
 const PLAYER_NAME_HEIGHT = 50;
 const PLAYER_NAME_WIDTH = 100;
@@ -86,7 +92,7 @@ export class RummikubTable {
   private readonly container: HTMLDivElement;
   private readonly stage: KonvaStage;
   private readonly layer: KonvaLayer;
-  private tileSize: number;
+  private tileSize: ISize;
   private gridOffset: Vector2d;
   private playerDisplays: Map<number, IPlayerDisplay>;
   private currentUserId: number | null;
@@ -96,7 +102,7 @@ export class RummikubTable {
   private setTileDisplays: (ITileDisplay | null)[] = [];
   private currentUserHandTileDisplays: (ITileDisplay | null)[] = [];
   private setGroups: (ISetDisplay | null)[] = [];
-  private currentUpdateSets: IUpdateSets | null;
+  private currentUpdateSets: IUpdateSets;
   private readonly onRearrangeTiles: (cards: (ITile | null)[]) => void;
   private readonly onUpdateSets: (updateSets: IUpdateSets) => void;
 
@@ -134,17 +140,20 @@ export class RummikubTable {
       let playerTiles = currentPlayerState.tiles;
       if (game.actionToUserId == currentUserId) {
         if (game.latestUpdateSets != null) {
-          this.currentUpdateSets = game.latestUpdateSets;
           playerTiles = game.latestUpdateSets.remainingTiles;
         } else if (game.lastValidUpdateSets != null) {
-          this.currentUpdateSets = game.lastValidUpdateSets;
           playerTiles = game.lastValidUpdateSets.remainingTiles;
         }
       }
       this.initializeCurrentPlayerHand(playerTiles);
     }
     this.initializeSets(
-      game.latestUpdateSets?.sets ?? game.lastValidUpdateSets?.sets ?? game.sets
+      game.latestUpdateSets ??
+        game.lastValidUpdateSets ?? {
+          sets: game.sets,
+          tilesAdded: [],
+          remainingTiles: [],
+        }
     );
     this.updateActionTo(game.actionToUserId);
     this.initializeTilePool();
@@ -155,7 +164,11 @@ export class RummikubTable {
   updateStateWithCurrentUserAction(
     actionResponse: IDoneWithTurnResponse
   ): void {
-    this.currentUpdateSets = null;
+    this.currentUpdateSets = {
+      sets: this.currentUpdateSets.sets,
+      tilesAdded: [],
+      remainingTiles: [],
+    };
     if (actionResponse.pickedUpTileEvent != null) {
       const { tile, playerTileIndex, tilePoolCount } =
         actionResponse.pickedUpTileEvent;
@@ -187,15 +200,55 @@ export class RummikubTable {
     this.updateActionTo(newActionToUserId);
   }
 
-  async updateStateWithUpdateSets(updateSets: IUpdateSets): Promise<void> {
-    // TODO compute changes and animate those
-    this.setTileDisplays.forEach((x) => {
-      if (x != null) {
-        x.group.destroy();
+  async updateStateWithUpdateSets(
+    updateSets: IUpdateSets,
+    isCurrentUserRevert: boolean
+  ): Promise<void> {
+    if (isCurrentUserRevert) {
+      this.currentUpdateSets = updateSets;
+      this.currentUserHandTileDisplays.forEach((x) => {
+        if (x != null) {
+          x.group.destroy();
+        }
+      });
+      this.initializeCurrentPlayerHand(updateSets.remainingTiles);
+    } else {
+      const changes = computeUpdateSetsChanges(
+        this.currentUpdateSets,
+        updateSets
+      );
+      const oldSetDisplays = this.setTileDisplays.slice();
+      const tweens: KonvaTween[] = [];
+      for (const change of changes.withinBoard) {
+        this.setTileDisplays[change.to] = oldSetDisplays[change.from];
+        tweens.push(
+          this.stageAnimationForMovingTileWithinBoard(change.from, change.to)
+        );
       }
-    });
-    this.initializeSets(updateSets.sets);
-    this.resize();
+      for (const change of changes.fromBoardToHand) {
+        this.setTileDisplays[change.from] = null;
+        tweens.push(
+          this.stageAnimationForMovingTileFromBoardToHand(change.from)
+        );
+      }
+      for (const change of changes.fromHandToBoard) {
+        const tileDisplay = this.createTileDisplay(change.tile);
+        this.setTileDisplays[change.to] = tileDisplay;
+        tweens.push(
+          this.stageAnimationForMovingTileFromHandToBoard(
+            tileDisplay,
+            change.to
+          )
+        );
+      }
+      for (const tween of tweens) {
+        tween.play();
+      }
+    }
+  }
+
+  hasUpdateSets(): boolean {
+    return this.currentUpdateSets != null;
   }
 
   resize(): void {
@@ -214,7 +267,11 @@ export class RummikubTable {
     //   );
     // }
 
-    for (let index = 0; index < BOARD_GRID_SIZE * BOARD_GRID_SIZE; index++) {
+    for (
+      let index = 0;
+      index < BOARD_NUM_TILES + CURRENT_USER_HAND_NUM_TILES;
+      index++
+    ) {
       this.updateBoardGridDropSitePosition(index);
     }
 
@@ -222,11 +279,7 @@ export class RummikubTable {
       this.updateSetTilePosition(index);
     }
 
-    for (
-      let index = 0;
-      index < BOARD_GRID_SIZE * CURRENT_USER_HAND_ROWS;
-      index++
-    ) {
+    for (let index = 0; index < CURRENT_USER_HAND_NUM_TILES; index++) {
       this.updateCurrentPlayerHandPosition(index);
     }
 
@@ -260,17 +313,25 @@ export class RummikubTable {
   }
 
   private computeTileSize(): void {
-    const min = Math.min(
-      this.container.offsetHeight - 2 * PLAYER_NAME_HEIGHT - 2 * TABLE_PADDING,
-      this.container.offsetWidth - 2 * PLAYER_NAME_WIDTH - 2 * TABLE_PADDING
-    );
-    this.tileSize = min / 13.5;
-
+    const tileAreaHeight =
+      this.container.offsetHeight - 2 * PLAYER_NAME_HEIGHT - 2 * TABLE_PADDING;
+    const tileAreaWidth = this.container.offsetWidth - 2 * TABLE_PADDING;
+    const maxHeight1 = tileAreaHeight / (TOTAL_ROWS + 1);
+    const maxHeight2 =
+      tileAreaWidth / TOTAL_COLUMNS / TILE_HEIGHT_TO_WIDTH_RATIO;
+    const maxHeight = Math.min(maxHeight1, maxHeight2);
+    this.tileSize = {
+      height: maxHeight,
+      width: maxHeight * TILE_HEIGHT_TO_WIDTH_RATIO,
+    };
     this.gridOffset = {
       x:
-        (this.container.offsetWidth - this.tileSize * 13.5) / 2 + TABLE_PADDING,
+        (this.container.offsetWidth - this.tileSize.width * TOTAL_COLUMNS) / 2 +
+        TABLE_PADDING,
       y:
-        (this.container.offsetHeight - this.tileSize * 13.5) / 2 +
+        (this.container.offsetHeight -
+          this.tileSize.height * (TOTAL_ROWS + 1)) /
+          2 +
         TABLE_PADDING,
     };
   }
@@ -298,8 +359,9 @@ export class RummikubTable {
     const value = new KonvaText({
       align: "center",
       verticalAlign: "middle",
-      fontSize: (this.tileSize * 3) / 4,
+      fontSize: (this.tileSize.width * 3) / 4,
       fontStyle: "bold",
+      lineHeight: 2,
       fill: TILE_COLOR_TO_DISPLAY[color],
       text: this.getTileText(tile),
     });
@@ -317,8 +379,7 @@ export class RummikubTable {
 
   private initializeBoardGridDropSites(): void {
     this.boardGridDropSites = [];
-    const cellCount = BOARD_GRID_SIZE * BOARD_GRID_SIZE;
-    for (let i = 0; i < cellCount; i++) {
+    for (let i = 0; i < TOTAL_NUM_TILES; i++) {
       this.boardGridDropSites.push(this.createBoardCellDropSite());
     }
   }
@@ -438,7 +499,7 @@ export class RummikubTable {
 
   private initializeCurrentPlayerHand(playerTiles: IPlayerTiles): void {
     this.currentUserHandTileDisplays = [];
-    for (let i = 0; i < BOARD_GRID_SIZE * CURRENT_USER_HAND_ROWS; i++) {
+    for (let i = 0; i < CURRENT_USER_HAND_NUM_TILES; i++) {
       const nullableTile = i < playerTiles.length ? playerTiles[i] : null;
       this.currentUserHandTileDisplays.push(
         this.createNullableTileDisplay(nullableTile)
@@ -446,19 +507,18 @@ export class RummikubTable {
     }
   }
 
-  private initializeSets(sets: ISets): void {
-    this.setTileDisplays = sets.flatMap((x) =>
+  private initializeSets(updateSets: IUpdateSets): void {
+    this.currentUpdateSets = updateSets;
+    this.setTileDisplays = updateSets.sets.flatMap((x) =>
       x == null ? [null] : x.map((y) => this.createTileDisplay(y))
     );
-    while (this.setTileDisplays.length < BOARD_NUM_COLUMNS * BOARD_NUM_ROWS) {
+    while (this.setTileDisplays.length < BOARD_NUM_TILES) {
       this.setTileDisplays.push(null);
     }
   }
 
   private getCurrentPlayerHandPosition(currentHandTileIndex: number): Vector2d {
-    return this.getBoardPosition(
-      currentHandTileIndex + BOARD_GRID_SIZE * CURRENT_USER_HAND_INITIAL_ROW
-    );
+    return this.getBoardPosition(currentHandTileIndex + BOARD_NUM_TILES);
   }
 
   private updateCurrentPlayerHandPosition(tileIndex: number): void {
@@ -466,12 +526,12 @@ export class RummikubTable {
     const tileDisplay = this.currentUserHandTileDisplays[tileIndex];
     if (tileDisplay) {
       tileDisplay.value.setSize({
-        width: this.tileSize * 0.9,
-        height: this.tileSize * 0.9,
+        width: this.tileSize.width * 0.9,
+        height: this.tileSize.height * 0.9,
       });
       tileDisplay.border.setSize({
-        width: this.tileSize * 0.9,
-        height: this.tileSize * 0.9,
+        width: this.tileSize.width * 0.9,
+        height: this.tileSize.height * 0.9,
       });
       tileDisplay.group.setPosition({ x, y });
     }
@@ -485,12 +545,12 @@ export class RummikubTable {
       throw Error("Tile display unexpected null");
     }
     tileDisplay.value.setSize({
-      width: this.tileSize * 0.9,
-      height: this.tileSize * 0.9,
+      width: this.tileSize.width * 0.9,
+      height: this.tileSize.height * 0.9,
     });
     tileDisplay.border.setSize({
-      width: this.tileSize * 0.9,
-      height: this.tileSize * 0.9,
+      width: this.tileSize.width * 0.9,
+      height: this.tileSize.height * 0.9,
     });
     tileDisplay.group.setPosition(this.getTilePoolPosition());
     const handPosition = this.getCurrentPlayerHandPosition(tileIndex);
@@ -521,8 +581,8 @@ export class RummikubTable {
       fill: "white",
       stroke: "black",
       strokeWidth: TILE_DEFAULT_STROKE,
-      width: this.tileSize,
-      height: this.tileSize,
+      width: this.tileSize.width * 0.9,
+      height: this.tileSize.height * 0.9,
     });
     this.layer.add(tileBorder);
     tileBorder.setPosition(this.getTilePoolPosition());
@@ -540,16 +600,105 @@ export class RummikubTable {
     tween.play();
   }
 
+  private stageAnimationForMovingTileWithinBoard(
+    oldIndex: number,
+    newIndex: number
+  ): KonvaTween {
+    const tileDisplay = this.setTileDisplays[oldIndex];
+    if (tileDisplay == null) {
+      throw Error(
+        "stageAnimationForMovingTileWithinBoard: old tile unexpectedly not found"
+      );
+    }
+    const positionData = this.getBoardPosition(newIndex);
+    return new KonvaTween({
+      node: tileDisplay.group,
+      duration: 2,
+      easing: KonvaEasings.EaseInOut,
+      x: positionData.x,
+      y: positionData.y,
+    });
+  }
+
+  private stageAnimationForMovingTileFromHandToBoard(
+    tileDisplay: ITileDisplay,
+    index: number
+  ): KonvaTween {
+    const playerDisplay = Array.from(this.playerDisplays.values()).find(
+      (x) => x.userId == this.actionToUserId
+    );
+    if (playerDisplay == null) {
+      throw Error(
+        "stageAnimationForMovingTileFromHandToBoard: player unexpectedly not found"
+      );
+    }
+    const playerPositionData = this.getPlayerNamePositionData(
+      playerDisplay,
+      this.playerDisplays.size
+    );
+    tileDisplay.value.setSize({
+      width: this.tileSize.width * 0.9,
+      height: this.tileSize.height * 0.9,
+    });
+    tileDisplay.border.setSize({
+      width: this.tileSize.width * 0.9,
+      height: this.tileSize.height * 0.9,
+    });
+    tileDisplay.group.setPosition(playerPositionData.textPosition);
+    const boardPositionData = this.getBoardPosition(index);
+    return new KonvaTween({
+      node: tileDisplay.group,
+      duration: 2,
+      easing: KonvaEasings.EaseInOut,
+      x: boardPositionData.x,
+      y: boardPositionData.y,
+    });
+  }
+
+  private stageAnimationForMovingTileFromBoardToHand(
+    index: number
+  ): KonvaTween {
+    const tileDisplay = this.setTileDisplays[index];
+    if (tileDisplay == null) {
+      throw Error(
+        "stageAnimationForMovingTileFromBoardToHand: tile unexpectedly not found"
+      );
+    }
+    const playerDisplay = Array.from(this.playerDisplays.values()).find(
+      (x) => x.userId == this.actionToUserId
+    );
+    if (playerDisplay == null) {
+      throw Error(
+        "stageAnimationForMovingTileFromBoardToHand: player unexpectedly not found"
+      );
+    }
+    const playerPositionData = this.getPlayerNamePositionData(
+      playerDisplay,
+      this.playerDisplays.size
+    );
+    return new KonvaTween({
+      node: tileDisplay.group,
+      duration: 2,
+      easing: KonvaEasings.EaseInOut,
+      onFinish: () => {
+        tileDisplay.group.destroy();
+        this.layer.draw();
+      },
+      x: playerPositionData.textPosition.x,
+      y: playerPositionData.textPosition.y,
+    });
+  }
+
   private getDividerHeight() {
-    return this.tileSize * 0.5;
+    return this.tileSize.height;
   }
 
   private getBoardPosition(index: number): Vector2d {
-    const columnOffset = index % BOARD_GRID_SIZE;
-    const x = columnOffset * this.tileSize + this.gridOffset.x;
-    const rowOffset = Math.floor(index / BOARD_GRID_SIZE);
-    let y = rowOffset * this.tileSize + this.gridOffset.y;
-    if (rowOffset >= BOARD_GRID_SIZE - CURRENT_USER_HAND_ROWS) {
+    const columnOffset = index % TOTAL_COLUMNS;
+    const x = columnOffset * this.tileSize.width + this.gridOffset.x;
+    const rowOffset = Math.floor(index / TOTAL_COLUMNS);
+    let y = rowOffset * this.tileSize.height + this.gridOffset.y;
+    if (rowOffset >= BOARD_NUM_ROWS) {
       y += this.getDividerHeight();
     }
     return { x, y };
@@ -560,8 +709,8 @@ export class RummikubTable {
     const display = this.boardGridDropSites[index];
     if (display) {
       display.border.setSize({
-        width: this.tileSize * 0.9,
-        height: this.tileSize * 0.9,
+        width: this.tileSize.width * 0.9,
+        height: this.tileSize.height * 0.9,
       });
       display.border.setPosition({ x, y });
     }
@@ -572,12 +721,12 @@ export class RummikubTable {
     const tileDisplay = this.setTileDisplays[index];
     if (tileDisplay) {
       tileDisplay.value.setSize({
-        width: this.tileSize * 0.9,
-        height: this.tileSize * 0.9,
+        width: this.tileSize.width * 0.9,
+        height: this.tileSize.height * 0.9,
       });
       tileDisplay.border.setSize({
-        width: this.tileSize * 0.9,
-        height: this.tileSize * 0.9,
+        width: this.tileSize.width * 0.9,
+        height: this.tileSize.height * 0.9,
       });
       tileDisplay.group.setPosition({ x, y });
     }
@@ -687,7 +836,7 @@ export class RummikubTable {
       this.currentUserHandTileDisplays[oldIndex] = null;
     } else {
       let nextFreeIndex: number | null = null;
-      for (let index = newIndex + 1; index % BOARD_GRID_SIZE != 0; index++) {
+      for (let index = newIndex + 1; index % TOTAL_COLUMNS != 0; index++) {
         if (
           index == oldIndex ||
           this.currentUserHandTileDisplays[index] == null
@@ -737,11 +886,7 @@ export class RummikubTable {
       this.currentUserHandTileDisplays[oldIndex] = null;
     } else {
       let nextFreeIndex: number | null = null;
-      for (
-        let index = newIndex + 1;
-        (index + 1) % BOARD_GRID_SIZE != 0;
-        index++
-      ) {
+      for (let index = newIndex + 1; index % TOTAL_COLUMNS != 0; index++) {
         if (this.setTileDisplays[index] == null) {
           nextFreeIndex = index;
           break;
@@ -770,11 +915,7 @@ export class RummikubTable {
       this.setTileDisplays[oldIndex] = null;
     } else {
       let nextFreeIndex: number | null = null;
-      for (
-        let index = newIndex + 1;
-        (index + 1) % BOARD_GRID_SIZE != 0;
-        index++
-      ) {
+      for (let index = newIndex + 1; index % TOTAL_COLUMNS != 0; index++) {
         if (index == oldIndex || this.setTileDisplays[index] == null) {
           nextFreeIndex = index;
           break;
@@ -807,7 +948,7 @@ export class RummikubTable {
       return false;
     }
     const removeTileIndex = this.currentUpdateSets.tilesAdded.findIndex((x) =>
-      this.areTilesEqual(x, tileDisplay.tile)
+      areTilesEqual(x, tileDisplay.tile)
     );
     if (removeTileIndex == -1) {
       return false;
@@ -817,11 +958,7 @@ export class RummikubTable {
       this.setTileDisplays[oldIndex] = null;
     } else {
       let nextFreeIndex: number | null = null;
-      for (
-        let index = newIndex + 1;
-        index < BOARD_GRID_SIZE * CURRENT_USER_HAND_ROWS;
-        index++
-      ) {
+      for (let index = newIndex + 1; index % TOTAL_COLUMNS != 0; index++) {
         if (
           index == oldIndex ||
           this.currentUserHandTileDisplays[index] == null
@@ -881,7 +1018,7 @@ export class RummikubTable {
       } else {
         currentSet.push(setTileDisplay.tile);
       }
-      if ((i + 1) % BOARD_GRID_SIZE == 0 && currentSet.length > 0) {
+      if (i % TOTAL_COLUMNS == 0 && currentSet.length > 0) {
         sets.push(currentSet);
         currentSet = [];
       }
@@ -916,28 +1053,24 @@ export class RummikubTable {
   ): IDraggedTileNewIndex {
     const newX = tileDisplay.group.x();
     const newY = tileDisplay.group.y();
-    for (let index = 0; index < BOARD_GRID_SIZE * BOARD_NUM_ROWS; index++) {
+    for (let index = 0; index < BOARD_NUM_TILES; index++) {
       const { x, y } = this.getBoardPosition(index);
       if (
-        newX > x - this.tileSize * 0.25 &&
-        newX < x + this.tileSize * 0.75 &&
-        newY > y - this.tileSize * 0.25 &&
-        newY < y + this.tileSize * 0.75
+        newX > x - this.tileSize.width * 0.2 &&
+        newX < x + this.tileSize.width * 0.8 &&
+        newY > y - this.tileSize.height * 0.2 &&
+        newY < y + this.tileSize.height * 0.8
       ) {
         return { boardIndex: index };
       }
     }
-    for (
-      let index = 0;
-      index < BOARD_GRID_SIZE * CURRENT_USER_HAND_ROWS;
-      index++
-    ) {
+    for (let index = 0; index < CURRENT_USER_HAND_INITIAL_ROW; index++) {
       const { x, y } = this.getCurrentPlayerHandPosition(index);
       if (
-        newX > x - this.tileSize * 0.25 &&
-        newX < x + this.tileSize * 0.75 &&
-        newY > y - this.tileSize * 0.25 &&
-        newY < y + this.tileSize * 0.75
+        newX > x - this.tileSize.width * 0.2 &&
+        newX < x + this.tileSize.width * 0.8 &&
+        newY > y - this.tileSize.height * 0.2 &&
+        newY < y + this.tileSize.height * 0.8
       ) {
         return { currentHandIndex: index };
       }
@@ -948,15 +1081,6 @@ export class RummikubTable {
   private getCurrentPlayerTiles(): IPlayerTiles {
     return this.currentUserHandTileDisplays.map((x) =>
       x == null ? null : x.tile
-    );
-  }
-
-  private areTilesEqual(a: ITile, b: ITile) {
-    return (
-      a.rank == b.rank &&
-      a.color == b.color &&
-      a.isJoker == b.isJoker &&
-      a.jokerNumber == b.jokerNumber
     );
   }
 }

@@ -57,6 +57,10 @@ export interface IRummikubGameService {
     gameId: number,
     updateSets: IUpdateSets
   ) => Promise<IUpdateSets>;
+  revertToLastValidUpdateSets: (
+    userId: number,
+    gameId: number
+  ) => Promise<IUpdateSets>;
   rearrangeTiles: (
     userId: number,
     gameId: number,
@@ -241,6 +245,32 @@ export class RummikubGameService implements IRummikubGameService {
       tilesAdded: updateSets.tilesAdded,
       remainingTiles: [],
     };
+  }
+
+  async revertToLastValidUpdateSets(
+    userId: number,
+    gameId: number
+  ): Promise<IUpdateSets> {
+    const game = await this.gameDataService.get(gameId);
+    if (game.actionToUserId !== userId) {
+      throw new ValidationError("Action is not to you.");
+    }
+    await this.gameDataService.update(gameId, game.version, {
+      latestUpdateSets: null,
+    });
+    if (game.lastValidUpdateSets == null) {
+      const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+        game.players,
+        userId
+      );
+      const playerState = orderedPlayers[0];
+      return {
+        sets: game.sets,
+        tilesAdded: [],
+        remainingTiles: playerState.tiles,
+      };
+    }
+    return game.lastValidUpdateSets;
   }
 
   async rearrangeTiles(

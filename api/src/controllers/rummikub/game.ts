@@ -8,6 +8,7 @@ import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
+  IUpdateSets,
 } from "src/shared/dtos/rummikub/game";
 import { SimpleRedisClient } from "src/redis";
 
@@ -111,6 +112,26 @@ export function getGameRouter(
         .saveLatestUpdateSets((req.user as IUser).userId, gameId, req.body)
         .then((shareableUpdateSets) => {
           res.status(200).end();
+          new SocketIoRedisEmitter(publishRedisClient)
+            .to(`rummikub-game-${gameId}`)
+            .emit("update-sets", shareableUpdateSets);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
+    "/:gameId/revert-to-last-valid-update-sets",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .revertToLastValidUpdateSets((req.user as IUser).userId, gameId)
+        .then((lastValidUpdateSets) => {
+          res.status(200).send(lastValidUpdateSets);
+          const shareableUpdateSets: IUpdateSets = {
+            ...lastValidUpdateSets,
+            remainingTiles: [],
+          };
           new SocketIoRedisEmitter(publishRedisClient)
             .to(`rummikub-game-${gameId}`)
             .emit("update-sets", shareableUpdateSets);

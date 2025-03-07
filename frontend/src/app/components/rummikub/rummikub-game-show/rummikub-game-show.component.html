@@ -88,9 +88,17 @@
         mat-flat-button
         color="primary"
         (click)="doneWithTurn()"
-        matTooltip="Draw tile or submit sets change"
       >
         Done with turn
+      </button>
+      <button
+        *ngIf="canRevertToLastValidUpdateSets()"
+        mat-button
+        mat-flat-button
+        color="primary"
+        (click)="revertToLastValidUpdateSets()"
+      >
+        Revert to last valid
       </button>
     </div>
     <div class="actions-overlay bottom-right">

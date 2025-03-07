@@ -111,7 +111,7 @@ export class RummikubGameShowComponent {
       .fromEvent<IUpdateSets>("update-sets")
       .subscribe((event: IUpdateSets) => {
         if (this.game?.actionToUserId !== this.user?.userId) {
-          this.table.updateStateWithUpdateSets(event);
+          this.table.updateStateWithUpdateSets(event, false);
         }
       });
     this.socket
@@ -225,7 +225,16 @@ export class RummikubGameShowComponent {
     return (
       this.game !== null &&
       this.game.state == GameState.ROUND_ACTIVE &&
-      this.game.playerStates.find((x) => x.userId == this.user?.userId) != null
+      this.game?.actionToUserId === this.user?.userId
+    );
+  }
+
+  canRevertToLastValidUpdateSets(): boolean {
+    return (
+      this.game !== null &&
+      this.game.state == GameState.ROUND_ACTIVE &&
+      this.game?.actionToUserId === this.user?.userId &&
+      this.table.hasUpdateSets()
     );
   }
 
@@ -308,6 +317,21 @@ export class RummikubGameShowComponent {
       },
     });
   };
+
+  revertToLastValidUpdateSets(): void {
+    this.gameService.revertToLastValidUpdateSets(this.getGameId()).subscribe({
+      next: (updateSets: IUpdateSets) => {
+        this.table.updateStateWithUpdateSets(updateSets, true);
+      },
+      error: (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      },
+    });
+  }
 
   onResize(): void {
     if (this.table !== null) {
