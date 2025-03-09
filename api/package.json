@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "create-databases": "sequelize db:create",
+    "create-database": "sequelize db:create",
+    "create-database-if-needed-and-migrate": "(sequelize db:create || true) && sequelize db:migrate",
     "start-dev": "node -r ts-node/register src/main.ts",
     "start-dev:watch": "nodemon",
     "start-prod": "node dist/main.js",

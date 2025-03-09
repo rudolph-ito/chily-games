@@ -36,5 +36,6 @@ RUN mkdir -p /web
 WORKDIR /web
 COPY api/.sequelizerc.production .sequelizerc
 COPY --from=build-api /api/node_modules ./node_modules
+COPY --from=build-api /api/package.json ./package.json
 COPY --from=build-api /api/dist ./dist
 COPY --from=build-frontend /frontend/dist/frontend ./dist/frontend/

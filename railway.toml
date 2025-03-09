@@ -2,4 +2,5 @@
 builder = "dockerfile"
 
 [deploy]
+preDeployCommend = ["yarn run create-database-if-needed-and-migrate"]
 startCommand = "node dist/main.js"
