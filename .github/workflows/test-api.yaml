@@ -48,7 +48,7 @@ jobs:
       - name: Build API
         run: cd api && yarn build
       - name: Test API
-        run: cd api && yarn create-databases && yarn test
+        run: cd api && yarn create-database && yarn test
         env:
           NODE_ENV: ci
           DATABASE_URL: 'postgres://chily-user:test@postgres:5432/chily_test'
