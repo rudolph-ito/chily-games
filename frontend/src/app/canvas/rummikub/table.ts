@@ -550,6 +550,7 @@ export class RummikubTable {
     const { x, y } = this.getCurrentPlayerHandPosition(tileIndex);
     const tileDisplay = this.currentUserHandTileDisplays[tileIndex];
     if (tileDisplay) {
+      tileDisplay.value.fontSize(this.tileSize.width * 3 / 4)
       tileDisplay.value.setSize({
         width: this.tileSize.width * 0.9,
         height: this.tileSize.height * 0.9,
@@ -803,6 +804,7 @@ export class RummikubTable {
     const { x, y } = this.getBoardPosition(index);
     const tileDisplay = this.setTileDisplays[index];
     if (tileDisplay) {
+      tileDisplay.value.fontSize(this.tileSize.width * 3 / 4)
       tileDisplay.value.setSize({
         width: this.tileSize.width * 0.9,
         height: this.tileSize.height * 0.9,

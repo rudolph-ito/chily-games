@@ -11,13 +11,14 @@
     <mat-menu #rootMenu="matMenu">
       <button mat-menu-item routerLink="/yaniv/games">Yaniv</button>
       <button mat-menu-item routerLink="/oh-heck/games">Oh Heck</button>
-      <button mat-menu-item [matMenuTriggerFor]="cyvasseMenu">Cyvasse</button>
+      <button mat-menu-item routerLink="/rummikub/games">Rummikub</button>
+      <!-- <button mat-menu-item [matMenuTriggerFor]="cyvasseMenu">Cyvasse</button> -->
     </mat-menu>
-    <mat-menu #cyvasseMenu="matMenu">
+    <!-- <mat-menu #cyvasseMenu="matMenu">
       <a mat-menu-item routerLink="/cyvasse/variants">Variants</a>
       <a mat-menu-item routerLink="/cyvasse/challenges">Challenges</a>
       <a mat-menu-item routerLink="/cyvasse/games">Games</a>
-    </mat-menu>
+    </mat-menu> -->
   </div>
 
   <div class="right">
