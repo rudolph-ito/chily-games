@@ -17,7 +17,7 @@ copy-shared: # Copy shared files to api / frontend directories
 create-databases: # Create development / test databases and migrate the development database
 	docker-compose up -d postgres
 	sleep 2
-	cd api && yarn create-database-if-needed-and-migrate
+	cd api && yarn create-database && yarn sequelize db:migrate
 	cd api && NODE_ENV=test yarn create-database
 
 .PHONY: reset-database
