@@ -182,7 +182,7 @@ export class OhHeckTable {
       this.container.offsetWidth
     );
     this.cardHeight = min / 6;
-    this.cardWidth = (this.cardHeight * 2.5) / 3.5;
+    this.cardWidth = (this.cardHeight * 5) / 7;
   }
 
   async initializeState(game: IGame, currentUserId?: number): Promise<void> {

@@ -14,8 +14,6 @@
 .players-overlay,
 .actions-overlay {
   position: absolute;
-  padding: 10px;
-  width: 100%;
   box-sizing: border-box;
 
   .players,
@@ -28,19 +26,13 @@
     margin-bottom: 10px;
   }
 
-  .top-left {
-    position: absolute;
-  }
-
-  .top-right {
-    position: absolute;
+  &.top-right {
     right: 10px;
   }
 
-  .bottom-right {
-    position: absolute;
-    bottom: calc(-100vh + 64px + 25px);
-    right: 10px;
+  &.bottom-right {
+    bottom: 0;
+    right: 0;
   }
 }
 
