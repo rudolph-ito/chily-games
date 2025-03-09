@@ -457,15 +457,16 @@ export class RummikubGameService implements IRummikubGameService {
       if (pickedUpTile == null) {
         throw new Error("Pickup tile: unexpected empty tile pool");
       }
-      const firstEmptyIndex = playerState.tiles.findIndex((x) => x == null);
+      let firstEmptyIndex = playerState.tiles.findIndex((x) => x == null);
       if (firstEmptyIndex == -1) {
+        firstEmptyIndex = playerState.tiles.length - 1;
         playerState.tiles.push(pickedUpTile);
       } else {
         playerState.tiles[firstEmptyIndex] = pickedUpTile;
       }
       pickedUpTileEvent = {
         tile: pickedUpTile,
-        playerTileIndex: firstEmptyIndex ?? playerState.tiles.length - 1,
+        playerTileIndex: firstEmptyIndex,
         tilePoolCount: game.tilePool.length,
       };
       lastAction.tilePoolCount = game.tilePool.length;

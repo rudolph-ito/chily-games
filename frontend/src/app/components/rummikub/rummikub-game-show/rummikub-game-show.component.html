@@ -41,65 +41,70 @@
   </div>
   <ng-container *ngIf="!loading && !isWaitingForPlayers()">
     <div class="actions-overlay top-left">
-      <button mat-button mat-stroked-button (click)="viewScores()">
-        View Scores
-      </button>
-      <button
-        *ngIf="canStartRound()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="startRound()"
-      >
-        Start Round
-      </button>
-      <button
-        *ngIf="canStartNewGame()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="startNewGame()"
-      >
-        Start new game
-      </button>
-      <button
-        *ngIf="canJoinNewGame()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="joinNewGame()"
-      >
-        Join new game
-      </button>
-    </div>
-    <div class="actions-overlay top-right">
-      <button
-        *ngIf="canAbortGame()"
-        mat-button
-        mat-flat-button
-        color="warn"
-        (click)="confirmAbortGame()"
-      >
-        Abort game
-      </button>
-      <button
-        *ngIf="canBeDoneWithTurn()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="doneWithTurn()"
-      >
-        Done with turn
-      </button>
-      <button
-        *ngIf="canRevertToLastValidUpdateSets()"
-        mat-button
-        mat-flat-button
-        color="primary"
-        (click)="revertToLastValidUpdateSets()"
-      >
-        Revert to last valid
-      </button>
+      <ng-container *ngIf="isRoundFinished()">
+        <button mat-button mat-stroked-button (click)="viewScores()">
+          View Scores
+        </button>
+        <button
+          *ngIf="canStartRound()"
+          mat-button
+          mat-flat-button
+          color="primary"
+          (click)="startRound()"
+        >
+          Start Round
+        </button>
+        <button
+          *ngIf="canStartNewGame()"
+          mat-button
+          mat-flat-button
+          color="primary"
+          (click)="startNewGame()"
+        >
+          Start new game
+        </button>
+        <button
+          *ngIf="canJoinNewGame()"
+          mat-button
+          mat-flat-button
+          color="primary"
+          (click)="joinNewGame()"
+        >
+          Join new game
+        </button>
+      </ng-container>
+      <ng-container *ngIf="isRoundActive()">
+        <button mat-icon-button matTooltip="View Scores" (click)="viewScores()">
+          <mat-icon>scoreboard</mat-icon>
+        </button>
+        <button
+          *ngIf="canAbortGame()"
+          mat-icon-button
+          color="warn"
+          matTooltip="Abort game"
+          (click)="confirmAbortGame()"
+        >
+          <mat-icon>cancel</mat-icon>
+        </button>
+        <button
+          *ngIf="canBeDoneWithTurn()"
+          mat-icon-button
+          color="primary"
+          matTooltip="Done with turn"
+          (click)="doneWithTurn()"
+        >
+          <mat-icon>check_circle</mat-icon>
+        </button>
+        <button
+          *ngIf="canRevertToLastValidUpdateSets()"
+          mat-icon-button
+          color="primary"
+          matTooltip="Revent to last valid"
+          (click)="revertToLastValidUpdateSets()"
+        >
+          <mat-icon>undo</mat-icon>
+        </button>
+      </ng-container>
     </div>
     <div class="actions-overlay bottom-right">
       <app-chat [chatId]="getChatId()" [user]="user"></app-chat>

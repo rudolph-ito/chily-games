@@ -208,6 +208,18 @@ export class RummikubGameShowComponent {
     return this.game != null && this.game.state === GameState.PLAYERS_JOINING;
   }
 
+  isRoundActive(): boolean {
+    return this.game != null && this.game.state == GameState.ROUND_ACTIVE;
+  }
+
+  isRoundFinished(): boolean {
+    return (
+      this.game != null &&
+      (this.game.state == GameState.ROUND_COMPLETE ||
+        this.game.state == GameState.COMPLETE)
+    );
+  }
+
   isGameAborted(): boolean {
     return this.game != null && this.game.state === GameState.ABORTED;
   }

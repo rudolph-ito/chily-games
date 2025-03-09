@@ -65,6 +65,7 @@ interface IDraggedTileNewIndex {
 }
 
 const TABLE_PADDING = 5;
+const ACTION_PADDING = 30;
 const TOTAL_ROWS = 10;
 const BOARD_NUM_ROWS = 8;
 const BOARD_NUM_TILES = BOARD_NUM_ROWS * TOTAL_COLUMNS;
@@ -330,7 +331,7 @@ export class RummikubTable {
 
   private getTilePoolPosition(): Vector2d {
     return {
-      x: TABLE_PADDING,
+      x: TABLE_PADDING + ACTION_PADDING,
       y: this.stage.height() - PLAYER_NAME_HEIGHT - TABLE_PADDING,
     };
   }
@@ -339,7 +340,7 @@ export class RummikubTable {
     const tileAreaHeight =
       this.container.offsetHeight - 2 * PLAYER_NAME_HEIGHT - 2 * TABLE_PADDING;
     const tileAreaWidth =
-      this.container.offsetWidth - 2 * PLAYER_NAME_WIDTH - 2 * TABLE_PADDING;
+      this.container.offsetWidth - 2 * TABLE_PADDING - ACTION_PADDING;
     const maxHeight1 = tileAreaHeight / (TOTAL_ROWS + 1);
     const maxHeight2 =
       tileAreaWidth / TOTAL_COLUMNS / TILE_HEIGHT_TO_WIDTH_RATIO;
@@ -351,7 +352,8 @@ export class RummikubTable {
     this.gridOffset = {
       x:
         (this.container.offsetWidth - this.tileSize.width * TOTAL_COLUMNS) / 2 +
-        TABLE_PADDING,
+        TABLE_PADDING +
+        ACTION_PADDING,
       y:
         (this.container.offsetHeight -
           this.tileSize.height * (TOTAL_ROWS + 1)) /
@@ -495,23 +497,12 @@ export class RummikubTable {
         x: this.stage.width() / 2 - PLAYER_NAME_WIDTH / 2 + TABLE_PADDING,
         y: this.stage.height() - PLAYER_NAME_HEIGHT - TABLE_PADDING,
       };
-    } else if (
-      (player.positionIndex == 1 && playerCount == 2) ||
-      (player.positionIndex == 2 && playerCount == 4)
-    ) {
-      position = {
-        x: this.stage.width() / 2 - PLAYER_NAME_WIDTH / 2 + TABLE_PADDING,
-        y: TABLE_PADDING,
-      };
-    } else if (player.positionIndex == 1) {
-      position = {
-        x: TABLE_PADDING,
-        y: this.stage.height() / 2 + TABLE_PADDING,
-      };
     } else {
+      const fraction = player.positionIndex / playerCount;
       position = {
-        x: this.stage.width() - PLAYER_NAME_WIDTH - TABLE_PADDING,
-        y: this.stage.height() / 2 + TABLE_PADDING,
+        x:
+          this.stage.width() * fraction - PLAYER_NAME_WIDTH / 2 + TABLE_PADDING,
+        y: TABLE_PADDING,
       };
     }
     return {
