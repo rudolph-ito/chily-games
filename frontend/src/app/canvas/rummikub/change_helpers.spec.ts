@@ -17,103 +17,193 @@ const red3: ITile = { color: TileColor.RED, rank: 3 };
 
 const examples: Example[] = [
   {
-    description: "empty no changes",
+    description: "no changes",
     input: {
-      setsA: { sets: [], tilesAdded: [], remainingTiles: [] },
-      setsB: { sets: [], tilesAdded: [], remainingTiles: [] },
+      setsA: { sets: [red1, null], tilesAdded: [], remainingTiles: [] },
+      setsB: { sets: [red1, null], tilesAdded: [], remainingTiles: [] },
     },
     output: {
-      withinBoard: [],
-      fromBoardToHandOtherPlayer: [],
-      fromHandToBoardCurrentPlayer: [],
-      fromHandToBoard: [],
-      withinHand: []
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [],
+      currentPlayerHandIndexesToClear: [],
     },
   },
   {
-    description: "from hand to board",
+    description: "sets to current player hand",
     input: {
-      setsA: { sets: [null, null], tilesAdded: [], remainingTiles: [] },
-      setsB: { sets: [null, [red1]], tilesAdded: [red1], remainingTiles: [] },
+      setsA: {
+        sets: [red1, null],
+        tilesAdded: [red1],
+        remainingTiles: [null, null],
+      },
+      setsB: {
+        sets: [null, null],
+        tilesAdded: [],
+        remainingTiles: [null, red1],
+      },
     },
     output: {
-      withinBoard: [],
-      fromBoardToHandOtherPlayer: [],
-      fromHandToBoardCurrentPlayer: [],
-      fromHandToBoard: [{ tile: red1, to: 1 }],
-      withinHand: []
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [{ from: 0, to: 1 }],
+      setsToOtherPlayerHand: [],
+      withinSets: [],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [0],
+      currentPlayerHandIndexesToClear: [],
     },
   },
   {
-    description: "from hand to board (2nd tile)",
+    description: "sets to other player hand",
     input: {
-      setsA: { sets: [null, [red1], null, null], tilesAdded: [red1], remainingTiles: [] },
-      setsB: { sets: [null, [red1], null, [red2]], tilesAdded: [red1, red2], remainingTiles: [] },
-    },
-    output: {
-      withinBoard: [],
-      fromBoardToHandOtherPlayer: [],
-      fromHandToBoardCurrentPlayer: [],
-      fromHandToBoard: [{ tile: red2, to: 3 }],
-      withinHand: [],
-    },
-  },
-  {
-    description: "within board",
-    input: {
-      setsA: { sets: [[red1], null], tilesAdded: [], remainingTiles: [] },
-      setsB: { sets: [null, [red1]], tilesAdded: [], remainingTiles: [] },
-    },
-    output: {
-      withinBoard: [{ from: 0, to: 1 }],
-      fromBoardToHandOtherPlayer: [],
-      fromHandToBoardCurrentPlayer: [],
-      fromHandToBoard: [],
-      withinHand: []
-    },
-  },
-  {
-    description: "from board to hand (other player)",
-    input: {
-      setsA: { sets: [[red1], null], tilesAdded: [red1], remainingTiles: [] },
+      setsA: { sets: [red1, null], tilesAdded: [red1], remainingTiles: [] },
       setsB: { sets: [null, null], tilesAdded: [], remainingTiles: [] },
     },
     output: {
-      withinBoard: [],
-      fromBoardToHandOtherPlayer: [{ from: 0 }],
-      fromHandToBoardCurrentPlayer: [],
-      fromHandToBoard: [],
-      withinHand: [],
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [{ from: 0 }],
+      withinSets: [],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [0],
+      currentPlayerHandIndexesToClear: [],
     },
   },
   {
-    description: "from board to hand (current player)",
+    description: "current player hand to sets",
     input: {
-      setsA: { sets: [[red1], null], tilesAdded: [red1], remainingTiles: [null, null] },
-      setsB: { sets: [null, null], tilesAdded: [], remainingTiles: [null, red1] },
+      setsA: {
+        sets: [null, null],
+        tilesAdded: [],
+        remainingTiles: [red1, null],
+      },
+      setsB: {
+        sets: [null, red1],
+        tilesAdded: [red1],
+        remainingTiles: [null, null],
+      },
     },
     output: {
-      withinBoard: [],
-      fromBoardToHandOtherPlayer: [],
-      fromHandToBoardCurrentPlayer: [{ fromBoardIndex: 0, toHandIndex: 1}],
-      fromHandToBoard: [],
-      withinHand: [],
+      currentPlayerHandToSets: [{ from: 0, to: 1 }],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [],
+      currentPlayerHandIndexesToClear: [0],
     },
   },
   {
-    description: "within board, within hand",
+    description: "other player hand to sets",
     input: {
-      setsA: { sets: [[red1], null, [red2]], tilesAdded: [], remainingTiles: [null, red3] },
-      setsB: { sets: [[red1, red2], null], tilesAdded: [], remainingTiles: [red3, null] },
+      setsA: { sets: [null, null], tilesAdded: [], remainingTiles: [] },
+      setsB: { sets: [null, red1], tilesAdded: [red1], remainingTiles: [] },
     },
     output: {
-      withinBoard: [{from: 2, to: 1}],
-      fromBoardToHandOtherPlayer: [],
-      fromHandToBoardCurrentPlayer: [],
-      fromHandToBoard: [],
-      withinHand: [{from: 1, to: 0}]
-    }
-  }
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [{ tile: red1, to: 1 }],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [],
+      currentPlayerHandIndexesToClear: [],
+    },
+  },
+  {
+    description: "other player hand to sets (2nd tile)",
+    input: {
+      setsA: {
+        sets: [null, red1, null, null],
+        tilesAdded: [red1],
+        remainingTiles: [],
+      },
+      setsB: {
+        sets: [null, red1, null, red2],
+        tilesAdded: [red1, red2],
+        remainingTiles: [],
+      },
+    },
+    output: {
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [{ tile: red2, to: 3 }],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [],
+      currentPlayerHandIndexesToClear: [],
+    },
+  },
+  {
+    description: "within sets",
+    input: {
+      setsA: { sets: [red1, null], tilesAdded: [], remainingTiles: [] },
+      setsB: { sets: [null, red1], tilesAdded: [], remainingTiles: [] },
+    },
+    output: {
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [{ from: 0, to: 1 }],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [0],
+      currentPlayerHandIndexesToClear: [],
+    },
+  },
+  {
+    description: "within sets (overlapping moves)",
+    input: {
+      setsA: { sets: [red1, red2, null], tilesAdded: [], remainingTiles: [] },
+      setsB: { sets: [null, red1, red2], tilesAdded: [], remainingTiles: [] },
+    },
+    output: {
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [
+        { from: 0, to: 1 },
+        { from: 1, to: 2 },
+      ],
+      withinCurrentPlayerHand: [],
+      setIndexesToClear: [0],
+      currentPlayerHandIndexesToClear: [],
+    },
+  },
+  {
+    description: "within sets and within hand",
+    input: {
+      setsA: {
+        sets: [red1, null, red2],
+        tilesAdded: [],
+        remainingTiles: [null, red3],
+      },
+      setsB: {
+        sets: [red1, red2, null],
+        tilesAdded: [],
+        remainingTiles: [red3, null],
+      },
+    },
+    output: {
+      currentPlayerHandToSets: [],
+      otherPlayerHandToSets: [],
+      setsToCurrentPlayerHand: [],
+      setsToOtherPlayerHand: [],
+      withinSets: [{ from: 2, to: 1 }],
+      withinCurrentPlayerHand: [{ from: 1, to: 0 }],
+      setIndexesToClear: [2],
+      currentPlayerHandIndexesToClear: [1],
+    },
+  },
 ];
 
 describe("computeUpdateSetsChanges", () => {

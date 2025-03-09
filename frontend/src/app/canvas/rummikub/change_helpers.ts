@@ -2,31 +2,29 @@ import { IUpdateSets } from "src/app/shared/dtos/rummikub/game";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
 import { areTilesEqual } from "./tiles_helpers";
 
-export interface IUpdateSetsWithinBoardOrHandChange {
+export interface IMoveChange {
   from: number;
   to: number;
 }
 
-export interface IUpdateSetsFromBoardToHandOtherPlayerChange {
+export interface IMoveToOtherPlayerChange {
   from: number;
 }
 
-export interface IUpdateSetsFromBoardToHandCurrentPlayerChange {
-  fromBoardIndex: number;
-  toHandIndex: number,
-}
-
-export interface IUpdateSetsFromHandToBoardChange {
+export interface IMoveFromOtherPlayerChange {
   tile: ITile;
   to: number;
 }
 
 export interface IUpdateSetsChanges {
-  withinBoard: IUpdateSetsWithinBoardOrHandChange[];
-  fromBoardToHandOtherPlayer: IUpdateSetsFromBoardToHandOtherPlayerChange[];
-  fromHandToBoardCurrentPlayer: IUpdateSetsFromBoardToHandCurrentPlayerChange[];
-  fromHandToBoard: IUpdateSetsFromHandToBoardChange[];
-  withinHand: IUpdateSetsWithinBoardOrHandChange[];
+  currentPlayerHandToSets: IMoveChange[];
+  otherPlayerHandToSets: IMoveFromOtherPlayerChange[];
+  setsToCurrentPlayerHand: IMoveChange[];
+  setsToOtherPlayerHand: IMoveToOtherPlayerChange[];
+  withinSets: IMoveChange[];
+  withinCurrentPlayerHand: IMoveChange[];
+  setIndexesToClear: number[];
+  currentPlayerHandIndexesToClear: number[];
 }
 
 interface ITileCountData {
@@ -96,28 +94,30 @@ export function computeUpdateSetsChanges(
   after: IUpdateSets
 ): IUpdateSetsChanges {
   const result: IUpdateSetsChanges = {
-    withinBoard: [],
-    fromHandToBoard: [],
-    fromBoardToHandOtherPlayer: [],
-    fromHandToBoardCurrentPlayer: [],
-    withinHand: []
+    currentPlayerHandToSets: [],
+    otherPlayerHandToSets: [],
+    setsToCurrentPlayerHand: [],
+    setsToOtherPlayerHand: [],
+    withinSets: [],
+    withinCurrentPlayerHand: [],
+    setIndexesToClear: [],
+    currentPlayerHandIndexesToClear: [],
   };
-  const beforeBoardTiles = before.sets.flatMap((x) => (x == null ? [null] : x));
-  const afterBoardTiles = after.sets.flatMap((x) => (x == null ? [null] : x));
   const tilesAddedChanges = getTilesAddedDifference(
     before.tilesAdded,
     after.tilesAdded
   );
   const boardIndexesWithNewTiles: number[] = [];
   const boardIndexesWithMovedTiles: number[] = [];
-  for (let i = 0; i < beforeBoardTiles.length; i++) {
-    const beforeTile = beforeBoardTiles[i];
-    const afterTile = afterBoardTiles[i];
+  for (let i = 0; i < before.sets.length; i++) {
+    const beforeTile = before.sets[i];
+    const afterTile = after.sets[i];
     if (beforeTile == null && afterTile != null) {
       boardIndexesWithNewTiles.push(i);
     }
     if (beforeTile != null && afterTile == null) {
       boardIndexesWithMovedTiles.push(i);
+      result.setIndexesToClear.push(i);
     }
     if (
       beforeTile != null &&
@@ -138,6 +138,7 @@ export function computeUpdateSetsChanges(
     }
     if (beforeTile != null && afterTile == null) {
       handIndexesWithMovedTiles.push(i);
+      result.currentPlayerHandIndexesToClear.push(i);
     }
     if (
       beforeTile != null &&
@@ -151,7 +152,7 @@ export function computeUpdateSetsChanges(
 
   for (let i = 0; i < boardIndexesWithNewTiles.length; i++) {
     const newTileIndex = boardIndexesWithNewTiles[i];
-    const newTile = afterBoardTiles[newTileIndex];
+    const newTile = after.sets[newTileIndex];
     if (newTile == null) {
       throw Error("Unexpected null");
     }
@@ -162,12 +163,12 @@ export function computeUpdateSetsChanges(
     let fromHand = false;
     for (let j = 0; j < remainingBoardIndexesWithMovedTiles.length; j++) {
       const movedTileIndex = remainingBoardIndexesWithMovedTiles[j];
-      const movedTile = beforeBoardTiles[movedTileIndex];
+      const movedTile = before.sets[movedTileIndex];
       if (movedTile == null) {
         throw Error("Unexpected null");
       }
       if (areTilesEqual(movedTile, newTile)) {
-        result.withinBoard.push({ from: movedTileIndex, to: newTileIndex });
+        result.withinSets.push({ from: movedTileIndex, to: newTileIndex });
         boardIndexesWithMovedTiles.splice(j, 1);
         withinBoard = true;
         break;
@@ -175,13 +176,40 @@ export function computeUpdateSetsChanges(
     }
 
     if (!withinBoard) {
-      const addedItem = tilesAddedChanges.added.find((x) =>
-        areTilesEqual(x.tile, newTile)
-      );
-      if (addedItem != null && addedItem.count > 0) {
-        addedItem.count -= 1;
-        result.fromHandToBoard.push({ to: newTileIndex, tile: newTile });
-        fromHand = true;
+      if (
+        before.remainingTiles.length == 0 &&
+        after.remainingTiles.length == 0
+      ) {
+        const addedItem = tilesAddedChanges.added.find((x) =>
+          areTilesEqual(x.tile, newTile)
+        );
+        if (addedItem != null && addedItem.count > 0) {
+          addedItem.count -= 1;
+          result.otherPlayerHandToSets.push({
+            to: newTileIndex,
+            tile: newTile,
+          });
+          fromHand = true;
+        }
+      } else {
+        const remainingHandIndexesWithMovedTiles =
+          handIndexesWithMovedTiles.slice();
+        for (let j = 0; j < remainingHandIndexesWithMovedTiles.length; j++) {
+          const movedTileIndex = remainingHandIndexesWithMovedTiles[j];
+          const movedTile = before.remainingTiles[movedTileIndex];
+          if (movedTile == null) {
+            throw Error("Unexpected null");
+          }
+          if (areTilesEqual(movedTile, newTile)) {
+            result.currentPlayerHandToSets.push({
+              from: movedTileIndex,
+              to: newTileIndex,
+            });
+            handIndexesWithMovedTiles.splice(j, 1);
+            fromHand = true;
+            break;
+          }
+        }
       }
     }
 
@@ -193,7 +221,7 @@ export function computeUpdateSetsChanges(
   if (before.remainingTiles.length == 0 && after.remainingTiles.length == 0) {
     for (let i = 0; i < boardIndexesWithMovedTiles.length; i++) {
       const movedTileIndex = boardIndexesWithMovedTiles[i];
-      const movedTile = beforeBoardTiles[movedTileIndex];
+      const movedTile = before.sets[movedTileIndex];
       if (movedTile == null) {
         throw Error("Unexpected null");
       }
@@ -203,11 +231,13 @@ export function computeUpdateSetsChanges(
       );
       if (removedItem != null && removedItem.count > 0) {
         removedItem.count -= 1;
-        result.fromBoardToHandOtherPlayer.push({ from: movedTileIndex });
+        result.setsToOtherPlayerHand.push({ from: movedTileIndex });
       } else {
         throw new Error("Unexpected move");
       }
     }
+
+    boardIndexesWithMovedTiles.splice(0, boardIndexesWithMovedTiles.length);
   }
 
   for (let i = 0; i < handIndexesWithNewTiles.length; i++) {
@@ -228,7 +258,10 @@ export function computeUpdateSetsChanges(
         throw Error("Unexpected null");
       }
       if (areTilesEqual(movedTile, newTile)) {
-        result.withinHand.push({ from: movedTileIndex, to: newTileIndex });
+        result.withinCurrentPlayerHand.push({
+          from: movedTileIndex,
+          to: newTileIndex,
+        });
         handIndexesWithMovedTiles.splice(j, 1);
         withinHand = true;
         break;
@@ -239,13 +272,16 @@ export function computeUpdateSetsChanges(
       boardIndexesWithMovedTiles.slice();
     for (let j = 0; j < remainingBoardIndexesWithMovedTiles.length; j++) {
       const movedTileIndex = remainingBoardIndexesWithMovedTiles[j];
-      const movedTile = beforeBoardTiles[movedTileIndex];
+      const movedTile = before.sets[movedTileIndex];
       if (movedTile == null) {
         throw Error("Unexpected null");
       }
 
       if (areTilesEqual(movedTile, newTile)) {
-        result.fromHandToBoardCurrentPlayer.push({ fromBoardIndex: movedTileIndex, toHandIndex: newTileIndex });
+        result.setsToCurrentPlayerHand.push({
+          from: movedTileIndex,
+          to: newTileIndex,
+        });
         boardIndexesWithMovedTiles.splice(j, 1);
         fromBoard = true;
         break;
@@ -257,10 +293,10 @@ export function computeUpdateSetsChanges(
     }
   }
 
-  if (boardIndexesWithMovedTiles.length > 1) {
+  if (boardIndexesWithMovedTiles.length > 0) {
     throw new Error("Unaccounted for board index with moved tile");
   }
-  if (handIndexesWithMovedTiles.length > 1) {
+  if (handIndexesWithMovedTiles.length > 0) {
     throw new Error("Unaccounted for hand index with moved tile");
   }
 

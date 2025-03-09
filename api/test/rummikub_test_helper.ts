@@ -4,6 +4,7 @@ import { RummikubGameService } from "../src/services/rummikub/rummikub_game_serv
 import {
   GameState,
   IGameOptions,
+  INullableTile,
   IUpdateSets,
 } from "../src/shared/dtos/rummikub/game";
 import { ITile } from "../src/shared/dtos/rummikub/tile";
@@ -29,7 +30,7 @@ export async function joinTestRummikubGame(
 }
 
 interface ITestGameOptions {
-  sets: ITile[][];
+  sets: INullableTile[];
   playerTiles: ITile[][];
   tilePool: ITile[];
   latestUpdateSets?: IUpdateSets;

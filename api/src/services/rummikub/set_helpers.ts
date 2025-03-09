@@ -5,7 +5,6 @@ import {
   getTileRankNumber,
   serializeTile,
 } from "./tile_helpers";
-import { ISets } from "src/shared/dtos/rummikub/game";
 
 export function isValidSet(tiles: ITile[]): boolean {
   return isGroup(tiles) || isRun(tiles);
@@ -72,8 +71,8 @@ function removeLeadingAndTrailingJokers(tiles: ITile[]): ITile[] {
 }
 
 export function isOnlyAddingNewSets(
-  initialSets: ISets,
-  updatedSets: ISets
+  initialSets: ITile[][],
+  updatedSets: ITile[][]
 ): boolean {
   const initialSetCounts = getSetCounts(initialSets);
   const updatedSetCounts = getSetCounts(updatedSets);
@@ -86,7 +85,7 @@ export function isOnlyAddingNewSets(
   return true;
 }
 
-function getSetCounts(sets: ISets): Record<string, number> {
+function getSetCounts(sets: ITile[][]): Record<string, number> {
   const result: Record<string, number> = {};
   for (let i = 0; i < sets.length; i++) {
     const tiles = sets[i];

@@ -136,11 +136,9 @@ describe("RummikubGameService", () => {
         gameId,
       } = await createTestRummikubRoundActiveGame({
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ],
         playerTiles: [
           [
@@ -154,12 +152,10 @@ describe("RummikubGameService", () => {
       });
       const updateSets: IUpdateSets = {
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-            { rank: 10, color: TileColor.BLACK },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          { rank: 10, color: TileColor.BLACK },
         ],
         tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
         remainingTiles: [
@@ -189,11 +185,9 @@ describe("RummikubGameService", () => {
         gameId,
       } = await createTestRummikubRoundActiveGame({
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ],
         playerTiles: [
           [
@@ -207,11 +201,9 @@ describe("RummikubGameService", () => {
       });
       const updateSets: IUpdateSets = {
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLACK },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLACK },
         ],
         tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
         remainingTiles: [{ rank: 1, color: TileColor.RED }],
@@ -238,11 +230,9 @@ describe("RummikubGameService", () => {
         gameId,
       } = await createTestRummikubRoundActiveGame({
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ],
         playerTiles: [
           [
@@ -256,11 +246,9 @@ describe("RummikubGameService", () => {
       });
       const updateSets: IUpdateSets = {
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ],
         tilesAdded: [],
         remainingTiles: [{ rank: 1, color: TileColor.RED }],
@@ -287,11 +275,9 @@ describe("RummikubGameService", () => {
         gameId,
       } = await createTestRummikubRoundActiveGame({
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ],
         playerTiles: [
           [
@@ -305,12 +291,10 @@ describe("RummikubGameService", () => {
       });
       const updateSets: IUpdateSets = {
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-            { rank: 10, color: TileColor.BLACK },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          { rank: 10, color: TileColor.BLACK },
         ],
         tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
         remainingTiles: [{ rank: 1, color: TileColor.RED }],
@@ -336,11 +320,9 @@ describe("RummikubGameService", () => {
         gameId,
       } = await createTestRummikubRoundActiveGame({
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ],
         playerTiles: [
           [
@@ -354,12 +336,11 @@ describe("RummikubGameService", () => {
       });
       const updateSets: IUpdateSets = {
         sets: [
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
-          [{ rank: 1, color: TileColor.RED }],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          null,
+          { rank: 1, color: TileColor.RED },
         ],
         tilesAdded: [{ rank: 1, color: TileColor.RED }],
         remainingTiles: [{ rank: 10, color: TileColor.BLACK }],
@@ -423,16 +404,14 @@ describe("RummikubGameService", () => {
           gameId,
         } = await createTestRummikubRoundActiveGame({
           sets: [
-            [
-              { rank: 8, color: TileColor.BLACK },
-              { rank: 8, color: TileColor.RED },
-              { rank: 8, color: TileColor.YELLOW },
-            ],
-            [
-              { rank: 8, color: TileColor.YELLOW },
-              { rank: 9, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.YELLOW },
-            ],
+            { rank: 8, color: TileColor.BLACK },
+            { rank: 8, color: TileColor.RED },
+            { rank: 8, color: TileColor.YELLOW },
+            null,
+
+            { rank: 8, color: TileColor.YELLOW },
+            { rank: 9, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.YELLOW },
           ],
           playerTiles: [
             [
@@ -447,19 +426,17 @@ describe("RummikubGameService", () => {
           tilePool: [],
           lastValidUpdateSets: {
             sets: [
-              [
-                { rank: 8, color: TileColor.BLACK },
-                { rank: 8, color: TileColor.RED },
-                { rank: 8, color: TileColor.YELLOW },
-                { rank: 8, color: TileColor.BLUE },
-              ],
-              [
-                { rank: 8, color: TileColor.YELLOW },
-                { rank: 9, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 11, color: TileColor.YELLOW },
-                { rank: 12, color: TileColor.YELLOW },
-              ],
+              { rank: 8, color: TileColor.BLACK },
+              { rank: 8, color: TileColor.RED },
+              { rank: 8, color: TileColor.YELLOW },
+              { rank: 8, color: TileColor.BLUE },
+              null,
+
+              { rank: 8, color: TileColor.YELLOW },
+              { rank: 9, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 11, color: TileColor.YELLOW },
+              { rank: 12, color: TileColor.YELLOW },
             ],
             tilesAdded: [
               { rank: 8, color: TileColor.BLUE },
@@ -499,11 +476,9 @@ describe("RummikubGameService", () => {
           tilePool: [],
           lastValidUpdateSets: {
             sets: [
-              [
-                { rank: 9, color: TileColor.BLACK },
-                { rank: 9, color: TileColor.RED },
-                { rank: 9, color: TileColor.BLUE },
-              ],
+              { rank: 9, color: TileColor.BLACK },
+              { rank: 9, color: TileColor.RED },
+              { rank: 9, color: TileColor.BLUE },
             ],
             tilesAdded: [
               { rank: 9, color: TileColor.BLACK },
@@ -531,11 +506,9 @@ describe("RummikubGameService", () => {
           gameId,
         } = await createTestRummikubRoundActiveGame({
           sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
           ],
           playerTiles: [
             [
@@ -549,16 +522,14 @@ describe("RummikubGameService", () => {
           tilePool: [],
           latestUpdateSets: {
             sets: [
-              [
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-              ],
-              [
-                { rank: 1, color: TileColor.BLACK },
-                { rank: 2, color: TileColor.RED },
-                { rank: 3, color: TileColor.BLACK },
-              ],
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              null,
+
+              { rank: 1, color: TileColor.BLACK },
+              { rank: 2, color: TileColor.RED },
+              { rank: 3, color: TileColor.BLACK },
             ],
             tilesAdded: [
               { rank: 1, color: TileColor.BLACK },
@@ -599,11 +570,9 @@ describe("RummikubGameService", () => {
           tilePool: [],
           lastValidUpdateSets: {
             sets: [
-              [
-                { rank: 10, color: TileColor.BLACK },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-              ],
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
             ],
             tilesAdded: [
               { rank: 10, color: TileColor.BLACK },
@@ -621,11 +590,9 @@ describe("RummikubGameService", () => {
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.state).to.eql(GameState.ROUND_ACTIVE);
         expect(game.sets).to.eql([
-          [
-            { rank: 10, color: TileColor.BLACK },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-          ],
+          { rank: 10, color: TileColor.BLACK },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
         ]);
         expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
@@ -655,11 +622,9 @@ describe("RummikubGameService", () => {
           gameId,
         } = await createTestRummikubRoundActiveGame({
           sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
           ],
           playerTiles: [
             [
@@ -672,12 +637,10 @@ describe("RummikubGameService", () => {
           tilePool: [],
           lastValidUpdateSets: {
             sets: [
-              [
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-                { rank: 10, color: TileColor.BLACK },
-              ],
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
             remainingTiles: [{ rank: 1, color: TileColor.RED }],
@@ -691,12 +654,10 @@ describe("RummikubGameService", () => {
         expect(game.actionToUserId).to.eql(user2Id);
         expect(game.state).to.eql(GameState.ROUND_ACTIVE);
         expect(game.sets).to.eql([
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-            { rank: 10, color: TileColor.BLACK },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          { rank: 10, color: TileColor.BLACK },
         ]);
         expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
@@ -726,11 +687,9 @@ describe("RummikubGameService", () => {
           gameId,
         } = await createTestRummikubRoundActiveGame({
           sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
           ],
           playerTiles: [
             [{ rank: 10, color: TileColor.BLACK }],
@@ -743,12 +702,10 @@ describe("RummikubGameService", () => {
           tilePool: [],
           lastValidUpdateSets: {
             sets: [
-              [
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-                { rank: 10, color: TileColor.BLACK },
-              ],
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
             remainingTiles: [],
@@ -762,12 +719,10 @@ describe("RummikubGameService", () => {
         expect(game.actionToUserId).to.eql(user1Id);
         expect(game.state).to.eql(GameState.ROUND_COMPLETE);
         expect(game.sets).to.eql([
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-            { rank: 10, color: TileColor.BLACK },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          { rank: 10, color: TileColor.BLACK },
         ]);
         expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
@@ -803,11 +758,9 @@ describe("RummikubGameService", () => {
           gameId,
         } = await createTestRummikubRoundActiveGame({
           sets: [
-            [
-              { rank: 10, color: TileColor.YELLOW },
-              { rank: 10, color: TileColor.RED },
-              { rank: 10, color: TileColor.BLUE },
-            ],
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
           ],
           playerTiles: [
             [{ rank: 10, color: TileColor.BLACK }],
@@ -820,12 +773,10 @@ describe("RummikubGameService", () => {
           tilePool: [],
           lastValidUpdateSets: {
             sets: [
-              [
-                { rank: 10, color: TileColor.YELLOW },
-                { rank: 10, color: TileColor.RED },
-                { rank: 10, color: TileColor.BLUE },
-                { rank: 10, color: TileColor.BLACK },
-              ],
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
             remainingTiles: [],
@@ -845,12 +796,10 @@ describe("RummikubGameService", () => {
         expect(game.actionToUserId).to.eql(user1Id);
         expect(game.state).to.eql(GameState.COMPLETE);
         expect(game.sets).to.eql([
-          [
-            { rank: 10, color: TileColor.YELLOW },
-            { rank: 10, color: TileColor.RED },
-            { rank: 10, color: TileColor.BLUE },
-            { rank: 10, color: TileColor.BLACK },
-          ],
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          { rank: 10, color: TileColor.BLACK },
         ]);
         expect(game.lastValidUpdateSets).to.eql(null);
         expect(game.playerStates).to.eql([
@@ -1227,7 +1176,7 @@ describe("RummikubGameService", () => {
         ],
         tilePool: [],
         latestUpdateSets: {
-          sets: [[{ rank: 1, color: TileColor.BLACK }]],
+          sets: [{ rank: 1, color: TileColor.BLACK }],
           tilesAdded: [{ rank: 1, color: TileColor.BLACK }],
           remainingTiles: [{ rank: 1, color: TileColor.RED }],
         },
@@ -1269,11 +1218,9 @@ describe("RummikubGameService", () => {
         tilePool: [],
         lastValidUpdateSets: {
           sets: [
-            [
-              { rank: 1, color: TileColor.BLACK },
-              { rank: 1, color: TileColor.RED },
-              { rank: 1, color: TileColor.YELLOW },
-            ],
+            { rank: 1, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+            { rank: 1, color: TileColor.YELLOW },
           ],
           tilesAdded: [
             { rank: 1, color: TileColor.BLACK },

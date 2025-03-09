@@ -3,7 +3,7 @@ import { sequelize } from "./connection";
 import {
   GameState,
   IGameOptions,
-  ISets,
+  INullableTile,
   IUpdateSets,
 } from "../../shared/dtos/rummikub/game";
 import { ITile } from "../../shared/dtos/rummikub/tile";
@@ -11,7 +11,7 @@ import { User } from "./user";
 
 export interface IRummikubPlayer {
   userId: number;
-  tiles: (ITile | null)[];
+  tiles: INullableTile[];
   hasPlayedInitialMeld: boolean;
   passedLastTurn: boolean;
 }
@@ -27,7 +27,7 @@ export interface ISerializedRummikubGame {
   state: GameState;
   options: IGameOptions;
   actionToUserId: number;
-  sets: (ITile[] | null)[];
+  sets: INullableTile[];
   tilePool: ITile[];
   players: IRummikubPlayer[];
   latestUpdateSets: IUpdateSets | null;
@@ -52,7 +52,7 @@ export class RummikubGame extends Model {
   public state!: GameState;
   public options!: IGameOptions;
   public actionToUserId!: number;
-  public sets!: ISets;
+  public sets!: INullableTile[];
   public tilePool!: ITile[];
   public players!: IRummikubPlayer[];
   public latestUpdateSets!: IUpdateSets;

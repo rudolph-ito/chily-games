@@ -16,8 +16,8 @@ import {
   IRoundFinishedEvent,
   IUpdateSets,
   ILastAction,
-  IPlayerTiles,
   IPickedUpTileEvent,
+  INullableTile,
 } from "../../shared/dtos/rummikub/game";
 import { ValidationError } from "../shared/exceptions";
 import {
@@ -30,7 +30,8 @@ import {
   IUserDataService,
   UserDataService,
 } from "../shared/data/user_data_service";
-import { ITile } from "src/shared/dtos/rummikub/tile";
+import { TOTAL_COLUMNS } from "../../shared/constants/rummikub";
+import { ITile } from "../../shared/dtos/rummikub/tile";
 import {
   areTileSetsEquivalent,
   getSerializedTileCounts,
@@ -64,7 +65,7 @@ export interface IRummikubGameService {
   rearrangeTiles: (
     userId: number,
     gameId: number,
-    tiles: IPlayerTiles
+    tiles: INullableTile[]
   ) => Promise<void>;
   search: (
     request: ISearchGamesRequest
@@ -230,10 +231,9 @@ export class RummikubGameService implements IRummikubGameService {
     if (!validRemainingTiles) {
       throw new ValidationError("Update sets: remaining tiles is invalid.");
     }
-    const areAllSetsValid = updateSets.sets.every((s) =>
-      s == null ? true : isValidSet(s)
-    );
-    const updates: IRummikubGameUpdateOptions = areAllSetsValid
+    const groupedSets = this.getGroupedSets(updateSets.sets);
+    const areAllGroupsValid = groupedSets.every((x) => isValidSet(x));
+    const updates: IRummikubGameUpdateOptions = areAllGroupsValid
       ? {
           latestUpdateSets: null,
           lastValidUpdateSets: updateSets,
@@ -355,7 +355,12 @@ export class RummikubGameService implements IRummikubGameService {
       );
     }
     if (!playerState.hasPlayedInitialMeld) {
-      if (!isOnlyAddingNewSets(game.sets, game.lastValidUpdateSets.sets)) {
+      if (
+        !isOnlyAddingNewSets(
+          this.getGroupedSets(game.sets),
+          this.getGroupedSets(game.lastValidUpdateSets.sets)
+        )
+      ) {
         throw new ValidationError(
           `Finalize update sets: cannot modify existing sets on initial play`
         );
@@ -665,5 +670,29 @@ export class RummikubGameService implements IRummikubGameService {
     return Object.values(playerTotals).some(
       (playerTotal) => playerTotal >= playTo
     );
+  }
+
+  private getGroupedSets(sets: INullableTile[]): ITile[][] {
+    const result: ITile[][] = [];
+    let currentGroup: ITile[] = [];
+    for (let i = 0; i < sets.length; i++) {
+      const currentTile = sets[i];
+      if (currentTile == null) {
+        if (currentGroup.length > 0) {
+          result.push(currentGroup);
+          currentGroup = [];
+        }
+      } else {
+        currentGroup.push(currentTile);
+      }
+      if ((i + 1) % TOTAL_COLUMNS == 0 && currentGroup.length > 0) {
+        result.push(currentGroup);
+        currentGroup = [];
+      }
+    }
+    if (currentGroup.length > 0) {
+      result.push(currentGroup);
+    }
+    return result;
   }
 }

@@ -7,8 +7,8 @@ import {
 import {
   GameState,
   IGameOptions,
+  INullableTile,
   ISearchGamesRequest,
-  ISets,
   IUpdateSets,
 } from "../../../shared/dtos/rummikub/game";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
@@ -25,7 +25,7 @@ export interface IRummikubGameUpdateOptions {
   options?: IGameOptions;
   state?: GameState;
   actionToUserId?: number;
-  sets?: ISets;
+  sets?: INullableTile[];
   tilePool?: ITile[];
   players?: IRummikubPlayer[];
   latestUpdateSets?: IUpdateSets | null;
