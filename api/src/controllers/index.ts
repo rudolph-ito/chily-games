@@ -15,7 +15,6 @@ import { getUserRouter } from "./user";
 import { Server as SocketIoServer } from "socket.io";
 import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter";
 import RedisStore from "connect-redis";
-import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
 import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
@@ -76,10 +75,6 @@ export function createExpressApp(
   app.use(
     "/api/chats",
     getChatRouter(authenticationRequired, options.publishRedisClient)
-  );
-  app.use(
-    "/api/cyvasse",
-    getCyvasseRouter(authenticationRequired, options.publishRedisClient)
   );
   app.use(
     "/api/oh-heck",

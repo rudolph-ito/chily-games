@@ -17,6 +17,7 @@ export interface IUserDataService {
   getUsers: (userIds: number[]) => Promise<IUser[]>;
   hasUser: (userId: number) => Promise<boolean>;
   hasUserWithUsername: (username: string) => Promise<boolean>;
+  deleteAllExcept: (userIds: number[]) => Promise<number>;
 }
 
 export class UserDataService implements IUserDataService {
@@ -77,4 +78,11 @@ export class UserDataService implements IUserDataService {
     }
     return "guest0";
   }
+
+  deleteAllExcept(userIds: number[]): Promise<number> {
+    return User.destroy({
+      where: { userId: { [Op.notIn]: userIds } },
+    });
+  }
+
 }

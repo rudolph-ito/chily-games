@@ -26,18 +26,6 @@ export function getGameRouter(
       })
       .catch(next);
   });
-  router.get(
-    "/abort_unfinished_games",
-    authenticationRequired,
-    function (req, res, next) {
-      gameService
-        .abortUnfinishedGames()
-        .then((count) => {
-          res.status(200).send(`Aborted ${count} unfinished games`);
-        })
-        .catch(next);
-    }
-  );
   router.post("/search", function (req, res, next) {
     gameService
       .search(req.body)

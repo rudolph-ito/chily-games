@@ -44,7 +44,6 @@ const isNotNull = <T>(value: T | null): value is T => value !== null;
 
 export interface IRummikubGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
-  abortUnfinishedGames: () => Promise<number>;
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
   get: (userId: number | null, gameId: number) => Promise<IGame>;
   join: (userId: number, gameId: number) => Promise<IGame>;
@@ -77,10 +76,6 @@ export class RummikubGameService implements IRummikubGameService {
     private readonly gameDataService: IRummikubGameDataService = new RummikubGameDataService(),
     private readonly userDataService: IUserDataService = new UserDataService()
   ) {}
-
-  async abortUnfinishedGames(): Promise<number> {
-    return await this.gameDataService.abortUnfinishedGames(24);
-  }
 
   async abort(userId: number, gameId: number): Promise<IGame> {
     let game = await this.gameDataService.get(gameId);

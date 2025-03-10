@@ -38,7 +38,7 @@ export interface IOhHeckGameDataService {
   search: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<ISerializedOhHeckGame>>;
-  abortUnfinishedGames: (ageInHoursThreshold: number) => Promise<any>;
+  deleteByHourThreshold: (hours: number) => Promise<any>;
 }
 
 export class OhHeckGameDataService implements IOhHeckGameDataService {
@@ -61,19 +61,13 @@ export class OhHeckGameDataService implements IOhHeckGameDataService {
     return game.serialize();
   }
 
-  async abortUnfinishedGames(ageInHoursThreshold: number): Promise<number> {
-    const result = await OhHeckGame.update(
-      {
-        state: GameState.ABORTED,
-      },
+  async deleteByHourThreshold(hours: number): Promise<number> {
+    const result = await OhHeckGame.destroy(
       {
         where: {
-          state: {
-            [Op.notIn]: [GameState.ABORTED, GameState.COMPLETE],
-          },
           updatedAt: {
             [Op.lt]: new Date(
-              new Date().valueOf() - ageInHoursThreshold * 60 * 60 * 1000
+              new Date().valueOf() - hours * 60 * 60 * 1000
             ),
           },
         },
