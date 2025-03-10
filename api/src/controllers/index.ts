@@ -15,6 +15,7 @@ import { getUserRouter } from "./user";
 import { Server as SocketIoServer } from "socket.io";
 import { createAdapter as createSocketIoRedisAdapter } from "@socket.io/redis-adapter";
 import RedisStore from "connect-redis";
+import { getCyvasseRouter } from "./cyvasse";
 import { getYanivRouter } from "./yaniv";
 import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
@@ -25,6 +26,7 @@ export interface ICreateExpressAppOptions {
   publishRedisClient: SimpleRedisClient;
   sessionSecret: string;
   sessionStoreRedisClient: SimpleRedisClient;
+  includeCyvasse: boolean
 }
 
 export type RedisClientBuilder = () => SimpleRedisClient;
@@ -76,6 +78,12 @@ export function createExpressApp(
     "/api/chats",
     getChatRouter(authenticationRequired, options.publishRedisClient)
   );
+  if (options.includeCyvasse) {
+    app.use(
+      "/api/cyvasse",
+      getCyvasseRouter(authenticationRequired, options.publishRedisClient)
+    );
+  }
   app.use(
     "/api/oh-heck",
     getOhHeckRouter(authenticationRequired, options.publishRedisClient)
@@ -112,6 +120,7 @@ export async function startServer(
     publishRedisClient,
     sessionSecret: options.sessionSecret,
     sessionStoreRedisClient,
+    includeCyvasse: false,
   });
   const server = createServer(app);
   const socketIoServer = new SocketIoServer(server);
