@@ -70,17 +70,13 @@ export class YanivGameDataService implements IYanivGameDataService {
   }
 
   async deleteByHourThreshold(hours: number): Promise<number> {
-    const result = await YanivGame.destroy(
-      {
-        where: {
-          updatedAt: {
-            [Op.lt]: new Date(
-              new Date().valueOf() - hours * 60 * 60 * 1000
-            ),
-          },
+    const result = await YanivGame.destroy({
+      where: {
+        updatedAt: {
+          [Op.lt]: new Date(new Date().valueOf() - hours * 60 * 60 * 1000),
         },
-      }
-    );
+      },
+    });
     return result[0];
   }
 

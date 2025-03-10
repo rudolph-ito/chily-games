@@ -84,5 +84,4 @@ export class UserDataService implements IUserDataService {
       where: { userId: { [Op.notIn]: userIds } },
     });
   }
-
 }
