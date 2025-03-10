@@ -26,7 +26,7 @@ export interface ICreateExpressAppOptions {
   publishRedisClient: SimpleRedisClient;
   sessionSecret: string;
   sessionStoreRedisClient: SimpleRedisClient;
-  includeCyvasse: boolean
+  includeCyvasse: boolean;
 }
 
 export type RedisClientBuilder = () => SimpleRedisClient;
