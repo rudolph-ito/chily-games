@@ -46,7 +46,7 @@ export interface IRummikubGameDataService {
   search: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<ISerializedRummikubGame>>;
-  abortUnfinishedGames: (ageInHoursThreshold: number) => Promise<any>;
+  deleteByHourThreshold: (hours: number) => Promise<any>;
 }
 
 export class RummikubGameDataService implements IRummikubGameDataService {
@@ -68,24 +68,14 @@ export class RummikubGameDataService implements IRummikubGameDataService {
     return game.serialize();
   }
 
-  async abortUnfinishedGames(ageInHoursThreshold: number): Promise<number> {
-    const result = await RummikubGame.update(
-      {
-        state: GameState.ABORTED,
-      },
-      {
-        where: {
-          state: {
-            [Op.notIn]: [GameState.ABORTED, GameState.COMPLETE],
-          },
-          updatedAt: {
-            [Op.lt]: new Date(
-              new Date().valueOf() - ageInHoursThreshold * 60 * 60 * 1000
-            ),
-          },
+  async deleteByHourThreshold(hours: number): Promise<number> {
+    const result = await RummikubGame.destroy({
+      where: {
+        updatedAt: {
+          [Op.lt]: new Date(new Date().valueOf() - hours * 60 * 60 * 1000),
         },
-      }
-    );
+      },
+    });
     return result[0];
   }
 

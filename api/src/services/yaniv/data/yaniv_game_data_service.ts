@@ -46,7 +46,7 @@ export interface IYanivGameDataService {
   search: (
     request: ISearchGamesRequest
   ) => Promise<IPaginatedResponse<ISerializedYanivGame>>;
-  abortUnfinishedGames: (ageInHoursThreshold: number) => Promise<any>;
+  deleteByHourThreshold: (hours: number) => Promise<any>;
 }
 
 export class YanivGameDataService implements IYanivGameDataService {
@@ -69,24 +69,14 @@ export class YanivGameDataService implements IYanivGameDataService {
     return game.serialize();
   }
 
-  async abortUnfinishedGames(ageInHoursThreshold: number): Promise<number> {
-    const result = await YanivGame.update(
-      {
-        state: GameState.ABORTED,
-      },
-      {
-        where: {
-          state: {
-            [Op.notIn]: [GameState.ABORTED, GameState.COMPLETE],
-          },
-          updatedAt: {
-            [Op.lt]: new Date(
-              new Date().valueOf() - ageInHoursThreshold * 60 * 60 * 1000
-            ),
-          },
+  async deleteByHourThreshold(hours: number): Promise<number> {
+    const result = await YanivGame.destroy({
+      where: {
+        updatedAt: {
+          [Op.lt]: new Date(new Date().valueOf() - hours * 60 * 60 * 1000),
         },
-      }
-    );
+      },
+    });
     return result[0];
   }
 

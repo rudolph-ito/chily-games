@@ -43,6 +43,7 @@ export async function createTestServer(): Promise<ITestServer> {
       publishRedisClient,
       sessionSecret: "test",
       sessionStoreRedisClient,
+      includeCyvasse: true,
     }),
     quit: async (): Promise<void> => {
       await Promise.all([
