@@ -61,15 +61,14 @@ export class OhHeckGameDataService implements IOhHeckGameDataService {
     return game.serialize();
   }
 
-  async deleteByHourThreshold(hours: number): Promise<number> {
-    const result = await OhHeckGame.destroy({
+  deleteByHourThreshold(hours: number): Promise<number> {
+    return OhHeckGame.destroy({
       where: {
         updatedAt: {
           [Op.lt]: new Date(new Date().valueOf() - hours * 60 * 60 * 1000),
         },
       },
     });
-    return result[0];
   }
 
   async get(gameId: number): Promise<ISerializedOhHeckGame> {
