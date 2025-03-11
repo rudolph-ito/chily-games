@@ -68,15 +68,14 @@ export class RummikubGameDataService implements IRummikubGameDataService {
     return game.serialize();
   }
 
-  async deleteByHourThreshold(hours: number): Promise<number> {
-    const result = await RummikubGame.destroy({
+  deleteByHourThreshold(hours: number): Promise<number> {
+    return RummikubGame.destroy({
       where: {
         updatedAt: {
           [Op.lt]: new Date(new Date().valueOf() - hours * 60 * 60 * 1000),
         },
       },
     });
-    return result[0];
   }
 
   async get(gameId: number): Promise<ISerializedRummikubGame> {
