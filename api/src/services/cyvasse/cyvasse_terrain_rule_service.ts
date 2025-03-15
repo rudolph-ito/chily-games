@@ -130,9 +130,8 @@ export class CyvasseTerrainRuleService implements ICyvasseTerrainRuleService {
     variantId: number
   ): Promise<Map<TerrainType, number>> {
     const result = new Map<TerrainType, number>();
-    const terrainRules = await this.terrainRuleDataService.getTerrainRules(
-      variantId
-    );
+    const terrainRules =
+      await this.terrainRuleDataService.getTerrainRules(variantId);
     terrainRules.forEach((pr) =>
       result.set(pr.terrainTypeId, pr.terrainRuleId)
     );

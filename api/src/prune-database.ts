@@ -9,9 +9,8 @@ async function main() {
   console.log(`Deleted ${ohHeckGameCount} oh heck games`);
 
   const rummikubGameDataService = new RummikubGameDataService();
-  const rummikubGameCount = await rummikubGameDataService.deleteByHourThreshold(
-    24
-  );
+  const rummikubGameCount =
+    await rummikubGameDataService.deleteByHourThreshold(24);
   console.log(`Deleted ${rummikubGameCount} rummikub games`);
 
   const yanivGameDataService = new YanivGameDataService();
