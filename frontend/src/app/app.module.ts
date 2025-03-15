@@ -3,7 +3,10 @@ import { NgModule } from "@angular/core";
 import { AppRoutingModule } from "./app-routing.module";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { HttpClientModule } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCheckboxModule } from "@angular/material/checkbox";
@@ -80,12 +83,12 @@ import { RummikubGameScoreboardDialogComponent } from "./components/rummikub/rum
     RummikubGameShowComponent,
     RummikubGameScoreboardDialogComponent,
   ],
+  bootstrap: [AppComponent],
   imports: [
     AppRoutingModule,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
-    HttpClientModule,
     MatBadgeModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -111,7 +114,6 @@ import { RummikubGameScoreboardDialogComponent } from "./components/rummikub/rum
     }),
     TimeagoModule.forRoot(),
   ],
-  providers: [],
-  bootstrap: [AppComponent],
+  providers: [provideHttpClient(withInterceptorsFromDi())],
 })
 export class AppModule {}
