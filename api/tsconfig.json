@@ -3,11 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "target": "ES2015",
   },
   "include": [
     "src/**/*.ts",
-  ], 
+  ],
   "exclude": [
     "**/*.spec.ts"
   ],
