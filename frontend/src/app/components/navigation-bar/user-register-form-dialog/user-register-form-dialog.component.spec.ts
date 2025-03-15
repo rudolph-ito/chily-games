@@ -4,7 +4,10 @@ import { UserRegisterFormDialogComponent } from "./user-register-form-dialog.com
 import { AppModule } from "src/app/app.module";
 import { provideHttpClientTesting } from "@angular/common/http/testing";
 import { MatDialogRef } from "@angular/material/dialog";
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from "@angular/common/http";
 
 describe("UserRegisterFormDialogComponent", () => {
   let component: UserRegisterFormDialogComponent;
@@ -16,9 +19,13 @@ describe("UserRegisterFormDialogComponent", () => {
       close: jest.fn(),
     };
     TestBed.configureTestingModule({
-    imports: [AppModule],
-    providers: [{ provide: MatDialogRef, useValue: matDialogRef }, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-});
+      imports: [AppModule],
+      providers: [
+        { provide: MatDialogRef, useValue: matDialogRef },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
+    });
     fixture = TestBed.createComponent(UserRegisterFormDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
