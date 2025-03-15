@@ -9,7 +9,7 @@ describe("ConfirmationDialogComponent", () => {
   let fixture: ComponentFixture<ConfirmationDialogComponent>;
   let matDialogRef: Partial<MatDialogRef<ConfirmationDialogComponent>>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     matDialogRef = {
       close: jest.fn(),
     };
@@ -17,16 +17,13 @@ describe("ConfirmationDialogComponent", () => {
       title: "Confirm",
       message: "Are you sure?",
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         { provide: MatDialogRef, useValue: matDialogRef },
         { provide: MAT_DIALOG_DATA, useValue: data },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(ConfirmationDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -24,8 +24,8 @@ describe("YanivGameScoreboardDialogComponent", () => {
   let component: YanivGameScoreboardDialogComponent;
   let fixture: ComponentFixture<YanivGameScoreboardDialogComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         {
@@ -33,10 +33,7 @@ describe("YanivGameScoreboardDialogComponent", () => {
           useValue: { game: buildTestGame() },
         },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(YanivGameScoreboardDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

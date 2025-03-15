@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { VariantShowComponent } from "./variant-show.component";
 import { VariantService } from "src/app/services/cyvasse/variant.service";
-import { RouterTestingModule } from "@angular/router/testing";
 import { AppModule } from "src/app/app.module";
 import { of } from "rxjs";
 import { BoardType } from "src/app/shared/dtos/cyvasse/variant";
@@ -25,7 +24,7 @@ describe("VariantShowComponent", () => {
   let mockPieceRuleService: Partial<PieceRuleService>;
   let mockTerrainRuleService: Partial<TerrainRuleService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockVariantService = {
       get: () =>
         of({
@@ -80,17 +79,14 @@ describe("VariantShowComponent", () => {
           },
         ]),
     };
-    await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, AppModule],
+    TestBed.configureTestingModule({
+      imports: [AppModule],
       providers: [
         { provide: VariantService, useValue: mockVariantService },
         { provide: PieceRuleService, useValue: mockPieceRuleService },
         { provide: TerrainRuleService, useValue: mockTerrainRuleService },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(VariantShowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

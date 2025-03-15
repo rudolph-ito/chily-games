@@ -15,7 +15,7 @@ describe("OhHeckGameShowComponent", () => {
   let mockUserService: Partial<UserService>;
   let mockChatService: Partial<ChatService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockGameService = {
       get: () => of(getMockGame()),
     };
@@ -26,17 +26,14 @@ describe("OhHeckGameShowComponent", () => {
       get: () => of({ chatMessages: [] }),
     };
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         { provide: OhHeckGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
         { provide: ChatService, useValue: mockChatService },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(OhHeckGameShowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
