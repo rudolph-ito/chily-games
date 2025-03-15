@@ -360,9 +360,8 @@ export class CyvasseGameService implements ICyvasseGameService {
     variantId: number
   ): Promise<Map<TerrainType, ITerrainRule>> {
     const result = new Map<TerrainType, ITerrainRule>();
-    const terrainRules = await this.terrainRuleDataService.getTerrainRules(
-      variantId
-    );
+    const terrainRules =
+      await this.terrainRuleDataService.getTerrainRules(variantId);
     terrainRules.forEach((tr) => result.set(tr.terrainTypeId, tr));
     return result;
   }
