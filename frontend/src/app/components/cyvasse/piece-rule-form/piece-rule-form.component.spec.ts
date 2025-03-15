@@ -11,7 +11,7 @@ describe("PieceRuleFormComponent", () => {
   let fixture: ComponentFixture<PieceRuleFormComponent>;
   let mockVariantService: Partial<VariantService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockVariantService = {
       get: () =>
         of({
