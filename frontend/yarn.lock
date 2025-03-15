@@ -10,27 +10,27 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@angular-builders/common@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@angular-builders/common/-/common-1.0.2.tgz#84fbfa7713e71beb6d0f52ef76b266c949e67892"
-  integrity sha512-lUusRq6jN1It5LcUTLS6Q+AYAYGTo/EEN8hV0M6Ek9qXzweAouJaSEnwv7p04/pD7yJTl0YOCbN79u+wGm3x4g==
+"@angular-builders/common@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@angular-builders/common/-/common-2.0.0.tgz#76920a63c50a84669c0a786b6281ae9fbf34560d"
+  integrity sha512-O5YJc++DtJVJhqA/OomRKN2jGYzvU/YXtfrPAqcA9Is3Ob5jvV0L0JHSAjSw/KaLvk/FjBIqoRVcYdLp5LKddA==
   dependencies:
-    "@angular-devkit/core" "^17.1.0"
+    "@angular-devkit/core" "^18.0.0"
     ts-node "^10.0.0"
     tsconfig-paths "^4.1.0"
 
-"@angular-builders/jest@17.0.3":
-  version "17.0.3"
-  resolved "https://registry.yarnpkg.com/@angular-builders/jest/-/jest-17.0.3.tgz#134209757e317d5b25ddade84d66d9a77cec4d9b"
-  integrity sha512-LW4s8t+NLnWR7Aud+EZup8dOBfQF8rfOIncsarDtP/48rz/Ucnzvum7xEt/NYAlZ6y/Dpk7wO6SlqAsaOPf8mA==
+"@angular-builders/jest@18.0.0":
+  version "18.0.0"
+  resolved "https://registry.yarnpkg.com/@angular-builders/jest/-/jest-18.0.0.tgz#04f10017ea8c8cd4ec526aade3fabbf579042bfc"
+  integrity sha512-nPNWMlV1ryjir6CC8dY8f6yaNe0lM1VJwbvYM99HmJSeRo+1IwouQQGUjRM/2Dx4OMAmL4EAPh7Ud2nr3Gj/FA==
   dependencies:
-    "@angular-builders/common" "1.0.2"
-    "@angular-devkit/architect" ">=0.1700.0 < 0.1800.0"
-    "@angular-devkit/core" "^17.0.0"
-    jest-preset-angular "14.0.3"
+    "@angular-builders/common" "2.0.0"
+    "@angular-devkit/architect" ">=0.1800.0 < 0.1900.0"
+    "@angular-devkit/core" "^18.0.0"
+    jest-preset-angular "14.1.0"
     lodash "^4.17.15"
 
-"@angular-devkit/architect@0.1802.15":
+"@angular-devkit/architect@0.1802.15", "@angular-devkit/architect@>=0.1800.0 < 0.1900.0":
   version "0.1802.15"
   resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.1802.15.tgz#515098ebbc9f09a78047dd1c8e5adf4b4cec8f61"
   integrity sha512-fQecGt6k0vFRw+BGDNDV+oVMgdfJie6+VvIK/TWJr+U/+I1rT/+2ZfTE5gFdw66sxW8/d88QFlUIf0v5vgP6ZA==
@@ -38,27 +38,7 @@
     "@angular-devkit/core" "18.2.15"
     rxjs "7.8.1"
 
-"@angular-devkit/architect@>=0.1700.0 < 0.1800.0":
-  version "0.1703.13"
-  resolved "https://registry.yarnpkg.com/@angular-devkit/architect/-/architect-0.1703.13.tgz#aa54e1098caf8c089b61af5b4eecfcc55b18b296"
-  integrity sha512-F4VL+8yyYM8CjnU3d20nleHT0DmAUSc/zZl2r0uNYnMwXfApJ5tUwi5+tkxRyeFQpNogZ5itaMSQN3kTJi3BnQ==
-  dependencies:
-    "@angular-devkit/core" "17.3.13"
-    rxjs "7.8.1"
-
-"@angular-devkit/core@17.3.13", "@angular-devkit/core@^17.0.0", "@angular-devkit/core@^17.1.0":
-  version "17.3.13"
-  resolved "https://registry.yarnpkg.com/@angular-devkit/core/-/core-17.3.13.tgz#246df0943ea3aee965d4e1d98949b58f87c6fbf2"
-  integrity sha512-/ADQaGRzNwEWZ2JnHWD7CFzy1E6HJ/lnf9bWAG49KjhHo23k99d51krn5fnSrLQ4tx6ZSn24E63PIncANNfilw==
-  dependencies:
-    ajv "8.12.0"
-    ajv-formats "2.1.1"
-    jsonc-parser "3.2.1"
-    picomatch "4.0.1"
-    rxjs "7.8.1"
-    source-map "0.7.4"
-
-"@angular-devkit/core@18.2.15":
+"@angular-devkit/core@18.2.15", "@angular-devkit/core@^18.0.0":
   version "18.2.15"
   resolved "https://registry.yarnpkg.com/@angular-devkit/core/-/core-18.2.15.tgz#627ac71e002578934de9b3a5572d21426d6ff550"
   integrity sha512-GjfNjGwh1YG+bXXx7V95XRlJEaHb2sEyRmMyn31iLF9IZIR9So/tXkyHlSEiu/kv0/lzQYN6T4NeBxn7sHxBqw==
@@ -3053,29 +3033,12 @@ aggregate-error@^3.0.0:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
 
-ajv-formats@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/ajv-formats/-/ajv-formats-2.1.1.tgz#6e669400659eb74973bbf2e33327180a0996b520"
-  integrity sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==
-  dependencies:
-    ajv "^8.0.0"
-
 ajv-formats@3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/ajv-formats/-/ajv-formats-3.0.1.tgz#3d5dc762bca17679c3c2ea7e90ad6b7532309578"
   integrity sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==
   dependencies:
     ajv "^8.0.0"
-
-ajv@8.12.0:
-  version "8.12.0"
-  resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.12.0.tgz#d1a0527323e22f53562c567c00991577dfbe19d1"
-  integrity sha512-sRu1kpcO9yLtYxBKvqfTeh9KzZEwO3STyX1HT+4CaDzC6HpTGYhIhPIzj9XuKU7KYDwnaeh5hcOwjy1QuJzBPA==
-  dependencies:
-    fast-deep-equal "^3.1.1"
-    json-schema-traverse "^1.0.0"
-    require-from-string "^2.0.2"
-    uri-js "^4.2.2"
 
 ajv@8.17.1:
   version "8.17.1"
@@ -4875,10 +4838,10 @@ jest-pnp-resolver@^1.2.2:
   resolved "https://registry.yarnpkg.com/jest-pnp-resolver/-/jest-pnp-resolver-1.2.3.tgz#930b1546164d4ad5937d5540e711d4d38d4cad2e"
   integrity sha512-+3NpwQEnRoIBtx4fyhblQDPgJI0H1IEIkX7ShLUjPGA7TtUTvI1oiKi3SR4oBR0hQhQR80l4WAe5RrXBwWMA8w==
 
-jest-preset-angular@14.0.3:
-  version "14.0.3"
-  resolved "https://registry.yarnpkg.com/jest-preset-angular/-/jest-preset-angular-14.0.3.tgz#ce78451a61bad0e4828bd75dd36542ad5bf48dac"
-  integrity sha512-usgBL7x0rXMnMSx8iEFeOozj50W6fp+YAmQcQBUdAXhN+PAXRy4UXL6I/rfcAOU09rnnq7RKsLsmhpp/fFEuag==
+jest-preset-angular@14.1.0:
+  version "14.1.0"
+  resolved "https://registry.yarnpkg.com/jest-preset-angular/-/jest-preset-angular-14.1.0.tgz#f6a00aad6d7c928279696067e662f59a40ba578f"
+  integrity sha512-UJwPtpsAMl30UtBjHW0Ai0hhoKsNURC1dXH5tSYjumUsWR7iDke+oBEykz7uXv4rN+PWgeNIqkxo4KHQjOITlw==
   dependencies:
     bs-logger "^0.2.6"
     esbuild-wasm ">=0.15.13"
@@ -5142,11 +5105,6 @@ json5@^2.2.2, json5@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
-
-jsonc-parser@3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/jsonc-parser/-/jsonc-parser-3.2.1.tgz#031904571ccf929d7670ee8c547545081cb37f1a"
-  integrity sha512-AilxAyFOAcK5wA1+LeaySVBrHsGQvUFCDWXKpZjzaL0PqW+xfBOttn8GNtWKFWqneyMZj41MWF9Kl6iPWLwgOA==
 
 jsonc-parser@3.3.1:
   version "3.3.1"
@@ -5879,11 +5837,6 @@ picocolors@^1.1.0, picocolors@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.1.tgz#3d321af3eab939b083c8f929a1d12cda81c26b6b"
   integrity sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==
-
-picomatch@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-4.0.1.tgz#68c26c8837399e5819edce48590412ea07f17a07"
-  integrity sha512-xUXwsxNjwTQ8K3GnT4pCJm+xq3RUPQbmkYJTP5aFIfNIvbcc/4MUxgBaaRSZJ6yGJZiGSyYlM6MzwTsRk8SYCg==
 
 picomatch@4.0.2:
   version "4.0.2"
