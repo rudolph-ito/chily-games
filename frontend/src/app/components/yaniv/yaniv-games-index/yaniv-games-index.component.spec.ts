@@ -9,17 +9,14 @@ describe("YanivGamesIndexComponent", () => {
   let fixture: ComponentFixture<YanivGamesIndexComponent>;
   let mockGameService: Partial<YanivGameService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockGameService = {
       search: () => of({ data: [], total: 0 }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [{ provide: YanivGameService, useValue: mockGameService }],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(YanivGamesIndexComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -10,19 +10,16 @@ describe("ChallengesIndexComponent", () => {
   let fixture: ComponentFixture<ChallengesIndexComponent>;
   let mockChallengeService: Partial<ChallengeService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockChallengeService = {
       search: () => of({ data: [], total: 0 }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         { provide: ChallengeService, useValue: mockChallengeService },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(ChallengesIndexComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

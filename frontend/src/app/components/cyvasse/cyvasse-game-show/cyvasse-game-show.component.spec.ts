@@ -16,7 +16,7 @@ describe("CyvasseGameShowComponent", () => {
   let mockUserService: Partial<UserService>;
   let mockVariantService: Partial<VariantService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockGameService = {
       get: () =>
         of({
@@ -55,17 +55,14 @@ describe("CyvasseGameShowComponent", () => {
           pieceRanks: false,
         }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         { provide: CyvasseGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
         { provide: VariantService, useValue: mockVariantService },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(CyvasseGameShowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

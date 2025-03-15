@@ -9,11 +9,11 @@ describe("OhHeckNewGameDialogComponent", () => {
   let fixture: ComponentFixture<OhHeckNewGameDialogComponent>;
   let matDialogRef: Partial<MatDialogRef<OhHeckNewGameDialogComponent>>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     matDialogRef = {
       close: jest.fn(),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         {
@@ -22,10 +22,7 @@ describe("OhHeckNewGameDialogComponent", () => {
         },
         { provide: MatDialogRef, useValue: matDialogRef },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(OhHeckNewGameDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

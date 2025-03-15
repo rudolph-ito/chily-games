@@ -10,17 +10,14 @@ describe("OhHeckGamesIndexComponent", () => {
   let fixture: ComponentFixture<OhHeckGamesIndexComponent>;
   let mockGameService: Partial<OhHeckGameService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockGameService = {
       search: () => of({ data: [], total: 0 }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [{ provide: OhHeckGameService, useValue: mockGameService }],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(OhHeckGamesIndexComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

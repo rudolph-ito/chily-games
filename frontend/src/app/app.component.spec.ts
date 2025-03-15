@@ -13,9 +13,9 @@ describe("AppComponent", () => {
   let fixture: ComponentFixture<AppComponent>;
   let mockedAuthenticationService: IMockedAuthenticationService;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockedAuthenticationService = getMockAuthenticationService();
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [RouterTestingModule, AppModule],
       providers: [
         {
@@ -23,10 +23,7 @@ describe("AppComponent", () => {
           useValue: mockedAuthenticationService.service,
         },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

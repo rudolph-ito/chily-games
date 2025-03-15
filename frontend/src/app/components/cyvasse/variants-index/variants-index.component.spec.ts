@@ -10,17 +10,14 @@ describe("VariantsIndexComponent", () => {
   let fixture: ComponentFixture<VariantsIndexComponent>;
   let mockVariantService: Partial<VariantService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockVariantService = {
       search: () => of({ data: [], total: 0 }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [{ provide: VariantService, useValue: mockVariantService }],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(VariantsIndexComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

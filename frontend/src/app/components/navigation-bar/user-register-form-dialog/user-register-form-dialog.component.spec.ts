@@ -10,17 +10,14 @@ describe("UserRegisterFormDialogComponent", () => {
   let fixture: ComponentFixture<UserRegisterFormDialogComponent>;
   let matDialogRef: Partial<MatDialogRef<UserRegisterFormDialogComponent>>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     matDialogRef = {
       close: jest.fn(),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, AppModule],
       providers: [{ provide: MatDialogRef, useValue: matDialogRef }],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(UserRegisterFormDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

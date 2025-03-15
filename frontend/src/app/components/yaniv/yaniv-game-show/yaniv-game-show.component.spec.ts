@@ -14,7 +14,7 @@ describe("YanivGameShowComponent", () => {
   let mockUserService: Partial<UserService>;
   let mockChatService: Partial<ChatService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockGameService = {
       get: () =>
         of({
@@ -37,17 +37,14 @@ describe("YanivGameShowComponent", () => {
       get: () => of({ chatMessages: [] }),
     };
 
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         { provide: YanivGameService, useValue: mockGameService },
         { provide: UserService, useValue: mockUserService },
         { provide: ChatService, useValue: mockChatService },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(YanivGameShowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

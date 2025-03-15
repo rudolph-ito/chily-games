@@ -10,17 +10,14 @@ describe("CyvasseGamesIndexComponent", () => {
   let fixture: ComponentFixture<CyvasseGamesIndexComponent>;
   let mockGameService: Partial<CyvasseGameService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockGameService = {
       search: () => of({ data: [], total: 0 }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [{ provide: CyvasseGameService, useValue: mockGameService }],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(CyvasseGamesIndexComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

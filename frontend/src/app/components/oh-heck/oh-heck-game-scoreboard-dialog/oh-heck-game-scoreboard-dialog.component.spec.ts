@@ -9,8 +9,8 @@ describe("OhHeckGameScoreboardDialogComponent", () => {
   let component: OhHeckGameScoreboardDialogComponent;
   let fixture: ComponentFixture<OhHeckGameScoreboardDialogComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [
         {
@@ -18,10 +18,7 @@ describe("OhHeckGameScoreboardDialogComponent", () => {
           useValue: { game: getMockGame() },
         },
       ],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(OhHeckGameScoreboardDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

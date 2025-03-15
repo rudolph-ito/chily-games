@@ -10,17 +10,14 @@ describe("ChatComponent", () => {
   let fixture: ComponentFixture<ChatComponent>;
   let mockChatService: Partial<ChatService>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     mockChatService = {
       get: () => of({ chatMessages: [] }),
     };
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       imports: [AppModule],
       providers: [{ provide: ChatService, useValue: mockChatService }],
-    }).compileComponents();
-  });
-
-  beforeEach(() => {
+    });
     fixture = TestBed.createComponent(ChatComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
