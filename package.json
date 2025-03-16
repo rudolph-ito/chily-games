@@ -1,21 +1,18 @@
 {
   "private": true,
   "scripts": {
-    "lint": "eslint '{api,frontend,shared}/**/*.{js,ts}'",
+    "lint": "eslint '{api,frontend,shared}/**/*.ts'",
     "prettier": "prettier '**/*.{js,ts,html,scss}'"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.2",
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.14.0",
-    "@typescript-eslint/eslint-plugin": "8.14.0",
-    "@typescript-eslint/parser": "8.14.0",
-    "eslint": "9.14.0",
+    "@eslint/js": "9.22.0",
+    "eslint": "9.22.0",
     "eslint-config-prettier": "10.1.1",
     "eslint-plugin-import": "2.31.0",
     "foreman": "3.0.1",
     "prettier": "3.5.3",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "typescript-eslint": "8.26.1"
   },
   "dependencies": {}
 }

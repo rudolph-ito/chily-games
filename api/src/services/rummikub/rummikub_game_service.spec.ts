@@ -11,10 +11,10 @@ import {
   GameState,
   IGame,
   IDoneWithTurnResponse,
+  IUpdateSets,
 } from "../../shared/dtos/rummikub/game";
 import { createTestRummikubRoundActiveGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
-import { IUpdateSets } from "../../shared/dtos/rummikub/game";
 
 interface ITestSaveLatestUpdateSetsResult {
   error?: Error;
