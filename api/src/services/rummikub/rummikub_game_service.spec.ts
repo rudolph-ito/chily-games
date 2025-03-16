@@ -13,7 +13,7 @@ import {
   IDoneWithTurnResponse,
   IUpdateSets,
 } from "../../shared/dtos/rummikub/game";
-import { createTestRummikubRoundActiveGame } from "../../../test/rummikub_test_helper";
+import { createTestRummikubGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
 
 interface ITestSaveLatestUpdateSetsResult {
@@ -129,12 +129,64 @@ describe("RummikubGameService", () => {
   resetDatabaseBeforeEach();
 
   describe("saveLatestUpdateSets", () => {
+    it("throws a validation error if game not found", async () => {
+      // arrange
+      const userCreds = createTestCredentials("test");
+      const userId = await createTestUser(userCreds);
+      const gameId = 1;
+      const updateSets: IUpdateSets = {
+        sets: [],
+        tilesAdded: [],
+        remainingTiles: [],
+      };
+
+      // act
+      const error = await testSaveLatestUpdateSetsExpectError(
+        userId,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(error).to.be.instanceOf(NotFoundError);
+      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+    });
+
+    it("throws a validation error if round is not active", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.ROUND_COMPLETE,
+        sets: [],
+        playerTiles: [[], []],
+        tilePool: [],
+      });
+      const updateSets: IUpdateSets = {
+        sets: [],
+        tilesAdded: [],
+        remainingTiles: [],
+      };
+
+      // act
+      const error = await testSaveLatestUpdateSetsExpectError(
+        user1Id,
+        gameId,
+        updateSets
+      );
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error.message).to.eql('Validation errors: "Round is not active."');
+    });
+
     it("throws a validation error if sets includes tile not in user hand", async () => {
       // Arrange
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
@@ -183,7 +235,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
@@ -228,7 +280,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
@@ -273,7 +325,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
@@ -318,7 +370,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
@@ -360,7 +412,7 @@ describe("RummikubGameService", () => {
     });
   });
 
-  describe("play", () => {
+  describe("done with turn", () => {
     it("throws a validation error if game not found", async () => {
       // arrange
       const userCreds = createTestCredentials("test");
@@ -375,12 +427,34 @@ describe("RummikubGameService", () => {
       expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
     });
 
+    it("throws a validation error if round is not active", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.ROUND_COMPLETE,
+        sets: [],
+        playerTiles: [[], []],
+        tilePool: [],
+      });
+
+      // act
+      const error = await testDoneWithTurnExpectError(user1Id, gameId);
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Round is not active."'
+      );
+    });
+
     it("throws a validation error if action is not to user", async () => {
       // arrange
       const {
         userIds: [, user2Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [],
         playerTiles: [[], []],
         tilePool: [],
@@ -402,7 +476,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [
             { rank: 8, color: TileColor.BLACK },
             { rank: 8, color: TileColor.RED },
@@ -462,7 +536,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [
             [
@@ -504,7 +578,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [
             { rank: 10, color: TileColor.YELLOW },
             { rank: 10, color: TileColor.RED },
@@ -555,7 +629,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [
             [
@@ -620,7 +694,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [
             { rank: 10, color: TileColor.YELLOW },
             { rank: 10, color: TileColor.RED },
@@ -685,7 +759,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [
             { rank: 10, color: TileColor.YELLOW },
             { rank: 10, color: TileColor.RED },
@@ -756,7 +830,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [
             { rank: 10, color: TileColor.YELLOW },
             { rank: 10, color: TileColor.RED },
@@ -838,7 +912,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
           tilePool: [
@@ -882,7 +956,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [
             [
@@ -942,7 +1016,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
           tilePool: [],
@@ -979,7 +1053,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [
             [{ rank: 10, color: TileColor.BLACK }],
@@ -1023,7 +1097,7 @@ describe("RummikubGameService", () => {
         const {
           userIds: [user1Id, user2Id],
           gameId,
-        } = await createTestRummikubRoundActiveGame({
+        } = await createTestRummikubGame({
           sets: [],
           playerTiles: [
             [{ rank: 10, color: TileColor.BLACK }],
@@ -1073,9 +1147,36 @@ describe("RummikubGameService", () => {
   });
 
   describe("rearrange tiles", () => {
+    it("throws a validation error if round is not active", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.ROUND_COMPLETE,
+        sets: [],
+        playerTiles: [[], []],
+        tilePool: [],
+      });
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new RummikubGameService().rearrangeTiles(user1Id, gameId, []);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Round is not active."'
+      );
+    });
+
     it("throws a validation error if player is not in game", async () => {
       // arrange
-      const { gameId } = await createTestRummikubRoundActiveGame({
+      const { gameId } = await createTestRummikubGame({
         sets: [],
         playerTiles: [[], []],
         tilePool: [],
@@ -1102,7 +1203,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [],
         playerTiles: [[{ rank: 1, color: TileColor.BLACK }], []],
         tilePool: [],
@@ -1131,7 +1232,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [],
         playerTiles: [
           [
@@ -1165,7 +1266,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [],
         playerTiles: [
           [
@@ -1204,7 +1305,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [],
         playerTiles: [
           [
@@ -1253,7 +1354,7 @@ describe("RummikubGameService", () => {
       const {
         userIds: [user1Id, user2Id],
         gameId,
-      } = await createTestRummikubRoundActiveGame({
+      } = await createTestRummikubGame({
         sets: [],
         playerTiles: [
           [
