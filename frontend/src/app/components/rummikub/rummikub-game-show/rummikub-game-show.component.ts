@@ -123,7 +123,13 @@ export class RummikubGameShowComponent {
         this.game.state = event.updatedGameState;
         this.game.playerStates = event.playerStates;
         this.game.roundScores.push(event.roundScore);
-        // snackbar message round is over, open score dialog
+        const winningPlayer = this.game.playerStates.find(
+          (x) => x.userId == event.winnerUserId
+        );
+        if (winningPlayer == null) {
+          throw new Error("Winning player unexpectedly null");
+        }
+        this.viewScores(`${winningPlayer.displayName} won this round.`);
       });
     this.socket
       .fromEvent("new-game-started")
@@ -167,9 +173,9 @@ export class RummikubGameShowComponent {
     }
   }
 
-  viewScores(): void {
+  viewScores(message: string = ""): void {
     this.dialog.open(RummikubGameScoreboardDialogComponent, {
-      data: { game: this.game },
+      data: { game: this.game, message },
     });
   }
 

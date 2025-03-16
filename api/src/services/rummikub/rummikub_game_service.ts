@@ -388,11 +388,9 @@ export class RummikubGameService implements IRummikubGameService {
       const roundFinishedEvent = await this.finalizeRound(
         game,
         lastAction,
+        userId,
         completedRound,
-        {
-          actionToUserId: userId,
-          ...updates,
-        }
+        updates
       );
       return { roundFinishedEvent };
     } else {
@@ -438,9 +436,9 @@ export class RummikubGameService implements IRummikubGameService {
         const roundFinishedEvent = await this.finalizeRound(
           game,
           lastAction,
+          winnerUserId,
           completedRound,
           {
-            actionToUserId: winnerUserId,
             players: game.players,
             lastValidUpdateSets: null,
           }
@@ -547,6 +545,7 @@ export class RummikubGameService implements IRummikubGameService {
   private async finalizeRound(
     game: ISerializedRummikubGame,
     lastAction: ILastAction,
+    winnerUserId: number,
     completedRound: IRummikubRoundPlayerScore[],
     otherUpdates: IRummikubGameUpdateOptions
   ): Promise<IRoundFinishedEvent> {
@@ -566,12 +565,14 @@ export class RummikubGameService implements IRummikubGameService {
       game.version,
       {
         ...otherUpdates,
+        actionToUserId: winnerUserId,
         state: updatedGameState,
         completedRounds: updatedCompletedRounds,
       }
     );
     return {
       lastAction,
+      winnerUserId,
       playerStates: await this.loadPlayerStates(updatedGame),
       roundScore,
       updatedGameState,

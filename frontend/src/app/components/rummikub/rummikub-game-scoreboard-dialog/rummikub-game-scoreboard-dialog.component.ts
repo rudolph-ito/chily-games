@@ -8,6 +8,7 @@ import {
 } from "src/app/utils/rummikub/score-helpers";
 
 export interface IRummikubGameScoreboardDialogData {
+  message: string;
   game: IGame;
 }
 

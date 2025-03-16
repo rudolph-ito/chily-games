@@ -90,6 +90,7 @@ export interface IActionToNextPlayerEvent {
 
 export interface IRoundFinishedEvent {
   lastAction: ILastAction;
+  winnerUserId: number;
   playerStates: IPlayerState[];
   roundScore: IRoundScore;
   updatedGameState: GameState;
