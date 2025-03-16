@@ -1,5 +1,6 @@
 <div mat-dialog-title>Scoreboard</div>
 <mat-dialog-content>
+  <div *ngIf="data.message !== ''" class="message">{{ data.message }}</div>
   <table mat-table [dataSource]="scoresDataSource">
     <ng-container
       *ngFor="let playerState of data.game.playerStates"
