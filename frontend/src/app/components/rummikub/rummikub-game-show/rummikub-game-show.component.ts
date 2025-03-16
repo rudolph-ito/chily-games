@@ -438,7 +438,7 @@ export class RummikubGameShowComponent {
   }
 
   navigateToGame(gameId: number): void {
-    this.router.navigate([`yaniv/games/${gameId}`]);
+    this.router.navigate([`rummikub/games/${gameId}`]);
   }
 
   getChatId(): string {
