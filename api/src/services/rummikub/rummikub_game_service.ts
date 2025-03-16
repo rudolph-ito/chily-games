@@ -180,6 +180,9 @@ export class RummikubGameService implements IRummikubGameService {
     updateSets: IUpdateSets
   ): Promise<IUpdateSets> {
     const game = await this.gameDataService.get(gameId);
+    if (game.state !== GameState.ROUND_ACTIVE) {
+      throw new ValidationError("Cannot update sets unless round is active");
+    }
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }

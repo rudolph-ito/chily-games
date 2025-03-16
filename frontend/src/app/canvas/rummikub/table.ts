@@ -96,6 +96,7 @@ export class RummikubTable {
   private playerDisplays: Map<number, IPlayerDisplay>;
   private currentUserId: number | null;
   private actionToUserId: number | null;
+  private gameState: GameState | null;
   private boardGridDropSites: IBoardCellDropSite[];
   private tilePoolText: KonvaText;
   private setTileDisplays: (ITileDisplay | null)[] = [];
@@ -155,6 +156,7 @@ export class RummikubTable {
         }
     );
     this.updateActionTo(game.actionToUserId);
+    this.updateGameState(game.state);
     this.initializeTilePool();
     this.updateTilePoolCount(game.tilePoolCount);
     this.resize();
@@ -181,6 +183,10 @@ export class RummikubTable {
         actionResponse.actionToNextPlayerEvent?.actionToUserId
       );
     }
+  }
+
+  updateGameState(state: GameState): void {
+    this.gameState = state;
   }
 
   updateStateWithUserAction(
@@ -1105,6 +1111,9 @@ export class RummikubTable {
   private getDraggedTileNewIndex(
     tileDisplay: ITileDisplay
   ): IDraggedTileNewIndex {
+    if (this.gameState != GameState.ROUND_ACTIVE) {
+      return {};
+    }
     const newX = tileDisplay.group.x();
     const newY = tileDisplay.group.y();
     for (let index = 0; index < BOARD_NUM_TILES; index++) {

@@ -129,6 +129,11 @@ export class RummikubGameShowComponent {
         if (winningPlayer == null) {
           throw new Error("Winning player unexpectedly null");
         }
+        this.table.updateStateWithUserAction(
+          event.lastAction,
+          event.winnerUserId
+        );
+        this.table.updateGameState(event.updatedGameState);
         this.viewScores(`${winningPlayer.displayName} won this round.`);
       });
     this.socket
