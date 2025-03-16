@@ -1,9 +1,9 @@
 <div mat-dialog-title>Scoreboard</div>
-<mat-checkbox [formControl]="showBetsControl">Show Bets</mat-checkbox>
-<div *ngIf="showBetsControl.value" class="info">
-  Format: score (bet / taken)
-</div>
 <mat-dialog-content>
+  <mat-checkbox [formControl]="showBetsControl">Show Bets</mat-checkbox>
+  <div *ngIf="showBetsControl.value" class="info">
+    Format: score (bet / taken)
+  </div>
   <table mat-table [dataSource]="scoresDataSource">
     <ng-container
       *ngFor="let playerState of data.game.playerStates"
