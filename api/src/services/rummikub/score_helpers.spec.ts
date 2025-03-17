@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { getTilesScore } from "./score_helpers";
 import { ITile, TileColor } from "../../shared/dtos/rummikub/tile";
 
@@ -46,7 +45,7 @@ describe("Rummikub ScoreHelpers", () => {
         const result = getTilesScore(example.tiles);
 
         // assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
   });

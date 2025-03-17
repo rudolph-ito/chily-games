@@ -1,6 +1,4 @@
 import { CyvasseHexagonalBoard } from "./cyvasse_hexagonal_board";
-import { expect } from "chai";
-import { describe, it } from "mocha";
 
 describe("CyvasseHexagonalBoard", () => {
   describe("getCoordinateDistance", () => {
@@ -14,7 +12,7 @@ describe("CyvasseHexagonalBoard", () => {
       const distance = board.getCoordinateDistance(coordinateA, coordinateB);
 
       // Assert
-      expect(distance).to.eql(4);
+      expect(distance).toEqual(4);
     });
 
     it("returns correct value for orthogonal line (diagonal)", () => {
@@ -27,7 +25,7 @@ describe("CyvasseHexagonalBoard", () => {
       const distance = board.getCoordinateDistance(coordinateA, coordinateB);
 
       // Assert
-      expect(distance).to.eql(4);
+      expect(distance).toEqual(4);
     });
 
     it("returns correct value for orthogonal with turns", () => {
@@ -40,7 +38,7 @@ describe("CyvasseHexagonalBoard", () => {
       const distance = board.getCoordinateDistance(coordinateA, coordinateB);
 
       // Assert
-      expect(distance).to.eql(4);
+      expect(distance).toEqual(4);
     });
   });
 });

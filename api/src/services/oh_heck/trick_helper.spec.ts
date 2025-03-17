@@ -1,6 +1,5 @@
-import { expect } from "chai";
 import { getTrickWinner, validatePlay } from "./trick_helper";
-import { describe, it } from "mocha";
+
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
 import { ITrickPlayerCard } from "../../shared/dtos/oh_heck/game";
 
@@ -90,7 +89,7 @@ describe("TrickHelper", () => {
         );
 
         // Assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
   });
@@ -167,7 +166,7 @@ describe("TrickHelper", () => {
         const result = getTrickWinner(example.trick);
 
         // Assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
   });

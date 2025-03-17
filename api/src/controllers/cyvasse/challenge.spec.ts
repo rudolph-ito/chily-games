@@ -15,8 +15,7 @@ import {
   IChallengeOptions,
   ChallengePlayAs,
 } from "../../shared/dtos/cyvasse/challenge";
-import { expect } from "chai";
-import { describe, it } from "mocha";
+
 import { CyvasseChallengeService } from "../../services/cyvasse/cyvasse_challenge_service";
 import { IGame } from "../../shared/dtos/cyvasse/game";
 import { StatusCodes } from "http-status-codes";
@@ -28,11 +27,11 @@ describe("CyvasseChallengeRoutes", () => {
   let user1Id: number;
   let variantId: number;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -74,8 +73,8 @@ describe("CyvasseChallengeRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
-      expect(response.body.challengeId).to.exist();
+      expect(response.body).toBeDefined();
+      expect(response.body.challengeId).toBeDefined();
     });
   });
 
@@ -134,7 +133,7 @@ describe("CyvasseChallengeRoutes", () => {
         await new CyvasseChallengeService().searchChallenges({
           pagination: { pageSize: 10, pageIndex: 0 },
         });
-      expect(paginatedChallenges.total).to.equal(0);
+      expect(paginatedChallenges.total).toEqual(0);
     });
   });
 
@@ -178,7 +177,7 @@ describe("CyvasseChallengeRoutes", () => {
           .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
         // Assert
-        expect(response.body).to.eql({
+        expect(response.body).toEqual({
           challengeId: "Cannot accept your own challenge",
         });
       });
@@ -195,15 +194,15 @@ describe("CyvasseChallengeRoutes", () => {
           .expect(StatusCodes.OK);
 
         // Assert
-        expect(response.body).to.exist();
+        expect(response.body).toBeDefined();
         const game: IGame = response.body;
-        expect(game.alabasterUserId).to.eql(user1Id);
-        expect(game.onyxUserId).to.eql(user2Id);
+        expect(game.alabasterUserId).toEqual(user1Id);
+        expect(game.onyxUserId).toEqual(user2Id);
         const paginatedChallenges =
           await new CyvasseChallengeService().searchChallenges({
             pagination: { pageSize: 10, pageIndex: 0 },
           });
-        expect(paginatedChallenges.total).to.equal(0);
+        expect(paginatedChallenges.total).toEqual(0);
       });
     });
 
@@ -239,7 +238,7 @@ describe("CyvasseChallengeRoutes", () => {
           .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
         // Assert
-        expect(response.body).to.eql({
+        expect(response.body).toEqual({
           challengeId: "Cannot accept your own challenge",
         });
       });
@@ -254,7 +253,7 @@ describe("CyvasseChallengeRoutes", () => {
           .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
         // Assert
-        expect(response.body).to.eql({
+        expect(response.body).toEqual({
           challengeId: "Cannot accept challenge for other user",
         });
       });
@@ -269,15 +268,15 @@ describe("CyvasseChallengeRoutes", () => {
           .expect(StatusCodes.OK);
 
         // Assert
-        expect(response.body).to.exist();
+        expect(response.body).toBeDefined();
         const game: IGame = response.body;
-        expect(game.alabasterUserId).to.eql(user1Id);
-        expect(game.onyxUserId).to.eql(user2Id);
+        expect(game.alabasterUserId).toEqual(user1Id);
+        expect(game.onyxUserId).toEqual(user2Id);
         const paginatedChallenges =
           await new CyvasseChallengeService().searchChallenges({
             pagination: { pageSize: 10, pageIndex: 0 },
           });
-        expect(paginatedChallenges.total).to.equal(0);
+        expect(paginatedChallenges.total).toEqual(0);
       });
     });
   });
