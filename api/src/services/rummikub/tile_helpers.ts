@@ -67,16 +67,22 @@ export function areTilesEqual(a: ITile, b: ITile): boolean {
   return a.rank === b.rank && a.color === b.color;
 }
 
-export function standardTiles(duplicateCount: number): ITile[] {
+export interface StandardTileOptions {
+  useExpansion: boolean;
+}
+
+export function standardTiles(options: StandardTileOptions): ITile[] {
   const deck: ITile[] = [];
   // colored numbers
-  for (let i = 0; i < duplicateCount; i++) {
+  const coloredNumberCount = options.useExpansion ? 3 : 2;
+  for (let i = 0; i < coloredNumberCount; i++) {
     for (let i = 0; i < NUMBER_OF_NON_JOKER_TILES; i++) {
       deck.push(deserializeTile(i));
     }
   }
   // jokers
-  for (let i = 0; i < duplicateCount; i++) {
+  const jokerCount = options.useExpansion ? 4 : 2;
+  for (let i = 0; i < jokerCount; i++) {
     deck.push(deserializeTile(NUMBER_OF_NON_JOKER_TILES + i));
   }
   shuffle(deck);

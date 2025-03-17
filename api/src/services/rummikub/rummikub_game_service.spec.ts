@@ -128,6 +128,161 @@ async function testDoneWithTurnExpectSuccess(
 describe("RummikubGameService", () => {
   resetDatabaseBeforeEach();
 
+  describe("join", () => {
+    it("throws a validation error if game not found", async () => {
+      // arrange
+      const user1Id = await createTestUser(createTestCredentials("test1"));
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new RummikubGameService().join(user1Id, 1);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(NotFoundError);
+      expect(error?.message).to.eql(`Game does not exist with id: 1`);
+    });
+
+    it("throws a validation error if user already in game", async () => {
+      // arrange
+      const user1Id = await createTestUser(createTestCredentials("test1"));
+      const { gameId } = await new RummikubGameService().create(user1Id, {
+        playTo: 100,
+        hideTileCount: true,
+      });
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new RummikubGameService().join(user1Id, gameId);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql(
+        'Validation errors: "Already joined game."'
+      );
+    });
+
+    it("throws a validation error if game is full", async () => {
+      // arrange
+      const { gameId } = await createTestRummikubGame({
+        state: GameState.PLAYERS_JOINING,
+        sets: [],
+        playerTiles: [[], [], [], [], [], []],
+        tilePool: [],
+      });
+      const user7Id = await createTestUser(createTestCredentials("test7"));
+
+      // act
+      let error: Error | null = null;
+      try {
+        await new RummikubGameService().join(user7Id, gameId);
+      } catch (e) {
+        error = e;
+      }
+
+      // assert
+      expect(error).to.be.instanceOf(ValidationError);
+      expect(error?.message).to.eql('Validation errors: "Game is full."');
+    });
+  });
+
+  describe("start round", () => {
+    it("gives players 20 tiles if only two players", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.PLAYERS_JOINING,
+        sets: [],
+        playerTiles: [[], []],
+        tilePool: [],
+      });
+
+      // act
+      const updatedGame = await new RummikubGameService().startRound(
+        user1Id,
+        gameId
+      );
+
+      // assert
+      expect(updatedGame.playerStates[0].numberOfTiles).to.eql(20);
+    });
+
+    it("gives players 14 tiles if 3 or more players", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.PLAYERS_JOINING,
+        sets: [],
+        playerTiles: [[], [], []],
+        tilePool: [],
+      });
+
+      // act
+      const updatedGame = await new RummikubGameService().startRound(
+        user1Id,
+        gameId
+      );
+
+      // assert
+      expect(updatedGame.playerStates[0].numberOfTiles).to.eql(14);
+    });
+
+    it("uses a total of 106 tiles if 4 or less players", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.PLAYERS_JOINING,
+        sets: [],
+        playerTiles: [[], [], [], []],
+        tilePool: [],
+      });
+
+      // act
+      const updatedGame = await new RummikubGameService().startRound(
+        user1Id,
+        gameId
+      );
+
+      // assert
+      expect(updatedGame.tilePoolCount).to.eql(106 - 4 * 14);
+    });
+
+    it("uses a total of 160 tiles if 5 or 6 players", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.PLAYERS_JOINING,
+        sets: [],
+        playerTiles: [[], [], [], [], []],
+        tilePool: [],
+      });
+
+      // act
+      const updatedGame = await new RummikubGameService().startRound(
+        user1Id,
+        gameId
+      );
+
+      // assert
+      expect(updatedGame.tilePoolCount).to.eql(160 - 5 * 14);
+    });
+  });
+
   describe("saveLatestUpdateSets", () => {
     it("throws a validation error if game not found", async () => {
       // arrange
