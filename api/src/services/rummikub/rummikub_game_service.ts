@@ -113,6 +113,9 @@ export class RummikubGameService implements IRummikubGameService {
     if (game.players.some((x) => x.userId === userId)) {
       throw new ValidationError("Already joined game.");
     }
+    if (game.players.length == 6) {
+      throw new ValidationError("Game is full.");
+    }
     game = await this.gameDataService.update(game.gameId, game.version, {
       players: game.players.concat([this.createPlayer(userId)]),
     });
@@ -133,11 +136,12 @@ export class RummikubGameService implements IRummikubGameService {
     ) {
       throw new ValidationError("Invalid state to start round");
     }
-    const tilePool = standardTiles(2);
+    const tilePool = standardTiles({ useExpansion: game.players.length > 4 });
     const updatedPlayers: IRummikubPlayer[] = game.players.map((x) =>
       this.createPlayer(x.userId)
     );
-    for (let i = 0; i < 14; i++) {
+    const initialTileCount = game.players.length == 2 ? 20 : 14;
+    for (let i = 0; i < initialTileCount; i++) {
       updatedPlayers.forEach((x) => {
         const nextCard = tilePool.pop();
         if (nextCard == null) {
