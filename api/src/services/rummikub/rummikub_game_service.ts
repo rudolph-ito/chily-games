@@ -160,6 +160,9 @@ export class RummikubGameService implements IRummikubGameService {
     gameId: number
   ): Promise<IDoneWithTurnResponse> {
     const game = await this.gameDataService.get(gameId);
+    if (game.state !== GameState.ROUND_ACTIVE) {
+      throw new ValidationError("Round is not active.");
+    }
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
@@ -180,6 +183,9 @@ export class RummikubGameService implements IRummikubGameService {
     updateSets: IUpdateSets
   ): Promise<IUpdateSets> {
     const game = await this.gameDataService.get(gameId);
+    if (game.state !== GameState.ROUND_ACTIVE) {
+      throw new ValidationError("Round is not active.");
+    }
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
@@ -247,6 +253,9 @@ export class RummikubGameService implements IRummikubGameService {
     gameId: number
   ): Promise<IUpdateSets> {
     const game = await this.gameDataService.get(gameId);
+    if (game.state !== GameState.ROUND_ACTIVE) {
+      throw new ValidationError("Round is not active.");
+    }
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
@@ -274,6 +283,9 @@ export class RummikubGameService implements IRummikubGameService {
     tiles: (ITile | null)[]
   ): Promise<void> {
     const game = await this.gameDataService.get(gameId);
+    if (game.state !== GameState.ROUND_ACTIVE) {
+      throw new ValidationError("Round is not active.");
+    }
     const player = game.players.find((x) => x.userId === userId);
     if (player == null) {
       throw new ValidationError("You are not a player in this game.");

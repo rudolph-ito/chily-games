@@ -14,14 +14,6 @@ import {
   IUserCredentials,
 } from "./test_helper";
 
-export async function createTestRummikubGame(
-  userId: number,
-  options: IGameOptions
-): Promise<number> {
-  const game = await new RummikubGameService().create(userId, options);
-  return game.gameId;
-}
-
 export async function joinTestRummikubGame(
   userId: number,
   gameId: number
@@ -39,6 +31,7 @@ interface ITestGameOptions {
   playerPassedLastTurn?: boolean[];
   playerRoundScores?: number[][];
   createOptions?: IGameOptions;
+  state?: GameState;
 }
 
 interface ITestGame {
@@ -47,7 +40,7 @@ interface ITestGame {
   gameId: number;
 }
 
-export async function createTestRummikubRoundActiveGame(
+export async function createTestRummikubGame(
   options: ITestGameOptions
 ): Promise<ITestGame> {
   const gameService = new RummikubGameService();
@@ -87,7 +80,7 @@ export async function createTestRummikubRoundActiveGame(
     });
   });
   await gameDataService.update(game.gameId, game.version, {
-    state: GameState.ROUND_ACTIVE,
+    state: options.state ?? GameState.ROUND_ACTIVE,
     actionToUserId: userIds[0],
     latestUpdateSets: options.latestUpdateSets,
     lastValidUpdateSets: options.lastValidUpdateSets,
