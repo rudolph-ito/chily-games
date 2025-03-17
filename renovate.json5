@@ -19,7 +19,7 @@
       "groupName": "angular packages"
     },
     {
-      "packagePatterns": ["mocha", "chai", "sinon"],
+      "packagePatterns": ["jest", "ts-jest"],
       "groupName": "unit test packages"
     }
   ],

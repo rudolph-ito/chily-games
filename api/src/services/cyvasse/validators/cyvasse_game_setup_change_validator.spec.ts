@@ -1,5 +1,3 @@
-import { expect } from "chai";
-import { describe, it } from "mocha";
 import {
   validateGameSetupChange,
   IValidateGameSetupChangeOptions,
@@ -34,7 +32,7 @@ describe("Cyvasse - validateGameSetupChange", () => {
     const error = validateGameSetupChange(options);
 
     // Assert
-    expect(error).to.eql(
+    expect(error).toEqual(
       "Must have exactly one piece change or terrain change"
     );
   });
@@ -63,7 +61,7 @@ describe("Cyvasse - validateGameSetupChange", () => {
     const error = validateGameSetupChange(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 
   it("returns null if happy path deleting a piece", () => {
@@ -95,7 +93,7 @@ describe("Cyvasse - validateGameSetupChange", () => {
     const error = validateGameSetupChange(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 
   it("returns null if happy path moving a piece", () => {
@@ -128,6 +126,6 @@ describe("Cyvasse - validateGameSetupChange", () => {
     const error = validateGameSetupChange(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 });

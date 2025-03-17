@@ -1,5 +1,3 @@
-import { describe, it } from "mocha";
-import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
   createTestUser,
@@ -30,11 +28,11 @@ describe("CyvassePieceRuleRoutes", () => {
   let creatorId: number;
   let variantId: number;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -92,7 +90,7 @@ describe("CyvassePieceRuleRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         pieceTypeId: "Piece type is required",
         count: "Count is required",
         movement: {
@@ -114,8 +112,8 @@ describe("CyvassePieceRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
-      expect(response.body.pieceRuleId).to.exist();
+      expect(response.body).toBeDefined();
+      expect(response.body.pieceRuleId).toBeDefined();
     });
   });
 
@@ -174,7 +172,7 @@ describe("CyvassePieceRuleRoutes", () => {
       const pieceRules = await new CyvassePieceRuleDataService().getPieceRules(
         variantId
       );
-      expect(pieceRules.map((pr) => pr.pieceTypeId)).to.eql([PieceType.KING]);
+      expect(pieceRules.map((pr) => pr.pieceTypeId)).toEqual([PieceType.KING]);
     });
   });
 
@@ -189,9 +187,9 @@ describe("CyvassePieceRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const pieceRules: IPieceRule[] = response.body;
-      expect(pieceRules.map((pr) => pr.pieceTypeId)).to.eql([PieceType.KING]);
+      expect(pieceRules.map((pr) => pr.pieceTypeId)).toEqual([PieceType.KING]);
     });
 
     it("with piece rules, returns the list", async () => {
@@ -206,10 +204,10 @@ describe("CyvassePieceRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const pieceRules: IPieceRule[] = response.body;
-      expect(pieceRules.length).to.eql(3);
-      expect(pieceRules.map((x) => x.pieceTypeId)).to.have.members([
+      expect(pieceRules.length).toEqual(3);
+      expect(pieceRules.map((x) => x.pieceTypeId)).toEqual([
         PieceType.KING,
         PieceType.RABBLE,
         PieceType.SPEAR,
@@ -283,7 +281,7 @@ describe("CyvassePieceRuleRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         pieceTypeId: "Piece type is required",
         count: "Count is required",
         movement: {
@@ -305,9 +303,9 @@ describe("CyvassePieceRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const result: IPieceRule = response.body;
-      expect(result.movement.type).to.eql(PathType.DIAGONAL_LINE);
+      expect(result.movement.type).toEqual(PathType.DIAGONAL_LINE);
     });
   });
 });

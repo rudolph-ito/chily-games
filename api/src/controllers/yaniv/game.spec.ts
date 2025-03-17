@@ -6,9 +6,9 @@ import {
   createTestServer,
   ITestServer,
 } from "../../../test/test_helper";
-import { describe, it } from "mocha";
+
 import { StatusCodes } from "http-status-codes";
-import { expect } from "chai";
+
 import {
   GameState,
   IGame,
@@ -27,11 +27,11 @@ describe("YanivGameRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -49,9 +49,9 @@ describe("YanivGameRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const game: IGame = response.body;
-      expect(game).to.eql({
+      expect(game).toEqual({
         gameId: game.gameId,
         hostUserId: user1Id,
         options: {
@@ -91,11 +91,11 @@ describe("YanivGameRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const game: IGame = response.body;
-      expect(game.gameId).to.eql(gameId);
-      expect(game.state).to.eql(GameState.PLAYERS_JOINING);
-      expect(game.playerStates).to.eql([
+      expect(game.gameId).toEqual(gameId);
+      expect(game.state).toEqual(GameState.PLAYERS_JOINING);
+      expect(game.playerStates).toEqual([
         {
           numberOfCards: 0,
           cards: [],
@@ -129,16 +129,16 @@ describe("YanivGameRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const game: IGame = response.body;
-      expect(game.gameId).to.eql(gameId);
-      expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-      expect(game.actionToUserId).to.eql(user1Id);
-      expect(game.cardsOnTopOfDiscardPile.length).to.eql(1);
-      expect(game.playerStates[0].userId).to.eql(user1Id);
-      expect(game.playerStates[0].numberOfCards).to.eql(5);
-      expect(game.playerStates[1].userId).to.eql(user2Id);
-      expect(game.playerStates[1].numberOfCards).to.eql(5);
+      expect(game.gameId).toEqual(gameId);
+      expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+      expect(game.actionToUserId).toEqual(user1Id);
+      expect(game.cardsOnTopOfDiscardPile.length).toEqual(1);
+      expect(game.playerStates[0].userId).toEqual(user1Id);
+      expect(game.playerStates[0].numberOfCards).toEqual(5);
+      expect(game.playerStates[1].userId).toEqual(user2Id);
+      expect(game.playerStates[1].numberOfCards).toEqual(5);
     });
   });
 
@@ -174,26 +174,26 @@ describe("YanivGameRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const gameResponse: IGameActionResponse = response.body;
-      expect(gameResponse.actionToNextPlayerEvent).to.eql({
+      expect(gameResponse.actionToNextPlayerEvent).toEqual({
         lastAction: {
           cardsDiscarded: [{ rank: CardRank.KING, suit: CardSuit.DIAMONDS }],
           userId: user1Id,
         },
         actionToUserId: user2Id,
       });
-      expect(gameResponse.cardPickedUpFromDeck).to.eql({
+      expect(gameResponse.cardPickedUpFromDeck).toEqual({
         rank: CardRank.SEVEN,
         suit: CardSuit.HEARTS,
       });
       const updatedGame = await new YanivGameService().get(user1Id, gameId);
-      expect(updatedGame.state).to.eql(GameState.ROUND_ACTIVE);
-      expect(updatedGame.actionToUserId).to.eql(user2Id);
-      expect(updatedGame.cardsOnTopOfDiscardPile).to.eql([
+      expect(updatedGame.state).toEqual(GameState.ROUND_ACTIVE);
+      expect(updatedGame.actionToUserId).toEqual(user2Id);
+      expect(updatedGame.cardsOnTopOfDiscardPile).toEqual([
         { rank: CardRank.KING, suit: CardSuit.DIAMONDS },
       ]);
-      expect(updatedGame.playerStates[0].cards).to.eql([
+      expect(updatedGame.playerStates[0].cards).toEqual([
         { rank: CardRank.ACE, suit: CardSuit.CLUBS },
         { rank: CardRank.SEVEN, suit: CardSuit.HEARTS },
       ]);
@@ -214,10 +214,10 @@ describe("YanivGameRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const game: IGame = response.body;
-      expect(game.gameId).to.eql(gameId);
-      expect(game.state).to.eql(GameState.ABORTED);
+      expect(game.gameId).toEqual(gameId);
+      expect(game.state).toEqual(GameState.ABORTED);
     });
   });
 });

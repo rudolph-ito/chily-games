@@ -1,5 +1,3 @@
-import { describe, it } from "mocha";
-import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
   createTestServer,
@@ -13,11 +11,11 @@ describe("AuthRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -102,7 +100,7 @@ describe("AuthRoutes", () => {
           .expect(StatusCodes.OK);
 
         // Assert
-        expect(response.body).to.eql({
+        expect(response.body).toEqual({
           userId: 1,
           username,
           displayName: username,
@@ -139,7 +137,7 @@ describe("AuthRoutes", () => {
       const response = await agent.get("/api/auth/user").expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         userId: 1,
         username,
         displayName: username,
@@ -160,7 +158,7 @@ describe("AuthRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         password: "Password is required",
         username: "Username is required",
         displayName: "Display Name is required",

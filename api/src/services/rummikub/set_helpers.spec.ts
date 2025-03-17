@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { isValidSet } from "./set_helpers";
 import { ITile, TileColor } from "../../shared/dtos/rummikub/tile";
 
@@ -125,7 +124,7 @@ describe("Rummikub SetHelpers", () => {
         const result = isValidSet(example.tiles);
 
         // assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
   });

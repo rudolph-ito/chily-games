@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import {
   createTestCredentials,
   createTestUser,
@@ -142,8 +141,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(NotFoundError);
-      expect(error?.message).to.eql(`Game does not exist with id: 1`);
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error?.message).toEqual(`Game does not exist with id: 1`);
     });
 
     it("throws a validation error if user already in game", async () => {
@@ -163,8 +162,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Already joined game."'
       );
     });
@@ -188,8 +187,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql('Validation errors: "Game is full."');
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual('Validation errors: "Game is full."');
     });
   });
 
@@ -213,7 +212,7 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(updatedGame.playerStates[0].numberOfTiles).to.eql(20);
+      expect(updatedGame.playerStates[0].numberOfTiles).toEqual(20);
     });
 
     it("gives players 14 tiles if 3 or more players", async () => {
@@ -235,7 +234,7 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(updatedGame.playerStates[0].numberOfTiles).to.eql(14);
+      expect(updatedGame.playerStates[0].numberOfTiles).toEqual(14);
     });
 
     it("uses a total of 106 tiles if 4 or less players", async () => {
@@ -257,7 +256,7 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(updatedGame.tilePoolCount).to.eql(106 - 4 * 14);
+      expect(updatedGame.tilePoolCount).toEqual(106 - 4 * 14);
     });
 
     it("uses a total of 160 tiles if 5 or 6 players", async () => {
@@ -279,7 +278,7 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(updatedGame.tilePoolCount).to.eql(160 - 5 * 14);
+      expect(updatedGame.tilePoolCount).toEqual(160 - 5 * 14);
     });
   });
 
@@ -303,8 +302,8 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(error).to.be.instanceOf(NotFoundError);
-      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error.message).toEqual(`Game does not exist with id: ${gameId}`);
     });
 
     it("throws a validation error if round is not active", async () => {
@@ -332,8 +331,10 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql('Validation errors: "Round is not active."');
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
+        'Validation errors: "Round is not active."'
+      );
     });
 
     it("throws a validation error if sets includes tile not in user hand", async () => {
@@ -379,8 +380,8 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Update sets: includes a tile not in hand."'
       );
     });
@@ -424,8 +425,8 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."'
       );
     });
@@ -469,8 +470,8 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Update sets: remaining tiles is invalid."'
       );
     });
@@ -515,9 +516,9 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(game.actionToUserId).to.eql(user1Id);
-      expect(game.latestUpdateSets).to.eql(null);
-      expect(game.lastValidUpdateSets).to.eql(updateSets);
+      expect(game.actionToUserId).toEqual(user1Id);
+      expect(game.latestUpdateSets).toEqual(null);
+      expect(game.lastValidUpdateSets).toEqual(updateSets);
     });
 
     it("updates state appropriately if valid play (not all sets valid)", async () => {
@@ -561,9 +562,9 @@ describe("RummikubGameService", () => {
       );
 
       // assert
-      expect(game.actionToUserId).to.eql(user1Id);
-      expect(game.latestUpdateSets).to.eql(updateSets);
-      expect(game.lastValidUpdateSets).to.eql(null);
+      expect(game.actionToUserId).toEqual(user1Id);
+      expect(game.latestUpdateSets).toEqual(updateSets);
+      expect(game.lastValidUpdateSets).toEqual(null);
     });
   });
 
@@ -578,8 +579,8 @@ describe("RummikubGameService", () => {
       const error = await testDoneWithTurnExpectError(userId, gameId);
 
       // assert
-      expect(error).to.be.instanceOf(NotFoundError);
-      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error.message).toEqual(`Game does not exist with id: ${gameId}`);
     });
 
     it("throws a validation error if round is not active", async () => {
@@ -598,8 +599,8 @@ describe("RummikubGameService", () => {
       const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Round is not active."'
       );
     });
@@ -619,8 +620,8 @@ describe("RummikubGameService", () => {
       const error = await testDoneWithTurnExpectError(user2Id, gameId);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Action is not to you."'
       );
     });
@@ -680,8 +681,8 @@ describe("RummikubGameService", () => {
         const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
         // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error.message).toEqual(
           'Validation errors: "Finalize update sets: cannot modify existing sets on initial play"'
         );
       });
@@ -722,8 +723,8 @@ describe("RummikubGameService", () => {
         const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
         // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error.message).toEqual(
           'Validation errors: "Finalize update sets: sum of tiles in initial play must be at least 30 (is only 27)"'
         );
       });
@@ -773,8 +774,8 @@ describe("RummikubGameService", () => {
         const error = await testDoneWithTurnExpectError(user1Id, gameId);
 
         // assert
-        expect(error).to.be.instanceOf(ValidationError);
-        expect(error.message).to.eql(
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error.message).toEqual(
           'Validation errors: "Finalize update sets: latest state is invalid."'
         );
       });
@@ -816,15 +817,15 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.sets).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.sets).toEqual([
           { rank: 10, color: TileColor.BLACK },
           { rank: 10, color: TileColor.RED },
           { rank: 10, color: TileColor.BLUE },
         ]);
-        expect(game.lastValidUpdateSets).to.eql(null);
-        expect(game.playerStates).to.eql([
+        expect(game.lastValidUpdateSets).toEqual(null);
+        expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 5, color: TileColor.YELLOW }],
             numberOfTiles: 1,
@@ -880,16 +881,16 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.sets).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.sets).toEqual([
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
           { rank: 10, color: TileColor.BLUE },
           { rank: 10, color: TileColor.BLACK },
         ]);
-        expect(game.lastValidUpdateSets).to.eql(null);
-        expect(game.playerStates).to.eql([
+        expect(game.lastValidUpdateSets).toEqual(null);
+        expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 1, color: TileColor.RED }],
             numberOfTiles: 1,
@@ -945,16 +946,16 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user1Id);
-        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game.sets).to.eql([
+        expect(game.actionToUserId).toEqual(user1Id);
+        expect(game.state).toEqual(GameState.ROUND_COMPLETE);
+        expect(game.sets).toEqual([
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
           { rank: 10, color: TileColor.BLUE },
           { rank: 10, color: TileColor.BLACK },
         ]);
-        expect(game.lastValidUpdateSets).to.eql(null);
-        expect(game.playerStates).to.eql([
+        expect(game.lastValidUpdateSets).toEqual(null);
+        expect(game.playerStates).toEqual([
           {
             tiles: [],
             numberOfTiles: 0,
@@ -975,7 +976,7 @@ describe("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([
+        expect(game.roundScores).toEqual([
           { [user1Id]: { score: 12 }, [user2Id]: { score: -12 } },
         ]);
       });
@@ -1022,16 +1023,16 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user1Id);
-        expect(game.state).to.eql(GameState.COMPLETE);
-        expect(game.sets).to.eql([
+        expect(game.actionToUserId).toEqual(user1Id);
+        expect(game.state).toEqual(GameState.COMPLETE);
+        expect(game.sets).toEqual([
           { rank: 10, color: TileColor.YELLOW },
           { rank: 10, color: TileColor.RED },
           { rank: 10, color: TileColor.BLUE },
           { rank: 10, color: TileColor.BLACK },
         ]);
-        expect(game.lastValidUpdateSets).to.eql(null);
-        expect(game.playerStates).to.eql([
+        expect(game.lastValidUpdateSets).toEqual(null);
+        expect(game.playerStates).toEqual([
           {
             tiles: [],
             numberOfTiles: 0,
@@ -1052,7 +1053,7 @@ describe("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([
+        expect(game.roundScores).toEqual([
           { [user1Id]: { score: 20 }, [user2Id]: { score: -20 } },
           { [user1Id]: { score: -10 }, [user2Id]: { score: 10 } },
           { [user1Id]: { score: 80 }, [user2Id]: { score: -80 } },
@@ -1080,10 +1081,10 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.tilePoolCount).to.eql(1);
-        expect(game.playerStates).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.tilePoolCount).toEqual(1);
+        expect(game.playerStates).toEqual([
           {
             tiles: [
               { rank: 10, color: TileColor.BLACK },
@@ -1138,11 +1139,11 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.tilePoolCount).to.eql(1);
-        expect(game.lastValidUpdateSets).to.eql(null);
-        expect(game.playerStates).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.tilePoolCount).toEqual(1);
+        expect(game.lastValidUpdateSets).toEqual(null);
+        expect(game.playerStates).toEqual([
           {
             tiles: [
               { rank: 10, color: TileColor.BLUE },
@@ -1181,9 +1182,9 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_ACTIVE);
-        expect(game.playerStates).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 10, color: TileColor.BLACK }],
             numberOfTiles: 1,
@@ -1222,9 +1223,9 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-        expect(game.playerStates).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_COMPLETE);
+        expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 10, color: TileColor.BLACK }],
             numberOfTiles: 1,
@@ -1242,7 +1243,7 @@ describe("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([
+        expect(game.roundScores).toEqual([
           { [user1Id]: { score: -10 }, [user2Id]: { score: 10 } },
         ]);
       });
@@ -1271,9 +1272,9 @@ describe("RummikubGameService", () => {
         const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
-        expect(game.actionToUserId).to.eql(user2Id);
-        expect(game.state).to.eql(GameState.COMPLETE);
-        expect(game.playerStates).to.eql([
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.COMPLETE);
+        expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 10, color: TileColor.BLACK }],
             numberOfTiles: 1,
@@ -1291,7 +1292,7 @@ describe("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(game.roundScores).to.eql([
+        expect(game.roundScores).toEqual([
           { [user1Id]: { score: -20 }, [user2Id]: { score: 20 } },
           { [user1Id]: { score: 5 }, [user2Id]: { score: -5 } },
           { [user1Id]: { score: -80 }, [user2Id]: { score: 80 } },
@@ -1323,8 +1324,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Round is not active."'
       );
     });
@@ -1347,8 +1348,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "You are not a player in this game."'
       );
     });
@@ -1376,8 +1377,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Rearranged tiles are not equivalent to tiles in hand."'
       );
     });
@@ -1410,8 +1411,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Rearranged tiles are not equivalent to tiles in hand."'
       );
     });
@@ -1449,8 +1450,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Cannot rearrange tiles while have update sets in progress."'
       );
     });
@@ -1498,8 +1499,8 @@ describe("RummikubGameService", () => {
       }
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error?.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
         'Validation errors: "Cannot rearrange tiles while have update sets in progress."'
       );
     });
@@ -1529,7 +1530,7 @@ describe("RummikubGameService", () => {
 
       // assert
       const updatedGame = await new RummikubGameDataService().get(gameId);
-      expect(updatedGame.players).to.eql([
+      expect(updatedGame.players).toEqual([
         {
           userId: user1Id,
           hasPlayedInitialMeld: false,

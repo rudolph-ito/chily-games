@@ -9,12 +9,12 @@ import {
   createTestServer,
   ITestServer,
 } from "../../../test/test_helper";
-import { describe, it } from "mocha";
+
 import { StatusCodes } from "http-status-codes";
 import { CyvasseGameDataService } from "../../services/cyvasse/data/cyvasse_game_data_service";
 import { CyvasseGameService } from "../../services/cyvasse/cyvasse_game_service";
 import { PieceType } from "../../shared/dtos/cyvasse/piece_rule";
-import { expect } from "chai";
+
 import {
   IGame,
   PlayerColor,
@@ -32,11 +32,11 @@ describe("CyvasseGameRoutes", () => {
   let user2Id: number;
   let variantId: number;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -94,9 +94,9 @@ describe("CyvasseGameRoutes", () => {
           .expect(StatusCodes.OK);
 
         // Assert
-        expect(response.body).to.exist();
+        expect(response.body).toBeDefined();
         const game: IGame = response.body;
-        expect(game.alabasterSetupCoordinateMap).to.eql([
+        expect(game.alabasterSetupCoordinateMap).toEqual([
           {
             key: { x: 0, y: -1 },
             value: {
@@ -107,7 +107,7 @@ describe("CyvasseGameRoutes", () => {
             },
           },
         ]);
-        expect(game.onyxSetupCoordinateMap).to.eql([]);
+        expect(game.onyxSetupCoordinateMap).toEqual([]);
       });
 
       it("on success for onyx user, returns only the onyx setup", async () => {
@@ -120,10 +120,10 @@ describe("CyvasseGameRoutes", () => {
           .expect(StatusCodes.OK);
 
         // Assert
-        expect(response.body).to.exist();
+        expect(response.body).toBeDefined();
         const game: IGame = response.body;
-        expect(game.alabasterSetupCoordinateMap).to.eql([]);
-        expect(game.onyxSetupCoordinateMap).to.eql([
+        expect(game.alabasterSetupCoordinateMap).toEqual([]);
+        expect(game.onyxSetupCoordinateMap).toEqual([
           {
             key: { x: 0, y: 1 },
             value: {
@@ -146,10 +146,10 @@ describe("CyvasseGameRoutes", () => {
           .expect(StatusCodes.OK);
 
         // Assert
-        expect(response.body).to.exist();
+        expect(response.body).toBeDefined();
         const game: IGame = response.body;
-        expect(game.alabasterSetupCoordinateMap).to.eql([]);
-        expect(game.onyxSetupCoordinateMap).to.eql([]);
+        expect(game.alabasterSetupCoordinateMap).toEqual([]);
+        expect(game.onyxSetupCoordinateMap).toEqual([]);
       });
     });
   });
@@ -198,7 +198,7 @@ describe("CyvasseGameRoutes", () => {
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
-        expect(updatedGame.alabasterSetupCoordinateMap).to.eql([
+        expect(updatedGame.alabasterSetupCoordinateMap).toEqual([
           {
             key: { x: 0, y: -1 },
             value: {
@@ -256,8 +256,8 @@ describe("CyvasseGameRoutes", () => {
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
-        expect(updatedGame.action).to.eql(Action.SETUP);
-        expect(updatedGame.actionTo).to.eql(PlayerColor.ONYX);
+        expect(updatedGame.action).toEqual(Action.SETUP);
+        expect(updatedGame.actionTo).toEqual(PlayerColor.ONYX);
       });
     });
 
@@ -298,9 +298,9 @@ describe("CyvasseGameRoutes", () => {
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
-        expect(updatedGame.action).to.eql(Action.PLAY);
-        expect(updatedGame.actionTo).to.eql(PlayerColor.ALABASTER);
-        expect(updatedGame.currentCoordinateMap).to.eql([
+        expect(updatedGame.action).toEqual(Action.PLAY);
+        expect(updatedGame.actionTo).toEqual(PlayerColor.ALABASTER);
+        expect(updatedGame.currentCoordinateMap).toEqual([
           {
             key: { x: 0, y: -1 },
             value: {
@@ -386,9 +386,9 @@ describe("CyvasseGameRoutes", () => {
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
-        expect(updatedGame.action).to.eql(Action.PLAY);
-        expect(updatedGame.actionTo).to.eql(PlayerColor.ONYX);
-        expect(updatedGame.currentCoordinateMap).to.eql([
+        expect(updatedGame.action).toEqual(Action.PLAY);
+        expect(updatedGame.actionTo).toEqual(PlayerColor.ONYX);
+        expect(updatedGame.currentCoordinateMap).toEqual([
           {
             key: { x: 0, y: 0 },
             value: {
@@ -408,7 +408,7 @@ describe("CyvasseGameRoutes", () => {
             },
           },
         ]);
-        expect(updatedGame.plies).to.eql([request]);
+        expect(updatedGame.plies).toEqual([request]);
       });
     });
 
@@ -472,9 +472,9 @@ describe("CyvasseGameRoutes", () => {
 
         // Assert
         const updatedGame = await new CyvasseGameDataService().getGame(gameId);
-        expect(updatedGame.action).to.eql(Action.COMPLETE);
-        expect(updatedGame.actionTo).to.eql(PlayerColor.ALABASTER);
-        expect(updatedGame.currentCoordinateMap).to.eql([
+        expect(updatedGame.action).toEqual(Action.COMPLETE);
+        expect(updatedGame.actionTo).toEqual(PlayerColor.ALABASTER);
+        expect(updatedGame.currentCoordinateMap).toEqual([
           {
             key: { x: 0, y: 0 },
             value: {
@@ -485,7 +485,7 @@ describe("CyvasseGameRoutes", () => {
             },
           },
         ]);
-        expect(updatedGame.plies).to.eql([
+        expect(updatedGame.plies).toEqual([
           {
             piece: {
               pieceTypeId: PieceType.KING,

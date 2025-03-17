@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { deserializeTile, serializeTile } from "./tile_helpers";
 import { ITile, TileColor } from "../../shared/dtos/rummikub/tile";
 
@@ -72,8 +71,8 @@ describe("Rummikub TileHelpers", () => {
         const reserialized = serializeTile(deserialized);
 
         // assert
-        expect(deserialized).to.eql(example.output);
-        expect(reserialized).to.eql(example.input);
+        expect(deserialized).toEqual(example.output);
+        expect(reserialized).toEqual(example.input);
       });
     });
   });

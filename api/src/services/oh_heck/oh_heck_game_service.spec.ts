@@ -10,7 +10,7 @@ import {
   ITrickEvent,
 } from "../../shared/dtos/oh_heck/game";
 import { OhHeckGameService } from "./oh_heck_game_service";
-import { expect } from "chai";
+
 import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { createTestOhHeckGame } from "../../../test/oh_heck_test_helper";
 import { OhHeckGameDataService } from "./data/oh_heck_game_data_service";
@@ -163,10 +163,10 @@ describe("OhHeckGameService", () => {
 
       // assert
       const game = await new OhHeckGameService().get(user1Id, gameId);
-      expect(game.state).to.eql(GameState.BETTING);
-      expect(game.actionToUserId).to.eql(user1Id);
-      expect(game.playerStates[0].cards.length).to.eql(7);
-      expect(game.playerStates[1].numberOfCards).to.eql(7);
+      expect(game.state).toEqual(GameState.BETTING);
+      expect(game.actionToUserId).toEqual(user1Id);
+      expect(game.playerStates[0].cards.length).toEqual(7);
+      expect(game.playerStates[1].numberOfCards).toEqual(7);
     });
 
     it("deals to all users and updates the game state (from completed round)", async () => {
@@ -185,10 +185,10 @@ describe("OhHeckGameService", () => {
 
       // assert
       const game = await new OhHeckGameService().get(user1Id, gameId);
-      expect(game.state).to.eql(GameState.BETTING);
-      expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.playerStates[0].cards.length).to.eql(6);
-      expect(game.playerStates[1].numberOfCards).to.eql(6);
+      expect(game.state).toEqual(GameState.BETTING);
+      expect(game.actionToUserId).toEqual(user2Id);
+      expect(game.playerStates[0].cards.length).toEqual(6);
+      expect(game.playerStates[1].numberOfCards).toEqual(6);
     });
   });
 
@@ -204,8 +204,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlaceBetExpectError(userId, gameId, bet);
 
       // assert
-      expect(error).to.be.instanceOf(NotFoundError);
-      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error.message).toEqual(`Game does not exist with id: ${gameId}`);
     });
 
     it("throws a validation error if action is not to user", async () => {
@@ -222,8 +222,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlaceBetExpectError(user2Id, gameId, 1);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Action is not to you."'
       );
     });
@@ -242,8 +242,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlaceBetExpectError(user1Id, gameId, 1);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Invalid state to place bet."'
       );
     });
@@ -262,8 +262,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlaceBetExpectError(user1Id, gameId, 5);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Bet must be between 0 and 4."'
       );
     });
@@ -287,15 +287,15 @@ describe("OhHeckGameService", () => {
       );
 
       // assert
-      expect(result).to.eql({
+      expect(result).toEqual({
         betPlaced: { userId: user1Id, bet },
         updatedGameState: GameState.BETTING,
         actionToUserId: user2Id,
       });
-      expect(game.state).to.eql(GameState.BETTING);
-      expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.players[0].bet).to.eql(bet);
-      expect(game.players[1].bet).to.eql(null);
+      expect(game.state).toEqual(GameState.BETTING);
+      expect(game.actionToUserId).toEqual(user2Id);
+      expect(game.players[0].bet).toEqual(bet);
+      expect(game.players[1].bet).toEqual(null);
     });
 
     it("succeeds if action to user, game state is betting, and bet is valid (ready to start first trick)", async () => {
@@ -320,15 +320,15 @@ describe("OhHeckGameService", () => {
       );
 
       // assert
-      expect(result).to.eql({
+      expect(result).toEqual({
         betPlaced: { userId: user1Id, bet },
         updatedGameState: GameState.TRICK_ACTIVE,
         actionToUserId: user2Id,
       });
-      expect(game.state).to.eql(GameState.TRICK_ACTIVE);
-      expect(game.actionToUserId).to.eql(user2Id);
-      expect(game.players[0].bet).to.eql(bet);
-      expect(game.players[1].bet).to.eql(2);
+      expect(game.state).toEqual(GameState.TRICK_ACTIVE);
+      expect(game.actionToUserId).toEqual(user2Id);
+      expect(game.players[0].bet).toEqual(bet);
+      expect(game.players[1].bet).toEqual(2);
     });
   });
 
@@ -344,8 +344,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlayCardExpectError(userId, gameId, card);
 
       // assert
-      expect(error).to.be.instanceOf(NotFoundError);
-      expect(error.message).to.eql(`Game does not exist with id: ${gameId}`);
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error.message).toEqual(`Game does not exist with id: ${gameId}`);
     });
 
     it("throws a validation error if action is not to user", async () => {
@@ -363,8 +363,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlayCardExpectError(user2Id, gameId, card);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Action is not to you."'
       );
     });
@@ -384,8 +384,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlayCardExpectError(user1Id, gameId, card);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "Invalid state to play card."'
       );
     });
@@ -415,8 +415,8 @@ describe("OhHeckGameService", () => {
       const error = await testPlayCardExpectError(user2Id, gameId, card);
 
       // assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.message).to.eql(
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
         'Validation errors: "You must follow suit of first card played (diamonds) if you can."'
       );
     });
@@ -453,18 +453,18 @@ describe("OhHeckGameService", () => {
       );
 
       // assert
-      expect(result).to.eql({
+      expect(result).toEqual({
         cardPlayed: { userId: user1Id, card },
         updatedGameState: GameState.TRICK_ACTIVE,
         actionToUserId: user2Id,
         roundScore: undefined,
       });
-      expect(game.players[0].cardsInHand).to.eql([
+      expect(game.players[0].cardsInHand).toEqual([
         { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
       ]);
-      expect(game.currentTrick).to.eql([{ userId: user1Id, card }]);
-      expect(game.state).to.eql(GameState.TRICK_ACTIVE);
-      expect(game.actionToUserId).to.eql(user2Id);
+      expect(game.currentTrick).toEqual([{ userId: user1Id, card }]);
+      expect(game.state).toEqual(GameState.TRICK_ACTIVE);
+      expect(game.actionToUserId).toEqual(user2Id);
     });
 
     it("suceeds if card played is valid (finishing a trick)", async () => {
@@ -496,29 +496,29 @@ describe("OhHeckGameService", () => {
       );
 
       // assert
-      expect(result).to.eql({
+      expect(result).toEqual({
         cardPlayed: { userId: user2Id, card },
         updatedGameState: GameState.TRICK_COMPLETE,
         actionToUserId: user1Id,
         roundScore: undefined,
       });
-      expect(game.players[0].cardsInHand).to.eql([
+      expect(game.players[0].cardsInHand).toEqual([
         { suit: CardSuit.CLUBS, rank: CardRank.FOUR },
       ]);
-      expect(game.players[0].tricksTaken).to.eql(1);
-      expect(game.players[1].cardsInHand).to.eql([
+      expect(game.players[0].tricksTaken).toEqual(1);
+      expect(game.players[1].cardsInHand).toEqual([
         { suit: CardSuit.HEARTS, rank: CardRank.JACK },
       ]);
-      expect(game.players[1].tricksTaken).to.eql(0);
-      expect(game.currentTrick).to.eql([
+      expect(game.players[1].tricksTaken).toEqual(0);
+      expect(game.currentTrick).toEqual([
         {
           userId: user1Id,
           card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
         },
         { userId: user2Id, card },
       ]);
-      expect(game.state).to.eql(GameState.TRICK_COMPLETE);
-      expect(game.actionToUserId).to.eql(user1Id);
+      expect(game.state).toEqual(GameState.TRICK_COMPLETE);
+      expect(game.actionToUserId).toEqual(user1Id);
     });
 
     it("suceeds if card played is valid (finishing a round)", async () => {
@@ -549,7 +549,7 @@ describe("OhHeckGameService", () => {
       );
 
       // assert
-      expect(result).to.eql({
+      expect(result).toEqual({
         cardPlayed: { userId: user2Id, card },
         updatedGameState: GameState.ROUND_COMPLETE,
         actionToUserId: user1Id,
@@ -558,19 +558,19 @@ describe("OhHeckGameService", () => {
           [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
         },
       });
-      expect(game.players[0].cardsInHand).to.eql([]);
-      expect(game.players[0].tricksTaken).to.eql(2);
-      expect(game.players[1].cardsInHand).to.eql([]);
-      expect(game.players[1].tricksTaken).to.eql(2);
-      expect(game.currentTrick).to.eql([
+      expect(game.players[0].cardsInHand).toEqual([]);
+      expect(game.players[0].tricksTaken).toEqual(2);
+      expect(game.players[1].cardsInHand).toEqual([]);
+      expect(game.players[1].tricksTaken).toEqual(2);
+      expect(game.currentTrick).toEqual([
         {
           userId: user1Id,
           card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
         },
         { userId: user2Id, card },
       ]);
-      expect(game.state).to.eql(GameState.ROUND_COMPLETE);
-      expect(game.actionToUserId).to.eql(user1Id);
+      expect(game.state).toEqual(GameState.ROUND_COMPLETE);
+      expect(game.actionToUserId).toEqual(user1Id);
     });
   });
 
@@ -611,7 +611,7 @@ describe("OhHeckGameService", () => {
     );
 
     // assert
-    expect(result).to.eql({
+    expect(result).toEqual({
       cardPlayed: { userId: user2Id, card },
       updatedGameState: GameState.COMPLETE,
       actionToUserId: user1Id,
@@ -620,19 +620,19 @@ describe("OhHeckGameService", () => {
         [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
       },
     });
-    expect(game.players[0].cardsInHand).to.eql([]);
-    expect(game.players[0].tricksTaken).to.eql(2);
-    expect(game.players[1].cardsInHand).to.eql([]);
-    expect(game.players[1].tricksTaken).to.eql(2);
-    expect(game.currentTrick).to.eql([
+    expect(game.players[0].cardsInHand).toEqual([]);
+    expect(game.players[0].tricksTaken).toEqual(2);
+    expect(game.players[1].cardsInHand).toEqual([]);
+    expect(game.players[1].tricksTaken).toEqual(2);
+    expect(game.currentTrick).toEqual([
       {
         userId: user1Id,
         card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
       },
       { userId: user2Id, card },
     ]);
-    expect(game.state).to.eql(GameState.COMPLETE);
-    expect(game.actionToUserId).to.eql(user1Id);
+    expect(game.state).toEqual(GameState.COMPLETE);
+    expect(game.actionToUserId).toEqual(user1Id);
   });
 
   it("suceeds if card played is valid (finishing a full game)", async () => {
@@ -678,7 +678,7 @@ describe("OhHeckGameService", () => {
     );
 
     // assert
-    expect(result).to.eql({
+    expect(result).toEqual({
       cardPlayed: { userId: user2Id, card },
       updatedGameState: GameState.COMPLETE,
       actionToUserId: user1Id,
@@ -687,18 +687,18 @@ describe("OhHeckGameService", () => {
         [user2Id]: { score: 0, bet: 3, tricksTaken: 2 },
       },
     });
-    expect(game.players[0].cardsInHand).to.eql([]);
-    expect(game.players[0].tricksTaken).to.eql(2);
-    expect(game.players[1].cardsInHand).to.eql([]);
-    expect(game.players[1].tricksTaken).to.eql(2);
-    expect(game.currentTrick).to.eql([
+    expect(game.players[0].cardsInHand).toEqual([]);
+    expect(game.players[0].tricksTaken).toEqual(2);
+    expect(game.players[1].cardsInHand).toEqual([]);
+    expect(game.players[1].tricksTaken).toEqual(2);
+    expect(game.currentTrick).toEqual([
       {
         userId: user1Id,
         card: { suit: CardSuit.DIAMONDS, rank: CardRank.THREE },
       },
       { userId: user2Id, card },
     ]);
-    expect(game.state).to.eql(GameState.COMPLETE);
-    expect(game.actionToUserId).to.eql(user1Id);
+    expect(game.state).toEqual(GameState.COMPLETE);
+    expect(game.actionToUserId).toEqual(user1Id);
   });
 });
