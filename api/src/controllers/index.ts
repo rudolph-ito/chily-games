@@ -57,7 +57,7 @@ export function createExpressApp(
   options: ICreateExpressAppOptions
 ): express.Express {
   const app = express();
-  app.use("/", express.static(pathJoin(__dirname, "..", "frontend")));
+  app.use("/", express.static(pathJoin(__dirname, "..", "frontend/browser")));
   app.use("/assets", express.static(pathJoin(__dirname, "..", "assets")));
   app.use(expressCookieParser());
   app.use(expressBodyParser.json());
