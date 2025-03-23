@@ -1,5 +1,5 @@
 import { CardRank, CardSuit, ICard } from "../../shared/dtos/card";
-import { expect } from "chai";
+
 import { isValidDiscard, isValidPickup } from "./discard_validator";
 
 interface IIsValidDiscardExample {
@@ -318,7 +318,7 @@ describe("YanivDiscardValidator", () => {
         const result = isValidDiscard(example.cards);
 
         // assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
   });
@@ -334,7 +334,7 @@ describe("YanivDiscardValidator", () => {
         const result = isValidPickup(example.pickupCard, example.lastDiscards);
 
         // assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
   });

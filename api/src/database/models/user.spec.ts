@@ -1,6 +1,4 @@
-import { describe, it } from "mocha";
 import { User } from "./user";
-import { expect } from "chai";
 
 describe("User", () => {
   describe("isPasswordValid", () => {
@@ -14,7 +12,7 @@ describe("User", () => {
       const result = user.isPasswordValid(password);
 
       // Assert
-      expect(result).to.eql(true);
+      expect(result).toEqual(true);
     });
 
     it("returns false if the password does not match", () => {
@@ -27,7 +25,7 @@ describe("User", () => {
       const result = user.isPasswordValid("other");
 
       // Assert
-      expect(result).to.eql(false);
+      expect(result).toEqual(false);
     });
   });
 });

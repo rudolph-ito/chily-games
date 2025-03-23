@@ -1,6 +1,5 @@
-import { describe, it } from "mocha";
 import { RegistrationService } from "./registration_service";
-import { expect } from "chai";
+
 import { resetDatabaseBeforeEach } from "../../../test/test_helper";
 import { createTestUser } from "../../../test/database_factory";
 import { ValidationError } from "./exceptions";
@@ -34,7 +33,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err?.errors).to.eql({
+      expect(err?.errors).toEqual({
         username: "Username is required",
       });
     });
@@ -56,7 +55,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err?.errors).to.eql({
+      expect(err?.errors).toEqual({
         displayName: "Display Name is required",
       });
     });
@@ -78,7 +77,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err?.errors).to.eql({
+      expect(err?.errors).toEqual({
         password: "Password is required",
       });
     });
@@ -100,7 +99,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err?.errors).to.eql({
+      expect(err?.errors).toEqual({
         password:
           "Password is not strong enough: Add another word or two. Uncommon words are better.",
       });
@@ -123,7 +122,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err?.errors).to.eql({
+      expect(err?.errors).toEqual({
         passwordConfirmation: "Password confirmation does not match password",
       });
     });
@@ -146,7 +145,7 @@ describe("RegistrationService", () => {
       }
 
       // Assert
-      expect(err?.errors).to.eql({
+      expect(err?.errors).toEqual({
         username: "Username 'me' is already taken",
       });
     });
@@ -163,8 +162,8 @@ describe("RegistrationService", () => {
       });
 
       // Assert
-      expect(user.userId).not.to.be.undefined();
-      expect(user.username).to.eql("user1");
+      expect(user.userId).toBeDefined();
+      expect(user.username).toEqual("user1");
     });
   });
 
@@ -176,7 +175,7 @@ describe("RegistrationService", () => {
       const username = await service.getNextGuestUsername();
 
       // Assert
-      expect(username).to.eql("guest0");
+      expect(username).toEqual("guest0");
     });
 
     it("returns guest1 if guest0 is the latest guest to exist", async () => {
@@ -187,7 +186,7 @@ describe("RegistrationService", () => {
       const username = await service.getNextGuestUsername();
 
       // Assert
-      expect(username).to.eql("guest1");
+      expect(username).toEqual("guest1");
     });
 
     it("returns guest10 if guest9 is the latest guest to exist", async () => {
@@ -200,7 +199,7 @@ describe("RegistrationService", () => {
       const username = await service.getNextGuestUsername();
 
       // Assert
-      expect(username).to.eql("guest10");
+      expect(username).toEqual("guest10");
     });
   });
 });

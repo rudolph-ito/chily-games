@@ -1,5 +1,5 @@
 import { CyvassePieceRuleService } from "./cyvasse_piece_rule_service";
-import { describe, it } from "mocha";
+
 import {
   createTestVariant,
   createTestUser,
@@ -7,7 +7,7 @@ import {
   resetDatabaseBeforeEach,
   createTestPieceRule,
 } from "../../../test/test_helper";
-import { expect } from "chai";
+
 import { ValidationError } from "../shared/exceptions";
 import {
   PieceType,
@@ -48,8 +48,8 @@ describe("CyvassePieceRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.errors).toEqual({
         pieceTypeId: "A piece rule already exists for this piece type",
       });
     });
@@ -73,8 +73,8 @@ describe("CyvassePieceRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).errors).toEqual({
         general:
           "Cannot delete the king as every variant must have exactly one.",
       });
@@ -108,8 +108,8 @@ describe("CyvassePieceRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.errors).toEqual({
         pieceTypeId:
           "Piece type is locked to 'King'. Every variant must have exactly one king.",
       });
@@ -141,8 +141,8 @@ describe("CyvassePieceRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).errors).toEqual({
         count:
           "Count is locked to 1. Every variant must have exactly one king.",
       });
@@ -176,8 +176,8 @@ describe("CyvassePieceRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect(error.errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.errors).toEqual({
         pieceTypeId: "A piece rule already exists for this piece type",
       });
     });

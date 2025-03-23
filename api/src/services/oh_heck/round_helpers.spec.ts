@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { getNumberOfCardsToDeal } from "./round_helpers";
 
 interface ICardsToDealExample {
@@ -33,7 +32,7 @@ describe("RoundHelpers", () => {
         const result = getNumberOfCardsToDeal(example.roundNumber);
 
         // Assert
-        expect(result).to.eql(example.expectedResult);
+        expect(result).toEqual(example.expectedResult);
       });
     });
 
@@ -49,8 +48,8 @@ describe("RoundHelpers", () => {
       }
 
       // Assert
-      expect(error).to.exist();
-      expect(error?.message).to.eql(`Unexpected round number: 0`);
+      expect(error).toBeDefined();
+      expect(error?.message).toEqual(`Unexpected round number: 0`);
     });
 
     it(`throws if round is greater than 14`, () => {
@@ -65,8 +64,8 @@ describe("RoundHelpers", () => {
       }
 
       // Assert
-      expect(error).to.exist();
-      expect(error?.message).to.eql(`Unexpected round number: 15`);
+      expect(error).toBeDefined();
+      expect(error?.message).toEqual(`Unexpected round number: 15`);
     });
   });
 });

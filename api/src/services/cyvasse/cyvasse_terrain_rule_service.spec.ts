@@ -1,5 +1,5 @@
 import { CyvasseTerrainRuleService } from "./cyvasse_terrain_rule_service";
-import { describe, it } from "mocha";
+
 import {
   createTestVariant,
   createTestUser,
@@ -7,7 +7,7 @@ import {
   resetDatabaseBeforeEach,
   createTestTerrainRule,
 } from "../../../test/test_helper";
-import { expect } from "chai";
+
 import { ValidationError } from "../shared/exceptions";
 import {
   TerrainType,
@@ -58,8 +58,8 @@ describe("CyvasseTerrainRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).errors).toEqual({
         terrainTypeId: "A terrain rule already exists for this terrain type",
       });
     });
@@ -105,8 +105,8 @@ describe("CyvasseTerrainRuleService", () => {
       }
 
       // Assert
-      expect(error).to.be.instanceOf(ValidationError);
-      expect((error as ValidationError).errors).to.eql({
+      expect(error).toBeInstanceOf(ValidationError);
+      expect((error as ValidationError).errors).toEqual({
         terrainTypeId: "A terrain rule already exists for this terrain type",
       });
     });

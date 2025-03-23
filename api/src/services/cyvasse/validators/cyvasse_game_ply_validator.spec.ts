@@ -1,5 +1,3 @@
-import { expect } from "chai";
-import { describe, it } from "mocha";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import {
   PieceType,
@@ -75,7 +73,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Piece is required");
+    expect(error).toEqual("Piece is required");
   });
 
   it("returns error if no from", () => {
@@ -93,7 +91,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("From is required");
+    expect(error).toEqual("From is required");
   });
 
   it("returns error if piece is not at from coordinate", () => {
@@ -111,7 +109,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Piece is not at from coordinate");
+    expect(error).toEqual("Piece is not at from coordinate");
   });
 
   it("returns error if piece is not players", () => {
@@ -129,7 +127,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Piece must belong to player");
+    expect(error).toEqual("Piece must belong to player");
   });
 
   it("returns null on happy path move without capture", () => {
@@ -147,7 +145,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 
   it("returns null on happy path move with capture", () => {
@@ -171,7 +169,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 
   it("returns error on movement capture when capture by range", () => {
@@ -195,7 +193,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Movement - piece cannot capture by movement");
+    expect(error).toEqual("Movement - piece cannot capture by movement");
   });
 
   it("returns null on happy path range capture", () => {
@@ -219,7 +217,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 
   it("returns error range capture invalid", () => {
@@ -243,7 +241,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Range capture - invalid (cannot capture)");
+    expect(error).toEqual("Range capture - invalid (cannot capture)");
   });
 
   it("returns error on movement invalid", () => {
@@ -261,7 +259,7 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Movement - invalid (not free)");
+    expect(error).toEqual("Movement - invalid (not free)");
   });
 
   it("returns error on movement missing capture", () => {
@@ -279,6 +277,6 @@ describe("Cyvasse - validateGamePly", () => {
     const error = validateGamePly(options);
 
     // Assert
-    expect(error).to.eql("Movement - invalid (not free)");
+    expect(error).toEqual("Movement - invalid (not free)");
   });
 });

@@ -1,5 +1,3 @@
-import { expect } from "chai";
-import { describe, it } from "mocha";
 import { CyvasseHexagonalBoard } from "../game/board/cyvasse_hexagonal_board";
 import { CyvasseCoordinateMap } from "../game/storage/cyvasse_coordinate_map";
 import { PieceType, IPieceRule } from "../../../shared/dtos/cyvasse/piece_rule";
@@ -46,7 +44,7 @@ describe("Cyvasse - validateGameSetupComplete", () => {
     const error = validateGameSetupComplete(options);
 
     // Assert
-    expect(error).to.eql(null);
+    expect(error).toEqual(null);
   });
 
   it("returns error if missing piece (expected 1)", () => {
@@ -65,7 +63,7 @@ describe("Cyvasse - validateGameSetupComplete", () => {
     const error = validateGameSetupComplete(options);
 
     // Assert
-    expect(error).to.eql("Should have 1 king (has 0)");
+    expect(error).toEqual("Should have 1 king (has 0)");
   });
 
   it("returns error if missing piece (expected more than 1)", () => {
@@ -96,7 +94,7 @@ describe("Cyvasse - validateGameSetupComplete", () => {
     const error = validateGameSetupComplete(options);
 
     // Assert
-    expect(error).to.eql("Should have 3 crossbows (has 2)");
+    expect(error).toEqual("Should have 3 crossbows (has 2)");
   });
 
   it("returns error if missing terrain (expected 1)", () => {
@@ -118,7 +116,7 @@ describe("Cyvasse - validateGameSetupComplete", () => {
     const error = validateGameSetupComplete(options);
 
     // Assert
-    expect(error).to.eql("Should have 1 forest (has 0)");
+    expect(error).toEqual("Should have 1 forest (has 0)");
   });
 
   it("returns error if missing terrain (expected more than 1)", () => {
@@ -149,7 +147,7 @@ describe("Cyvasse - validateGameSetupComplete", () => {
     const error = validateGameSetupComplete(options);
 
     // Assert
-    expect(error).to.eql("Should have 3 forests (has 2)");
+    expect(error).toEqual("Should have 3 forests (has 2)");
   });
 
   it("returns error if missing piece and terrain", () => {
@@ -174,7 +172,7 @@ describe("Cyvasse - validateGameSetupComplete", () => {
     const error = validateGameSetupComplete(options);
 
     // Assert
-    expect(error).to.eql(
+    expect(error).toEqual(
       "Should have 1 king (has 0), Should have 1 forest (has 0)"
     );
   });

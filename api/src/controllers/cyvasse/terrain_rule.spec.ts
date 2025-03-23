@@ -1,5 +1,3 @@
-import { describe, it } from "mocha";
-import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
   createTestUser,
@@ -29,11 +27,11 @@ describe("CyvasseTerrainRuleRoutes", () => {
   let creatorId: number;
   let variantId: number;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -101,7 +99,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         terrainTypeId: "Terrain type is required",
         count: "Count is required",
         passableMovement: {
@@ -134,8 +132,8 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
-      expect(response.body.terrainRuleId).to.exist();
+      expect(response.body).toBeDefined();
+      expect(response.body.terrainRuleId).toBeDefined();
     });
   });
 
@@ -202,7 +200,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
       // Assert
       const terrainRules =
         await new CyvasseTerrainRuleDataService().getTerrainRules(variantId);
-      expect(terrainRules).to.eql([]);
+      expect(terrainRules).toEqual([]);
     });
   });
 
@@ -217,9 +215,9 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const terrainRules: ITerrainRule[] = response.body;
-      expect(terrainRules.map((pr) => pr.terrainTypeId)).to.eql([]);
+      expect(terrainRules.map((pr) => pr.terrainTypeId)).toEqual([]);
     });
 
     it("with terrain rules, returns the list", async () => {
@@ -234,10 +232,10 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const terrainRules: ITerrainRule[] = response.body;
-      expect(terrainRules.length).to.eql(2);
-      expect(terrainRules.map((x) => x.terrainTypeId)).to.have.members([
+      expect(terrainRules.length).toEqual(2);
+      expect(terrainRules.map((x) => x.terrainTypeId)).toEqual([
         TerrainType.FOREST,
         TerrainType.MOUNTAIN,
       ]);
@@ -323,7 +321,7 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         terrainTypeId: "Terrain type is required",
         count: "Count is required",
         passableMovement: {
@@ -356,9 +354,9 @@ describe("CyvasseTerrainRuleRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const result: ITerrainRule = response.body;
-      expect(result.passableRange.for).to.eql(PiecesEffectedType.NONE);
+      expect(result.passableRange.for).toEqual(PiecesEffectedType.NONE);
     });
   });
 });
