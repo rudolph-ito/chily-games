@@ -21,6 +21,7 @@ import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
 import { SimpleRedisClient } from "src/redis";
 import { getRummikubRouter } from "./rummikub";
+import { getErrorRouter } from "./error";
 
 export interface ICreateExpressAppOptions {
   publishRedisClient: SimpleRedisClient;
@@ -74,6 +75,7 @@ export function createExpressApp(
     res.status(200).end();
   });
   const authenticationRequired = initAuthController(app, "/api/auth");
+  app.use("/api/errors", getErrorRouter(authenticationRequired));
   app.use(
     "/api/chats",
     getChatRouter(authenticationRequired, options.publishRedisClient)
