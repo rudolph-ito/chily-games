@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { ErrorHandler, NgModule } from "@angular/core";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { BrowserModule } from "@angular/platform-browser";
@@ -54,6 +54,7 @@ import { ChatComponent } from "./components/common/chat/chat.component";
 import { RummikubGamesIndexComponent } from "./components/rummikub/rummikub-games-index/rummikub-games-index.component";
 import { RummikubGameShowComponent } from "./components/rummikub/rummikub-game-show/rummikub-game-show.component";
 import { RummikubGameScoreboardDialogComponent } from "./components/rummikub/rummikub-game-scoreboard-dialog/rummikub-game-scoreboard-dialog.component";
+import { ErrorHandlerService } from "./services/error.handler.service";
 
 @NgModule({
   declarations: [
@@ -114,6 +115,9 @@ import { RummikubGameScoreboardDialogComponent } from "./components/rummikub/rum
     }),
     TimeagoModule.forRoot(),
   ],
-  providers: [provideHttpClient(withInterceptorsFromDi())],
+  providers: [
+    provideHttpClient(withInterceptorsFromDi()),
+    { provide: ErrorHandler, useClass: ErrorHandlerService },
+  ],
 })
 export class AppModule {}
