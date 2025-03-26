@@ -8,9 +8,10 @@ export class ErrorHandlerService implements ErrorHandler {
   constructor(private errorService: ErrorService) {}
 
   handleError(error: Error) {
-    const message = JSON.parse(
-      JSON.stringify(error, Object.getOwnPropertyNames(error))
-    );
+    const message: any = {};
+    for (const property of Object.getOwnPropertyNames(error)) {
+      message[property] = error[property];
+    }
     this.errorService.log(message).subscribe({
       next: () => {
         console.log("Successfully sent error to API", message);
