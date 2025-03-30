@@ -18,6 +18,7 @@ import { Vector2d } from "konva/lib/types";
 import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
 import { areTilesEqual } from "./tiles_helpers";
 import { computeUpdateSetsChanges } from "./change_helpers";
+import cardImages from "../../data/card_images";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -91,6 +92,7 @@ export class RummikubTable {
   private readonly container: HTMLDivElement;
   private readonly stage: KonvaStage;
   private readonly layer: KonvaLayer;
+  private tileBackImage: HTMLImageElement;
   private tileSize: ISize;
   private gridOffset: Vector2d;
   private playerDisplays: Map<number, IPlayerDisplay>;
@@ -601,26 +603,27 @@ export class RummikubTable {
       this.playerDisplays.size
     );
     const tileBorder = new KonvaRect({
-      fill: "white",
       stroke: "black",
       strokeWidth: TILE_DEFAULT_STROKE,
       width: this.tileSize.width * 0.9,
       height: this.tileSize.height * 0.9,
     });
-    this.layer.add(tileBorder);
     tileBorder.setPosition(this.getTilePoolPosition());
-    const tween = new KonvaTween({
-      node: tileBorder,
-      duration: 2,
-      easing: KonvaEasings.EaseInOut,
-      onFinish: () => {
-        tileBorder.destroy();
-        this.layer.draw();
-      },
-      x: positionData.textPosition.x,
-      y: positionData.textPosition.y,
+    this.updateRectWithTileBack(tileBorder, () => {
+      this.layer.add(tileBorder);
+      const tween = new KonvaTween({
+        node: tileBorder,
+        duration: 2,
+        easing: KonvaEasings.EaseInOut,
+        onFinish: () => {
+          tileBorder.destroy();
+          this.layer.draw();
+        },
+        x: positionData.textPosition.x,
+        y: positionData.textPosition.y,
+      });
+      tween.play();
     });
-    tween.play();
   }
 
   private stageAnimationForWithinSets(
@@ -1149,5 +1152,29 @@ export class RummikubTable {
 
   private getSetsTiles(): INullableTile[] {
     return this.setTileDisplays.map((x) => (x == null ? null : x.tile));
+  }
+
+  private updateRectWithTileBack(rect: KonvaRect, onFinish: () => void): void {
+    if (this.tileBackImage == null) {
+      const image = new Image();
+      image.src = `data:image/png;base64,${cardImages.back}`;
+      image.onload = () => {
+        this.tileBackImage = image;
+        this.updateRectWithImage(rect, this.tileBackImage);
+        onFinish();
+      };
+    } else {
+      this.updateRectWithImage(rect, this.tileBackImage);
+      onFinish();
+    }
+  }
+
+  private updateRectWithImage(rect: KonvaRect, image: HTMLImageElement): void {
+    rect.fillPatternImage(image);
+    rect.fillPatternRepeat("no-repeat");
+    rect.fillPatternScale({
+      x: rect.width() / image.width,
+      y: rect.height() / image.height,
+    });
   }
 }
