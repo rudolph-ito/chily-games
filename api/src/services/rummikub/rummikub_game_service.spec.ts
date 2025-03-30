@@ -26,6 +26,11 @@ interface ITestDoneWithTurnResult {
   game?: IGame;
 }
 
+interface ITestDoneWithTurnSuccessResult {
+  result: IDoneWithTurnResponse;
+  game: IGame;
+}
+
 async function testSaveLatestUpdateSets(
   userId: number,
   gameId: number,
@@ -111,8 +116,8 @@ async function testDoneWithTurnExpectError(
 async function testDoneWithTurnExpectSuccess(
   userId: number,
   gameId: number
-): Promise<IGame> {
-  const { error, game } = await testDoneWithTurn(userId, gameId);
+): Promise<ITestDoneWithTurnSuccessResult> {
+  const { error, game, result } = await testDoneWithTurn(userId, gameId);
   if (error != null) {
     throw new Error(
       `Expected no error but got one, error: ${error.stack ?? error.message}`
@@ -121,7 +126,10 @@ async function testDoneWithTurnExpectSuccess(
   if (game == null) {
     throw new Error(`Expected game but is null`);
   }
-  return game;
+  if (result == null) {
+    throw new Error(`Expected result but is null`);
+  }
+  return { game, result };
 }
 
 describe("RummikubGameService", () => {
@@ -814,7 +822,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
@@ -878,7 +886,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
@@ -943,7 +951,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user1Id);
@@ -1020,7 +1028,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user1Id);
@@ -1063,7 +1071,7 @@ describe("RummikubGameService", () => {
     });
 
     describe("pickup tile or pass", () => {
-      it("updates state appropriately if valid pickup (last valid update sets is undefined) ", async () => {
+      it("updates state appropriately if pickup (last valid update sets is undefined) ", async () => {
         // arrange
         const {
           userIds: [user1Id, user2Id],
@@ -1078,7 +1086,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
@@ -1107,7 +1115,7 @@ describe("RummikubGameService", () => {
         ]);
       });
 
-      it("updates state appropriately if valid pickup (last valid update sets is defined) ", async () => {
+      it("updates state appropriately if pickup (last valid update sets is defined) ", async () => {
         // arrange
         const {
           userIds: [user1Id, user2Id],
@@ -1136,7 +1144,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
@@ -1167,6 +1175,103 @@ describe("RummikubGameService", () => {
         ]);
       });
 
+      it("updates state appropriately if pickup (placed at end of tiles) ", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [],
+          playerTiles: [[{ rank: 10, color: TileColor.BLACK }], []],
+          tilePool: [
+            { rank: 5, color: TileColor.BLUE },
+            { rank: 11, color: TileColor.YELLOW },
+          ],
+        });
+
+        // act
+        const { game, result } = await testDoneWithTurnExpectSuccess(
+          user1Id,
+          gameId
+        );
+
+        // assert
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.tilePoolCount).toEqual(1);
+        expect(game.playerStates).toEqual([
+          {
+            tiles: [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 11, color: TileColor.YELLOW },
+            ],
+            numberOfTiles: 2,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+        expect(result.pickedUpTileEvent?.playerTileIndex).toEqual(1);
+      });
+
+      it("updates state appropriately if pickup (placed at first empty spot) ", async () => {
+        // arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [],
+          playerTiles: [[null, null, { rank: 10, color: TileColor.BLACK }], []],
+          tilePool: [
+            { rank: 5, color: TileColor.BLUE },
+            { rank: 11, color: TileColor.YELLOW },
+          ],
+        });
+
+        // act
+        const { game, result } = await testDoneWithTurnExpectSuccess(
+          user1Id,
+          gameId
+        );
+
+        // assert
+        expect(game.actionToUserId).toEqual(user2Id);
+        expect(game.state).toEqual(GameState.ROUND_ACTIVE);
+        expect(game.tilePoolCount).toEqual(1);
+        expect(game.playerStates).toEqual([
+          {
+            tiles: [
+              { rank: 11, color: TileColor.YELLOW },
+              null,
+              { rank: 10, color: TileColor.BLACK },
+            ],
+            numberOfTiles: 2,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: false,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+        expect(result.pickedUpTileEvent?.playerTileIndex).toEqual(0);
+      });
+
       it("updates state appropriately if pass (round active)", async () => {
         // arrange
         const {
@@ -1179,7 +1284,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
@@ -1220,7 +1325,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
@@ -1269,7 +1374,7 @@ describe("RummikubGameService", () => {
         });
 
         // act
-        const game = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
 
         // assert
         expect(game.actionToUserId).toEqual(user2Id);
