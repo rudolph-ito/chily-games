@@ -42,8 +42,8 @@ export async function createTestServer(): Promise<ITestServer> {
     }),
     quit: async (): Promise<void> => {
       await Promise.all([
-        publishRedisClient.disconnect(),
-        sessionStoreRedisClient.disconnect(),
+        publishRedisClient.quit(),
+        sessionStoreRedisClient.quit(),
       ]);
     },
   };
