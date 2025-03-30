@@ -1155,17 +1155,19 @@ export class RummikubTable {
   }
 
   private updateRectWithTileBack(rect: KonvaRect, onFinish: () => void): void {
+    const afterImageLoaded = () => {
+      this.updateRectWithImage(rect, this.tileBackImage);
+      onFinish();
+    };
     if (this.tileBackImage == null) {
       const image = new Image();
       image.src = `data:image/png;base64,${cardImages.back}`;
       image.onload = () => {
         this.tileBackImage = image;
-        this.updateRectWithImage(rect, this.tileBackImage);
-        onFinish();
+        afterImageLoaded();
       };
     } else {
-      this.updateRectWithImage(rect, this.tileBackImage);
-      onFinish();
+      afterImageLoaded();
     }
   }
 
