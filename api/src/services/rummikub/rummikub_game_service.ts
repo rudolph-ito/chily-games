@@ -471,7 +471,7 @@ export class RummikubGameService implements IRummikubGameService {
       }
       let firstEmptyIndex = playerState.tiles.findIndex((x) => x == null);
       if (firstEmptyIndex == -1) {
-        firstEmptyIndex = playerState.tiles.length - 1;
+        firstEmptyIndex = playerState.tiles.length;
         playerState.tiles.push(pickedUpTile);
       } else {
         playerState.tiles[firstEmptyIndex] = pickedUpTile;
@@ -645,7 +645,7 @@ export class RummikubGameService implements IRummikubGameService {
         displayName: userIdToDisplayName[p.userId],
         hasPlayedInitialMeld: p.hasPlayedInitialMeld,
         passedLastTurn: p.passedLastTurn,
-        numberOfTiles: p.tiles.length,
+        numberOfTiles: p.tiles.filter(isNotNull).length,
         tiles: [],
       };
       if (

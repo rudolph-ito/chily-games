@@ -23,7 +23,7 @@ export async function joinTestRummikubGame(
 
 interface ITestGameOptions {
   sets: INullableTile[];
-  playerTiles: ITile[][];
+  playerTiles: INullableTile[][];
   tilePool: ITile[];
   latestUpdateSets?: IUpdateSets;
   lastValidUpdateSets?: IUpdateSets;
