@@ -2,6 +2,16 @@ import { IUpdateSets } from "src/app/shared/dtos/rummikub/game";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
 import { areTilesEqual } from "./tiles_helpers";
 
+class ComputeUpdateSetsError extends Error {
+  constructor(
+    message: string,
+    public beforeUpdateSets: IUpdateSets,
+    public afterUpdateSets: IUpdateSets
+  ) {
+    super(message);
+  }
+}
+
 export interface IMoveChange {
   from: number;
   to: number;
@@ -214,7 +224,11 @@ export function computeUpdateSetsChanges(
     }
 
     if (!withinBoard && !fromHand) {
-      throw new Error("Unexpected move");
+      throw new ComputeUpdateSetsError(
+        "Unexpected move (board new tile, not within board / from hand)",
+        before,
+        after
+      );
     }
   }
 
@@ -233,7 +247,11 @@ export function computeUpdateSetsChanges(
         removedItem.count -= 1;
         result.setsToOtherPlayerHand.push({ from: movedTileIndex });
       } else {
-        throw new Error("Unexpected move");
+        throw new ComputeUpdateSetsError(
+          "Unexpected move (board moved tile, not to other player hand)",
+          before,
+          after
+        );
       }
     }
 
@@ -289,15 +307,27 @@ export function computeUpdateSetsChanges(
     }
 
     if (!withinHand && !fromBoard) {
-      throw new Error("Unexpected move");
+      throw new ComputeUpdateSetsError(
+        "Unexpected move (hand new tile, not within hand / from board)",
+        before,
+        after
+      );
     }
   }
 
   if (boardIndexesWithMovedTiles.length > 0) {
-    throw new Error("Unaccounted for board index with moved tile");
+    throw new ComputeUpdateSetsError(
+      "Unaccounted for board index with moved tile",
+      before,
+      after
+    );
   }
   if (handIndexesWithMovedTiles.length > 0) {
-    throw new Error("Unaccounted for hand index with moved tile");
+    throw new ComputeUpdateSetsError(
+      "Unaccounted for hand index with moved tile",
+      before,
+      after
+    );
   }
 
   return result;

@@ -40,7 +40,8 @@ export class ChatComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (
-      !changes.chatId?.isFirstChange() &&
+      changes.chatId != null &&
+      !changes.chatId.isFirstChange() &&
       changes.chatId.previousValue !== changes.chatId.currentValue
     ) {
       this.socket.emit("chat-leave", changes.chatId.previousValue);

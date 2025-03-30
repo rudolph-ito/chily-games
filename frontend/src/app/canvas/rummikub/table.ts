@@ -18,6 +18,7 @@ import { Vector2d } from "konva/lib/types";
 import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
 import { areTilesEqual } from "./tiles_helpers";
 import { computeUpdateSetsChanges } from "./change_helpers";
+import cardImages from "../../data/card_images";
 
 export interface ITableOptions {
   element: HTMLDivElement;
@@ -65,14 +66,14 @@ interface IDraggedTileNewIndex {
 }
 
 const TABLE_PADDING = 5;
-const ACTION_PADDING = 30;
+const ACTION_PADDING = 50;
 const TOTAL_ROWS = 10;
 const BOARD_NUM_ROWS = 8;
 const BOARD_NUM_TILES = BOARD_NUM_ROWS * TOTAL_COLUMNS;
 const CURRENT_USER_HAND_ROWS = TOTAL_ROWS - BOARD_NUM_ROWS;
 const CURRENT_USER_HAND_NUM_TILES = CURRENT_USER_HAND_ROWS * TOTAL_COLUMNS;
 const TOTAL_NUM_TILES = BOARD_NUM_TILES + CURRENT_USER_HAND_NUM_TILES;
-const TILE_HEIGHT_TO_WIDTH_RATIO = 5 / 7;
+const TILE_WIDTH_OVER_HEIGHT_RATIO = 5 / 7;
 
 const PLAYER_NAME_HEIGHT = 50;
 const PLAYER_NAME_WIDTH = 100;
@@ -91,6 +92,7 @@ export class RummikubTable {
   private readonly container: HTMLDivElement;
   private readonly stage: KonvaStage;
   private readonly layer: KonvaLayer;
+  private tileBackImage: HTMLImageElement;
   private tileSize: ISize;
   private gridOffset: Vector2d;
   private playerDisplays: Map<number, IPlayerDisplay>;
@@ -337,7 +339,7 @@ export class RummikubTable {
 
   private getTilePoolPosition(): Vector2d {
     return {
-      x: TABLE_PADDING + ACTION_PADDING,
+      x: this.gridOffset.x,
       y: this.stage.height() - PLAYER_NAME_HEIGHT - TABLE_PADDING,
     };
   }
@@ -347,24 +349,24 @@ export class RummikubTable {
       this.container.offsetHeight - 2 * PLAYER_NAME_HEIGHT - 2 * TABLE_PADDING;
     const tileAreaWidth =
       this.container.offsetWidth - 2 * TABLE_PADDING - ACTION_PADDING;
+    // Extra row for spacing:
+    // - half a tile spacing between hand + board
+    // - half a tile worth of spacing put between the rows on the board
     const maxHeight1 = tileAreaHeight / (TOTAL_ROWS + 1);
-    const maxHeight2 =
-      tileAreaWidth / TOTAL_COLUMNS / TILE_HEIGHT_TO_WIDTH_RATIO;
+    const maxWidth = tileAreaWidth / TOTAL_COLUMNS;
+    const maxHeight2 = maxWidth / TILE_WIDTH_OVER_HEIGHT_RATIO;
     const maxHeight = Math.min(maxHeight1, maxHeight2);
     this.tileSize = {
       height: maxHeight,
-      width: maxHeight * TILE_HEIGHT_TO_WIDTH_RATIO,
+      width: maxHeight * TILE_WIDTH_OVER_HEIGHT_RATIO,
     };
+    const extraHorizontalSpace =
+      (tileAreaWidth - this.tileSize.width * TOTAL_COLUMNS) / 2;
+    const extraVerticalSpace =
+      (tileAreaHeight - this.tileSize.height * (TOTAL_ROWS + 1)) / 2;
     this.gridOffset = {
-      x:
-        (this.container.offsetWidth - this.tileSize.width * TOTAL_COLUMNS) / 2 +
-        TABLE_PADDING +
-        ACTION_PADDING,
-      y:
-        (this.container.offsetHeight -
-          this.tileSize.height * (TOTAL_ROWS + 1)) /
-          2 +
-        TABLE_PADDING,
+      x: extraHorizontalSpace + TABLE_PADDING + ACTION_PADDING,
+      y: extraVerticalSpace + TABLE_PADDING + PLAYER_NAME_HEIGHT,
     };
   }
 
@@ -601,26 +603,27 @@ export class RummikubTable {
       this.playerDisplays.size
     );
     const tileBorder = new KonvaRect({
-      fill: "white",
       stroke: "black",
       strokeWidth: TILE_DEFAULT_STROKE,
       width: this.tileSize.width * 0.9,
       height: this.tileSize.height * 0.9,
     });
-    this.layer.add(tileBorder);
     tileBorder.setPosition(this.getTilePoolPosition());
-    const tween = new KonvaTween({
-      node: tileBorder,
-      duration: 2,
-      easing: KonvaEasings.EaseInOut,
-      onFinish: () => {
-        tileBorder.destroy();
-        this.layer.draw();
-      },
-      x: positionData.textPosition.x,
-      y: positionData.textPosition.y,
+    this.updateRectWithTileBack(tileBorder, () => {
+      this.layer.add(tileBorder);
+      const tween = new KonvaTween({
+        node: tileBorder,
+        duration: 2,
+        easing: KonvaEasings.EaseInOut,
+        onFinish: () => {
+          tileBorder.destroy();
+          this.layer.draw();
+        },
+        x: positionData.textPosition.x,
+        y: positionData.textPosition.y,
+      });
+      tween.play();
     });
-    tween.play();
   }
 
   private stageAnimationForWithinSets(
@@ -770,17 +773,18 @@ export class RummikubTable {
     });
   }
 
-  private getDividerHeight() {
-    return this.tileSize.height;
-  }
-
   private getBoardPosition(index: number): Vector2d {
     const columnOffset = index % TOTAL_COLUMNS;
     const x = columnOffset * this.tileSize.width + this.gridOffset.x;
     const rowOffset = Math.floor(index / TOTAL_COLUMNS);
     let y = rowOffset * this.tileSize.height + this.gridOffset.y;
+    if (rowOffset > 0) {
+      const boardRowDividerHeight = this.tileSize.height / 2 / BOARD_NUM_ROWS;
+      const numberOfBoardRowDividers = Math.min(rowOffset, BOARD_NUM_ROWS);
+      y += boardRowDividerHeight * numberOfBoardRowDividers;
+    }
     if (rowOffset >= BOARD_NUM_ROWS) {
-      y += this.getDividerHeight();
+      y += this.tileSize.height / 2;
     }
     return { x, y };
   }
@@ -1149,5 +1153,31 @@ export class RummikubTable {
 
   private getSetsTiles(): INullableTile[] {
     return this.setTileDisplays.map((x) => (x == null ? null : x.tile));
+  }
+
+  private updateRectWithTileBack(rect: KonvaRect, onFinish: () => void): void {
+    const afterImageLoaded = () => {
+      this.updateRectWithImage(rect, this.tileBackImage);
+      onFinish();
+    };
+    if (this.tileBackImage == null) {
+      const image = new Image();
+      image.src = `data:image/png;base64,${cardImages.back}`;
+      image.onload = () => {
+        this.tileBackImage = image;
+        afterImageLoaded();
+      };
+    } else {
+      afterImageLoaded();
+    }
+  }
+
+  private updateRectWithImage(rect: KonvaRect, image: HTMLImageElement): void {
+    rect.fillPatternImage(image);
+    rect.fillPatternRepeat("no-repeat");
+    rect.fillPatternScale({
+      x: rect.width() / image.width,
+      y: rect.height() / image.height,
+    });
   }
 }

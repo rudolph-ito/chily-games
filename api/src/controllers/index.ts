@@ -21,6 +21,7 @@ import { getOhHeckRouter } from "./oh_heck";
 import { getChatRouter } from "./chat";
 import { SimpleRedisClient } from "src/redis";
 import { getRummikubRouter } from "./rummikub";
+import { getErrorRouter } from "./error";
 
 export interface ICreateExpressAppOptions {
   publishRedisClient: SimpleRedisClient;
@@ -57,7 +58,7 @@ export function createExpressApp(
   options: ICreateExpressAppOptions
 ): express.Express {
   const app = express();
-  app.use("/", express.static(pathJoin(__dirname, "..", "frontend")));
+  app.use("/", express.static(pathJoin(__dirname, "..", "frontend/browser")));
   app.use("/assets", express.static(pathJoin(__dirname, "..", "assets")));
   app.use(expressCookieParser());
   app.use(expressBodyParser.json());
@@ -74,6 +75,7 @@ export function createExpressApp(
     res.status(200).end();
   });
   const authenticationRequired = initAuthController(app, "/api/auth");
+  app.use("/api/errors", getErrorRouter(authenticationRequired));
   app.use(
     "/api/chats",
     getChatRouter(authenticationRequired, options.publishRedisClient)
@@ -98,7 +100,9 @@ export function createExpressApp(
     getYanivRouter(authenticationRequired, options.publishRedisClient)
   );
   app.use(function (req, res) {
-    res.sendFile(pathJoin(__dirname, "..", "frontend", "index.html"));
+    res.sendFile(
+      pathJoin(__dirname, "..", "frontend", "browser", "index.html")
+    );
   });
   app.use(errorHandler());
   return app;
