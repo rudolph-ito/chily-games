@@ -10,8 +10,7 @@ import {
   ValidPlies,
   PlyEvaluationFlag,
 } from "../../../../shared/dtos/cyvasse/game";
-import { expect } from "chai";
-import { describe, it } from "mocha";
+
 import { previewPieceRule } from "./cyvasse_ply_preview";
 
 function getMockVariant(data: Partial<IVariant>): IVariant {
@@ -61,7 +60,7 @@ describe("CyvassePlyCalculator", () => {
       const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
-      expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
+      expect(validPlies[PlyEvaluationFlag.FREE]).toEqual([
         { x: 1, y: 0 },
         { x: 2, y: 0 },
         { x: -1, y: 0 },
@@ -75,8 +74,8 @@ describe("CyvassePlyCalculator", () => {
         { x: -1, y: 1 },
         { x: -2, y: 2 },
       ]);
-      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
-      expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
+      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).toEqual([]);
+      expect(validPlies[PlyEvaluationFlag.REACHABLE]).toEqual([]);
     });
 
     it("board size 3, orthogonal with turns (1-2)", () => {
@@ -95,7 +94,7 @@ describe("CyvassePlyCalculator", () => {
       const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
-      expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
+      expect(validPlies[PlyEvaluationFlag.FREE]).toEqual([
         { x: 1, y: 0 },
         { x: 2, y: 0 },
         { x: 1, y: 1 },
@@ -115,8 +114,8 @@ describe("CyvassePlyCalculator", () => {
         { x: -1, y: 1 },
         { x: -2, y: 2 },
       ]);
-      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
-      expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
+      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).toEqual([]);
+      expect(validPlies[PlyEvaluationFlag.REACHABLE]).toEqual([]);
     });
 
     it("board size 4, diagonal line (1-2)", () => {
@@ -135,7 +134,7 @@ describe("CyvassePlyCalculator", () => {
       const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
-      expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
+      expect(validPlies[PlyEvaluationFlag.FREE]).toEqual([
         { x: 1, y: 1 },
         { x: 2, y: 2 },
         { x: -1, y: -1 },
@@ -149,8 +148,8 @@ describe("CyvassePlyCalculator", () => {
         { x: -2, y: 1 },
         { x: -4, y: 2 },
       ]);
-      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
-      expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
+      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).toEqual([]);
+      expect(validPlies[PlyEvaluationFlag.REACHABLE]).toEqual([]);
     });
 
     it("board size 4, diagonal with turns (1-2)", () => {
@@ -169,7 +168,7 @@ describe("CyvassePlyCalculator", () => {
       const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
-      expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
+      expect(validPlies[PlyEvaluationFlag.FREE]).toEqual([
         { x: 1, y: 1 },
         { x: 2, y: 2 },
         { x: 0, y: 3 },
@@ -189,8 +188,8 @@ describe("CyvassePlyCalculator", () => {
         { x: -2, y: 1 },
         { x: -4, y: 2 },
       ]);
-      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
-      expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
+      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).toEqual([]);
+      expect(validPlies[PlyEvaluationFlag.REACHABLE]).toEqual([]);
     });
   });
 
@@ -212,7 +211,7 @@ describe("CyvassePlyCalculator", () => {
       const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
-      expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
+      expect(validPlies[PlyEvaluationFlag.FREE]).toEqual([
         { x: 3, y: 2 },
         { x: 4, y: 2 },
         { x: 1, y: 2 },
@@ -222,8 +221,8 @@ describe("CyvassePlyCalculator", () => {
         { x: 2, y: 1 },
         { x: 2, y: 0 },
       ]);
-      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
-      expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
+      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).toEqual([]);
+      expect(validPlies[PlyEvaluationFlag.REACHABLE]).toEqual([]);
     });
 
     it("board size 5x5, orthogonal with turns (1-2)", () => {
@@ -243,7 +242,7 @@ describe("CyvassePlyCalculator", () => {
       const validPlies = testDirectionalMovement(variant, movement);
 
       // Assert
-      expect(validPlies[PlyEvaluationFlag.FREE]).to.have.deep.members([
+      expect(validPlies[PlyEvaluationFlag.FREE]).toEqual([
         { x: 3, y: 2 },
         { x: 4, y: 2 },
         { x: 3, y: 3 },
@@ -257,8 +256,8 @@ describe("CyvassePlyCalculator", () => {
         { x: 2, y: 1 },
         { x: 2, y: 0 },
       ]);
-      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).to.have.members([]);
-      expect(validPlies[PlyEvaluationFlag.REACHABLE]).to.have.members([]);
+      expect(validPlies[PlyEvaluationFlag.CAPTURABLE]).toEqual([]);
+      expect(validPlies[PlyEvaluationFlag.REACHABLE]).toEqual([]);
     });
   });
 });

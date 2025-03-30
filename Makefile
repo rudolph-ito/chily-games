@@ -32,7 +32,7 @@ build-api: # Build api
 .PHONY: test-api
 test-api: # Run api tests
 	docker-compose up -d postgres redis
-	cd api && NODE_ENV=test yarn test --reporter spec
+	cd api && NODE_ENV=test yarn test
 
 .PHONY: test-frontend
 test-frontend: # Run frontend tests

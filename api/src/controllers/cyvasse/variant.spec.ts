@@ -1,5 +1,3 @@
-import { describe, it } from "mocha";
-import { expect } from "chai";
 import {
   resetDatabaseBeforeEach,
   createTestUser,
@@ -29,11 +27,11 @@ describe("CyvasseVariantRoutes", () => {
   resetDatabaseBeforeEach();
   let testServer: ITestServer;
 
-  before(async () => {
+  beforeAll(async () => {
     testServer = await createTestServer();
   });
 
-  after(async () => {
+  afterAll(async () => {
     await testServer.quit();
   });
 
@@ -48,7 +46,7 @@ describe("CyvasseVariantRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         data: [],
         total: 0,
       });
@@ -85,7 +83,7 @@ describe("CyvasseVariantRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         boardType: "Board type must be hexagonal or square.",
       });
     });
@@ -101,8 +99,8 @@ describe("CyvasseVariantRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
-      expect(response.body.variantId).to.exist();
+      expect(response.body).toBeDefined();
+      expect(response.body.variantId).toBeDefined();
     });
   });
 
@@ -172,7 +170,7 @@ describe("CyvasseVariantRoutes", () => {
         .expect(StatusCodes.UNPROCESSABLE_ENTITY);
 
       // Assert
-      expect(response.body).to.eql({
+      expect(response.body).toEqual({
         boardType: "Board type must be hexagonal or square.",
       });
     });
@@ -188,8 +186,8 @@ describe("CyvasseVariantRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
-      expect(response.body.boardType).to.eql(BoardType.SQUARE);
+      expect(response.body).toBeDefined();
+      expect(response.body.boardType).toEqual(BoardType.SQUARE);
     });
   });
 
@@ -224,11 +222,11 @@ describe("CyvasseVariantRoutes", () => {
         .expect(StatusCodes.OK);
 
       // Assert
-      expect(response.body).to.exist();
+      expect(response.body).toBeDefined();
       const result: IPreviewPieceRuleResponse = response.body;
-      expect(result.origin).to.eql({ x: 0, y: 0 });
-      expect(result.validPlies.capturable).to.eql([]);
-      expect(result.validPlies.free).to.have.deep.members([
+      expect(result.origin).toEqual({ x: 0, y: 0 });
+      expect(result.validPlies.capturable).toEqual([]);
+      expect(result.validPlies.free).toEqual([
         { x: 1, y: 0 },
         { x: -1, y: 0 },
         { x: 0, y: 1 },
@@ -236,7 +234,7 @@ describe("CyvasseVariantRoutes", () => {
         { x: 1, y: -1 },
         { x: -1, y: 1 },
       ]);
-      expect(result.validPlies.reachable).to.eql([]);
+      expect(result.validPlies.reachable).toEqual([]);
     });
   });
 });

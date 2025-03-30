@@ -1,6 +1,3 @@
-import chai from "chai";
-import dirtyChai from "dirty-chai";
-import { beforeEach } from "mocha";
 import { sequelize } from "../src/database/models";
 import { shouldSequelizeLog } from "../src/shared/utilities/env";
 import supertest from "supertest";
@@ -25,8 +22,6 @@ import { createExpressApp } from "../src/controllers";
 import express from "express";
 import { createClient } from "redis";
 
-chai.use(dirtyChai);
-
 export interface ITestServer {
   app: express.Express;
   quit: () => Promise<void>;
@@ -47,8 +42,8 @@ export async function createTestServer(): Promise<ITestServer> {
     }),
     quit: async (): Promise<void> => {
       await Promise.all([
-        publishRedisClient.disconnect(),
-        sessionStoreRedisClient.disconnect(),
+        publishRedisClient.quit(),
+        sessionStoreRedisClient.quit(),
       ]);
     },
   };
