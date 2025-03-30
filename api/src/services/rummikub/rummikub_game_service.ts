@@ -263,6 +263,9 @@ export class RummikubGameService implements IRummikubGameService {
     if (game.actionToUserId !== userId) {
       throw new ValidationError("Action is not to you.");
     }
+    if (game.latestUpdateSets == null) {
+      throw new ValidationError("Nothing to revert.");
+    }
     await this.gameDataService.update(gameId, game.version, {
       latestUpdateSets: null,
     });
