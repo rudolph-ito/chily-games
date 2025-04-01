@@ -5,14 +5,14 @@
     "prettier": "prettier '**/*.{js,ts,html,scss}'"
   },
   "devDependencies": {
-    "@eslint/js": "9.22.0",
-    "eslint": "9.22.0",
+    "@eslint/js": "9.23.0",
+    "eslint": "9.23.0",
     "eslint-config-prettier": "10.1.1",
     "eslint-plugin-import": "2.31.0",
     "foreman": "3.0.1",
     "prettier": "3.5.3",
     "typescript": "5.4.5",
-    "typescript-eslint": "8.26.1"
+    "typescript-eslint": "8.29.0"
   },
   "dependencies": {}
 }
