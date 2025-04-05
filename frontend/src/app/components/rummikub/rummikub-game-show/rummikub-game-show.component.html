@@ -110,4 +110,9 @@
       <app-chat [chatId]="getChatId()" [user]="user"></app-chat>
     </div>
   </ng-container>
+  <ng-container *ngIf="socketDisconnected">
+    <div class="socket-disconnected">
+      Disconnected from game, attempting to reconnect...
+    </div>
+  </ng-container>
 </div>

@@ -39,6 +39,7 @@ export class RummikubGameShowComponent {
   resizeObservable = new Subject<boolean>();
   table: RummikubTable;
   newGameStartedEvent: INewGameStartedEvent | null;
+  socketDisconnected = false;
 
   @ViewChild("tableContainer") tableContainer: ElementRef;
 
@@ -150,6 +151,21 @@ export class RummikubGameShowComponent {
       }
       this.game.state = GameState.ABORTED;
       this.initializeTable();
+    });
+    this.socket.fromEvent("connect").subscribe(() => {
+      this.socketDisconnected = false;
+    });
+    this.socket.fromEvent("connect_error").subscribe(() => {
+      this.socketDisconnected = true;
+      if (!this.socket.isActive()) {
+        this.socket.connect();
+      }
+    });
+    this.socket.fromEvent("disconnect").subscribe(() => {
+      this.socketDisconnected = true;
+      if (!this.socket.isActive()) {
+        this.socket.connect();
+      }
     });
   }
 
