@@ -754,7 +754,7 @@ export class RummikubGameService implements IRummikubGameService {
     fn: () => Promise<T>
   ): Promise<T> {
     const maxAttempts = 5;
-    const failedAttempts = 0;
+    let failedAttempts = 0;
     let result: T;
     while (failedAttempts < maxAttempts) {
       try {
@@ -767,7 +767,7 @@ export class RummikubGameService implements IRummikubGameService {
         return result;
       } catch (err) {
         if (err instanceof GameVersionOutOfDateError) {
-          continue;
+          failedAttempts += 1;
         } else {
           throw err;
         }
