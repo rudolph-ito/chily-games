@@ -12,7 +12,10 @@ import {
   IUpdateSets,
 } from "../../../shared/dtos/rummikub/game";
 import { IPaginatedResponse } from "../../../shared/dtos/search";
-import { gameNotFoundError, ValidationError } from "../../shared/exceptions";
+import {
+  gameNotFoundError,
+  GameVersionOutOfDateError,
+} from "../../shared/exceptions";
 import { FindAndCountOptions, Op } from "sequelize";
 import { ITile } from "src/shared/dtos/rummikub/tile";
 
@@ -124,7 +127,7 @@ export class RummikubGameDataService implements IRummikubGameDataService {
       returning: true,
     });
     if (result[0] !== 1) {
-      throw new ValidationError("Game version out of date.");
+      throw new GameVersionOutOfDateError("Game version out of date.");
     }
     return result[1][0].serialize();
   }
