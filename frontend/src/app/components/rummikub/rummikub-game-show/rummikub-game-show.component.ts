@@ -64,17 +64,20 @@ export class RummikubGameShowComponent {
           this.table.clear();
         }
       }
-      this.loadGameAndListenForEvents();
+      this.setupWebsocket();
     });
   }
 
-  loadGameAndListenForEvents(): void {
+  loadGame(): void {
     this.loading = true;
     this.gameService.get(this.getGameId()).subscribe((game) => {
       this.game = game;
       this.loading = false;
       this.initializeTable();
     });
+  }
+
+  setupWebsocket(): void {
     this.socket.emit("rummikub-join-game", this.getGameId());
     this.socket
       .fromEvent("player-joined")
@@ -154,6 +157,7 @@ export class RummikubGameShowComponent {
     });
     this.socket.fromEvent("connect").subscribe(() => {
       this.socketDisconnected = false;
+      this.loadGame();
     });
     this.socket.fromEvent("connect_error").subscribe(() => {
       this.socketDisconnected = true;
