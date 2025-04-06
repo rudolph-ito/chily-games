@@ -39,3 +39,14 @@
 .info {
   font-style: italic;
 }
+
+.socket-disconnected {
+  position: absolute;
+  background-color: red;
+  color: white;
+  width: 400px;
+  left: calc(50vw - 200px);
+  top: 0;
+  padding: 10px;
+  box-sizing: border-box;
+}

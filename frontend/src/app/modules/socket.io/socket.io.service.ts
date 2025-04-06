@@ -11,18 +11,25 @@ export class WrappedSocket {
   subscribersCounter: Record<string, number> = {};
   eventObservables$: Record<string, Observable<any>> = {};
   ioSocket: Socket;
-  emptyConfig: SocketIoConfig = {
+  baseConfig: SocketIoConfig = {
     url: "",
-    options: {},
+    options: {
+      reconnectionAttempts: 3,
+      timeout: 5000,
+    },
   };
 
   constructor(config: SocketIoConfig) {
     if (config === undefined) {
-      config = this.emptyConfig;
+      config = this.baseConfig;
     }
     const url: string = config.url;
     const options: any = config.options;
     this.ioSocket = io(url, options);
+  }
+
+  isActive(): boolean {
+    return this.ioSocket.active;
   }
 
   off(eventName: string, callback: (...args: any[]) => void): void {
