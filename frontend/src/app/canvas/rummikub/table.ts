@@ -11,7 +11,6 @@ import {
   ILastAction,
   INullableTile,
   IPlayerState,
-  IPlayerUpdatedSetsEvent,
   IUpdateSets,
 } from "src/app/shared/dtos/rummikub/game";
 import { ITile, TileColor } from "src/app/shared/dtos/rummikub/tile";
