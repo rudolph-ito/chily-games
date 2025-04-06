@@ -20,7 +20,10 @@ import {
   INullableTile,
   IPlayerUpdatedSetsEvent,
 } from "../../shared/dtos/rummikub/game";
-import { ValidationError } from "../shared/exceptions";
+import {
+  GameVersionOutOfDateError,
+  ValidationError,
+} from "../shared/exceptions";
 import {
   IRummikubGameDataService,
   IRummikubGameUpdateOptions,
@@ -164,22 +167,24 @@ export class RummikubGameService implements IRummikubGameService {
     userId: number,
     gameId: number
   ): Promise<IDoneWithTurnResponse> {
-    const game = await this.gameDataService.get(gameId);
-    if (game.state !== GameState.ROUND_ACTIVE) {
-      throw new ValidationError("Round is not active.");
-    }
-    if (game.actionToUserId !== userId) {
-      throw new ValidationError("Action is not to you.");
-    }
-    if (
-      game.latestUpdateSets != null ||
-      (game.lastValidUpdateSets != null &&
-        game.lastValidUpdateSets.tilesAdded.length > 0)
-    ) {
-      return this.doneWithTurnFinalizeUpdateSets(userId, game);
-    } else {
-      return this.doneWithTurnPickUpTileOrPass(userId, game);
-    }
+    return this.retryOnGameVersionOutOfDate(async () => {
+      const game = await this.gameDataService.get(gameId);
+      if (game.state !== GameState.ROUND_ACTIVE) {
+        throw new ValidationError("Round is not active.");
+      }
+      if (game.actionToUserId !== userId) {
+        throw new ValidationError("Action is not to you.");
+      }
+      if (
+        game.latestUpdateSets != null ||
+        (game.lastValidUpdateSets != null &&
+          game.lastValidUpdateSets.tilesAdded.length > 0)
+      ) {
+        return this.doneWithTurnFinalizeUpdateSets(userId, game);
+      } else {
+        return this.doneWithTurnPickUpTileOrPass(userId, game);
+      }
+    });
   }
 
   async saveLatestUpdateSets(
@@ -187,109 +192,116 @@ export class RummikubGameService implements IRummikubGameService {
     gameId: number,
     updateSets: IUpdateSets
   ): Promise<IPlayerUpdatedSetsEvent> {
-    const game = await this.gameDataService.get(gameId);
-    if (game.state !== GameState.ROUND_ACTIVE) {
-      throw new ValidationError("Round is not active.");
-    }
-    if (game.actionToUserId !== userId) {
-      throw new ValidationError("Action is not to you.");
-    }
-    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
-      game.players,
-      userId
-    );
-    const playerState = orderedPlayers[0];
-    const userTileCounts = getSerializedTileCounts(
-      playerState.tiles.filter(isNotNull)
-    );
-    const tilesAddedTileCounts = getSerializedTileCounts(updateSets.tilesAdded);
-    const remainingTilesCounts = getSerializedTileCounts(
-      updateSets.remainingTiles.filter(isNotNull)
-    );
-    const existingSetsTileCounts = getSerializedTileCounts(
-      game.sets.flatMap((x) => (x == null ? [] : x))
-    );
-    const updatedSetsTileCounts = getSerializedTileCounts(
-      updateSets.sets.flatMap((x) => (x == null ? [] : x))
-    );
-    const validUpdatedSets = Array.from(
-      Object.keys(updatedSetsTileCounts)
-    ).every(
-      (x) =>
-        updatedSetsTileCounts[x] ==
-        existingSetsTileCounts[x] + tilesAddedTileCounts[x]
-    );
-    if (!validUpdatedSets) {
-      throw new ValidationError(
-        "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."
+    return this.retryOnGameVersionOutOfDate(async () => {
+      const game = await this.gameDataService.get(gameId);
+      if (game.state !== GameState.ROUND_ACTIVE) {
+        throw new ValidationError("Round is not active.");
+      }
+      if (game.actionToUserId !== userId) {
+        throw new ValidationError("Action is not to you.");
+      }
+      const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+        game.players,
+        userId
       );
-    }
-    const validTilesAdded = Array.from(Object.keys(userTileCounts)).every(
-      (x) => userTileCounts[x] >= tilesAddedTileCounts[x]
-    );
-    if (!validTilesAdded) {
-      throw new ValidationError("Update sets: includes a tile not in hand.");
-    }
-    const validRemainingTiles = Array.from(Object.keys(userTileCounts)).every(
-      (x) =>
-        userTileCounts[x] === tilesAddedTileCounts[x] + remainingTilesCounts[x]
-    );
-    if (!validRemainingTiles) {
-      throw new ValidationError("Update sets: remaining tiles is invalid.");
-    }
-    const groupedSets = this.getGroupedSets(updateSets.sets);
-    const areAllGroupsValid = groupedSets.every((x) => isValidSet(x));
-    const updates: IRummikubGameUpdateOptions = areAllGroupsValid
-      ? {
-          latestUpdateSets: null,
-          lastValidUpdateSets: updateSets,
-        }
-      : { latestUpdateSets: updateSets };
-    const updatedGame = await this.gameDataService.update(
-      gameId,
-      game.version,
-      updates
-    );
-    return {
-      version: updatedGame.version,
-      updateSets: {
-        sets: updateSets.sets,
-        tilesAdded: updateSets.tilesAdded,
-        remainingTiles: [],
-      },
-    };
+      const playerState = orderedPlayers[0];
+      const userTileCounts = getSerializedTileCounts(
+        playerState.tiles.filter(isNotNull)
+      );
+      const tilesAddedTileCounts = getSerializedTileCounts(
+        updateSets.tilesAdded
+      );
+      const remainingTilesCounts = getSerializedTileCounts(
+        updateSets.remainingTiles.filter(isNotNull)
+      );
+      const existingSetsTileCounts = getSerializedTileCounts(
+        game.sets.flatMap((x) => (x == null ? [] : x))
+      );
+      const updatedSetsTileCounts = getSerializedTileCounts(
+        updateSets.sets.flatMap((x) => (x == null ? [] : x))
+      );
+      const validUpdatedSets = Array.from(
+        Object.keys(updatedSetsTileCounts)
+      ).every(
+        (x) =>
+          updatedSetsTileCounts[x] ==
+          existingSetsTileCounts[x] + tilesAddedTileCounts[x]
+      );
+      if (!validUpdatedSets) {
+        throw new ValidationError(
+          "Update sets: tiles in updated sets are not equal to existing sets plus tiles added."
+        );
+      }
+      const validTilesAdded = Array.from(Object.keys(userTileCounts)).every(
+        (x) => userTileCounts[x] >= tilesAddedTileCounts[x]
+      );
+      if (!validTilesAdded) {
+        throw new ValidationError("Update sets: includes a tile not in hand.");
+      }
+      const validRemainingTiles = Array.from(Object.keys(userTileCounts)).every(
+        (x) =>
+          userTileCounts[x] ===
+          tilesAddedTileCounts[x] + remainingTilesCounts[x]
+      );
+      if (!validRemainingTiles) {
+        throw new ValidationError("Update sets: remaining tiles is invalid.");
+      }
+      const groupedSets = this.getGroupedSets(updateSets.sets);
+      const areAllGroupsValid = groupedSets.every((x) => isValidSet(x));
+      const updates: IRummikubGameUpdateOptions = areAllGroupsValid
+        ? {
+            latestUpdateSets: null,
+            lastValidUpdateSets: updateSets,
+          }
+        : { latestUpdateSets: updateSets };
+      const updatedGame = await this.gameDataService.update(
+        gameId,
+        game.version,
+        updates
+      );
+      return {
+        version: updatedGame.version,
+        updateSets: {
+          sets: updateSets.sets,
+          tilesAdded: updateSets.tilesAdded,
+          remainingTiles: [],
+        },
+      };
+    });
   }
 
   async revertToLastValidUpdateSets(
     userId: number,
     gameId: number
   ): Promise<IUpdateSets> {
-    const game = await this.gameDataService.get(gameId);
-    if (game.state !== GameState.ROUND_ACTIVE) {
-      throw new ValidationError("Round is not active.");
-    }
-    if (game.actionToUserId !== userId) {
-      throw new ValidationError("Action is not to you.");
-    }
-    if (game.latestUpdateSets == null) {
-      throw new ValidationError("Nothing to revert.");
-    }
-    await this.gameDataService.update(gameId, game.version, {
-      latestUpdateSets: null,
+    return this.retryOnGameVersionOutOfDate(async () => {
+      const game = await this.gameDataService.get(gameId);
+      if (game.state !== GameState.ROUND_ACTIVE) {
+        throw new ValidationError("Round is not active.");
+      }
+      if (game.actionToUserId !== userId) {
+        throw new ValidationError("Action is not to you.");
+      }
+      if (game.latestUpdateSets == null) {
+        throw new ValidationError("Nothing to revert.");
+      }
+      await this.gameDataService.update(gameId, game.version, {
+        latestUpdateSets: null,
+      });
+      if (game.lastValidUpdateSets == null) {
+        const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+          game.players,
+          userId
+        );
+        const playerState = orderedPlayers[0];
+        return {
+          sets: game.sets,
+          tilesAdded: [],
+          remainingTiles: playerState.tiles,
+        };
+      }
+      return game.lastValidUpdateSets;
     });
-    if (game.lastValidUpdateSets == null) {
-      const orderedPlayers = this.getPlayersOrderedToStartWithUser(
-        game.players,
-        userId
-      );
-      const playerState = orderedPlayers[0];
-      return {
-        sets: game.sets,
-        tilesAdded: [],
-        remainingTiles: playerState.tiles,
-      };
-    }
-    return game.lastValidUpdateSets;
   }
 
   async rearrangeTiles(
@@ -297,35 +309,37 @@ export class RummikubGameService implements IRummikubGameService {
     gameId: number,
     tiles: (ITile | null)[]
   ): Promise<void> {
-    const game = await this.gameDataService.get(gameId);
-    if (game.state !== GameState.ROUND_ACTIVE) {
-      throw new ValidationError("Round is not active.");
-    }
-    const player = game.players.find((x) => x.userId === userId);
-    if (player == null) {
-      throw new ValidationError("You are not a player in this game.");
-    }
-    if (
-      game.actionToUserId == userId &&
-      (game.latestUpdateSets != null || game.lastValidUpdateSets != null)
-    ) {
-      throw new ValidationError(
-        "Cannot rearrange tiles while have update sets in progress."
-      );
-    }
-    if (
-      !areTileSetsEquivalent(
-        tiles.filter(isNotNull),
-        player.tiles.filter(isNotNull)
-      )
-    ) {
-      throw new ValidationError(
-        "Rearranged tiles are not equivalent to tiles in hand."
-      );
-    }
-    player.tiles = tiles;
-    await this.gameDataService.update(gameId, game.version, {
-      players: game.players,
+    return this.retryOnGameVersionOutOfDate(async () => {
+      const game = await this.gameDataService.get(gameId);
+      if (game.state !== GameState.ROUND_ACTIVE) {
+        throw new ValidationError("Round is not active.");
+      }
+      const player = game.players.find((x) => x.userId === userId);
+      if (player == null) {
+        throw new ValidationError("You are not a player in this game.");
+      }
+      if (
+        game.actionToUserId == userId &&
+        (game.latestUpdateSets != null || game.lastValidUpdateSets != null)
+      ) {
+        throw new ValidationError(
+          "Cannot rearrange tiles while have update sets in progress."
+        );
+      }
+      if (
+        !areTileSetsEquivalent(
+          tiles.filter(isNotNull),
+          player.tiles.filter(isNotNull)
+        )
+      ) {
+        throw new ValidationError(
+          "Rearranged tiles are not equivalent to tiles in hand."
+        );
+      }
+      player.tiles = tiles;
+      await this.gameDataService.update(gameId, game.version, {
+        players: game.players,
+      });
     });
   }
 
@@ -734,5 +748,31 @@ export class RummikubGameService implements IRummikubGameService {
       result.push(currentGroup);
     }
     return result;
+  }
+
+  private async retryOnGameVersionOutOfDate<T>(
+    fn: () => Promise<T>
+  ): Promise<T> {
+    const maxAttempts = 5;
+    let failedAttempts = 0;
+    let result: T;
+    while (failedAttempts < maxAttempts) {
+      try {
+        result = await fn();
+        if (failedAttempts > 0) {
+          console.info(
+            `Successful retry after game version out of date (failedAttempts: ${failedAttempts})`
+          );
+        }
+        return result;
+      } catch (err) {
+        if (err instanceof GameVersionOutOfDateError) {
+          failedAttempts += 1;
+        } else {
+          throw err;
+        }
+      }
+    }
+    throw new Error(`Game version out of date ${maxAttempts} times`);
   }
 }

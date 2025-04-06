@@ -7,6 +7,8 @@ export class ValidationError extends Error {
   }
 }
 
+export class GameVersionOutOfDateError extends Error {}
+
 export class AuthorizationError extends Error {}
 
 export class NotFoundError extends Error {}
