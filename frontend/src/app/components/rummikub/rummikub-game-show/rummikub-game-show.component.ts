@@ -130,7 +130,7 @@ export class RummikubGameShowComponent {
         }
         this.game.version = event.version;
         if (this.game?.actionToUserId !== this.user?.userId) {
-          this.table.updateStateWithUpdateSets(event);
+          this.table.updateStateWithUpdateSets(event.updateSets);
         }
       });
     this.socket

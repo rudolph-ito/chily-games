@@ -213,9 +213,7 @@ export class RummikubTable {
     this.updateActionTo(newActionToUserId);
   }
 
-  async updateStateWithUpdateSets({
-    updateSets,
-  }: IPlayerUpdatedSetsEvent): Promise<void> {
+  async updateStateWithUpdateSets(updateSets: IUpdateSets): Promise<void> {
     const changes = computeUpdateSetsChanges(
       this.currentUpdateSets,
       updateSets

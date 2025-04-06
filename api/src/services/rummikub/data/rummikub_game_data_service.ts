@@ -116,7 +116,7 @@ export class RummikubGameDataService implements IRummikubGameDataService {
   ): Promise<ISerializedRummikubGame> {
     const updates: any = Object.assign({}, options);
     updates.version = version + 1;
-    const result = await RummikubGame.update(options, {
+    const result = await RummikubGame.update(updates, {
       where: {
         gameId,
         version,
