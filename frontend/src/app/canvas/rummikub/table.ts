@@ -11,6 +11,7 @@ import {
   ILastAction,
   INullableTile,
   IPlayerState,
+  IPlayerUpdatedSetsEvent,
   IUpdateSets,
 } from "src/app/shared/dtos/rummikub/game";
 import { ITile, TileColor } from "src/app/shared/dtos/rummikub/tile";
@@ -172,9 +173,9 @@ export class RummikubTable {
       tilesAdded: [],
       remainingTiles: [],
     };
-    if (actionResponse.pickedUpTileEvent != null) {
+    if (actionResponse.pickedUpTileData != null) {
       const { tile, playerTileIndex, tilePoolCount } =
-        actionResponse.pickedUpTileEvent;
+        actionResponse.pickedUpTileData;
       const tileDisplay = this.createTileDisplay(tile);
       this.currentUserHandTileDisplays[playerTileIndex] = tileDisplay;
       this.animateTileFaceUpFromPoolIntoCurrentUserHand(playerTileIndex);
@@ -200,7 +201,7 @@ export class RummikubTable {
       tilesAdded: [],
       remainingTiles: [],
     };
-    if (lastAction.pickUpTileOrPass) {
+    if (lastAction.pickUpTile) {
       this.animateTileFaceDownFromPoolToOtherPlayer(lastAction.userId);
       if (lastAction.tilePoolCount == null) {
         throw Error(
@@ -212,7 +213,9 @@ export class RummikubTable {
     this.updateActionTo(newActionToUserId);
   }
 
-  async updateStateWithUpdateSets(updateSets: IUpdateSets): Promise<void> {
+  async updateStateWithUpdateSets({
+    updateSets,
+  }: IPlayerUpdatedSetsEvent): Promise<void> {
     const changes = computeUpdateSetsChanges(
       this.currentUpdateSets,
       updateSets
