@@ -13,6 +13,7 @@ export function getMockGame(data: Partial<IGame> = {}): IGame {
     latestUpdateSets: null,
     lastValidUpdateSets: null,
     roundScores: [],
+    version: 1,
     createdAt: "2021-01-01T00:00:00Z",
     updatedAt: "2021-01-01T00:00:00Z",
     ...data,

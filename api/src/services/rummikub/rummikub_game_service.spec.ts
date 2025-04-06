@@ -1220,7 +1220,7 @@ describe("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(result.pickedUpTileEvent?.playerTileIndex).toEqual(1);
+        expect(result.pickedUpTileData?.playerTileIndex).toEqual(1);
       });
 
       it("updates state appropriately if pickup (placed at first empty spot) ", async () => {
@@ -1269,7 +1269,7 @@ describe("RummikubGameService", () => {
             displayName: "test2",
           },
         ]);
-        expect(result.pickedUpTileEvent?.playerTileIndex).toEqual(0);
+        expect(result.pickedUpTileData?.playerTileIndex).toEqual(0);
       });
 
       it("updates state appropriately if pass (round active)", async () => {

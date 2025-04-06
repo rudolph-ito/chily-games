@@ -46,6 +46,7 @@ export interface IGame {
   latestUpdateSets: IUpdateSets | null; // null if no changes from lastValidUpdateSets
   lastValidUpdateSets: IUpdateSets | null; // null if not made any changes
   roundScores: IRoundScore[];
+  version: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -56,14 +57,14 @@ export interface IUpdateSets {
   remainingTiles: INullableTile[];
 }
 
-export interface IPickedUpTileEvent {
+export interface IPickedUpTileData {
   tile: ITile;
   playerTileIndex: number;
   tilePoolCount: number;
 }
 
 export interface IDoneWithTurnResponse {
-  pickedUpTileEvent?: IPickedUpTileEvent;
+  pickedUpTileData?: IPickedUpTileData;
   actionToNextPlayerEvent?: IActionToNextPlayerEvent;
   roundFinishedEvent?: IRoundFinishedEvent;
 }
@@ -74,21 +75,24 @@ export interface IPlayerJoinedEvent {
 
 export interface ILastAction {
   userId: number;
-  pickUpTileOrPass: boolean;
+  pickUpTile: boolean;
+  pass: boolean;
   tilePoolCount?: number;
 }
 
 export interface IPlayerUpdatedSetsEvent {
-  sets: INullableTile[];
-  tilesAdded: ITile[];
+  version: number;
+  updateSets: IUpdateSets;
 }
 
 export interface IActionToNextPlayerEvent {
+  version: number;
   lastAction: ILastAction;
   actionToUserId: number;
 }
 
 export interface IRoundFinishedEvent {
+  version: number;
   lastAction: ILastAction;
   winnerUserId: number;
   playerStates: IPlayerState[];

@@ -17,6 +17,7 @@ import {
   IGame,
   INewGameStartedEvent,
   IPlayerJoinedEvent,
+  IPlayerUpdatedSetsEvent,
   IRoundFinishedEvent,
   IUpdateSets,
 } from "src/app/shared/dtos/rummikub/game";
@@ -88,21 +89,24 @@ export class RummikubGameShowComponent {
         this.game.playerStates = event.playerStates;
       });
     this.socket.fromEvent("round-started").subscribe(() => {
-      this.gameService.get(this.getGameId()).subscribe((game) => {
-        if (game.hostUserId !== this.user?.userId) {
-          this.game = game;
-          this.initializeTable();
-        }
-      });
+      this.loadGame();
     });
     this.socket
       .fromEvent<IActionToNextPlayerEvent>("action-to-next-player")
       .subscribe((event: IActionToNextPlayerEvent) => {
         if (this.game == null) {
-          throw Error(
-            "Action to next player event handler: Game unexepcetedly null"
+          console.warn(
+            "action-to-next-player event handler: game unexpectedly null"
           );
+          return;
         }
+        if (this.game.version >= event.version) {
+          console.warn(
+            "action-to-next-player event handler: skipping earlier / duplicate event"
+          );
+          return;
+        }
+        this.game.version = event.version;
         this.game.actionToUserId = event.actionToUserId;
         if (event.lastAction.userId !== this.user?.userId) {
           this.table.updateStateWithUserAction(
@@ -112,18 +116,37 @@ export class RummikubGameShowComponent {
         }
       });
     this.socket
-      .fromEvent<IUpdateSets>("update-sets")
-      .subscribe((event: IUpdateSets) => {
+      .fromEvent<IPlayerUpdatedSetsEvent>("update-sets")
+      .subscribe((event: IPlayerUpdatedSetsEvent) => {
+        if (this.game == null) {
+          console.warn("update-sets event handler: game unexpectedly null");
+          return;
+        }
+        if (this.game.version >= event.version) {
+          console.warn(
+            "update-sets event handler: skipping earlier / duplicate event"
+          );
+          return;
+        }
+        this.game.version = event.version;
         if (this.game?.actionToUserId !== this.user?.userId) {
-          this.table.updateStateWithUpdateSets(event);
+          this.table.updateStateWithUpdateSets(event.updateSets);
         }
       });
     this.socket
       .fromEvent("round-finished")
       .subscribe((event: IRoundFinishedEvent) => {
         if (this.game == null) {
-          throw new Error("Game unexpectedly null");
+          console.warn("round-finished event handler: game unexpectedly null");
+          return;
         }
+        if (this.game.version >= event.version) {
+          console.warn(
+            "round-finished event handler: skipping earlier / duplicate event"
+          );
+          return;
+        }
+        this.game.version = event.version;
         this.game.state = event.updatedGameState;
         this.game.playerStates = event.playerStates;
         this.game.roundScores.push(event.roundScore);
@@ -150,7 +173,8 @@ export class RummikubGameShowComponent {
       });
     this.socket.fromEvent("aborted").subscribe(() => {
       if (this.game == null) {
-        throw new Error("Game unexpectedly null");
+        console.warn("aborted event handler: game unexpectedly null");
+        return;
       }
       this.game.state = GameState.ABORTED;
       this.initializeTable();
