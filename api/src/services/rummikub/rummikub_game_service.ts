@@ -19,6 +19,7 @@ import {
   IPickedUpTileData,
   INullableTile,
   IPlayerUpdatedSetsEvent,
+  IScoreSystem,
 } from "../../shared/dtos/rummikub/game";
 import {
   GameVersionOutOfDateError,
@@ -426,7 +427,11 @@ export class RummikubGameService implements IRummikubGameService {
     };
     if (playerState.tiles.filter(isNotNull).length == 0) {
       const completedRound = this.computePlayerScores(game.players);
-      this.updateScoresWithWinner(completedRound, userId);
+      this.updateScoresWithWinner(
+        game.options.scoreSystem,
+        completedRound,
+        userId
+      );
       const roundFinishedEvent = await this.finalizeRound(
         game,
         lastAction,
@@ -481,7 +486,11 @@ export class RummikubGameService implements IRummikubGameService {
         const completedRound = this.computePlayerScores(game.players);
         const winnerUserId =
           this.determineWinnerAfterEveryonePassed(completedRound);
-        this.updateScoresWithWinner(completedRound, winnerUserId);
+        this.updateScoresWithWinner(
+          game.options.scoreSystem,
+          completedRound,
+          winnerUserId
+        );
         const roundFinishedEvent = await this.finalizeRound(
           game,
           lastAction,
@@ -584,17 +593,22 @@ export class RummikubGameService implements IRummikubGameService {
   }
 
   private updateScoresWithWinner(
+    scoreSystem: IScoreSystem,
     completedRound: IRummikubRoundPlayerScore[],
     userId: number
   ): void {
-    const total = completedRound.reduce((sum, last) => sum + last.score, 0);
-    completedRound.forEach((x) => {
-      if (x.userId == userId) {
-        x.score = total;
-      } else {
-        x.score *= -1;
-      }
-    });
+    if (scoreSystem == "low_score") {
+      // nothing to do, everyone gets the sum of their hand
+    } else {
+      const total = completedRound.reduce((sum, last) => sum + last.score, 0);
+      completedRound.forEach((x) => {
+        if (x.userId == userId) {
+          x.score = total;
+        } else {
+          x.score *= -1;
+        }
+      });
+    }
   }
 
   private async finalizeRound(
@@ -610,7 +624,7 @@ export class RummikubGameService implements IRummikubGameService {
     ]);
     const isGameComplete = this.isGameComplete(
       updatedCompletedRounds,
-      game.options.playTo
+      game.options.scoreThreshold
     );
     const updatedGameState = isGameComplete
       ? GameState.COMPLETE
@@ -683,9 +697,12 @@ export class RummikubGameService implements IRummikubGameService {
         displayName: userIdToDisplayName[p.userId],
         hasPlayedInitialMeld: p.hasPlayedInitialMeld,
         passedLastTurn: p.passedLastTurn,
-        numberOfTiles: p.tiles.filter(isNotNull).length,
+        numberOfTiles: 0,
         tiles: [],
       };
+      if (game.options.displayPlayerTileCounts) {
+        out.numberOfTiles = p.tiles.filter(isNotNull).length;
+      }
       if (
         game.state === GameState.ROUND_COMPLETE ||
         game.state === GameState.COMPLETE ||

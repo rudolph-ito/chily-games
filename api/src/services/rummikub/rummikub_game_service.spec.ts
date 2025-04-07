@@ -14,6 +14,7 @@ import {
 } from "../../shared/dtos/rummikub/game";
 import { createTestRummikubGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
+import { describe, it, expect } from "@jest/globals";
 
 interface ITestSaveLatestUpdateSetsResult {
   error?: Error;
@@ -157,8 +158,9 @@ describe("RummikubGameService", () => {
       // arrange
       const user1Id = await createTestUser(createTestCredentials("test1"));
       const { gameId } = await new RummikubGameService().create(user1Id, {
-        playTo: 100,
-        hideTileCount: true,
+        displayPlayerTileCounts: true,
+        scoreSystem: "high_score_zero_sum",
+        scoreThreshold: 200,
       });
 
       // act
@@ -1024,7 +1026,11 @@ describe("RummikubGameService", () => {
             [-10, 10],
             [80, -80],
           ],
-          createOptions: { playTo: 100, hideTileCount: false },
+          createOptions: {
+            displayPlayerTileCounts: false,
+            scoreSystem: "high_score_zero_sum",
+            scoreThreshold: 100,
+          },
         });
 
         // act

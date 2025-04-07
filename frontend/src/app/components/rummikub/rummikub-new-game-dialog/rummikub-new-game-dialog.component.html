@@ -1,0 +1,37 @@
+<div mat-dialog-title>New "Rummikub" Game</div>
+<mat-dialog-content>
+  <div>
+    <mat-checkbox [formControl]="controls.displayPlayerTileCounts">
+      Display player tile count
+    </mat-checkbox>
+
+    <div>Scoring system:</div>
+    <mat-radio-group [formControl]="controls.scoringSystem">
+      <mat-radio-button [value]="'low_score'">
+        Low score - winner gets zero, others get positive value of tiles in
+        their hand
+      </mat-radio-button>
+      <mat-radio-button [value]="'high_score_zero_sum'">
+        High score, zero sum - winner gets sum of positive value of tiles in all
+        other hands, others get negative value of tiles in their hand
+      </mat-radio-button>
+    </mat-radio-group>
+
+    <mat-form-field [formControl]="controls.playUntilScore">
+      <mat-label>Play until one player reaches:</mat-label>
+      <input matInput type="number" />
+    </mat-form-field>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-button
+    mat-flat-button
+    color="primary"
+    (click)="create()"
+    cdkFocusInitial
+  >
+    Create
+  </button>
+</mat-dialog-actions>
