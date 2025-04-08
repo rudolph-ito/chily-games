@@ -16,8 +16,6 @@ const defaultOptions: IGameOptions = {
 
 @Component({
   selector: "app-rummikub-new-game-dialog",
-  standalone: true,
-  imports: [],
   templateUrl: "./rummikub-new-game-dialog.component.html",
   styleUrl: "./rummikub-new-game-dialog.component.scss",
 })
