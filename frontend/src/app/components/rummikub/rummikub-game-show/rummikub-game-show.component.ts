@@ -67,6 +67,7 @@ export class RummikubGameShowComponent {
         }
       }
       this.setupWebsocket();
+      this.loadGame();
     });
   }
 

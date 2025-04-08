@@ -290,14 +290,9 @@ export class RummikubTable {
     });
     this.computeTileSize();
 
-    // if (this.messageText != null) {
-    //   this.messageText.x(
-    //     this.container.offsetWidth / 2 - this.messageText.width() / 2
-    //   );
-    //   this.messageText.y(
-    //     this.container.offsetHeight / 2 - this.messageText.height() / 2
-    //   );
-    // }
+    if (!this.layer.hasChildren()) {
+      return;
+    }
 
     for (
       let index = 0;
