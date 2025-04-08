@@ -2,7 +2,7 @@ import { Component, Inject } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { RummikubGameService } from "src/app/services/rummikub/rummikub-game-service";
-import { IGameOptions } from "src/app/shared/dtos/rummikub/game";
+import { IGameOptions, IScoreSystem } from "src/app/shared/dtos/rummikub/game";
 
 export interface IRummikubNewGameDialogData {
   rematchForGameId: number | null;
@@ -42,7 +42,8 @@ export class RummikubNewGameDialogComponent {
         this.controls.displayPlayerTileCounts.value ??
         defaultOptions.displayPlayerTileCounts,
       scoreSystem:
-        this.controls.scoreSystem.value ?? defaultOptions.scoreSystem,
+        (this.controls.scoreSystem.value as IScoreSystem) ??
+        defaultOptions.scoreSystem,
       scoreThreshold:
         this.controls.scoreThreshold.value ?? defaultOptions.scoreThreshold,
     };

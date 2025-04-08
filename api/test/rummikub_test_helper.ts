@@ -55,7 +55,7 @@ export async function createTestRummikubGame(
   const createdGame = await gameService.create(
     userIds[0],
     options.createOptions ?? {
-      displayPlayerTileCounts: true,
+      displayPlayerTileCounts: false,
       scoreSystem: "high_score_zero_sum",
       scoreThreshold: 100,
     }
