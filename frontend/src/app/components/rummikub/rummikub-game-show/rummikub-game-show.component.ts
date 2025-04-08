@@ -27,6 +27,7 @@ import {
 } from "../../common/confirmation-dialog/confirmation-dialog.component";
 import { RummikubGameScoreboardDialogComponent } from "../rummikub-game-scoreboard-dialog/rummikub-game-scoreboard-dialog.component";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
+import { RummikubNewGameDialogComponent } from "../rummikub-new-game-dialog/rummikub-new-game-dialog.component";
 
 @Component({
   selector: "app-rummikub-game-show",
@@ -411,10 +412,15 @@ export class RummikubGameShowComponent {
     if (this.game == null) {
       throw new Error("Game unexpectedly null");
     }
-    this.gameService
-      .rematch(this.game.gameId, { hideTileCount: true, playTo: 100 })
-      .subscribe((game) => {
-        this.navigateToGame(game.gameId);
+    this.dialog
+      .open(RummikubNewGameDialogComponent, {
+        data: { rematchForGameId: this.game.gameId },
+      })
+      .afterClosed()
+      .subscribe((game: IGame) => {
+        if (game != null) {
+          this.navigateToGame(game.gameId);
+        }
       });
   }
 

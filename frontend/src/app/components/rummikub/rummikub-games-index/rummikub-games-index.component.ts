@@ -9,7 +9,13 @@ import { Subscription, timer } from "rxjs";
 import { AuthenticationService } from "src/app/services/authentication.service";
 import { RummikubGameService } from "src/app/services/rummikub/rummikub-game-service";
 import { IUser } from "src/app/shared/dtos/authentication";
-import { GameState, ISearchedGame } from "src/app/shared/dtos/rummikub/game";
+import {
+  GameState,
+  IGame,
+  ISearchedGame,
+} from "src/app/shared/dtos/rummikub/game";
+import { RummikubNewGameDialogComponent } from "../rummikub-new-game-dialog/rummikub-new-game-dialog.component";
+import { MatDialog } from "@angular/material/dialog";
 
 @Component({
   selector: "app-rummikub-games-index",
@@ -30,7 +36,8 @@ export class RummikubGamesIndexComponent {
     private readonly gameService: RummikubGameService,
     private readonly authenticationService: AuthenticationService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -76,10 +83,15 @@ export class RummikubGamesIndexComponent {
   }
 
   create(): void {
-    this.gameService
-      .create({ hideTileCount: false, playTo: 100 })
-      .subscribe((game) => {
-        this.navigateToGame(game.gameId);
+    this.dialog
+      .open(RummikubNewGameDialogComponent, {
+        data: { rematchForGameId: null },
+      })
+      .afterClosed()
+      .subscribe((game: IGame) => {
+        if (game != null) {
+          this.navigateToGame(game.gameId);
+        }
       });
   }
 

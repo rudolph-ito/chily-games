@@ -21,9 +21,12 @@ export interface IRoundScore {
   [userId: number]: IRoundPlayerScore;
 }
 
+export type IScoreSystem = "low_score" | "high_score_zero_sum";
+
 export interface IGameOptions {
-  hideTileCount: boolean;
-  playTo: number;
+  displayPlayerTileCounts: boolean;
+  scoreSystem: IScoreSystem;
+  scoreThreshold: number;
 }
 
 export enum GameState {

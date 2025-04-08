@@ -1,0 +1,19 @@
+.score-system-radio-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+}
+
+.score-system-option {
+  display: flex;
+  align-items: center;
+  .mat-icon {
+    margin-left: 5px;
+  }
+}
+
+.score-threshold-field {
+  display: block;
+  width: 300px;
+  margin-bottom: 10px;
+}

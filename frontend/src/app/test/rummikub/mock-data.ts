@@ -4,7 +4,11 @@ export function getMockGame(data: Partial<IGame> = {}): IGame {
   return {
     gameId: 1,
     hostUserId: 1,
-    options: { playTo: 100, hideTileCount: true },
+    options: {
+      displayPlayerTileCounts: false,
+      scoreSystem: "low_score",
+      scoreThreshold: 200,
+    },
     state: GameState.PLAYERS_JOINING,
     actionToUserId: 1,
     sets: [],

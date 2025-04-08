@@ -55,6 +55,7 @@ import { RummikubGamesIndexComponent } from "./components/rummikub/rummikub-game
 import { RummikubGameShowComponent } from "./components/rummikub/rummikub-game-show/rummikub-game-show.component";
 import { RummikubGameScoreboardDialogComponent } from "./components/rummikub/rummikub-game-scoreboard-dialog/rummikub-game-scoreboard-dialog.component";
 import { ErrorHandlerService } from "./services/error.handler.service";
+import { RummikubNewGameDialogComponent } from "./components/rummikub/rummikub-new-game-dialog/rummikub-new-game-dialog.component";
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { ErrorHandlerService } from "./services/error.handler.service";
     RummikubGamesIndexComponent,
     RummikubGameShowComponent,
     RummikubGameScoreboardDialogComponent,
+    RummikubNewGameDialogComponent,
   ],
   bootstrap: [AppComponent],
   imports: [

@@ -14,6 +14,7 @@ import {
 } from "../../shared/dtos/rummikub/game";
 import { createTestRummikubGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
+import { describe, it, expect } from "@jest/globals";
 
 interface ITestSaveLatestUpdateSetsResult {
   error?: Error;
@@ -157,8 +158,9 @@ describe("RummikubGameService", () => {
       // arrange
       const user1Id = await createTestUser(createTestCredentials("test1"));
       const { gameId } = await new RummikubGameService().create(user1Id, {
-        playTo: 100,
-        hideTileCount: true,
+        displayPlayerTileCounts: true,
+        scoreSystem: "high_score_zero_sum",
+        scoreThreshold: 200,
       });
 
       // act
@@ -211,6 +213,11 @@ describe("RummikubGameService", () => {
         sets: [],
         playerTiles: [[], []],
         tilePool: [],
+        createOptions: {
+          displayPlayerTileCounts: true,
+          scoreSystem: "high_score_zero_sum",
+          scoreThreshold: 200,
+        },
       });
 
       // act
@@ -233,6 +240,11 @@ describe("RummikubGameService", () => {
         sets: [],
         playerTiles: [[], [], []],
         tilePool: [],
+        createOptions: {
+          displayPlayerTileCounts: true,
+          scoreSystem: "high_score_zero_sum",
+          scoreThreshold: 200,
+        },
       });
 
       // act
@@ -836,7 +848,7 @@ describe("RummikubGameService", () => {
         expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 5, color: TileColor.YELLOW }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: true,
             passedLastTurn: false,
             userId: user1Id,
@@ -901,7 +913,7 @@ describe("RummikubGameService", () => {
         expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 1, color: TileColor.RED }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: true,
             passedLastTurn: false,
             userId: user1Id,
@@ -918,7 +930,7 @@ describe("RummikubGameService", () => {
         ]);
       });
 
-      it("updates state appropriately if valid play (round complete)", async () => {
+      it("updates state appropriately if valid play (round complete, scoring system - high score zero sum)", async () => {
         // Arrange
         const {
           userIds: [user1Id, user2Id],
@@ -947,6 +959,11 @@ describe("RummikubGameService", () => {
             ],
             tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
             remainingTiles: [],
+          },
+          createOptions: {
+            displayPlayerTileCounts: false,
+            scoreSystem: "high_score_zero_sum",
+            scoreThreshold: 200,
           },
         });
 
@@ -977,7 +994,7 @@ describe("RummikubGameService", () => {
               { rank: 5, color: TileColor.RED },
               { rank: 7, color: TileColor.BLUE },
             ],
-            numberOfTiles: 2,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: true,
             passedLastTurn: false,
             userId: user2Id,
@@ -986,6 +1003,82 @@ describe("RummikubGameService", () => {
         ]);
         expect(game.roundScores).toEqual([
           { [user1Id]: { score: 12 }, [user2Id]: { score: -12 } },
+        ]);
+      });
+
+      it("updates state appropriately if valid play (round complete, scoring system - low score)", async () => {
+        // Arrange
+        const {
+          userIds: [user1Id, user2Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+          playerTiles: [
+            [{ rank: 10, color: TileColor.BLACK }],
+            [
+              { rank: 5, color: TileColor.RED },
+              { rank: 7, color: TileColor.BLUE },
+            ],
+          ],
+          playerHasPlayedInitialMeld: [true, true],
+          tilePool: [],
+          lastValidUpdateSets: {
+            sets: [
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
+            ],
+            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [],
+          },
+          createOptions: {
+            displayPlayerTileCounts: false,
+            scoreSystem: "low_score",
+            scoreThreshold: 200,
+          },
+        });
+
+        // act
+        const { game } = await testDoneWithTurnExpectSuccess(user1Id, gameId);
+
+        // assert
+        expect(game.actionToUserId).toEqual(user1Id);
+        expect(game.state).toEqual(GameState.ROUND_COMPLETE);
+        expect(game.sets).toEqual([
+          { rank: 10, color: TileColor.YELLOW },
+          { rank: 10, color: TileColor.RED },
+          { rank: 10, color: TileColor.BLUE },
+          { rank: 10, color: TileColor.BLACK },
+        ]);
+        expect(game.lastValidUpdateSets).toEqual(null);
+        expect(game.playerStates).toEqual([
+          {
+            tiles: [],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: true,
+            passedLastTurn: false,
+            userId: user1Id,
+            displayName: "test1",
+          },
+          {
+            tiles: [
+              { rank: 5, color: TileColor.RED },
+              { rank: 7, color: TileColor.BLUE },
+            ],
+            numberOfTiles: 0,
+            hasPlayedInitialMeld: true,
+            passedLastTurn: false,
+            userId: user2Id,
+            displayName: "test2",
+          },
+        ]);
+        expect(game.roundScores).toEqual([
+          { [user1Id]: { score: 0 }, [user2Id]: { score: 12 } },
         ]);
       });
 
@@ -1024,7 +1117,11 @@ describe("RummikubGameService", () => {
             [-10, 10],
             [80, -80],
           ],
-          createOptions: { playTo: 100, hideTileCount: false },
+          createOptions: {
+            displayPlayerTileCounts: false,
+            scoreSystem: "high_score_zero_sum",
+            scoreThreshold: 100,
+          },
         });
 
         // act
@@ -1054,7 +1151,7 @@ describe("RummikubGameService", () => {
               { rank: 5, color: TileColor.RED },
               { rank: 7, color: TileColor.BLUE },
             ],
-            numberOfTiles: 2,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: true,
             passedLastTurn: false,
             userId: user2Id,
@@ -1098,7 +1195,7 @@ describe("RummikubGameService", () => {
               { rank: 10, color: TileColor.BLACK },
               { rank: 11, color: TileColor.YELLOW },
             ],
-            numberOfTiles: 2,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: false,
             userId: user1Id,
@@ -1158,7 +1255,7 @@ describe("RummikubGameService", () => {
               { rank: 10, color: TileColor.BLACK },
               { rank: 11, color: TileColor.YELLOW },
             ],
-            numberOfTiles: 3,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: false,
             userId: user1Id,
@@ -1205,7 +1302,7 @@ describe("RummikubGameService", () => {
               { rank: 10, color: TileColor.BLACK },
               { rank: 11, color: TileColor.YELLOW },
             ],
-            numberOfTiles: 2,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: false,
             userId: user1Id,
@@ -1254,7 +1351,7 @@ describe("RummikubGameService", () => {
               null,
               { rank: 10, color: TileColor.BLACK },
             ],
-            numberOfTiles: 2,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: false,
             userId: user1Id,
@@ -1292,7 +1389,7 @@ describe("RummikubGameService", () => {
         expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 10, color: TileColor.BLACK }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: true,
             userId: user1Id,
@@ -1333,7 +1430,7 @@ describe("RummikubGameService", () => {
         expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 10, color: TileColor.BLACK }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: true,
             userId: user1Id,
@@ -1341,7 +1438,7 @@ describe("RummikubGameService", () => {
           },
           {
             tiles: [{ rank: 7, color: TileColor.YELLOW }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: true,
             userId: user2Id,
@@ -1382,7 +1479,7 @@ describe("RummikubGameService", () => {
         expect(game.playerStates).toEqual([
           {
             tiles: [{ rank: 10, color: TileColor.BLACK }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: true,
             userId: user1Id,
@@ -1390,7 +1487,7 @@ describe("RummikubGameService", () => {
           },
           {
             tiles: [{ rank: 7, color: TileColor.YELLOW }],
-            numberOfTiles: 1,
+            numberOfTiles: 0,
             hasPlayedInitialMeld: false,
             passedLastTurn: true,
             userId: user2Id,
