@@ -28,9 +28,6 @@ export function attemptMoveGroup<T>({
       spaceWithinRow = false;
       break;
     }
-    if (index == firstItemOldIndex) {
-      break;
-    }
     if (
       i == 0 &&
       index % rowSize != 0 &&
@@ -39,12 +36,14 @@ export function attemptMoveGroup<T>({
     ) {
       addEmptyBeforeDisplaced = false;
     }
-    if (list[index] != null) {
-      currentDisplacedGroupIndexes.push(index);
-    } else {
-      if (currentDisplacedGroupIndexes.length > 0) {
-        displacedGroups.push(currentDisplacedGroupIndexes);
-        currentDisplacedGroupIndexes = [];
+    if (index < firstItemOldIndex || index > firstItemOldIndex + groupSize) {
+      if (list[index] != null) {
+        currentDisplacedGroupIndexes.push(index);
+      } else {
+        if (currentDisplacedGroupIndexes.length > 0) {
+          displacedGroups.push(currentDisplacedGroupIndexes);
+          currentDisplacedGroupIndexes = [];
+        }
       }
     }
   }

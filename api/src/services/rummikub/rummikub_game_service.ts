@@ -47,6 +47,11 @@ import { getTilesScore } from "./score_helpers";
 
 const isNotNull = <T>(value: T | null): value is T => value !== null;
 
+export interface IRevertToLastValidUpdateSetsOutput {
+  updateSets: IUpdateSets;
+  event: IPlayerUpdatedSetsEvent;
+}
+
 export interface IRummikubGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
@@ -65,7 +70,7 @@ export interface IRummikubGameService {
   revertToLastValidUpdateSets: (
     userId: number,
     gameId: number
-  ) => Promise<IUpdateSets>;
+  ) => Promise<IRevertToLastValidUpdateSetsOutput>;
   rearrangeTiles: (
     userId: number,
     gameId: number,
@@ -274,7 +279,7 @@ export class RummikubGameService implements IRummikubGameService {
   async revertToLastValidUpdateSets(
     userId: number,
     gameId: number
-  ): Promise<IUpdateSets> {
+  ): Promise<IRevertToLastValidUpdateSetsOutput> {
     return this.retryOnGameVersionOutOfDate(async () => {
       const game = await this.gameDataService.get(gameId);
       if (game.state !== GameState.ROUND_ACTIVE) {
@@ -286,22 +291,27 @@ export class RummikubGameService implements IRummikubGameService {
       if (game.latestUpdateSets == null) {
         throw new ValidationError("Nothing to revert.");
       }
-      await this.gameDataService.update(gameId, game.version, {
-        latestUpdateSets: null,
-      });
-      if (game.lastValidUpdateSets == null) {
-        const orderedPlayers = this.getPlayersOrderedToStartWithUser(
-          game.players,
-          userId
-        );
-        const playerState = orderedPlayers[0];
-        return {
-          sets: game.sets,
-          tilesAdded: [],
-          remainingTiles: playerState.tiles,
-        };
-      }
-      return game.lastValidUpdateSets;
+      const updatedGame = await this.gameDataService.update(
+        gameId,
+        game.version,
+        {
+          latestUpdateSets: null,
+        }
+      );
+      const newUpdateSets =
+        game.lastValidUpdateSets != null
+          ? game.lastValidUpdateSets
+          : this.getLastCommittedUpdateSets(game, userId);
+      return {
+        updateSets: newUpdateSets,
+        event: {
+          version: updatedGame.version,
+          updateSets: {
+            ...newUpdateSets,
+            remainingTiles: [],
+          },
+        },
+      };
     });
   }
 
@@ -765,6 +775,22 @@ export class RummikubGameService implements IRummikubGameService {
       result.push(currentGroup);
     }
     return result;
+  }
+
+  private getLastCommittedUpdateSets(
+    game: ISerializedRummikubGame,
+    userId: number
+  ): IUpdateSets {
+    const orderedPlayers = this.getPlayersOrderedToStartWithUser(
+      game.players,
+      userId
+    );
+    const playerState = orderedPlayers[0];
+    return {
+      sets: game.sets,
+      tilesAdded: [],
+      remainingTiles: playerState.tiles,
+    };
   }
 
   private async retryOnGameVersionOutOfDate<T>(

@@ -86,6 +86,7 @@ const TILE_DEFAULT_STROKE = 1;
 const TILE_HOVER_STORKE = 5;
 
 const GROUP_HANDLE_RADIUS = 6;
+const ANIMATION_SECONDS = 2;
 
 const TILE_COLOR_TO_DISPLAY = {
   [TileColor.YELLOW]: "#efbf04",
@@ -190,6 +191,7 @@ export class RummikubTable {
       this.updateActionTo(
         actionResponse.actionToNextPlayerEvent?.actionToUserId
       );
+      this.recreateSetGroupDisplays();
     }
   }
 
@@ -216,9 +218,13 @@ export class RummikubTable {
       this.updateTilePoolCount(lastAction.tilePoolCount);
     }
     this.updateActionTo(newActionToUserId);
+    this.recreateSetGroupDisplays();
   }
 
-  async updateStateWithUpdateSets(updateSets: IUpdateSets): Promise<void> {
+  updateStateWithUpdateSets(
+    updateSets: IUpdateSets,
+    isCurrentUserAction: boolean
+  ): void {
     const changes = computeUpdateSetsChanges(
       this.currentUpdateSets,
       updateSets
@@ -253,9 +259,6 @@ export class RummikubTable {
         this.stageAnimationForWithinCurrentPlayerHand(change.from, change.to)
       );
     }
-    for (const tween of tweens) {
-      tween.play();
-    }
 
     this.currentUpdateSets = updateSets;
     const oldTileDisplays = this.tileDisplays.slice();
@@ -272,7 +275,7 @@ export class RummikubTable {
       this.tileDisplays[to] = createdTileDisplays[index];
     }
     for (const change of changes.withinSets) {
-      this.tileBackImage[change.to] = this.tileDisplays[change.from];
+      this.tileDisplays[change.to] = oldTileDisplays[change.from];
     }
     for (const change of changes.withinCurrentPlayerHand) {
       this.tileDisplays[this.handToTileIndex(change.to)] =
@@ -284,7 +287,19 @@ export class RummikubTable {
     for (const index of changes.currentPlayerHandIndexesToClear) {
       this.tileDisplays[this.handToTileIndex(index)] = null;
     }
-    this.recreateSetGroupDisplays();
+
+    if (isCurrentUserAction) {
+      this.removeSetGroupDisplays();
+    }
+    for (const tween of tweens) {
+      tween.play();
+    }
+    if (isCurrentUserAction) {
+      setTimeout(() => {
+        this.recreateSetGroupDisplays();
+        this.layer.draw();
+      }, ANIMATION_SECONDS * 1000);
+    }
   }
 
   private handToTileIndex(relativeIndex: number) {
@@ -449,14 +464,21 @@ export class RummikubTable {
     return { border };
   }
 
-  private recreateSetGroupDisplays(): void {
+  private removeSetGroupDisplays(): void {
     if (this.setGroups != null) {
       this.setGroups.forEach((x) => x.group.destroy());
     }
     this.setGroups = [];
+  }
+
+  private recreateSetGroupDisplays(): void {
+    this.removeSetGroupDisplays();
     let firstTileIndex = -1;
     let tileCount = 0;
     for (let i = 0; i < this.tileDisplays.length; i++) {
+      if (i < BOARD_NUM_TILES && this.actionToUserId != this.currentUserId) {
+        continue;
+      }
       const tileDisplay = this.tileDisplays[i];
       if (tileDisplay == null) {
         if (firstTileIndex != -1 && tileCount > 2) {
@@ -474,7 +496,7 @@ export class RummikubTable {
       }
     }
     for (let index = 0; index < this.setGroups.length; index++) {
-      this.initializeGroupEventHandlers(this.setGroups[index], index);
+      this.initializeGroupEventHandlers(this.setGroups[index]);
       this.updateSetGroupPosition(index);
     }
   }
@@ -629,7 +651,7 @@ export class RummikubTable {
     const handPosition = this.getBoardPosition(overallTileIndex);
     const tween = new KonvaTween({
       node: tileDisplay.group,
-      duration: 1,
+      duration: ANIMATION_SECONDS,
       easing: KonvaEasings.EaseInOut,
       x: handPosition.x,
       y: handPosition.y,
@@ -661,7 +683,7 @@ export class RummikubTable {
       this.layer.add(tileBorder);
       const tween = new KonvaTween({
         node: tileBorder,
-        duration: 2,
+        duration: ANIMATION_SECONDS,
         easing: KonvaEasings.EaseInOut,
         onFinish: () => {
           tileBorder.destroy();
@@ -685,7 +707,7 @@ export class RummikubTable {
     const positionData = this.getBoardPosition(newIndex);
     return new KonvaTween({
       node: tileDisplay.group,
-      duration: 2,
+      duration: ANIMATION_SECONDS,
       easing: KonvaEasings.EaseInOut,
       x: positionData.x,
       y: positionData.y,
@@ -737,7 +759,7 @@ export class RummikubTable {
     const boardPositionData = this.getBoardPosition(index);
     return new KonvaTween({
       node: tileDisplay.group,
-      duration: 2,
+      duration: ANIMATION_SECONDS,
       easing: KonvaEasings.EaseInOut,
       x: boardPositionData.x,
       y: boardPositionData.y,
@@ -765,7 +787,7 @@ export class RummikubTable {
     );
     return new KonvaTween({
       node: tileDisplay.group,
-      duration: 2,
+      duration: ANIMATION_SECONDS,
       easing: KonvaEasings.EaseInOut,
       onFinish: () => {
         tileDisplay.group.destroy();
@@ -904,8 +926,8 @@ export class RummikubTable {
     const result = attemptMoveGroup({
       list: this.tileDisplays,
       rowSize: TOTAL_COLUMNS,
-      firstItemOldIndex: input.firstTileNewIndex,
-      firstItemNewIndex: input.firstTileOldIndex,
+      firstItemOldIndex: input.firstTileOldIndex,
+      firstItemNewIndex: input.firstTileNewIndex,
       groupSize: input.tileGroupSize,
     });
     if (!result.success) {
@@ -1046,21 +1068,21 @@ export class RummikubTable {
     });
   }
 
-  private initializeGroupEventHandlers(
-    groupDisplay: IGroupDisplay,
-    index: number
-  ): void {
+  private initializeGroupEventHandlers(groupDisplay: IGroupDisplay): void {
     groupDisplay.groupHandle.on("mouseover", () => {
       this.addTilesToGroup(groupDisplay);
     });
     groupDisplay.groupHandle.on("mouseout", () => {
-      this.removeTilesFromGroup(groupDisplay, index);
+      this.recreateGroupTileDisplays(groupDisplay);
+      this.recreateSetGroupDisplays();
+      this.layer.draw();
     });
     groupDisplay.group.on("dragstart", () => {
       groupDisplay.group.moveToTop();
       this.layer.draw();
     });
     groupDisplay.group.on("dragend", () => {
+      this.recreateGroupTileDisplays(groupDisplay);
       this.onGroupDragEnd(groupDisplay);
     });
   }
@@ -1075,10 +1097,7 @@ export class RummikubTable {
     }
   }
 
-  private removeTilesFromGroup(
-    groupDisplay: IGroupDisplay,
-    index: number
-  ): void {
+  private recreateGroupTileDisplays(groupDisplay: IGroupDisplay): void {
     for (let i = 0; i < groupDisplay.tileCount; i++) {
       const tileIndex = groupDisplay.firstTileIndex + i;
       const tileDisplay = this.tileDisplays[tileIndex];
@@ -1090,22 +1109,15 @@ export class RummikubTable {
       );
       this.updateTilePosition(tileIndex);
     }
-
-    this.setGroups[index] = this.createGroupDisplay(
-      groupDisplay.firstTileIndex,
-      groupDisplay.tileCount
-    );
-    this.initializeGroupEventHandlers(this.setGroups[index], index);
-    this.updateSetGroupPosition(index);
-
-    groupDisplay.group.destroy();
-    this.layer.draw();
   }
 
   private onGroupDragEnd(groupDisplay: IGroupDisplay): void {
     const newIndex = this.getDraggedTileNewIndex(
       this.subtractVectors(
-        groupDisplay.groupHandle.position(),
+        this.addVectors(
+          groupDisplay.groupHandle.position(),
+          groupDisplay.group.position()
+        ),
         this.getGroupHandleOffset()
       )
     );

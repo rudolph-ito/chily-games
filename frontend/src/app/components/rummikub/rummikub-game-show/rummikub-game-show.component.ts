@@ -132,7 +132,7 @@ export class RummikubGameShowComponent {
         }
         this.game.version = event.version;
         if (this.game?.actionToUserId !== this.user?.userId) {
-          this.table.updateStateWithUpdateSets(event.updateSets);
+          this.table.updateStateWithUpdateSets(event.updateSets, false);
         }
       });
     this.socket
@@ -390,7 +390,7 @@ export class RummikubGameShowComponent {
   revertToLastValidUpdateSets(): void {
     this.gameService.revertToLastValidUpdateSets(this.getGameId()).subscribe({
       next: (updateSets: IUpdateSets) => {
-        this.table.updateStateWithUpdateSets(updateSets);
+        this.table.updateStateWithUpdateSets(updateSets, true);
       },
       error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {

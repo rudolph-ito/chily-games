@@ -130,7 +130,7 @@ const examples: Example[] = [
     }
   },
   {
-    description: 'move group within row and overlap',
+    description: 'move group within row and overlap (to the left)',
     input: {
       list: [
         null, null, null,  'a',  'b',  'c', null, null, null, null,
@@ -142,6 +142,23 @@ const examples: Example[] = [
     output: {
       list: [
         null,  'a',  'b',  'c', null, null, null, null, null, null
+      ],
+      success: true
+    }
+  },
+  {
+    description: 'move group within row and overlap (to the right)',
+    input: {
+      list: [
+        null, null, null,  'a',  'b',  'c', null, null, null, null,
+      ],
+      firstItemOldIndex: 3,
+      firstItemNewIndex: 4,
+      groupSize: 3
+    },
+    output: {
+      list: [
+        null, null, null, null, 'a',  'b',  'c', null, null, null,
       ],
       success: true
     }
