@@ -164,18 +164,20 @@ const examples: Example[] = [
     }
   },
   {
-    description: 'move group within row, displace middle of group',
+    description: 'move group within row, split existing group',
     input: {
       list: [
-        null, 'd', 'e', null,  'a',  'b',  'c', null, null, null,
+        null, 'd', 'e', null, 'a', 'b', 'c', null, null, null,
       ],
       firstItemOldIndex: 4,
       firstItemNewIndex: 2,
       groupSize: 3
     },
     output: {
-      list: [],
-      success: false
+      list: [
+        null, 'd', 'a', 'b', 'c', 'e', null, null, null, null,
+      ],
+      success: true
     }
   },
   {

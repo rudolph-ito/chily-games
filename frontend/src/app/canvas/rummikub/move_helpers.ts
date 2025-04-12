@@ -19,6 +19,7 @@ export function attemptMoveGroup<T>({
   groupSize,
 }: AttemptMoveGroupInput<T>): AttemptMoveGroupOutput<T> {
   let spaceWithinRow = true;
+  let addEmptyBeforeDisplaced = true;
   let currentDisplacedGroupIndexes: number[] = [];
   const displacedGroups: number[][] = [];
   for (let i = 0; i < groupSize; i++) {
@@ -36,8 +37,7 @@ export function attemptMoveGroup<T>({
       list[index - 1] != null &&
       list[index] != null
     ) {
-      // cannot place group in the middle of another group
-      return { list: [], success: false };
+      addEmptyBeforeDisplaced = false;
     }
     if (list[index] != null) {
       currentDisplacedGroupIndexes.push(index);
@@ -58,7 +58,7 @@ export function attemptMoveGroup<T>({
       index % rowSize != 0;
       index++
     ) {
-      if (index == firstItemOldIndex) {
+      if (index >= firstItemOldIndex) {
         break;
       }
       if (list[index] != null) {
@@ -89,8 +89,10 @@ export function attemptMoveGroup<T>({
   }
   let nextDisplacedItemIndex = firstItemNewIndex + groupSize;
   for (let i = 0; i < displacedGroups.length; i++) {
-    outputList[nextDisplacedItemIndex] = null;
-    nextDisplacedItemIndex += 1;
+    if (i != 0 || addEmptyBeforeDisplaced) {
+      outputList[nextDisplacedItemIndex] = null;
+      nextDisplacedItemIndex += 1;
+    }
     for (let j = 0; j < displacedGroups[i].length; j++) {
       outputList[nextDisplacedItemIndex] = list[displacedGroups[i][j]];
       nextDisplacedItemIndex += 1;
