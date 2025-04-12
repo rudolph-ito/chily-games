@@ -1,14 +1,14 @@
 export interface AttemptMoveGroupInput<T> {
-  list: (T|null)[],
-  rowSize: number,
-  firstItemOldIndex: number,
-  firstItemNewIndex: number,
-  groupSize: number,
+  list: (T | null)[];
+  rowSize: number;
+  firstItemOldIndex: number;
+  firstItemNewIndex: number;
+  groupSize: number;
 }
 
 export interface AttemptMoveGroupOutput<T> {
-  list: (T|null)[],
-  success: boolean
+  list: (T | null)[];
+  success: boolean;
 }
 
 export function attemptMoveGroup<T>({
@@ -20,24 +20,28 @@ export function attemptMoveGroup<T>({
 }: AttemptMoveGroupInput<T>): AttemptMoveGroupOutput<T> {
   let spaceWithinRow = true;
   let currentDisplacedGroupIndexes: number[] = [];
-  const displacedGroups: number[][] = []
+  const displacedGroups: number[][] = [];
   for (let i = 0; i < groupSize; i++) {
     const index = firstItemNewIndex + i;
     if (i != 0 && index % rowSize == 0) {
       spaceWithinRow = false;
-      break
+      break;
     }
     if (index == firstItemOldIndex) {
-      break
+      break;
     }
-    if (i == 0 && index % rowSize != 0 && list[index - 1] != null && list[index] != null) {
+    if (
+      i == 0 &&
+      index % rowSize != 0 &&
+      list[index - 1] != null &&
+      list[index] != null
+    ) {
       // cannot place group in the middle of another group
-      return { list: [], success: false}
+      return { list: [], success: false };
     }
     if (list[index] != null) {
-      currentDisplacedGroupIndexes.push(index)
-    }
-    else {
+      currentDisplacedGroupIndexes.push(index);
+    } else {
       if (currentDisplacedGroupIndexes.length > 0) {
         displacedGroups.push(currentDisplacedGroupIndexes);
         currentDisplacedGroupIndexes = [];
@@ -45,18 +49,21 @@ export function attemptMoveGroup<T>({
     }
   }
   if (!spaceWithinRow) {
-    return { list: [], success: false}
+    return { list: [], success: false };
   }
   // If any displacement, calculate displacement to the end of the row as it may cascade
   if (displacedGroups.length > 0 || currentDisplacedGroupIndexes.length > 0) {
-    for (let index = firstItemNewIndex + groupSize; index % rowSize != 0; index++) {
+    for (
+      let index = firstItemNewIndex + groupSize;
+      index % rowSize != 0;
+      index++
+    ) {
       if (index == firstItemOldIndex) {
-        break
+        break;
       }
       if (list[index] != null) {
-        currentDisplacedGroupIndexes.push(index)
-      }
-      else {
+        currentDisplacedGroupIndexes.push(index);
+      } else {
         if (currentDisplacedGroupIndexes.length > 0) {
           displacedGroups.push(currentDisplacedGroupIndexes);
           currentDisplacedGroupIndexes = [];
@@ -67,9 +74,14 @@ export function attemptMoveGroup<T>({
       displacedGroups.push(currentDisplacedGroupIndexes);
     }
   }
-  const displayedItemLength = displacedGroups.reduce((sum, x) => sum + x.length, 0) + Math.max(0, displacedGroups.length - 1);
-  if ((firstItemNewIndex % rowSize) + groupSize + displayedItemLength >= rowSize) {
-    return { list: [], success: false}
+  const displayedItemLength =
+    displacedGroups.reduce((sum, x) => sum + x.length, 0) +
+    Math.max(0, displacedGroups.length - 1);
+  if (
+    (firstItemNewIndex % rowSize) + groupSize + displayedItemLength >=
+    rowSize
+  ) {
+    return { list: [], success: false };
   }
   const outputList = list.slice();
   for (let i = 0; i < groupSize; i++) {
@@ -81,14 +93,17 @@ export function attemptMoveGroup<T>({
     nextDisplacedItemIndex += 1;
     for (let j = 0; j < displacedGroups[i].length; j++) {
       outputList[nextDisplacedItemIndex] = list[displacedGroups[i][j]];
-      nextDisplacedItemIndex += 1
+      nextDisplacedItemIndex += 1;
     }
   }
   for (let i = 0; i < groupSize; i++) {
     const indexToClear = firstItemOldIndex + i;
-    if (indexToClear < firstItemNewIndex || indexToClear >= nextDisplacedItemIndex) {
+    if (
+      indexToClear < firstItemNewIndex ||
+      indexToClear >= nextDisplacedItemIndex
+    ) {
       outputList[indexToClear] = null;
     }
   }
-  return { list: outputList, success: true }
+  return { list: outputList, success: true };
 }

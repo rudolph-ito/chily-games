@@ -5,17 +5,18 @@ const ROW_SIZE = 10;
 interface Example {
   description: string;
   input: {
-    list: (string|null)[];
+    list: (string | null)[];
     firstItemOldIndex: number;
     firstItemNewIndex: number;
     groupSize: number;
   };
   output: {
-    list: (string|null)[];
+    list: (string | null)[];
     success: boolean;
   };
 }
 
+// prettier-ignore
 const examples: Example[] = [
   {
     description: 'move single tile to empty row',
@@ -206,8 +207,8 @@ describe("attemptMoveGroup", () => {
       // act
       const result = attemptMoveGroup({
         rowSize: ROW_SIZE,
-        ...example.input
-      })
+        ...example.input,
+      });
 
       // assert
       expect(result).toEqual(example.output);
