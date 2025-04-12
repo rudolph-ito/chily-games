@@ -1,6 +1,7 @@
 import { Stage as KonvaStage } from "konva/lib/Stage";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
 import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
+import { Circle as KonvaCircle } from "konva/lib/shapes/Circle";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
 import { Group as KonvaGroup } from "konva/lib/Group";
 import { TOTAL_COLUMNS } from "src/app/shared/constants/rummikub";
@@ -28,10 +29,11 @@ interface IBoardCellDropSite {
   border: KonvaRect;
 }
 
-interface ISetDisplay {
-  tiles: ITileDisplay[];
+interface IGroupDisplay {
+  firstTileIndex: number;
+  tileCount: number;
   group: KonvaGroup;
-  groupToggle: KonvaText;
+  groupHandle: KonvaCircle;
 }
 
 interface ITileDisplay {
@@ -81,6 +83,8 @@ const PLAYER_NAME_WIDTH = 100;
 const TILE_DEFAULT_STROKE = 1;
 const TILE_HOVER_STORKE = 5;
 
+const GROUP_HANDLE_RADIUS = 6;
+
 const TILE_COLOR_TO_DISPLAY = {
   [TileColor.YELLOW]: "#efbf04",
   [TileColor.BLACK]: "#000000",
@@ -103,7 +107,7 @@ export class RummikubTable {
   private tilePoolText: KonvaText;
   private setTileDisplays: (ITileDisplay | null)[] = [];
   private currentUserHandTileDisplays: (ITileDisplay | null)[] = [];
-  private setGroups: (ISetDisplay | null)[] = [];
+  private setGroups: IGroupDisplay[] = [];
   private currentUpdateSets: IUpdateSets;
   private readonly onRearrangeTiles: (cards: (ITile | null)[]) => void;
   private readonly onUpdateSets: (updateSets: IUpdateSets) => void;
@@ -157,6 +161,7 @@ export class RummikubTable {
           remainingTiles: [],
         }
     );
+    this.recreateSetGroupDisplays();
     this.updateActionTo(game.actionToUserId);
     this.updateGameState(game.state);
     this.initializeTilePool();
@@ -277,6 +282,7 @@ export class RummikubTable {
     for (const index of changes.currentPlayerHandIndexesToClear) {
       this.currentUserHandTileDisplays[index] = null;
     }
+    this.recreateSetGroupDisplays()
   }
 
   hasUpdateSets(): boolean {
@@ -304,6 +310,10 @@ export class RummikubTable {
 
     for (let index = 0; index < this.setTileDisplays.length; index++) {
       this.updateSetTilePosition(index);
+    }
+
+    for (let index = 0; index < this.setGroups.length; index++) {
+      this.updateSetGroupPosition(index)
     }
 
     for (let index = 0; index < CURRENT_USER_HAND_NUM_TILES; index++) {
@@ -437,17 +447,67 @@ export class RummikubTable {
     return { border };
   }
 
-  private createSetDisplay(tiles: ITile[]): ISetDisplay {
-    const tileDisplays = tiles.map((x) => this.createTileDisplay(x));
-    const group = new KonvaGroup();
-    group.add(...tileDisplays.map((x) => x.value));
-    group.add(...tileDisplays.map((x) => x.border));
-    const groupToggle = new KonvaText();
+  private recreateSetGroupDisplays(): void {
+    if (this.setGroups != null) {
+      this.setGroups.forEach(x => x.group.destroy())
+    }
+    this.setGroups = []
+    let firstTileIndex = -1;
+    let tileCount = 0;
+    for (let i = 0; i < this.setTileDisplays.length; i++) {
+      const tileDisplay = this.setTileDisplays[i]
+      if (tileDisplay == null) {
+        if (firstTileIndex != -1 && tileCount > 2) {
+          this.setGroups.push(this.createGroupDisplay(firstTileIndex, tileCount))
+        }
+        firstTileIndex = -1;
+        tileCount = 0;
+      }
+      else {
+        if (firstTileIndex == -1) {
+          firstTileIndex = i;
+        }
+        tileCount += 1;
+      }
+    }
+    for (let index = 0; index < this.setGroups.length; index++) {
+      this.initializeGroupEventHandlers(this.setGroups[index], index)
+      this.updateSetGroupPosition(index)
+    }
+  }
+
+  private createGroupDisplay(firstTileIndex: number, tileCount: number): IGroupDisplay {
+    const group = new KonvaGroup({draggable: true});
+    const groupHandle = new KonvaCircle({radius: GROUP_HANDLE_RADIUS, fill: 'black'});
+    group.add(groupHandle)
+    this.layer.add(group);
     return {
-      tiles: tileDisplays,
+      firstTileIndex,
+      tileCount,
       group,
-      groupToggle,
+      groupHandle,
     };
+  }
+
+  private updateSetGroupPosition(index: number): void {
+    const groupDisplay = this.setGroups[index]
+    const firstTilePosition = this.getBoardPosition(groupDisplay.firstTileIndex)
+    groupDisplay.groupHandle.setPosition(this.addVectors(firstTilePosition, this.getGroupHandleOffset()));
+  }
+
+  private getGroupHandleOffset(): Vector2d {
+    return {
+      x: - GROUP_HANDLE_RADIUS,
+      y: this.tileSize.height/2 - GROUP_HANDLE_RADIUS/2
+    }
+  }
+
+  private addVectors(a: Vector2d, b: Vector2d): Vector2d {
+    return { x: a.x + b.x, y: a.y + b.y }
+  }
+
+  private subtractVectors(a: Vector2d, b: Vector2d): Vector2d {
+    return { x: a.x - b.x, y: a.y - b.y }
   }
 
   async initializePlayers(game: IGame): Promise<void> {
@@ -843,7 +903,7 @@ export class RummikubTable {
     const setTileOldIndex = this.setTileDisplays.findIndex(
       (x) => x === tileDisplay
     );
-    const newIndex = this.getDraggedTileNewIndex(tileDisplay);
+    const newIndex = this.getDraggedTileNewIndex(tileDisplay.group.position());
     let successfulMove = false;
     if (currentHandTileOldIndex !== -1) {
       if (newIndex.currentHandIndex != null) {
@@ -904,6 +964,7 @@ export class RummikubTable {
         this.updateSetTilePosition(index);
       }
     }
+    this.recreateSetGroupDisplays()
     this.layer.draw();
   }
 
@@ -1107,14 +1168,65 @@ export class RummikubTable {
     });
   }
 
+  private initializeGroupEventHandlers(groupDisplay: IGroupDisplay, index: number): void {
+    groupDisplay.groupHandle.on("mouseover", () => {
+      this.addTilesToGroup(groupDisplay);
+    });
+    groupDisplay.groupHandle.on("mouseout", () => {
+      this.removeTilesFromGroup(groupDisplay, index);
+    });
+    groupDisplay.group.on("dragstart", () => {
+      groupDisplay.group.moveToTop();
+      this.layer.draw();
+    });
+    groupDisplay.group.on("dragend", () => {
+      this.onGroupDragEnd(groupDisplay);
+    });
+  }
+
+  private addTilesToGroup(groupDisplay: IGroupDisplay): void {
+    for (let i = 0; i < groupDisplay.tileCount; i++) {
+      const tileDisplay = this.setTileDisplays[groupDisplay.firstTileIndex + i];
+      if (tileDisplay == null) {
+        throw new Error("Tile display unexpectedly null")
+      }
+      groupDisplay.group.add(tileDisplay.group)
+    }
+  }
+
+  private removeTilesFromGroup(groupDisplay: IGroupDisplay, index: number): void {
+    for (let i = 0; i < groupDisplay.tileCount; i++) {
+      const tileIndex = groupDisplay.firstTileIndex + i
+      const tileDisplay = this.setTileDisplays[tileIndex];
+      if (tileDisplay == null) {
+        throw new Error("Tile display unexpectedly null")
+      }
+      this.setTileDisplays[tileIndex] = this.createNullableTileDisplay(tileDisplay.tile);
+      this.updateSetTilePosition(tileIndex)
+    }
+
+    this.setGroups[index] = this.createGroupDisplay(groupDisplay.firstTileIndex, groupDisplay.tileCount);
+    this.initializeGroupEventHandlers(this.setGroups[index], index)
+    this.updateSetGroupPosition(index)
+
+    groupDisplay.group.destroy()
+    this.layer.draw()
+  }
+
+  private onGroupDragEnd(groupDisplay: IGroupDisplay): void {
+    const newIndex = this.getDraggedTileNewIndex(
+      this.subtractVectors(groupDisplay.groupHandle.position(), this.getGroupHandleOffset())
+    );
+    console.log(newIndex)
+  }
+
   private getDraggedTileNewIndex(
-    tileDisplay: ITileDisplay
+    position: Vector2d
   ): IDraggedTileNewIndex {
     if (this.gameState != GameState.ROUND_ACTIVE) {
       return {};
     }
-    const newX = tileDisplay.group.x();
-    const newY = tileDisplay.group.y();
+    const { x: newX, y: newY} = position
     for (let index = 0; index < BOARD_NUM_TILES; index++) {
       const { x, y } = this.getBoardPosition(index);
       if (
