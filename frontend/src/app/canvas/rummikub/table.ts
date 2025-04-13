@@ -907,15 +907,15 @@ export class RummikubTable {
   }
 
   private attemptMoveTileGroup(input: IAttemptMoveTileGroupInput) {
-    if (input.firstTileOldIndex > BOARD_NUM_TILES) {
-      if (input.firstTileNewIndex > BOARD_NUM_TILES) {
+    if (input.firstTileOldIndex >= BOARD_NUM_TILES) {
+      if (input.firstTileNewIndex >= BOARD_NUM_TILES) {
         this.attemptMoveTileGroupWithinHand(input);
       } else if (this.currentUserId == this.actionToUserId) {
         this.attemptMoveTileGroupFromHandToBoard(input);
       }
     } else {
       if (
-        input.firstTileNewIndex > BOARD_NUM_TILES &&
+        input.firstTileNewIndex >= BOARD_NUM_TILES &&
         this.currentUserId == this.actionToUserId
       ) {
         this.attemptMoveTileGroupFromBoardToHand(input);

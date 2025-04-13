@@ -19,7 +19,7 @@ export function attemptMoveGroup<T>({
   groupSize,
 }: AttemptMoveGroupInput<T>): AttemptMoveGroupOutput<T> {
   let spaceWithinRow = true;
-  let addEmptyBeforeDisplaced = true;
+  const addEmptyBeforeDisplaced = list[firstItemNewIndex] == null;
   let currentDisplacedGroupIndexes: number[] = [];
   const displacedGroups: number[][] = [];
   for (let i = 0; i < groupSize; i++) {
@@ -28,15 +28,7 @@ export function attemptMoveGroup<T>({
       spaceWithinRow = false;
       break;
     }
-    if (
-      i == 0 &&
-      index % rowSize != 0 &&
-      list[index - 1] != null &&
-      list[index] != null
-    ) {
-      addEmptyBeforeDisplaced = false;
-    }
-    if (index < firstItemOldIndex || index > firstItemOldIndex + groupSize) {
+    if (index < firstItemOldIndex || index >= firstItemOldIndex + groupSize) {
       if (list[index] != null) {
         currentDisplacedGroupIndexes.push(index);
       } else {
@@ -57,15 +49,14 @@ export function attemptMoveGroup<T>({
       index % rowSize != 0;
       index++
     ) {
-      if (index >= firstItemOldIndex) {
-        break;
-      }
-      if (list[index] != null) {
-        currentDisplacedGroupIndexes.push(index);
-      } else {
-        if (currentDisplacedGroupIndexes.length > 0) {
-          displacedGroups.push(currentDisplacedGroupIndexes);
-          currentDisplacedGroupIndexes = [];
+      if (index < firstItemOldIndex || index >= firstItemOldIndex + groupSize) {
+        if (list[index] != null) {
+          currentDisplacedGroupIndexes.push(index);
+        } else {
+          if (currentDisplacedGroupIndexes.length > 0) {
+            displacedGroups.push(currentDisplacedGroupIndexes);
+            currentDisplacedGroupIndexes = [];
+          }
         }
       }
     }
@@ -73,11 +64,12 @@ export function attemptMoveGroup<T>({
       displacedGroups.push(currentDisplacedGroupIndexes);
     }
   }
-  const displayedItemLength =
+  const displacedItemLength =
+    (displacedGroups.length > 0 && addEmptyBeforeDisplaced ? 1 : 0) +
     displacedGroups.reduce((sum, x) => sum + x.length, 0) +
     Math.max(0, displacedGroups.length - 1);
   if (
-    (firstItemNewIndex % rowSize) + groupSize + displayedItemLength >=
+    (firstItemNewIndex % rowSize) + (groupSize - 1) + displacedItemLength >=
     rowSize
   ) {
     return { list: [], success: false };

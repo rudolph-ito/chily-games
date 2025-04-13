@@ -14,10 +14,11 @@ interface Example {
     list: (string | null)[];
     success: boolean;
   };
+  focus?: boolean; // used to more easily test specific examples
 }
 
 // prettier-ignore
-const examples: Example[] = [
+let examples: Example[] = [
   {
     description: 'move single tile to empty row',
     input: {
@@ -114,6 +115,25 @@ const examples: Example[] = [
     }
   },
   {
+    description: 'move group to non-empty row, connect + displace groups',
+    input: {
+      list: [
+        null, null, null, null,  'd', null,  'e', null, null, null,
+        null,  'a',  'b',  'c', null, null, null, null, null, null
+      ],
+      firstItemOldIndex: 11,
+      firstItemNewIndex: 4,
+      groupSize: 3
+    },
+    output: {
+      list: [
+        null, null, null, null,  'a',  'b',  'c',  'd', null,  'e',
+        null, null, null, null, null, null, null, null, null, null
+      ],
+      success: true
+    }
+  },
+  {
     description: 'move group to non-empty row, displacement too much to fix',
     input: {
       list: [
@@ -198,25 +218,65 @@ const examples: Example[] = [
     }
   },
   {
-    description: 'move group within row, across rows not considered middle of group',
+    description: 'move single tile, displace',
     input: {
       list: [
-        null, null, null, null, null, null, null, null, null,  'd',
-         'e', null, null,  'a',  'b',  'c', null, null, null, null
+        null, null, null, 'a', 'b', null, null, null, null, null
       ],
-      firstItemOldIndex: 13,
-      firstItemNewIndex: 10,
-      groupSize: 3
+      firstItemOldIndex: 3,
+      firstItemNewIndex: 4,
+      groupSize: 1
     },
     output: {
       list: [
-        null, null, null, null, null, null, null, null, null,  'd',
-         'a',  'b',  'c', null,  'e', null, null, null, null, null
+        null, null, null, null, 'a', 'b', null, null, null, null
       ],
       success: true
     }
+  },
+  {
+    description: 'move single tile, within group',
+    input: {
+      list: [
+        null, null, null, 'b', 'a', 'c', 'd', null, null, null
+      ],
+      firstItemOldIndex: 4,
+      firstItemNewIndex: 3,
+      groupSize: 1
+    },
+    output: {
+      list: [
+        null, null, null, 'a', 'b', 'c', 'd', null, null, null
+      ],
+      success: true
+    },
+  },
+  {
+    description: 'move single tile to edge of row',
+    input: {
+      list: [
+        null, null, null, null, 'a', null, null, null, null, null
+      ],
+      firstItemOldIndex: 4,
+      firstItemNewIndex: 9,
+      groupSize: 1
+    },
+    output: {
+      list: [
+        null, null, null, null, null, null, null, null, null, 'a'
+      ],
+      success: true
+    },
   }
 ]
+
+const focused_examples = examples.filter((x) => x.focus);
+if (focused_examples.length > 0) {
+  if (process.env.CI) {
+    throw new Error("Committed example focus. Please remove");
+  }
+  examples = focused_examples;
+}
 
 describe("attemptMoveGroup", () => {
   for (const example of examples) {
