@@ -267,7 +267,96 @@ let examples: Example[] = [
       ],
       success: true
     },
-    focus: true,
+  },
+  {
+    description: 'move single tile to another group within row (do not collapse empty within)',
+    input: {
+      list: [
+        'a', 'c', null, 'b', 'd', 'e', 'f', null, null, 'g'
+      ],
+      firstItemOldIndex: 3,
+      firstItemNewIndex: 1,
+      groupSize: 1
+    },
+    output: {
+      list: [
+        'a', 'b', 'c', null, 'd', 'e', 'f', null, null, 'g'
+      ],
+      success: true
+    },
+  },
+  {
+    description: 'move single tile to group on another row (collapse null within row)',
+    input: {
+      list: [
+        null,  'a',  'c', null,  'd',  'e',  'f', null, null,  'g',
+        null, null, null, null, null, null, null, null,  'b', null
+      ],
+      firstItemOldIndex: 18,
+      firstItemNewIndex: 2,
+      groupSize: 1
+    },
+    output: {
+      list: [
+        null,  'a',  'b',  'c', null,  'd',  'e',  'f', null,  'g',
+        null, null, null, null, null, null, null, null, null, null
+      ],
+      success: true
+    },
+  },
+  {
+    description: 'move single tile to group on another row (no space)',
+    input: {
+      list: [
+        null,  'a',  'c', null,  'd',  'e',  'f', null, 'g',  'h',
+        null, null, null, null, null, null, null, null,  'b', null
+      ],
+      firstItemOldIndex: 18,
+      firstItemNewIndex: 2,
+      groupSize: 1
+    },
+    output: {
+      list: [],
+      success: false
+    },
+  },
+  {
+    description: 'move single tile to group on another (multiple possible collapse, collapse only first)',
+    input: {
+      list: [
+        null,  'a',  'c', null, null,  'd', null , null, 'e',  'f',
+        null, null, null, null, null, null, null, null,  'b', null
+      ],
+      firstItemOldIndex: 18,
+      firstItemNewIndex: 2,
+      groupSize: 1
+    },
+    output: {
+      list: [
+        null,  'a',  'b',  'c', null,  'd', null, null, 'e',  'f',
+        null, null, null, null, null, null, null, null, null, null
+      ],
+      success: true
+    }
+  },
+  {
+    description: 'move single tile into gap in another row',
+    input: {
+      list: [
+        null,  'a', null , 'c', null, null, null, null, null, null,
+        null, null, null, null, null, null, null, null,  'b', null
+      ],
+      firstItemOldIndex: 18,
+      firstItemNewIndex: 2,
+      groupSize: 1
+    },
+    output: {
+      list: [
+        null,  'a',  'b',  'c', null, null, null, null, null, null,
+        null, null, null, null, null, null, null, null, null, null
+      ],
+      success: true
+    }
   }
 ]
 

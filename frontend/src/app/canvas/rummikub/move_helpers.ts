@@ -42,21 +42,34 @@ export function attemptMoveGroup<T>({
   if (!spaceWithinRow) {
     return { list: [], success: false };
   }
-  // If any displacement, calculate displacement to the end of the row as it may cascade
+  // If any displacement, continue calculating until reach end of row or have sufficient room
   if (displacedGroups.length > 0 || currentDisplacedGroupIndexes.length > 0) {
     for (
       let index = firstItemNewIndex + groupSize;
       index % rowSize != 0;
       index++
     ) {
-      if (index < firstItemOldIndex || index >= firstItemOldIndex + groupSize) {
-        if (list[index] != null) {
+      if (list[index] != null) {
+        if (
+          index < firstItemOldIndex ||
+          index >= firstItemOldIndex + groupSize
+        ) {
           currentDisplacedGroupIndexes.push(index);
-        } else {
-          if (currentDisplacedGroupIndexes.length > 0) {
-            displacedGroups.push(currentDisplacedGroupIndexes);
-            currentDisplacedGroupIndexes = [];
-          }
+        }
+      } else {
+        if (currentDisplacedGroupIndexes.length > 0) {
+          displacedGroups.push(currentDisplacedGroupIndexes);
+          currentDisplacedGroupIndexes = [];
+        }
+        const displacedItemLength =
+          (displacedGroups.length > 0 && addEmptyBeforeDisplaced ? 1 : 0) +
+          displacedGroups.reduce((sum, x) => sum + x.length + 1, 0);
+        if (
+          firstItemNewIndex + (groupSize - 1) + displacedItemLength ==
+          index
+        ) {
+          // Have sufficient empty space to account for displacemnt
+          break;
         }
       }
     }
@@ -66,8 +79,8 @@ export function attemptMoveGroup<T>({
   }
   const displacedItemLength =
     (displacedGroups.length > 0 && addEmptyBeforeDisplaced ? 1 : 0) +
-    displacedGroups.reduce((sum, x) => sum + x.length, 0) +
-    Math.max(0, displacedGroups.length - 1);
+    displacedGroups.reduce((sum, x) => sum + x.length + 1, 0) -
+    1; // don't need trailing space
   if (
     (firstItemNewIndex % rowSize) + (groupSize - 1) + displacedItemLength >=
     rowSize

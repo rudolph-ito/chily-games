@@ -497,6 +497,9 @@ export class RummikubTable {
         tileCount += 1;
       }
     }
+    if (firstTileIndex != -1 && tileCount > 2) {
+      this.setGroups.push(this.createGroupDisplay(firstTileIndex, tileCount));
+    }
     for (let index = 0; index < this.setGroups.length; index++) {
       this.initializeGroupEventHandlers(this.setGroups[index]);
       this.updateSetGroupPosition(index);
@@ -907,20 +910,22 @@ export class RummikubTable {
   }
 
   private attemptMoveTileGroup(input: IAttemptMoveTileGroupInput) {
-    if (input.firstTileOldIndex >= BOARD_NUM_TILES) {
-      if (input.firstTileNewIndex >= BOARD_NUM_TILES) {
-        this.attemptMoveTileGroupWithinHand(input);
-      } else if (this.currentUserId == this.actionToUserId) {
-        this.attemptMoveTileGroupFromHandToBoard(input);
-      }
-    } else {
-      if (
-        input.firstTileNewIndex >= BOARD_NUM_TILES &&
-        this.currentUserId == this.actionToUserId
-      ) {
-        this.attemptMoveTileGroupFromBoardToHand(input);
-      } else if (this.currentUserId == this.actionToUserId) {
-        this.attemptMoveTileGroupWithinBoard(input);
+    if (input.firstTileNewIndex != -1) {
+      if (input.firstTileOldIndex >= BOARD_NUM_TILES) {
+        if (input.firstTileNewIndex >= BOARD_NUM_TILES) {
+          this.attemptMoveTileGroupWithinHand(input);
+        } else if (this.currentUserId == this.actionToUserId) {
+          this.attemptMoveTileGroupFromHandToBoard(input);
+        }
+      } else {
+        if (
+          input.firstTileNewIndex >= BOARD_NUM_TILES &&
+          this.currentUserId == this.actionToUserId
+        ) {
+          this.attemptMoveTileGroupFromBoardToHand(input);
+        } else if (this.currentUserId == this.actionToUserId) {
+          this.attemptMoveTileGroupWithinBoard(input);
+        }
       }
     }
     for (let index = 0; index < this.tileDisplays.length; index++) {
@@ -1082,6 +1087,7 @@ export class RummikubTable {
     groupDisplay.groupHandle.on("mouseover", () => {
       this.updateGroupHandleStroke(groupDisplay.groupHandle, true);
       this.addTilesToGroup(groupDisplay);
+      this.layer.draw();
     });
     groupDisplay.groupHandle.on("mouseout", () => {
       this.recreateGroupTileDisplays(groupDisplay);
