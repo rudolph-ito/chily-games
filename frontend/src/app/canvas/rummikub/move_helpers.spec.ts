@@ -267,6 +267,7 @@ let examples: Example[] = [
       ],
       success: true
     },
+    focus: true,
   }
 ]
 
