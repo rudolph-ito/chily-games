@@ -84,6 +84,8 @@ const PLAYER_NAME_WIDTH = 100;
 
 const TILE_DEFAULT_STROKE = 1;
 const TILE_HOVER_STORKE = 5;
+const GROUP_HANDLE_DEFAULT_STROKE = 0;
+const GROUP_HANDLE_HOVER_STORKE = 3;
 
 const GROUP_HANDLE_RADIUS = 6;
 const ANIMATION_SECONDS = 2;
@@ -508,7 +510,9 @@ export class RummikubTable {
     const group = new KonvaGroup({ draggable: true });
     const groupHandle = new KonvaCircle({
       radius: GROUP_HANDLE_RADIUS,
-      fill: "black",
+      fill: "#888",
+      stroke: "black",
+      strokeWidth: GROUP_HANDLE_DEFAULT_STROKE,
     });
     group.add(groupHandle);
     this.layer.add(group);
@@ -879,6 +883,12 @@ export class RummikubTable {
     rect.strokeWidth(hover ? TILE_HOVER_STORKE : TILE_DEFAULT_STROKE);
   }
 
+  private updateGroupHandleStroke(circle: KonvaCircle, hover: boolean): void {
+    circle.strokeWidth(
+      hover ? GROUP_HANDLE_HOVER_STORKE : GROUP_HANDLE_DEFAULT_STROKE
+    );
+  }
+
   private removeTileEventHandlers(group: KonvaGroup): void {
     group.off("mouseover");
     group.off("mouseout");
@@ -1070,6 +1080,7 @@ export class RummikubTable {
 
   private initializeGroupEventHandlers(groupDisplay: IGroupDisplay): void {
     groupDisplay.groupHandle.on("mouseover", () => {
+      this.updateGroupHandleStroke(groupDisplay.groupHandle, true);
       this.addTilesToGroup(groupDisplay);
     });
     groupDisplay.groupHandle.on("mouseout", () => {
