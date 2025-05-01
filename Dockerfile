@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build-frontend
+FROM node:22-alpine AS build-frontend
 
 RUN mkdir -p /frontend
 WORKDIR /frontend
@@ -14,7 +14,7 @@ COPY tsconfig.json tsconfig.shared.json
 RUN mkdir -p /frontend/dist/frontend
 RUN yarn run build --configuration production
 
-FROM node:20-alpine AS build-api
+FROM node:22-alpine AS build-api
 
 RUN mkdir -p /api
 WORKDIR /api
@@ -30,7 +30,7 @@ RUN cp -r ./src/assets ./dist/assets
 RUN cp ./src/database/config.js ./dist/database/config.js
 RUN cp -r ./src/database/migrations ./dist/database/migrations
 
-FROM node:20-alpine as final
+FROM node:22-alpine as final
 
 RUN mkdir -p /web
 WORKDIR /web
