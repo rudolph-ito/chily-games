@@ -74,14 +74,20 @@
         </button>
       </ng-container>
       <ng-container *ngIf="isRoundActive()">
-        <button mat-icon-button matTooltip="View Scores" (click)="viewScores()">
-          <mat-icon>scoreboard</mat-icon>
+        <button
+          mat-icon-button
+          matTooltip="View Scores"
+          matTooltipPosition="right"
+          (click)="viewScores()"
+        >
+          <mat-icon>leaderboard</mat-icon>
         </button>
         <button
           *ngIf="canAbortGame()"
           mat-icon-button
           color="warn"
           matTooltip="Abort game"
+          matTooltipPosition="right"
           (click)="confirmAbortGame()"
         >
           <mat-icon>cancel</mat-icon>
@@ -91,6 +97,7 @@
           mat-icon-button
           color="primary"
           matTooltip="Done with turn"
+          matTooltipPosition="right"
           (click)="doneWithTurn()"
         >
           <mat-icon>check_circle</mat-icon>
@@ -100,6 +107,7 @@
           mat-icon-button
           color="primary"
           matTooltip="Revert to last valid"
+          matTooltipPosition="right"
           (click)="revertToLastValidUpdateSets()"
         >
           <mat-icon>undo</mat-icon>
