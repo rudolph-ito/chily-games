@@ -28,6 +28,7 @@ import {
 import { RummikubGameScoreboardDialogComponent } from "../rummikub-game-scoreboard-dialog/rummikub-game-scoreboard-dialog.component";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
 import { RummikubNewGameDialogComponent } from "../rummikub-new-game-dialog/rummikub-new-game-dialog.component";
+import { ErrorHandlerService } from "src/app/services/error.handler.service";
 
 @Component({
   selector: "app-rummikub-game-show",
@@ -52,7 +53,8 @@ export class RummikubGameShowComponent {
     private readonly authenticationService: AuthenticationService,
     private readonly snackBar: MatSnackBar,
     private readonly socket: WrappedSocket,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly errorHandlerService: ErrorHandlerService
   ) {}
 
   ngOnInit(): void {
@@ -60,15 +62,19 @@ export class RummikubGameShowComponent {
       this.user = u;
     });
     this.route.params.subscribe(() => {
-      if (this.game != null) {
-        this.socket.emit("rummikub-leave-game", this.game.gameId);
-        if (this.table != null) {
-          this.table.clear();
-        }
-      }
-      this.setupWebsocket();
-      this.loadGame();
+      this.resetGame();
     });
+  }
+
+  resetGame(): void {
+    if (this.game != null) {
+      this.socket.emit("rummikub-leave-game", this.game.gameId);
+      if (this.table != null) {
+        this.table.clear();
+      }
+    }
+    this.setupWebsocket();
+    this.loadGame();
   }
 
   loadGame(): void {
@@ -132,7 +138,12 @@ export class RummikubGameShowComponent {
         }
         this.game.version = event.version;
         if (this.game?.actionToUserId !== this.user?.userId) {
-          this.table.updateStateWithUpdateSets(event.updateSets, false);
+          try {
+            this.table.updateStateWithUpdateSets(event.updateSets, false);
+          } catch (e) {
+            this.errorHandlerService.handleError(e);
+            this.resetGame();
+          }
         }
       });
     this.socket
@@ -370,6 +381,7 @@ export class RummikubGameShowComponent {
           this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
+          this.resetGame();
         }
       },
     });
@@ -382,6 +394,7 @@ export class RummikubGameShowComponent {
           this.snackBar.open(errorResponse.error, undefined, {
             duration: 2500,
           });
+          this.resetGame();
         }
       },
     });
@@ -390,7 +403,12 @@ export class RummikubGameShowComponent {
   revertToLastValidUpdateSets(): void {
     this.gameService.revertToLastValidUpdateSets(this.getGameId()).subscribe({
       next: (updateSets: IUpdateSets) => {
-        this.table.updateStateWithUpdateSets(updateSets, true);
+        try {
+          this.table.updateStateWithUpdateSets(updateSets, true);
+        } catch (e) {
+          this.errorHandlerService.handleError(e);
+          this.resetGame();
+        }
       },
       error: (errorResponse: HttpErrorResponse) => {
         if (errorResponse.status === 422) {
