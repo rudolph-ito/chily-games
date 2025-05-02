@@ -17,7 +17,7 @@ import {
 import { ITile, TileColor } from "src/app/shared/dtos/rummikub/tile";
 import { Vector2d } from "konva/lib/types";
 import { Easings as KonvaEasings, Tween as KonvaTween } from "konva/lib/Tween";
-import { areTilesEqual } from "./tiles_helpers";
+import { findTilesIndexes } from "./tiles_helpers";
 import { computeUpdateSetsChanges } from "./change_helpers";
 import cardImages from "../../data/card_images";
 import { attemptMoveGroup } from "./move_helpers";
@@ -1016,17 +1016,7 @@ export class RummikubTable {
         }
         return display.tile;
       });
-    const pool = this.currentUpdateSets.tilesAdded;
-    const removedTileIndexes: number[] = [];
-    for (let i = 0; i < removedTiles.length; i++) {
-      const tile = removedTiles[i];
-      const removeTileIndex = pool.findIndex((x) => areTilesEqual(x, tile));
-      if (removeTileIndex == -1) {
-        return;
-      }
-      pool.splice(removeTileIndex, 1);
-      removedTileIndexes.push(i);
-    }
+    const removedTileIndexes = findTilesIndexes(this.currentUpdateSets.tilesAdded, removedTiles);
     const success = this.attemptMoveDisplaysAndUpdateOnSuccess(input);
     if (success) {
       this.recomputeCurrentUpdateSets(null, removedTileIndexes);
