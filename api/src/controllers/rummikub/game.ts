@@ -123,6 +123,22 @@ export function getGameRouter(
     }
   );
   router.put(
+    "/:gameId/revert-to-start-of-turn",
+    authenticationRequired,
+    function (req, res, next) {
+      const gameId = parseInt(req.params.gameId);
+      gameService
+        .revertToStartOfTurn((req.user as IUser).userId, gameId)
+        .then((output) => {
+          res.status(200).send(output.updateSets);
+          new SocketIoRedisEmitter(publishRedisClient)
+            .to(`rummikub-game-${gameId}`)
+            .emit("update-sets", output.event);
+        })
+        .catch(next);
+    }
+  );
+  router.put(
     "/:gameId/done-with-turn",
     authenticationRequired,
     function (req, res, next) {

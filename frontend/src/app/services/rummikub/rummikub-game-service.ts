@@ -93,6 +93,13 @@ export class RummikubGameService {
     );
   }
 
+  revertToStartOfTurn(gameId: number): Observable<IUpdateSets> {
+    return this.http.put<IUpdateSets>(
+      `${this.getRoutePrefix(gameId)}/revert-to-start-of-turn`,
+      null
+    );
+  }
+
   private getRoutePrefix(gameId: number): string {
     return `/api/rummikub/games/${gameId}`;
   }

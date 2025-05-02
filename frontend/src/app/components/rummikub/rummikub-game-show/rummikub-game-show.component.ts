@@ -309,7 +309,7 @@ export class RummikubGameShowComponent {
     );
   }
 
-  canRevertToLastValidUpdateSets(): boolean {
+  canRevertUpdateSets(): boolean {
     return (
       this.game !== null &&
       this.game.state == GameState.ROUND_ACTIVE &&
@@ -399,6 +399,26 @@ export class RummikubGameShowComponent {
       },
     });
   };
+
+  revertToStartOfTurn(): void {
+    this.gameService.revertToStartOfTurn(this.getGameId()).subscribe({
+      next: (updateSets: IUpdateSets) => {
+        try {
+          this.table.updateStateWithUpdateSets(updateSets, true);
+        } catch (e) {
+          this.errorHandlerService.handleError(e);
+          this.resetGame();
+        }
+      },
+      error: (errorResponse: HttpErrorResponse) => {
+        if (errorResponse.status === 422) {
+          this.snackBar.open(errorResponse.error, undefined, {
+            duration: 2500,
+          });
+        }
+      },
+    });
+  }
 
   revertToLastValidUpdateSets(): void {
     this.gameService.revertToLastValidUpdateSets(this.getGameId()).subscribe({

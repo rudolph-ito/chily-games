@@ -93,6 +93,26 @@
           <mat-icon>cancel</mat-icon>
         </button>
         <button
+          *ngIf="canRevertUpdateSets()"
+          mat-icon-button
+          color="primary"
+          matTooltip="Revert to start of turn"
+          matTooltipPosition="right"
+          (click)="revertToStartOfTurn()"
+        >
+          <mat-icon>first_page</mat-icon>
+        </button>
+        <button
+          *ngIf="canRevertUpdateSets()"
+          mat-icon-button
+          color="primary"
+          matTooltip="Revert to last valid"
+          matTooltipPosition="right"
+          (click)="revertToLastValidUpdateSets()"
+        >
+          <mat-icon>undo</mat-icon>
+        </button>
+        <button
           *ngIf="canBeDoneWithTurn()"
           mat-icon-button
           color="primary"
@@ -101,16 +121,6 @@
           (click)="doneWithTurn()"
         >
           <mat-icon>check_circle</mat-icon>
-        </button>
-        <button
-          *ngIf="canRevertToLastValidUpdateSets()"
-          mat-icon-button
-          color="primary"
-          matTooltip="Revert to last valid"
-          matTooltipPosition="right"
-          (click)="revertToLastValidUpdateSets()"
-        >
-          <mat-icon>undo</mat-icon>
         </button>
       </ng-container>
     </div>

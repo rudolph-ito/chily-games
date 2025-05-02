@@ -4,7 +4,7 @@ import { Rect as KonvaRect } from "konva/lib/shapes/Rect";
 import { Circle as KonvaCircle } from "konva/lib/shapes/Circle";
 import { Layer as KonvaLayer } from "konva/lib/Layer";
 import { Group as KonvaGroup } from "konva/lib/Group";
-import { TOTAL_COLUMNS } from "src/app/shared/constants/rummikub";
+import { BOARD_COLUMNS, BOARD_ROWS } from "src/app/shared/constants/rummikub";
 import {
   GameState,
   IDoneWithTurnResponse,
@@ -71,11 +71,10 @@ interface IAttemptMoveTileGroupInput {
 
 const TABLE_PADDING = 5;
 const ACTION_PADDING = 50;
-const TOTAL_ROWS = 10;
-const BOARD_NUM_ROWS = 8;
-const BOARD_NUM_TILES = BOARD_NUM_ROWS * TOTAL_COLUMNS;
-const CURRENT_USER_HAND_ROWS = TOTAL_ROWS - BOARD_NUM_ROWS;
-const CURRENT_USER_HAND_NUM_TILES = CURRENT_USER_HAND_ROWS * TOTAL_COLUMNS;
+const BOARD_NUM_TILES = BOARD_ROWS * BOARD_COLUMNS;
+const CURRENT_USER_HAND_ROWS = 2;
+const CURRENT_USER_HAND_NUM_TILES = CURRENT_USER_HAND_ROWS * BOARD_COLUMNS;
+const TOTAL_ROWS = BOARD_ROWS + CURRENT_USER_HAND_ROWS;
 const TOTAL_NUM_TILES = BOARD_NUM_TILES + CURRENT_USER_HAND_NUM_TILES;
 const TILE_WIDTH_OVER_HEIGHT_RATIO = 5 / 7;
 
@@ -377,7 +376,7 @@ export class RummikubTable {
     // - half a tile spacing between hand + board
     // - half a tile worth of spacing put between the rows on the board
     const maxHeight1 = tileAreaHeight / (TOTAL_ROWS + 1);
-    const maxWidth = tileAreaWidth / TOTAL_COLUMNS;
+    const maxWidth = tileAreaWidth / BOARD_COLUMNS;
     const maxHeight2 = maxWidth / TILE_WIDTH_OVER_HEIGHT_RATIO;
     const maxHeight = Math.min(maxHeight1, maxHeight2);
     this.tileSize = {
@@ -385,7 +384,7 @@ export class RummikubTable {
       width: maxHeight * TILE_WIDTH_OVER_HEIGHT_RATIO,
     };
     const extraHorizontalSpace =
-      (tileAreaWidth - this.tileSize.width * TOTAL_COLUMNS) / 2;
+      (tileAreaWidth - this.tileSize.width * BOARD_COLUMNS) / 2;
     const extraVerticalSpace =
       (tileAreaHeight - this.tileSize.height * (TOTAL_ROWS + 1)) / 2;
     this.gridOffset = {
@@ -826,16 +825,16 @@ export class RummikubTable {
   }
 
   private getBoardPosition(index: number): Vector2d {
-    const columnOffset = index % TOTAL_COLUMNS;
+    const columnOffset = index % BOARD_COLUMNS;
     const x = columnOffset * this.tileSize.width + this.gridOffset.x;
-    const rowOffset = Math.floor(index / TOTAL_COLUMNS);
+    const rowOffset = Math.floor(index / BOARD_COLUMNS);
     let y = rowOffset * this.tileSize.height + this.gridOffset.y;
     if (rowOffset > 0) {
-      const boardRowDividerHeight = this.tileSize.height / 2 / BOARD_NUM_ROWS;
-      const numberOfBoardRowDividers = Math.min(rowOffset, BOARD_NUM_ROWS);
+      const boardRowDividerHeight = this.tileSize.height / 2 / BOARD_ROWS;
+      const numberOfBoardRowDividers = Math.min(rowOffset, BOARD_ROWS);
       y += boardRowDividerHeight * numberOfBoardRowDividers;
     }
-    if (rowOffset >= BOARD_NUM_ROWS) {
+    if (rowOffset >= BOARD_ROWS) {
       y += this.tileSize.height / 2;
     }
     return { x, y };
@@ -940,7 +939,7 @@ export class RummikubTable {
   ): boolean {
     const result = attemptMoveGroup({
       list: this.tileDisplays,
-      rowSize: TOTAL_COLUMNS,
+      rowSize: BOARD_COLUMNS,
       firstItemOldIndex: input.firstTileOldIndex,
       firstItemNewIndex: input.firstTileNewIndex,
       groupSize: input.tileGroupSize,
