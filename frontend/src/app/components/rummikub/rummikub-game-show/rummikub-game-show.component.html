@@ -74,7 +74,12 @@
         </button>
       </ng-container>
       <ng-container *ngIf="isRoundActive()">
-        <button mat-icon-button matTooltip="View Scores" matTooltipPosition="right" (click)="viewScores()">
+        <button
+          mat-icon-button
+          matTooltip="View Scores"
+          matTooltipPosition="right"
+          (click)="viewScores()"
+        >
           <mat-icon>leaderboard</mat-icon>
         </button>
         <button
