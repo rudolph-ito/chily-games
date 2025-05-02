@@ -1016,7 +1016,10 @@ export class RummikubTable {
         }
         return display.tile;
       });
-    const removedTileIndexes = findTilesIndexes(this.currentUpdateSets.tilesAdded, removedTiles);
+    const removedTileIndexes = findTilesIndexes(
+      this.currentUpdateSets.tilesAdded,
+      removedTiles
+    );
     const success = this.attemptMoveDisplaysAndUpdateOnSuccess(input);
     if (success) {
       this.recomputeCurrentUpdateSets(null, removedTileIndexes);

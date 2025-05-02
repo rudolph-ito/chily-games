@@ -13,11 +13,13 @@ export function findTilesIndexes(pool: ITile[], list: ITile[]): number[] {
   const indexes: number[] = [];
   for (let i = 0; i < list.length; i++) {
     const tile = list[i];
-    const index = pool.findIndex((x, j) => areTilesEqual(x, tile) && !indexes.includes(j));
+    const index = pool.findIndex(
+      (x, j) => areTilesEqual(x, tile) && !indexes.includes(j)
+    );
     if (index == -1) {
       throw new Error("Unexpected tile not found");
     }
     indexes.push(index);
   }
-  return indexes
+  return indexes;
 }
