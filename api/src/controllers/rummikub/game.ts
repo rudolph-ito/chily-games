@@ -8,6 +8,7 @@ import { Emitter as SocketIoRedisEmitter } from "@socket.io/redis-emitter";
 import {
   INewGameStartedEvent,
   IPlayerJoinedEvent,
+  RevertUpdateSetsType,
 } from "src/shared/dtos/rummikub/game";
 import { SimpleRedisClient } from "src/redis";
 
@@ -107,12 +108,16 @@ export function getGameRouter(
     }
   );
   router.put(
-    "/:gameId/revert-to-last-valid-update-sets",
+    "/:gameId/revert-update-sets",
     authenticationRequired,
     function (req, res, next) {
       const gameId = parseInt(req.params.gameId);
       gameService
-        .revertToLastValidUpdateSets((req.user as IUser).userId, gameId)
+        .revertUpdateSets(
+          (req.user as IUser).userId,
+          gameId,
+          req.query.type as RevertUpdateSetsType
+        )
         .then((output) => {
           res.status(200).send(output.updateSets);
           new SocketIoRedisEmitter(publishRedisClient)

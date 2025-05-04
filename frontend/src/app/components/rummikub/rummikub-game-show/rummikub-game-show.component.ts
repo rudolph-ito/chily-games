@@ -20,6 +20,7 @@ import {
   IPlayerUpdatedSetsEvent,
   IRoundFinishedEvent,
   IUpdateSets,
+  RevertUpdateSetsType,
 } from "src/app/shared/dtos/rummikub/game";
 import {
   ConfirmationDialogComponent,
@@ -43,6 +44,7 @@ export class RummikubGameShowComponent {
   table: RummikubTable;
   newGameStartedEvent: INewGameStartedEvent | null;
   socketDisconnected = false;
+  enum_RevertUpdateSetsType = RevertUpdateSetsType;
 
   @ViewChild("tableContainer") tableContainer: ElementRef;
 
@@ -309,7 +311,7 @@ export class RummikubGameShowComponent {
     );
   }
 
-  canRevertToLastValidUpdateSets(): boolean {
+  canRevertUpdateSets(): boolean {
     return (
       this.game !== null &&
       this.game.state == GameState.ROUND_ACTIVE &&
@@ -400,8 +402,8 @@ export class RummikubGameShowComponent {
     });
   };
 
-  revertToLastValidUpdateSets(): void {
-    this.gameService.revertToLastValidUpdateSets(this.getGameId()).subscribe({
+  revertUpdateSets(revertType: RevertUpdateSetsType): void {
+    this.gameService.revertUpdateSets(this.getGameId(), revertType).subscribe({
       next: (updateSets: IUpdateSets) => {
         try {
           this.table.updateStateWithUpdateSets(updateSets, true);

@@ -20,6 +20,7 @@ import {
   INullableTile,
   IPlayerUpdatedSetsEvent,
   IScoreSystem,
+  RevertUpdateSetsType,
 } from "../../shared/dtos/rummikub/game";
 import {
   GameVersionOutOfDateError,
@@ -35,7 +36,7 @@ import {
   IUserDataService,
   UserDataService,
 } from "../shared/data/user_data_service";
-import { TOTAL_COLUMNS } from "../../shared/constants/rummikub";
+import { BOARD_COLUMNS, BOARD_ROWS } from "../../shared/constants/rummikub";
 import { ITile } from "../../shared/dtos/rummikub/tile";
 import {
   areTileSetsEquivalent,
@@ -47,7 +48,7 @@ import { getTilesScore } from "./score_helpers";
 
 const isNotNull = <T>(value: T | null): value is T => value !== null;
 
-export interface IRevertToLastValidUpdateSetsOutput {
+export interface IRevertUpdateSetsOutput {
   updateSets: IUpdateSets;
   event: IPlayerUpdatedSetsEvent;
 }
@@ -67,10 +68,11 @@ export interface IRummikubGameService {
     gameId: number,
     updateSets: IUpdateSets
   ) => Promise<IPlayerUpdatedSetsEvent>;
-  revertToLastValidUpdateSets: (
+  revertUpdateSets: (
     userId: number,
-    gameId: number
-  ) => Promise<IRevertToLastValidUpdateSetsOutput>;
+    gameId: number,
+    revertType: RevertUpdateSetsType
+  ) => Promise<IRevertUpdateSetsOutput>;
   rearrangeTiles: (
     userId: number,
     gameId: number,
@@ -162,7 +164,7 @@ export class RummikubGameService implements IRummikubGameService {
     }
     game = await this.gameDataService.update(gameId, game.version, {
       state: GameState.ROUND_ACTIVE,
-      sets: [],
+      sets: Array(BOARD_ROWS * BOARD_COLUMNS),
       tilePool,
       players: updatedPlayers,
     });
@@ -276,11 +278,18 @@ export class RummikubGameService implements IRummikubGameService {
     });
   }
 
-  async revertToLastValidUpdateSets(
+  async revertUpdateSets(
     userId: number,
-    gameId: number
-  ): Promise<IRevertToLastValidUpdateSetsOutput> {
+    gameId: number,
+    revertType: RevertUpdateSetsType
+  ): Promise<IRevertUpdateSetsOutput> {
     return this.retryOnGameVersionOutOfDate(async () => {
+      if (
+        revertType != RevertUpdateSetsType.LAST_VALID &&
+        revertType != RevertUpdateSetsType.START_OF_TURN
+      ) {
+        throw new ValidationError(`Unsupported revert type: ${revertType}`);
+      }
       const game = await this.gameDataService.get(gameId);
       if (game.state !== GameState.ROUND_ACTIVE) {
         throw new ValidationError("Round is not active.");
@@ -288,19 +297,33 @@ export class RummikubGameService implements IRummikubGameService {
       if (game.actionToUserId !== userId) {
         throw new ValidationError("Action is not to you.");
       }
-      if (game.latestUpdateSets == null) {
-        throw new ValidationError("Nothing to revert.");
+      if (
+        revertType == RevertUpdateSetsType.LAST_VALID &&
+        game.latestUpdateSets == null
+      ) {
+        throw new ValidationError("Nothing to revert (current is valid).");
       }
+      if (
+        revertType == RevertUpdateSetsType.START_OF_TURN &&
+        game.latestUpdateSets == null &&
+        game.lastValidUpdateSets == null
+      ) {
+        throw new ValidationError(
+          "Nothing to revert (current is same as start of turn)."
+        );
+      }
+      const updates =
+        revertType == RevertUpdateSetsType.LAST_VALID
+          ? { latestUpdateSets: null }
+          : { latestUpdateSets: null, lastValidUpdateSets: null };
       const updatedGame = await this.gameDataService.update(
         gameId,
         game.version,
-        {
-          latestUpdateSets: null,
-        }
+        updates
       );
       const newUpdateSets =
-        game.lastValidUpdateSets != null
-          ? game.lastValidUpdateSets
+        revertType == RevertUpdateSetsType.LAST_VALID
+          ? (game.lastValidUpdateSets as IUpdateSets)
           : this.getLastCommittedUpdateSets(game, userId);
       return {
         updateSets: newUpdateSets,
@@ -766,7 +789,7 @@ export class RummikubGameService implements IRummikubGameService {
       } else {
         currentGroup.push(currentTile);
       }
-      if ((i + 1) % TOTAL_COLUMNS == 0 && currentGroup.length > 0) {
+      if ((i + 1) % BOARD_COLUMNS == 0 && currentGroup.length > 0) {
         result.push(currentGroup);
         currentGroup = [];
       }

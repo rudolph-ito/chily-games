@@ -9,6 +9,7 @@ import {
   ISearchedGame,
   ISearchGamesRequest,
   IUpdateSets,
+  RevertUpdateSetsType,
 } from "../../shared/dtos/rummikub/game";
 import { ITile } from "src/app/shared/dtos/rummikub/tile";
 
@@ -86,10 +87,14 @@ export class RummikubGameService {
     );
   }
 
-  revertToLastValidUpdateSets(gameId: number): Observable<IUpdateSets> {
+  revertUpdateSets(
+    gameId: number,
+    revertType: RevertUpdateSetsType
+  ): Observable<IUpdateSets> {
     return this.http.put<IUpdateSets>(
-      `${this.getRoutePrefix(gameId)}/revert-to-last-valid-update-sets`,
-      null
+      `${this.getRoutePrefix(gameId)}/revert-update-sets`,
+      null,
+      { params: { type: revertType } }
     );
   }
 
