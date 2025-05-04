@@ -20,6 +20,7 @@ import {
   INullableTile,
   IPlayerUpdatedSetsEvent,
   IScoreSystem,
+  RevertUpdateSetsType,
 } from "../../shared/dtos/rummikub/game";
 import {
   GameVersionOutOfDateError,
@@ -52,11 +53,6 @@ export interface IRevertUpdateSetsOutput {
   event: IPlayerUpdatedSetsEvent;
 }
 
-export enum RevertUpdateSetsType {
-  LAST_VALID,
-  START_OF_TURN,
-}
-
 export interface IRummikubGameService {
   abort: (userId: number, gameId: number) => Promise<IGame>;
   create: (userId: number, options: IGameOptions) => Promise<IGame>;
@@ -72,13 +68,10 @@ export interface IRummikubGameService {
     gameId: number,
     updateSets: IUpdateSets
   ) => Promise<IPlayerUpdatedSetsEvent>;
-  revertToLastValidUpdateSets: (
+  revertUpdateSets: (
     userId: number,
-    gameId: number
-  ) => Promise<IRevertUpdateSetsOutput>;
-  revertToStartOfTurn: (
-    userId: number,
-    gameId: number
+    gameId: number,
+    revertType: RevertUpdateSetsType
   ) => Promise<IRevertUpdateSetsOutput>;
   rearrangeTiles: (
     userId: number,
@@ -285,34 +278,18 @@ export class RummikubGameService implements IRummikubGameService {
     });
   }
 
-  async revertToLastValidUpdateSets(
-    userId: number,
-    gameId: number
-  ): Promise<IRevertUpdateSetsOutput> {
-    return this.revertUpdateSets(
-      userId,
-      gameId,
-      RevertUpdateSetsType.LAST_VALID
-    );
-  }
-
-  async revertToStartOfTurn(
-    userId: number,
-    gameId: number
-  ): Promise<IRevertUpdateSetsOutput> {
-    return this.revertUpdateSets(
-      userId,
-      gameId,
-      RevertUpdateSetsType.START_OF_TURN
-    );
-  }
-
   async revertUpdateSets(
     userId: number,
     gameId: number,
     revertType: RevertUpdateSetsType
   ): Promise<IRevertUpdateSetsOutput> {
     return this.retryOnGameVersionOutOfDate(async () => {
+      if (
+        revertType != RevertUpdateSetsType.LAST_VALID &&
+        revertType != RevertUpdateSetsType.START_OF_TURN
+      ) {
+        throw new ValidationError(`Unsupported revert type: ${revertType}`);
+      }
       const game = await this.gameDataService.get(gameId);
       if (game.state !== GameState.ROUND_ACTIVE) {
         throw new ValidationError("Round is not active.");
@@ -321,13 +298,19 @@ export class RummikubGameService implements IRummikubGameService {
         throw new ValidationError("Action is not to you.");
       }
       if (
-        (revertType == RevertUpdateSetsType.LAST_VALID &&
-          game.latestUpdateSets == null) ||
-        (revertType == RevertUpdateSetsType.START_OF_TURN &&
-          game.latestUpdateSets == null &&
-          game.lastValidUpdateSets == null)
+        revertType == RevertUpdateSetsType.LAST_VALID &&
+        game.latestUpdateSets == null
       ) {
-        throw new ValidationError("Nothing to revert.");
+        throw new ValidationError("Nothing to revert (current is valid).");
+      }
+      if (
+        revertType == RevertUpdateSetsType.START_OF_TURN &&
+        game.latestUpdateSets == null &&
+        game.lastValidUpdateSets == null
+      ) {
+        throw new ValidationError(
+          "Nothing to revert (current is same as start of turn)."
+        );
       }
       const updates =
         revertType == RevertUpdateSetsType.LAST_VALID
@@ -340,9 +323,7 @@ export class RummikubGameService implements IRummikubGameService {
       );
       const newUpdateSets =
         revertType == RevertUpdateSetsType.LAST_VALID
-          ? game.lastValidUpdateSets != null
-            ? game.lastValidUpdateSets
-            : this.getLastCommittedUpdateSets(game, userId)
+          ? (game.lastValidUpdateSets as IUpdateSets)
           : this.getLastCommittedUpdateSets(game, userId);
       return {
         updateSets: newUpdateSets,

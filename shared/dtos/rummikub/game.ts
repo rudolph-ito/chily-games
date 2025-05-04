@@ -130,3 +130,8 @@ export interface ISearchGamesRequest {
   filter: ISearchGamesFilterRequest;
   pagination: IPaginationRequest;
 }
+
+export enum RevertUpdateSetsType {
+  LAST_VALID = "last_valid",
+  START_OF_TURN = "start_of_turn",
+}

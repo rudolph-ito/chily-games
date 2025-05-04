@@ -5,12 +5,16 @@ import {
 } from "../../../test/test_helper";
 import { NotFoundError, ValidationError } from "../shared/exceptions";
 import { RummikubGameDataService } from "./data/rummikub_game_data_service";
-import { RummikubGameService } from "./rummikub_game_service";
+import {
+  IRevertUpdateSetsOutput,
+  RummikubGameService,
+} from "./rummikub_game_service";
 import {
   GameState,
   IGame,
   IDoneWithTurnResponse,
   IUpdateSets,
+  RevertUpdateSetsType,
 } from "../../shared/dtos/rummikub/game";
 import { createTestRummikubGame } from "../../../test/rummikub_test_helper";
 import { TileColor } from "../../shared/dtos/rummikub/tile";
@@ -19,6 +23,17 @@ import { describe, it, expect } from "@jest/globals";
 interface ITestSaveLatestUpdateSetsResult {
   error?: Error;
   game?: IGame;
+}
+
+interface ITestRevertUpdateSetsResult {
+  error?: Error;
+  result?: IRevertUpdateSetsOutput;
+  game?: IGame;
+}
+
+interface ITestRevertUpdateSetsSuccessResult {
+  result: IRevertUpdateSetsOutput;
+  game: IGame;
 }
 
 interface ITestDoneWithTurnResult {
@@ -83,6 +98,69 @@ async function testSaveLatestUpdateSetsExpectSuccess(
     throw new Error(`Expected game but is null`);
   }
   return game;
+}
+
+async function testRevertUpdateSets(
+  userId: number,
+  gameId: number,
+  revertType: RevertUpdateSetsType
+): Promise<ITestRevertUpdateSetsResult> {
+  let error: Error | undefined;
+  let game: IGame | undefined;
+  let result: IRevertUpdateSetsOutput | undefined;
+  try {
+    result = await new RummikubGameService().revertUpdateSets(
+      userId,
+      gameId,
+      revertType
+    );
+    game = await new RummikubGameService().get(userId, gameId);
+  } catch (e) {
+    error = e;
+  }
+  return { result, game, error };
+}
+
+async function testRevertUpdateSetsExpectError(
+  userId: number,
+  gameId: number,
+  revertType: RevertUpdateSetsType
+): Promise<Error> {
+  const { result, error } = await testRevertUpdateSets(
+    userId,
+    gameId,
+    revertType
+  );
+  if (error == null) {
+    throw new Error(
+      `Expected error but didn't get one, result: ${JSON.stringify(result)}`
+    );
+  }
+  return error;
+}
+
+async function testRevertUpdateSetsExpectSuccess(
+  userId: number,
+  gameId: number,
+  revertType: RevertUpdateSetsType
+): Promise<ITestRevertUpdateSetsSuccessResult> {
+  const { error, game, result } = await testRevertUpdateSets(
+    userId,
+    gameId,
+    revertType
+  );
+  if (error != null) {
+    throw new Error(
+      `Expected no error but got one, error: ${error.stack ?? error.message}`
+    );
+  }
+  if (game == null) {
+    throw new Error(`Expected game but is null`);
+  }
+  if (result == null) {
+    throw new Error(`Expected result but is null`);
+  }
+  return { game, result };
 }
 
 async function testDoneWithTurn(
@@ -1749,6 +1827,278 @@ describe("RummikubGameService", () => {
           tiles: [{ rank: 2, color: TileColor.BLUE }],
         },
       ]);
+    });
+  });
+
+  describe("revert update sets", () => {
+    it("throws a validation error if game not found", async () => {
+      // arrange
+      const userCreds = createTestCredentials("test");
+      const userId = await createTestUser(userCreds);
+      const gameId = 1;
+
+      // act
+      const error = await testRevertUpdateSetsExpectError(
+        userId,
+        gameId,
+        RevertUpdateSetsType.LAST_VALID
+      );
+
+      // assert
+      expect(error).toBeInstanceOf(NotFoundError);
+      expect(error.message).toEqual(`Game does not exist with id: ${gameId}`);
+    });
+
+    it("throws a validation error if round is not active", async () => {
+      // arrange
+      const {
+        userIds: [user1Id],
+        gameId,
+      } = await createTestRummikubGame({
+        state: GameState.ROUND_COMPLETE,
+        sets: [],
+        playerTiles: [[], []],
+        tilePool: [],
+      });
+
+      // act
+      const error = await testRevertUpdateSetsExpectError(
+        user1Id,
+        gameId,
+        RevertUpdateSetsType.LAST_VALID
+      );
+
+      // assert
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error?.message).toEqual(
+        'Validation errors: "Round is not active."'
+      );
+    });
+
+    it("throws a validation error if action is not to user", async () => {
+      // arrange
+      const {
+        userIds: [, user2Id],
+        gameId,
+      } = await createTestRummikubGame({
+        sets: [],
+        playerTiles: [[], []],
+        tilePool: [],
+      });
+
+      // act
+      const error = await testRevertUpdateSetsExpectError(
+        user2Id,
+        gameId,
+        RevertUpdateSetsType.LAST_VALID
+      );
+
+      // assert
+      expect(error).toBeInstanceOf(ValidationError);
+      expect(error.message).toEqual(
+        'Validation errors: "Action is not to you."'
+      );
+    });
+
+    describe("last valid", () => {
+      it("throws a validation error if nothing to revert", async () => {
+        // arrange
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [],
+          playerTiles: [[], []],
+          tilePool: [],
+        });
+
+        // act
+        const error = await testRevertUpdateSetsExpectError(
+          user1Id,
+          gameId,
+          RevertUpdateSetsType.LAST_VALID
+        );
+
+        // assert
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error.message).toEqual(
+          'Validation errors: "Nothing to revert (current is valid)."'
+        );
+      });
+
+      it("updates state appropriately", async () => {
+        // arrange
+        const lastValidUpdateSets: IUpdateSets = {
+          sets: [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+            { rank: 10, color: TileColor.BLACK },
+          ],
+          tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+          remainingTiles: [
+            { rank: 2, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+        };
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+          lastValidUpdateSets,
+          latestUpdateSets: {
+            sets: [
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              null,
+              { rank: 10, color: TileColor.BLACK },
+            ],
+            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [
+              { rank: 2, color: TileColor.BLACK },
+              { rank: 1, color: TileColor.RED },
+            ],
+          },
+          playerTiles: [
+            [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 2, color: TileColor.BLACK },
+              { rank: 1, color: TileColor.RED },
+            ],
+            [{ rank: 3, color: TileColor.BLUE }],
+          ],
+          tilePool: [],
+        });
+
+        // act
+        const { result, game } = await testRevertUpdateSetsExpectSuccess(
+          user1Id,
+          gameId,
+          RevertUpdateSetsType.LAST_VALID
+        );
+
+        // assert
+        expect(result.event.updateSets).toEqual({
+          ...lastValidUpdateSets,
+          remainingTiles: [],
+        });
+        expect(result.updateSets).toEqual(lastValidUpdateSets);
+        expect(game.latestUpdateSets).toEqual(null);
+        expect(game.lastValidUpdateSets).toEqual(lastValidUpdateSets);
+      });
+    });
+
+    describe("start of turn", () => {
+      it("throws a validation error if nothing to revert", async () => {
+        // arrange
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [],
+          playerTiles: [[], []],
+          tilePool: [],
+        });
+
+        // act
+        const error = await testRevertUpdateSetsExpectError(
+          user1Id,
+          gameId,
+          RevertUpdateSetsType.START_OF_TURN
+        );
+
+        // assert
+        expect(error).toBeInstanceOf(ValidationError);
+        expect(error.message).toEqual(
+          'Validation errors: "Nothing to revert (current is same as start of turn)."'
+        );
+      });
+
+      it("updates state appropriately", async () => {
+        // arrange
+
+        const {
+          userIds: [user1Id],
+          gameId,
+        } = await createTestRummikubGame({
+          sets: [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+          lastValidUpdateSets: {
+            sets: [
+              { rank: 10, color: TileColor.YELLOW },
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
+            ],
+            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [
+              { rank: 2, color: TileColor.BLACK },
+              { rank: 1, color: TileColor.RED },
+            ],
+          },
+          latestUpdateSets: {
+            sets: [
+              { rank: 10, color: TileColor.YELLOW },
+              null,
+              { rank: 10, color: TileColor.RED },
+              { rank: 10, color: TileColor.BLUE },
+              { rank: 10, color: TileColor.BLACK },
+            ],
+            tilesAdded: [{ rank: 10, color: TileColor.BLACK }],
+            remainingTiles: [
+              { rank: 2, color: TileColor.BLACK },
+              { rank: 1, color: TileColor.RED },
+            ],
+          },
+          playerTiles: [
+            [
+              { rank: 10, color: TileColor.BLACK },
+              { rank: 2, color: TileColor.BLACK },
+              { rank: 1, color: TileColor.RED },
+            ],
+            [{ rank: 3, color: TileColor.BLUE }],
+          ],
+          tilePool: [],
+        });
+
+        // act
+        const { result, game } = await testRevertUpdateSetsExpectSuccess(
+          user1Id,
+          gameId,
+          RevertUpdateSetsType.START_OF_TURN
+        );
+
+        // assert
+        const newUpdateSets: IUpdateSets = {
+          sets: [
+            { rank: 10, color: TileColor.YELLOW },
+            { rank: 10, color: TileColor.RED },
+            { rank: 10, color: TileColor.BLUE },
+          ],
+          tilesAdded: [],
+          remainingTiles: [
+            { rank: 10, color: TileColor.BLACK },
+            { rank: 2, color: TileColor.BLACK },
+            { rank: 1, color: TileColor.RED },
+          ],
+        };
+        expect(result.event.updateSets).toEqual({
+          ...newUpdateSets,
+          remainingTiles: [],
+        });
+        expect(result.updateSets).toEqual(newUpdateSets);
+        expect(game.latestUpdateSets).toEqual(null);
+        expect(game.lastValidUpdateSets).toEqual(null);
+      });
     });
   });
 });
