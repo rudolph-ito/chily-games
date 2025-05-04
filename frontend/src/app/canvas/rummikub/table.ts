@@ -1137,27 +1137,42 @@ export class RummikubTable {
     });
   }
 
-  private getDraggedTileNewIndex(position: Vector2d): number {
+  private getDraggedTileNewIndex(tileTopLeft: Vector2d): number {
     if (this.gameState != GameState.ROUND_ACTIVE) {
       return -1;
     }
-    const { x: newX, y: newY } = position;
+    const tileCenter = {
+      x: tileTopLeft.x + (this.tileSize.width * 0.9) / 2,
+      y: tileTopLeft.y + (this.tileSize.height * 0.9) / 2,
+    };
+    const maxDistanceForMatch =
+      Math.min(this.tileSize.width, this.tileSize.height) / 2;
+    let leastDistance = -1;
+    let leastDistanceIndex = -1;
     for (
       let index = 0;
       index < BOARD_NUM_TILES + CURRENT_USER_HAND_NUM_TILES;
       index++
     ) {
-      const { x, y } = this.getBoardPosition(index);
+      const dropSite = this.boardGridDropSites[index];
+      const dropSiteTopLeft = dropSite.border.position();
+      const dropSiteCenter: Vector2d = {
+        x: dropSiteTopLeft.x + dropSite.border.width() / 2,
+        y: dropSiteTopLeft.y + dropSite.border.height() / 2,
+      };
+      const distance = Math.sqrt(
+        Math.pow(dropSiteCenter.x - tileCenter.x, 2) +
+          Math.pow(dropSiteCenter.y - tileCenter.y, 2)
+      );
       if (
-        newX > x - this.tileSize.width * 0.2 &&
-        newX < x + this.tileSize.width * 0.8 &&
-        newY > y - this.tileSize.height * 0.2 &&
-        newY < y + this.tileSize.height * 0.8
+        (leastDistance == -1 && distance < maxDistanceForMatch) ||
+        distance < leastDistance
       ) {
-        return index;
+        leastDistance = distance;
+        leastDistanceIndex = index;
       }
     }
-    return -1;
+    return leastDistanceIndex;
   }
 
   private getCurrentPlayerTiles(): INullableTile[] {
