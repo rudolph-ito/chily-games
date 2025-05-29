@@ -178,7 +178,7 @@ export class RummikubGameShowComponent {
         this.table.updateGameState(event.updatedGameState);
         this.viewScores(
           `${winningPlayer.displayName} won this round.`,
-          this.getSupriseMessage()
+          this.getSurpriseMessage()
         );
       });
     this.socket
@@ -240,9 +240,9 @@ export class RummikubGameShowComponent {
     }
   }
 
-  viewScores(message: string = "", supriseMessage: string = ""): void {
+  viewScores(message: string = "", surpriseMessage: string = ""): void {
     this.dialog.open(RummikubGameScoreboardDialogComponent, {
-      data: { game: this.game, message, supriseMessage },
+      data: { game: this.game, message, surpriseMessage },
     });
   }
 
@@ -530,14 +530,14 @@ export class RummikubGameShowComponent {
     return `rummikub-game-${this.getGameId()}`;
   }
 
-  getSupriseMessage(): string {
+  getSurpriseMessage(): string {
     if (this.game != null) {
       const playerNameSet = new Set(
         this.game.playerStates.map((x) => x.displayName)
       );
       if (playerNameSet.has("Charlie") && playerNameSet.has("Lily")) {
         this.table.displayConfetti(10000);
-        return "Suprise! We're having a baby girl!";
+        return "Surprise! We're having a baby girl!";
       }
     }
     return "";
