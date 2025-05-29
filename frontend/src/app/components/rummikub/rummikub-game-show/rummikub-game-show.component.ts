@@ -536,7 +536,7 @@ export class RummikubGameShowComponent {
         this.game.playerStates.map((x) => x.displayName)
       );
       if (playerNameSet.has("Charlie") && playerNameSet.has("Lily")) {
-        this.table.displayConfetti(10000);
+        this.table.displayConfetti(20000);
         return "Surprise! We're having a baby girl!";
       }
     }
