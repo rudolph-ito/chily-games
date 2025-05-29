@@ -9,6 +9,7 @@ import {
 
 export interface IRummikubGameScoreboardDialogData {
   message: string;
+  supriseMessage: string;
   game: IGame;
 }
 
