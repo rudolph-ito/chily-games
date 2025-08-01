@@ -20,7 +20,7 @@
     "@angular/platform-browser": "18.2.13",
     "@angular/platform-browser-dynamic": "18.2.13",
     "@angular/router": "18.2.13",
-    "konva": "8.4.3",
+    "konva": "9.3.22",
     "moment": "2.30.1",
     "ngx-timeago": "3.0.0",
     "rxjs": "7.8.2",
