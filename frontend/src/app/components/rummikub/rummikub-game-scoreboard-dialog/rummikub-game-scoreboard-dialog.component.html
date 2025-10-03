@@ -1,9 +1,6 @@
 <div mat-dialog-title>Scoreboard</div>
 <mat-dialog-content>
   <div *ngIf="data.message !== ''" class="message">{{ data.message }}</div>
-  <div *ngIf="data.surpriseMessage !== ''" class="surprise-message">
-    {{ data.surpriseMessage }}
-  </div>
   <table mat-table [dataSource]="scoresDataSource">
     <ng-container
       *ngFor="let playerState of data.game.playerStates"

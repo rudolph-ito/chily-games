@@ -1212,47 +1212,4 @@ export class RummikubTable {
       y: rect.height() / image.height,
     });
   }
-
-  public displayConfetti(runtime: number): void {
-    if (runtime < 0) {
-      return;
-    }
-    const pieceCount = 50;
-    const xStep = this.container.offsetWidth / pieceCount + 1;
-    for (let i = 0; i < pieceCount; i++) {
-      setTimeout(() => {
-        this.createAndAnimateConfettiPiece(xStep, i, Math.random());
-      }, Math.random() * 100);
-    }
-    setTimeout(() => this.displayConfetti(runtime - 500), 500);
-  }
-
-  createAndAnimateConfettiPiece(
-    xStep: number,
-    i: number,
-    rotationFraction: number
-  ): void {
-    const piece = new KonvaRect({
-      stroke: "black",
-      strokeWidth: 1,
-      fill: "pink",
-      width: 10,
-      height: 10,
-      rotationDeg: 360 * rotationFraction,
-    });
-    piece.setPosition({
-      x: xStep * (i + 0.5),
-      y: 0,
-    });
-    this.layer.add(piece);
-    const tween = new KonvaTween({
-      node: piece,
-      duration: ANIMATION_SECONDS * 2,
-      easing: KonvaEasings.Linear,
-      x: xStep * (i + 0.5),
-      y: this.container.offsetHeight,
-      onFinish: () => piece.remove(),
-    });
-    tween.play();
-  }
 }
