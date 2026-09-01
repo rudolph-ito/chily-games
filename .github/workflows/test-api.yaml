@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install top level dependencies
         run: yarn --frozen-lockfile
       - name: Copy shared code
